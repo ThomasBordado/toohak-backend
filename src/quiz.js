@@ -8,8 +8,8 @@ function adminQuizList(authUserId) {
     quizzes: [
       {
         quizId:1,
-        name: 'My Quiz'
+        name: 'My Quiz',
       }
     ]
-  }
+  };
 }
