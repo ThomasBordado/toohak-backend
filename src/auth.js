@@ -5,7 +5,7 @@
  * @param {string} nameFirst - User's first name
  * @param {string} nameLast - User's last name
  * 
- * @returns {integer} authUserId - unique identifier for an academic
+ * @returns {integer} authUserId - unique identifier for an academic, registering with email, password and name.
  */
 function adminAuthRegister(email, password, nameFirst, nameLast) {
     return {
@@ -18,7 +18,7 @@ function adminAuthRegister(email, password, nameFirst, nameLast) {
  * @param {string} email - User's email
  * @param {string} password - User's password
  * 
- * @returns {integer} authUserId - unique identifier for an academic
+ * @returns {integer} authUserId - unique identifier for an academic, given email and password
  */
 function adminAuthLogin(email, password) {
     return {
@@ -32,7 +32,8 @@ function adminAuthLogin(email, password) {
  * @param {integer} authUserId - unique indentifier for an academic
  * 
  * @returns {object} {user:{userId: 1, name: 'Hayden Smith', email: 'hayden.smith@unsw.edu.au', numSuccessfulLogins: 3, numFailedPasswordsSinceLastLogin: 1,}} -
- * Object containing: userId, name, email, numSuccessfulLogin and numFailedPasswordsSinceLastLogin.
+ * Object containing user details
+ * 
  */
 function adminUserDetails(authUserId) {
     return {
