@@ -12,3 +12,16 @@ function adminAuthRegister(email, password, nameFirst, nameLast) {
         authUserId: 1,
     };
 }
+
+/**
+ * Given a registered user's email and password returns their authUserId value.
+ * @param {string} email - User's email
+ * @param {string} password - User's password
+ * 
+ * @param {integer} authUserId - unique identifier for an academic
+ */
+function adminAuthLogin(email, password) {
+    return {
+        authUserId: 1,
+    };
+}
