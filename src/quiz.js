@@ -8,10 +8,10 @@ function adminQuizList(authUserId) {
     quizzes: [
       {
         quizId:1,
-        name: 'My Quiz'
+        name: 'My Quiz',
       }
     ]
-  }
+  };
 }
 
 /**
@@ -21,9 +21,9 @@ function adminQuizList(authUserId) {
  * @param {string} description - quiz description
  * @returns {{quizId: number}} - for valid authUserID, name and discription
  */
-function adminQuizList(authUserId, name, description) {
+function adminQuizCreate(authUserId, name, description) {
   return {
     quizId: 2
-  }
+  };
 }
 
