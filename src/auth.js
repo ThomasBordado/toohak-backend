@@ -8,3 +8,14 @@ function adminAuthRegister(email, password, nameFirst, nameLast) {
         authUserId: 1,
     };
 }
+
+/* 
+ * Function stub for adminAuthLogin
+ * Given a registered user's email and password returns
+ * their authUserId value.
+ */
+function adminAuthLogin(email, password) {
+    return {
+        authUserId: 1,
+    };
+}
