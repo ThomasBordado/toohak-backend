@@ -37,8 +37,7 @@ function adminQuizRemove(authUserId, quizId) {
   return {};
 }
 
-/**
- * Get all of the relevant information about the current quiz.
+/** Get all of the relevant information about the current quiz.
  * @param {number} authUserId - unique identifier for an academic
  * @param {number} quizId - unique identifier for a quiz
  * @returns {{quizId: number, name: string, timeCreated: number, timeLastEdited: number, description: string}} - for valid authUserId and quizId
@@ -62,4 +61,17 @@ function adminQuizInfo(authUserId, quizId) {
  */
 function adminQuizNameUpdate(authUserID, quizId, name) {
   return {};
+}
+
+/**
+ * Update the description of the relevant quiz.
+ * @param {number} authUserId - unique identifier for an academic
+ * @param {number} quizId - unique identifier for a quiz
+ * @param {string} desciption - description of quiz
+ * @returns {} - Updates quiz desciption
+ */
+function adminQuizDescriptionUpdate(authUserId, quizId, description) {
+  return {
+
+  };
 }
