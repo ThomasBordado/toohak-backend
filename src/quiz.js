@@ -7,7 +7,7 @@ function adminQuizList(authUserId) {
   return {
     quizzes: [
       {
-        quizId:1,
+        quizId: 1,
         name: 'My Quiz',
       }
     ]
@@ -35,4 +35,21 @@ function adminQuizCreate(authUserId, name, description) {
  */
 function adminQuizRemove(authUserId, quizId) {
   return {};
+}
+
+
+/**
+ * Get all of the relevant information about the current quiz.
+ * @param {number} authUserId - unique identifier for an academic
+ * @param {number} quizId - unique identifier for a quiz
+ * @returns {{quizId: number, name: string, timeCreated: number, timeLastEdited: number, description: string}} - for valid authUserId and quizId
+ */
+function adminQuizInfo(authUserId, quizId) {
+  return {
+    quizId: 1,
+    name: 'My Quiz',
+    timeCreated: 1683125870,
+    timeLastEdited: 1683125871,
+    description: 'This is my quiz',
+  };
 }
