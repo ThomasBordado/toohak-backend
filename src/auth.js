@@ -46,3 +46,16 @@ function adminUserDetails(authUserId) {
         } 
     };
 }
+
+/**
+ * Given an admin user's authUserId and a set of properties, update the properties of this logged in admin user.
+ * @param {number} authUserId - unique identifier for an academic
+ * @param {string} email - User's email
+ * @param {string} nameFrist - User's first name
+ * @param {string} nameLast - User's last name
+ * 
+ * @returns {} - For updated user details 
+ */
+function adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast) {
+    return { };
+}
