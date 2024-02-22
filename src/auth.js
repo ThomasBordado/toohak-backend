@@ -59,3 +59,14 @@ function adminUserDetails(authUserId) {
 function adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast) {
     return { };
 }
+
+/** 
+*Given details relating to a password change, update the password of a logged in user.
+* @param {number} authUserId - unique Id for authUser
+* @param {string} oldPassword - the password user willing to change
+* @param {string} newPassword - the new password
+* @return {} - the password been updated
+*/
+function adminUserPasswordUpdate( authUserId, oldPassword, newPassword ) {
+    return {};
+}
