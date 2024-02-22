@@ -5,7 +5,7 @@
  * @param {string} nameFirst - User's first name
  * @param {string} nameLast - User's last name
  * 
- * @returns {authUserId } - unique identifier for an academic, registering with email, password and name.
+ * @returns {authUserId: number} - unique identifier for an academic, registering with email, password and name.
  */
 function adminAuthRegister(email, password, nameFirst, nameLast) {
     return {
