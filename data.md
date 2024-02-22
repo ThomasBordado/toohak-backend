@@ -45,3 +45,5 @@ let data = {
 ```
 
 [Optional] short description: 
+The data structure consists of an object for users with relevant properties. More properties can be added/removed.
+The similar object is made for quizzes in which relevant quiz information can be stored.
