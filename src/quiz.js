@@ -13,3 +13,17 @@ function adminQuizList(authUserId) {
     ]
   };
 }
+
+/**
+ * Given basic details about a new quiz, create one for the logged in user.
+ * @param {number} authUserId - unique identifier for an academic
+ * @param {string} name - quiz name
+ * @param {string} description - quiz description
+ * @returns {{quizId: number}} - for valid authUserID, name and discription
+ */
+function adminQuizCreate(authUserId, name, description) {
+  return {
+    quizId: 2
+  };
+}
+
