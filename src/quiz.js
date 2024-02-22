@@ -41,7 +41,7 @@ function adminQuizRemove(authUserId, quizId) {
  * Update the description of the relevant quiz.
  * @param {number} authUserId - unique identifier for an academic
  * @param {number} quizId - unique identifier for a quiz
- * @param {number} desciption - description of quiz
+ * @param {string} desciption - description of quiz
  * @returns {} - Updates quiz desciption
  */
 function adminQuizDescriptionUpdate(authUserId, quizId, description) {
