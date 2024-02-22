@@ -27,3 +27,12 @@ function adminQuizCreate(authUserId, name, description) {
   };
 }
 
+/**
+ * Given a particular quiz, permanently remove the quiz
+ * @param {number} authUserId - unique identifier for an academic
+ * @param {number} quizId - unique identifier for a quiz
+ * @returns {} - for valid authUserId and quizId
+ */
+function adminQuizRemove(authUserId, quizId) {
+  return {};
+}
