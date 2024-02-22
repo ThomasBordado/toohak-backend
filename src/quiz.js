@@ -14,16 +14,25 @@ function adminQuizList(authUserId) {
   };
 }
 
+/**
+ * Given basic details about a new quiz, create one for the logged in user.
+ * @param {number} authUserId - unique identifier for an academic
+ * @param {string} name - quiz name
+ * @param {string} description - quiz description
+ * @returns {{quizId: number}} - for valid authUserID, name and discription
+ */
+function adminQuizCreate(authUserId, name, description) {
+  return {
+    quizId: 2
+  };
+}
 
 /**
- * Update the description of the relevant quiz.
+ * Given a particular quiz, permanently remove the quiz
  * @param {number} authUserId - unique identifier for an academic
  * @param {number} quizId - unique identifier for a quiz
- * @param {number} desciption - description of quiz
- * @returns {} - Updates quiz desciption
+ * @returns {} - for valid authUserId and quizId
  */
-function adminQuizDescriptionUpdate(authUserId, quizId, description) {
-  return {
-
-  };
+function adminQuizRemove(authUserId, quizId) {
+  return {};
 }
