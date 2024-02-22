@@ -7,7 +7,7 @@ function adminQuizList(authUserId) {
   return {
     quizzes: [
       {
-        quizId:1,
+        quizId: 1,
         name: 'My Quiz',
       }
     ]
@@ -34,5 +34,16 @@ function adminQuizCreate(authUserId, name, description) {
  * @returns {} - for valid authUserId and quizId
  */
 function adminQuizRemove(authUserId, quizId) {
+  return {};
+}
+
+/**
+ * Update the name of the relevant quiz.
+ * @param {number} authUserId - unique identifier for an academic
+ * @param {number} quizId - unique identifier for a quiz
+ * @param {string} name - quiz name
+ * @returns {} - for valid authUserId, quizId and description
+ */
+function adminQuizNameUpdate(authUserID, quizId, name) {
   return {};
 }
