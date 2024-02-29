@@ -7,7 +7,9 @@ import { getData } from './dataStore.js'
  */
 function clear() {
   getData().users = [];
+  getData().userIdStore = 0;
   getData().quizzes = [];
+  getData().quizIdStore = 0;
   return {};
 }
 
