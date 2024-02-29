@@ -45,11 +45,30 @@ function adminAuthRegister(email, password, nameFirst, nameLast) {
  * @param {string} email - User's email
  * @param {string} password - User's password
  * 
- * @returns {authUserId: number} - unique identifier for an academic, given email and password
+ * @returns {authUserId: number} - unique identifier for a user, given email and password
  */
 function adminAuthLogin(email, password) {
+    let users = getData().users;
+    if (users.length === 0) {
+        return { 
+            error: 'Email address does not exist.'
+        };
+    }
+    const user = users.find(users => users.email === email);
+    if (user && user.password === password) {
+        user.numSuccessfulLogins++;
+        user.numFailedPasswordsSinceLastLogin = 0;
+        return {
+            authUserId: user.userId
+        };
+    } else if (user && user.password !== password) {
+        user.numFailedPasswordsSinceLastLogin++;
+        return {
+            error: 'Password is not correct for the given email.'
+        };
+    }
     return {
-        authUserId: 1,
+        error: 'Email address does not exist.'
     };
 }
 
@@ -98,4 +117,4 @@ function adminUserPasswordUpdate( authUserId, oldPassword, newPassword ) {
     return {};
 }
 
-export { adminAuthRegister };
+export { adminAuthRegister, adminAuthLogin };

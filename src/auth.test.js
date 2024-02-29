@@ -1,5 +1,6 @@
 import { adminAuthRegister, adminAuthLogin, adminUserDetails, adminUserDetailsUpdate, adminUserPasswordUpdate } from './auth.js';
 import { clear } from './other.js';
+import { getData, setData } from './dataStore.js';
 
 beforeEach(()=> {
     clear();
