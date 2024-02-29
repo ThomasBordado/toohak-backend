@@ -1,5 +1,5 @@
-import adminUserDetailsUpdate from './adminUserDetailsUpdate'
-import {clear, adminAuthRegister} from "./auth.test";
+import adminUserDetailsUpdate from './auth'
+import {clear, adminAuthRegister} from "./auth";
 
 beforeEach(()=> {
     clear();
