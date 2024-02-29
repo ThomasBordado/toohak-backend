@@ -37,15 +37,10 @@ function adminAuthRegister(email, password, nameFirst, nameLast) {
     };
 
     data.users.push(newUser);
-
     return {
         authUserId: newUser.userId
     };
 }
-
-//console.log(adminAuthRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith'));
-//console.log(adminAuthRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith'));
-
 
 /**
  * Given a registered user's email and password returns their authUserId value.

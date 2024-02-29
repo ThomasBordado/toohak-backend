@@ -1,6 +1,5 @@
 import { adminAuthRegister, adminAuthLogin, adminUserDetails, adminUserDetailsUpdate, adminUserPasswordUpdate } from './auth.js';
 import { clear } from './other.js';
-import { getData } from './dataStore.js'
 
 beforeEach(()=> {
     clear();
@@ -20,9 +19,7 @@ describe('Test unssuccessful adminAuthRegister', () => {
 
     // 1. Add an email and then try add the same email.
     test('Test email in use adminAuthRegister', () => {
-        let data = getData;
-        console.log(data);
-        expect(adminAuthRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith')).toStrictEqual({authUserId: 1});
+        expect(adminAuthRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith')).toStrictEqual({authUserId: 3});
         expect(adminAuthRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith')).toMatchObject({ error: expect.any(String) });
     });
 
