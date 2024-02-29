@@ -1,3 +1,8 @@
+import { checkEmail, checkPassword, checkName } from './authUtil.js';
+import { getData, setData } from './dataStore.js';
+
+let userIdCounter = 0;
+
 /**
  * Register a user with an email, password, and names, then returns their authUserId.
  * @param {string} email - User's email
@@ -8,10 +13,39 @@
  * @returns {authUserId: number} - unique identifier for an academic, registering with email, password and name.
  */
 function adminAuthRegister(email, password, nameFirst, nameLast) {
+    if (checkEmail(email) !== true) {
+        return checkEmail(email);
+    } else if (checkPassword(password) !== true) {
+        return checkPassword(password);
+    } else if (checkName(nameFirst, "First") !== true) {
+        return checkName(nameFirst, "First");
+    } else if (checkName(nameLast, "Last") !== true) {
+        return checkName(nameLast, "Last");
+    }
+
+    let data = getData();
+    userIdCounter++;
+    let newUser = {
+        userId: userIdCounter,
+        nameFirst: nameFirst,
+        nameLast: nameLast,
+        email: email,
+        password: password,
+        numSuccessfulLogins: 0,
+        numFailedPasswordsSinceLastLogin: 0,
+        quizzes: [],
+    };
+
+    data.users.push(newUser);
+
     return {
-        authUserId: 1,
+        authUserId: newUser.userId
     };
 }
+
+//console.log(adminAuthRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith'));
+//console.log(adminAuthRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith'));
+
 
 /**
  * Given a registered user's email and password returns their authUserId value.
@@ -70,3 +104,5 @@ function adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast) {
 function adminUserPasswordUpdate( authUserId, oldPassword, newPassword ) {
     return {};
 }
+
+export { adminAuthRegister };
