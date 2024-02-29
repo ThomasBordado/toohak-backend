@@ -9,6 +9,7 @@ let data = {
       nameLast: 'Smith',
       email: 'hayden.smith@unsw.edu.au',
       password: '12345',
+      
       numSuccessfulLogins: 3,
       numFailedPasswordsSinceLastLogin: 1,
       quizzes: [2],
