@@ -3,7 +3,9 @@ import {adminQuizList,
         adminQuizRemove,
         adminQuizInfo,
         adminQuizNameUpdate,
-        adminQuizDescriptionUpdate,} from './quiz.js'
+        adminQuizDescriptionUpdate,} from './quiz.js';
+
+import {clear} from './other.js';
 
 beforeEach(() => {
     clear();
