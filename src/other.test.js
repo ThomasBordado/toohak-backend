@@ -18,4 +18,5 @@ test('Test clear registered user', () => {
     expect(data).toMatchObject({users: [],quizzes: []});
 });
 
+// Add a test to clear quizzes when we are able to make quizzes.
 test.todo('Test clear quizzes');
