@@ -90,4 +90,7 @@ describe('Test unssuccessful adminAuthLogin', () => {
         expect(adminAuthLogin('thomas@gmail.com', 'password2')).toStrictEqual({error: expect.any(String)});
     });
 
+    test.todo('Add tests checking numSuccessfulLogins and numSuccessfulLogins and numFailedPasswordsSinceLastLogin is updated');
+
+
 });
