@@ -29,7 +29,7 @@ function adminAuthRegister(email, password, nameFirst, nameLast) {
         nameLast: nameLast,
         email: email,
         password: password,
-        numSuccessfulLogins: 0,
+        numSuccessfulLogins: 1,
         numFailedPasswordsSinceLastLogin: 0,
         quizzes: [],
     };
