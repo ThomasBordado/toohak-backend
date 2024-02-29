@@ -41,7 +41,7 @@ test('adminUserDetailsUpdate return type', () => {
 test('adminUserUpdate behavior: update the userdetails', () => {
     adminUserDetailsUpdate('1', 'updateemail@gmail.com', 'Jennifer', 'Lawson');
     for (const user of data.user) {
-        if (user.id === 1) {
+        if (user.id === '1') {
             expect(viewEmail()).toStrictEqual({email: 'updateemail@gmail.com'});
             expect(viewNameFirst()).toStrictEqual({nameFirst: 'Jennifer'});
             expect(viewNameLast()).toStrictEqual({nameLast: 'Lawson'});
@@ -49,3 +49,5 @@ test('adminUserUpdate behavior: update the userdetails', () => {
     }
 c
 })
+
+console.log(data);
