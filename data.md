@@ -10,7 +10,6 @@ let data = {
       email: 'hayden.smith@unsw.edu.au',
       password: '12345',
       prevpassword: ['1234567a'],
-      
       numSuccessfulLogins: 3,
       numFailedPasswordsSinceLastLogin: 1,
       quizzes: [2],
