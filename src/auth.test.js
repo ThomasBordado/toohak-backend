@@ -19,7 +19,7 @@ describe('Test unssuccessful adminAuthRegister', () => {
 
     // 1. Add an email and then try add the same email.
     test('Test email in use adminAuthRegister', () => {
-        expect(adminAuthRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith')).toStrictEqual({authUserId: 3});
+        expect(adminAuthRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith')).toStrictEqual({authUserId: expect.any(Number)});
         expect(adminAuthRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith')).toMatchObject({ error: expect.any(String) });
     });
 
@@ -62,4 +62,31 @@ describe('Test unssuccessful adminAuthRegister', () => {
         clear();
         expect(adminAuthRegister('hayden.smith@unsw.edu.au', 'password', 'Hayden', 'Smithson!')).toMatchObject({ error: expect.any(String) });
     });
+});
+
+describe('Test successful adminAuthLogin', () => {
+
+    // 1. Successful login to an existing account.
+    test('Test successful login', () => {
+        let result = adminAuthRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith');
+        expect(adminAuthLogin('hayden.smith@unsw.edu.au', 'password1')).toStrictEqual(result);
+    });
+    
+});
+
+describe('Test unssuccessful adminAuthLogin', () => {
+
+    // 1. Logging into an non-existing email then registering the email and logging in.
+    test('Test email address does not exist', () => {
+        expect(adminAuthLogin('thomas@gmail.com', 'password1')).toStrictEqual({error: expect.any(String)});
+        let result = adminAuthRegister('thomas@gmail.com', 'password1', 'Thomas', 'Bordado');
+        expect(adminAuthLogin('thomas@gmail.com', 'password1')).toStrictEqual( result );
+    });
+
+    // 2. Incorrect Password for given email.
+    test('Test incorrect password', () => {
+        expect(adminAuthRegister('thomas@gmail.com', 'password1', 'Thomas', 'Bordado')).toStrictEqual({ authUserId: expect.any(Number) });
+        expect(adminAuthLogin('thomas@gmail.com', 'password2')).toStrictEqual({error: expect.any(String)});
+    });
+
 });

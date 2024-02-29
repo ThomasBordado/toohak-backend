@@ -100,4 +100,4 @@ function adminUserPasswordUpdate( authUserId, oldPassword, newPassword ) {
     return {};
 }
 
-export { adminAuthRegister };
+export { adminAuthRegister, adminAuthLogin };
