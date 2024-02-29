@@ -1,8 +1,6 @@
 import { checkEmail, checkPassword, checkName } from './authUtil.js';
 import { getData, setData } from './dataStore.js';
 
-let userIdCounter = 0;
-
 /**
  * Register a user with an email, password, and names, then returns their authUserId.
  * @param {string} email - User's email
@@ -24,9 +22,9 @@ function adminAuthRegister(email, password, nameFirst, nameLast) {
     }
 
     let data = getData();
-    userIdCounter++;
+    data.userIdStore += 1;
     let newUser = {
-        userId: userIdCounter,
+        userId: data.userIdStore,
         nameFirst: nameFirst,
         nameLast: nameLast,
         email: email,
