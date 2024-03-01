@@ -111,7 +111,8 @@ test('adminUserDetailsUpdate return type', () => {
 })
 
 // 3. Testing for behaviors
-test('adminUserDetailsUpdate return type', () => {
+//one user
+test('adminUserDetailsUpdate return type', () => {          
     clear();
     adminAuthRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith');
     adminUserDetailsUpdate(1, 'validemail1@gmail.com', 'Jennifer', 'Lawson');
@@ -126,6 +127,35 @@ test('adminUserDetailsUpdate return type', () => {
         numFailedPasswordsSinceLastLogin: 0,
         quizzes: [],
   }]
+    );
+
+})
+//more than one user
+test('adminUserDetailsUpdate return type', () => {
+    clear();
+    adminAuthRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith');
+    adminAuthRegister('validemail2@gmail.com', '1234567a', 'Jane', 'Smith');
+    adminUserDetailsUpdate(2, 'validemail1@gmail.com', 'Jennifer', 'Lawson');
+    expect(usersList()).toStrictEqual(
+        [{userId: 1, 
+        nameFirst: 'Jane', 
+        nameLast: 'Smith', 
+        email: 'validemail@gmail.com', 
+        password: '1234567a', 
+        prevpassword: [], 
+        numSuccessfulLogins: 0,
+        numFailedPasswordsSinceLastLogin: 0,
+        quizzes: [],
+  }, {userId: 2, 
+    nameFirst: 'Jennifer', 
+    nameLast: 'Lawson', 
+    email: 'validemail1@gmail.com', 
+    password: '1234567a', 
+    prevpassword: [], 
+    numSuccessfulLogins: 0,
+    numFailedPasswordsSinceLastLogin: 0,
+    quizzes: [],
+}]
     );
 
 })
