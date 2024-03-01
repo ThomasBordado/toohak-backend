@@ -74,8 +74,13 @@ function checkName(name, position) {
  * @return {boolean} -if Id is valid reutrn true, else return false
  */
 function isValidUserId(authUserId) {
+    let data = getData();
+    if (data.length === 0) {
+        return false;
+    }
+
     for (const users of data.users) {
-        if (users.id === authUserId) {
+        if (users.userId === authUserId) {
             return true
         }
     }
@@ -83,21 +88,11 @@ function isValidUserId(authUserId) {
 }
 
 /**
- * Given an email and check if it's used by other users
- * @param {string} email -User's email
  * 
- * @return {boolean} -if the email is not used by another one
- *                     no reutrn true, yes return false
  */
-function isEmailUsedByAnotherUser(authUserId, email) {
-    for (const users of data.users) {
-        if (users.id != authUserId && users.email === email) {
-            return false;
-        }
-    }
-    return true;
-
+function usersList() {
+    let data = getData();
+    return(data.users);
 }
 
-
-export { checkEmail, checkPassword, checkName, isValidUserId, isEmailUsedByAnotherUser };
+export { checkEmail, checkPassword, checkName, isValidUserId, usersList};
