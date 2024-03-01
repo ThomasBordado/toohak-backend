@@ -20,8 +20,9 @@ describe('adminQuizList testing', () => {
 
 describe('adminQuizCreate testing', () => {
 
+    let user;
     beforeEach(() => {
-        const user = adminAuthRegister('chloe@gmail.com', 'password1', 'Chloe', 'Turner');
+        user = adminAuthRegister('chloe@gmail.com', 'password1', 'Chloe', 'Turner');
     });
 
     describe('Unsuccessful Cases', () => {
