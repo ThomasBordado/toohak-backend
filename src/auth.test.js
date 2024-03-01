@@ -1,6 +1,5 @@
-console.log(data);
-
 import { adminAuthRegister, adminAuthLogin, adminUserDetails, adminUserDetailsUpdate, adminUserPasswordUpdate } from './auth.js';
+import { getData } from './dataStore.js';
 import { clear } from './other.js';
 
 beforeEach(()=> {
@@ -73,6 +72,7 @@ describe('Test adminAuthRegister', () => {
 /**
  * Test for adminUserDetailsUpdate
  */
+import {usersList} from './authUtil.js'
 beforeEach(()=> {
     clear();
     
@@ -104,16 +104,28 @@ describe('adminUserDetailsUpdate', () => {
 
 // 2. Testing for return value
 test('adminUserDetailsUpdate return type', () => {
-    expect(adminUserDetailsUpdate(1, 'validemail@gmail.com', 'Jane', 'Smith')).toStrictEqual({});
+    clear();
+    let data = adminAuthRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith');
+    expect(adminUserDetailsUpdate(1, 'validemail1@gmail.com', 'Jane', 'Smith')).toStrictEqual({});
 
 })
 
 // 3. Testing for behaviors
-test('adminUserUpdate behavior: update the userdetails', () => {
-    adminUserDetailsUpdate(1, 'updateemail@gmail.com', 'Jennifer', 'Lawson');
-    expect(data.users.email).toStrictEqual({email: 'updateemail@gmail.com'});
-    expect(data.users.nameFirst).toStrictEqual({nameFirst: 'Jennifer'});
-    expect(data.users.nameLast).toStrictEqual({nameLast: 'Lawson'});
-
+test('adminUserDetailsUpdate return type', () => {
+    clear();
+    adminAuthRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith');
+    adminUserDetailsUpdate(1, 'validemail1@gmail.com', 'Jennifer', 'Lawson');
+    expect(usersList()).toStrictEqual(
+        [{userId: 1, 
+        nameFirst: 'Jennifer', 
+        nameLast: 'Lawson', 
+        email: 'validemail1@gmail.com', 
+        password: '1234567a', 
+        prevpassword: [], 
+        numSuccessfulLogins: 0,
+        numFailedPasswordsSinceLastLogin: 0,
+        quizzes: [],
+  }]
+    );
 
 })
