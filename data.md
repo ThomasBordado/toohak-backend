@@ -23,7 +23,12 @@ let data = {
       prevpassword:[],
       numSuccessfulLogins: 2,
       numFailedPasswordsSinceLastLogin: 6,
-      quizzes: [1]
+      quizzes: [
+        {
+          quizId: 1, 
+          name: 'My Quiz',
+        },
+      ]
     },
   ],
 
