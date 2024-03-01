@@ -1,4 +1,5 @@
 import { adminAuthRegister, adminAuthLogin, adminUserDetails, adminUserDetailsUpdate, adminUserPasswordUpdate } from './auth.js';
+import { getData } from './dataStore.js';
 import { clear } from './other.js';
 
 beforeEach(()=> {
@@ -65,3 +66,187 @@ describe('Test adminAuthRegister', () => {
     });
     
 });
+
+
+
+
+/**
+ * Test for adminUserDetailsUpdate
+ */
+import {usersList} from './authUtil.js'
+beforeEach(()=> {
+    clear();
+    
+});
+
+
+describe('adminUserDetailsUpdate', () => {
+    let data;
+    beforeEach(() => {
+        data = adminAuthRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith');
+    });
+
+    test.each([
+        {test: 'invalid authUserId', authUserId: -99, email: 'validemail@gmail.com', nameFirst: 'Jane', nameLast: 'Smith'},
+        {test: 'invalid authUserId', authUserId: 999, email: 'validemail@gmail.com', nameFirst: 'Jane', nameLast: 'Smith'},
+        {test: 'invalid email', authUserId: 1, email: 'invalidemail', nameFirst: 'Jane', nameLast: 'Smith'},
+        {test: 'invalid nameFirst(contain invalid characters)', authUserId: 1, email: 'validemail@gmail.com', nameFirst: 'J++', nameLast: 'Smith'},
+        {test: 'invalid nameFirst(too short)', authUserId: 1, email: 'validemail@gmail.com', nameFirst: 'J', nameLast: 'Smith'},
+        {test: 'invalid nameFirst(too long)', authUserId: 1, email: 'validemail@gmail.com', nameFirst: 'JaneJaneJaneJaneJaneJane', nameLast: 'Smith'},
+        {test: 'invalid nameLast(contain invalid characters)', authUserId: 1, email: 'validemail@gmail.com', nameFirst: 'Jane', nameLast: 'S++'},
+        {test: 'invalid nameLast(too short)', authUserId: 1, email: 'validemail@gmail.com', nameFirst: 'Jane', nameLast: 'S'},
+        {test: 'invalid nameLast(too long)', authUserId: 1, email: 'validemail@gmail.com', nameFirst: 'Jane', nameLast: 'SmithSmithSmithSmithSmith'},
+
+    ]) ("adminUserDetailsUpdate error: '$test'", ({authUserId, email, nameFirst, nameLast}) => {
+        expect(adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast)).toStrictEqual({error: expect.any(String)});
+    })
+});
+
+// 2. Testing for return value
+test('adminUserDetailsUpdate return type', () => {
+    clear();
+    let data = adminAuthRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith');
+    expect(adminUserDetailsUpdate(1, 'validemail1@gmail.com', 'Jane', 'Smith')).toStrictEqual({});
+
+})
+
+// 3. Testing for behaviors
+//one user
+test('adminUserDetailsUpdate return type', () => {          
+    clear();
+    adminAuthRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith');
+    adminUserDetailsUpdate(1, 'validemail1@gmail.com', 'Jennifer', 'Lawson');
+    expect(usersList()).toStrictEqual(
+        [{userId: 1, 
+        nameFirst: 'Jennifer', 
+        nameLast: 'Lawson', 
+        email: 'validemail1@gmail.com', 
+        password: '1234567a', 
+        prevpassword: [], 
+        numSuccessfulLogins: 0,
+        numFailedPasswordsSinceLastLogin: 0,
+        quizzes: [],
+  }]
+    );
+
+})
+//more than one user
+test('adminUserDetailsUpdate return type', () => {
+    clear();
+    adminAuthRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith');
+    adminAuthRegister('validemail2@gmail.com', '1234567a', 'Jane', 'Smith');
+    adminUserDetailsUpdate(2, 'validemail1@gmail.com', 'Jennifer', 'Lawson');
+    expect(usersList()).toStrictEqual(
+        [{userId: 1, 
+        nameFirst: 'Jane', 
+        nameLast: 'Smith', 
+        email: 'validemail@gmail.com', 
+        password: '1234567a', 
+        prevpassword: [], 
+        numSuccessfulLogins: 0,
+        numFailedPasswordsSinceLastLogin: 0,
+        quizzes: [],
+  }, {userId: 2, 
+    nameFirst: 'Jennifer', 
+    nameLast: 'Lawson', 
+    email: 'validemail1@gmail.com', 
+    password: '1234567a', 
+    prevpassword: [], 
+    numSuccessfulLogins: 0,
+    numFailedPasswordsSinceLastLogin: 0,
+    quizzes: [],
+}]
+    );
+
+})
+
+
+/**
+ * Test for user password update
+ */
+beforeEach(()=> {
+    clear();
+    
+});
+
+
+describe('adminUserPasswordUpdate', () => {
+    let data;
+    beforeEach(() => {
+        clear();
+        data = adminAuthRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith');
+    });
+
+    test.each([
+        {test: 'invalid authUserId', authUserId: -99, oldPassword: '1234567a', newPassword: '1234567b'},
+        {test: 'invalid authUserId', authUserId: 999, oldPassword: '1234567a', newPassword: '1234567b'},
+        {test: 'old password incorrect', authUserId: 1,oldPassword: '1234567b', newPassword: '1234567c'},
+        {test: 'Old Password and New Password match exactly', oldPassword: '1234567a', newPassword: '1234567a'},
+        {test: 'New password not valid(too short)', authUserId: 1, oldPassword: '1234567a', newPassword: '123'},
+        {test: 'New password not valid(does not contain letter)', authUserId: 1,oldPassword: '1234567a', newPassword: '12345678'},
+        {test: 'New password not valid(does not contain number)', authUserId: 1, oldPassword: '1234567a', newPassword: 'abcdefgh'},
+
+    ]) ("adminUserPasswordUpdate error: '$test'", ({authUserId, oldPassword, newPassword}) => {
+        expect(adminUserPasswordUpdate(authUserId, oldPassword, newPassword)).toStrictEqual({error: expect.any(String)});
+    })
+});
+
+// 2. Testing for return value
+test('adminUserPasswordUpdate return type', () => {
+    clear();
+    let data = adminAuthRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith');
+    expect(adminUserPasswordUpdate(1, '1234567a', '1234567b')).toStrictEqual({});
+
+})
+
+// 3. Testing for behaviors
+//one user
+test('adminUserPasswordUpdate return type', () => {          
+    clear();
+    adminAuthRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith');
+    adminUserPasswordUpdate(1, '1234567a', '1234567b');
+    expect(usersList()).toStrictEqual(
+        [{userId: 1, 
+        nameFirst: 'Jane', 
+        nameLast: 'Smith', 
+        email: 'validemail@gmail.com', 
+        password: '1234567b', 
+        prevpassword: ['1234567a'], 
+        numSuccessfulLogins: 0,
+        numFailedPasswordsSinceLastLogin: 0,
+        quizzes: [],
+  }]
+    );
+
+})
+//more than one user and with adminUserDetailsUpdate, many times
+test('adminUserPasswordUpdate return type', () => {
+    clear();
+    adminAuthRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith');
+    adminAuthRegister('validemail2@gmail.com', '1234567a', 'Jane', 'Smith');
+    adminUserDetailsUpdate(2, 'validemail1@gmail.com', 'Jennifer', 'Lawson');
+    adminUserPasswordUpdate(2, '1234567a', '1234567b');
+    adminUserPasswordUpdate(2, '1234567b', '1234567c');
+    expect(usersList()).toStrictEqual(
+        [{userId: 1, 
+        nameFirst: 'Jane', 
+        nameLast: 'Smith', 
+        email: 'validemail@gmail.com', 
+        password: '1234567a', 
+        prevpassword: [], 
+        numSuccessfulLogins: 0,
+        numFailedPasswordsSinceLastLogin: 0,
+        quizzes: [],
+  }, {userId: 2, 
+    nameFirst: 'Jennifer', 
+    nameLast: 'Lawson', 
+    email: 'validemail1@gmail.com', 
+    password: '1234567c', 
+    prevpassword: ['1234567a', '1234567b'], 
+    numSuccessfulLogins: 0,
+    numFailedPasswordsSinceLastLogin: 0,
+    quizzes: [],
+}]
+    );
+
+})
