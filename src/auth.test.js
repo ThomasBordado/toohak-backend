@@ -5,7 +5,7 @@ beforeEach(()=> {
     clear();
 })
 
-describe('Test successful adminAuthRegister', () => {
+describe('Test adminAuthRegister', () => {
 
     // 1. Successful Register of two users
     test('Test registering two users', () => {
@@ -15,49 +15,53 @@ describe('Test successful adminAuthRegister', () => {
         expect(user2).toStrictEqual({ authUserId: expect.any(Number) });
         expect(user1.authUserId).not.toStrictEqual(user2.authUserId);
     });
-    
-});
 
-describe('Test unssuccessful adminAuthRegister', () => {
-
-    // 1. Add an email and then try add the same email.
+    // 2. Add an email and then try add the same email.
     test('Test email in use adminAuthRegister', () => {
         expect(adminAuthRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith')).toStrictEqual({ authUserId: expect.any(Number) });
         expect(adminAuthRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith')).toStrictEqual({ error: expect.any(String) });
     });
 
-    // 2. Provide an invlaid email.
+    // 3. Provide an invlaid email.
     test('Test invalid email adminAuthRegister', () => {
         expect(adminAuthRegister('hayden.smithson', 'password3', 'Hayden', 'Smith')).toStrictEqual({ error: expect.any(String) });
     });
 
-    // 3. Invalid Characters in First name.
+    // 4. Invalid Characters in First name.
     test('Test first name invalid characters adminAuthRegister', () => {
         expect(adminAuthRegister('hayden.smith@unsw.edu.au', 'password3', 'Hayden!', 'Smithson')).toStrictEqual({ error: expect.any(String) });
+        expect(adminAuthRegister('hayden.smith@unsw.edu.au', 'password3', 'Hayden1', 'Smithson')).toStrictEqual({ error: expect.any(String) });
+        expect(adminAuthRegister('hayden.smith@unsw.edu.au', 'password3', 'Hay?den', 'Smithson')).toStrictEqual({ error: expect.any(String) });
     });
 
-    // 4. Invalid length of First name.
+    // 5. Invalid length of First name.
     test('Test first name invalid length adminAuthRegister', () => {
         expect(adminAuthRegister('hayden.smith@unsw.edu.au', 'password3', 'H', 'Smithson')).toStrictEqual({ error: expect.any(String) });
+        expect(adminAuthRegister('hayden.smith@unsw.edu.au', 'password3', 'haydenhaydenhaydenhayden', 'Smithson')).toStrictEqual({ error: expect.any(String) });
     });
 
-    // 5. Invalid Character in Last name.
+    // 6. Invalid Character in Last name.
     test('Test last name invalid characters adminAuthRegister', () => {
         expect(adminAuthRegister('hayden.smith@unsw.edu.au', 'password3', 'Hayden', 'Smithson!')).toStrictEqual({ error: expect.any(String) });
+        expect(adminAuthRegister('hayden.smith@unsw.edu.au', 'password3', 'Hayden', 'Smithson1')).toStrictEqual({ error: expect.any(String) });
+        expect(adminAuthRegister('hayden.smith@unsw.edu.au', 'password3', 'Hayden', '{Smith}')).toStrictEqual({ error: expect.any(String) });
     });
 
-    // 6. Invalid length of Last name.
+    // 7. Invalid length of Last name.
     test('Test last name invalid length adminAuthRegister', () => {
         expect(adminAuthRegister('hayden.smith@unsw.edu.au', 'password3', 'Hayden', 'S')).toStrictEqual({ error: expect.any(String) });
+        expect(adminAuthRegister('hayden.smith@unsw.edu.au', 'password3', 'Hayden', 'SmithSmithSmithSmithSmith')).toStrictEqual({ error: expect.any(String) });
     });
 
-    // 7. Invalid password length.
+    // 8. Invalid password length.
     test('Test password invalid length adminAuthRegister', () => {
         expect(adminAuthRegister('hayden.smith@unsw.edu.au', 'pass', 'Hayden', 'Smithson!')).toStrictEqual({ error: expect.any(String) });
     });
     
-    // 8. Invalid password conditions.
+    // 9. Invalid password conditions.
     test('Test password invalid adminAuthRegister', () => {
         expect(adminAuthRegister('hayden.smith@unsw.edu.au', 'password', 'Hayden', 'Smithson!')).toStrictEqual({ error: expect.any(String) });
+        expect(adminAuthRegister('hayden.smith@unsw.edu.au', '12345678', 'Hayden', 'Smithson!')).toStrictEqual({ error: expect.any(String) });
     });
+    
 });
