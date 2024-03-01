@@ -88,7 +88,9 @@ function isValidUserId(authUserId) {
 }
 
 /**
+ * A helper function for my test. Show the user list
  * 
+ * @return {Array} -users from data
  */
 function usersList() {
     let data = getData();
