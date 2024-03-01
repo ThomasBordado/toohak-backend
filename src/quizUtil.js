@@ -1,6 +1,6 @@
 /**
  * Check if AuthUserId is valid.
- * @param {number} AuthUserId
+ * @param {number} AuthUserId - unique identifier for an academic
  * @param {
  *  Array <{userId: number,
  *    nameFirst: string,
@@ -14,7 +14,7 @@
  *      name: string
  *    }>,
  *   }>
- *  } userData
+ *  } userData - array of users obtained from dataStore
  * @returns {{
  *  userId: number,
  *  nameFirst: string,
@@ -28,16 +28,18 @@
  *    name: string
  *   }>
  *  }
- * } - for valid quiz name
-  * @returns {error: string}} - for invalid quiz name
+ * } - for valid AuthUserId
+  * @returns {error: string}} - for invalid AuthUserId
   */
 function validUserId(authUserId, userData) {
+  // searches for authUserId and returns user if found
   for (const user of userData) {
     if (user.userId == authUserId) {
       return user;
     }
   }
 
+  // returns error if not found
   return {error: 'Invalid AuthUserId'};
 }
 
@@ -52,7 +54,7 @@ function validUserId(authUserId, userData) {
  *      quizId: number,
  *      name: string
  *      }>
- *  } quizzesOwned
+ *  } quizzesOwned - array of quizzes owned by user
  * @returns {boolean} - for valid quiz name
  * @returns {error: string}} - for invalid quiz name
  */
@@ -76,7 +78,7 @@ function checkQuizName(name, quizzesOwned) {
       return {error: 'Quiz name previously used by user'}
     }
   }
-
+  
   return true;
 }
 
