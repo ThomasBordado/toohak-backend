@@ -9,7 +9,7 @@ let data = {
       nameLast: 'Smith',
       email: 'hayden.smith@unsw.edu.au',
       password: '12345',
-      
+      prevpassword: ['1234567a'],
       numSuccessfulLogins: 3,
       numFailedPasswordsSinceLastLogin: 1,
       quizzes: [2],
@@ -20,6 +20,7 @@ let data = {
       nameLast: 'Jiang',
       email: 'ranivorous@gmail.com',
       password: 'abcde',
+      prevpassword:[],
       numSuccessfulLogins: 2,
       numFailedPasswordsSinceLastLogin: 6,
       quizzes: [1]
