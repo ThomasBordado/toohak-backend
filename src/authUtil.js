@@ -136,7 +136,7 @@ function isPasswordCorrect(authUserId, enterdPassword) {
  * 
  * @return {boolean} - return false if the new password is not used before by the user
  */
-function isNewPasswordUsed(newPassword, authUserId) {
+function isNewPasswordUsed(authUserId, newPassword) {
     let data = getData();
     const user = data.users.find(users => users.userId === authUserId);
     
@@ -145,8 +145,8 @@ function isNewPasswordUsed(newPassword, authUserId) {
         return false;
     }
 
-    const find = data.users.prevpassword.find(prevpassword => prevpassword === newPassword);
-    if (find !== undefined) {
+    const found = user.prevpassword.find(prevpassword => prevpassword === newPassword);
+    if (found !== undefined) {
         return true;
     }
     return false;
