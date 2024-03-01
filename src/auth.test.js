@@ -69,6 +69,7 @@ describe('Test adminAuthRegister', () => {
 
 
 
+
 /**
  * Test for adminUserDetailsUpdate
  */
@@ -80,7 +81,6 @@ beforeEach(()=> {
 
 
 describe('adminUserDetailsUpdate', () => {
-    test.todo('Test for adminUserDetailsUpdate return value, behavior and side effects');
     let data;
     beforeEach(() => {
         data = adminAuthRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith');
