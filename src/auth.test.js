@@ -73,7 +73,6 @@ describe('Test adminAuthRegister', () => {
 /**
  * Test for adminUserDetailsUpdate
  */
-console.log(data);
 beforeEach(()=> {
     clear();
     
@@ -85,12 +84,11 @@ describe('adminUserDetailsUpdate', () => {
     let data;
     beforeEach(() => {
         data = adminAuthRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith');
-        data = adminAuthRegister('validemail2@gmail.com', '1234567b', 'John', 'Smith');
-        data = adminAuthRegister('validemail3@gmail.com', '1234567c', 'Jack', 'Smith');
     });
 
     test.each([
         {test: 'invalid authUserId', authUserId: -99, email: 'validemail@gmail.com', nameFirst: 'Jane', nameLast: 'Smith'},
+        {test: 'invalid authUserId', authUserId: 999, email: 'validemail@gmail.com', nameFirst: 'Jane', nameLast: 'Smith'},
         {test: 'invalid email', authUserId: 1, email: 'invalidemail', nameFirst: 'Jane', nameLast: 'Smith'},
         {test: 'invalid nameFirst(contain invalid characters)', authUserId: 1, email: 'validemail@gmail.com', nameFirst: 'J++', nameLast: 'Smith'},
         {test: 'invalid nameFirst(too short)', authUserId: 1, email: 'validemail@gmail.com', nameFirst: 'J', nameLast: 'Smith'},
@@ -113,12 +111,9 @@ test('adminUserDetailsUpdate return type', () => {
 // 3. Testing for behaviors
 test('adminUserUpdate behavior: update the userdetails', () => {
     adminUserDetailsUpdate(1, 'updateemail@gmail.com', 'Jennifer', 'Lawson');
-    for (const user of data.user) {
-        if (user.userId === 1) {
-            expect().toStrictEqual({email: 'updateemail@gmail.com'});
-            expect().toStrictEqual({nameFirst: 'Jennifer'});
-            expect().toStrictEqual({nameLast: 'Lawson'});
-        }
-    }
+    expect(data.users.email).toStrictEqual({email: 'updateemail@gmail.com'});
+    expect(data.users.nameFirst).toStrictEqual({nameFirst: 'Jennifer'});
+    expect(data.users.nameLast).toStrictEqual({nameLast: 'Lawson'});
+
 
 })
