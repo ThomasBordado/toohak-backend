@@ -2,8 +2,6 @@
 let data = {
   users: [],
   quizzes: [],
-  userIdStore: 0,
-  quizIdStore: 0
 };
 
 // YOU SHOULD MODIFY THIS OBJECT ABOVE ONLY
