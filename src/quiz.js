@@ -1,5 +1,5 @@
 import {getData, setData} from './dataStore.js';
-import {checkQuizName} from './quizUtil.js';
+import {validUserId, checkQuizName} from './quizUtil.js';
 import timestamp from 'unix-timestamp-offset';
 
 /**
@@ -29,17 +29,11 @@ function adminQuizList(authUserId) {
 function adminQuizCreate(authUserId, name, description) {
 
   let data = getData();
-  let userMatch = null;
-  for (const user of data.users) {
-    if (user.userId == authUserId) {
-      userMatch = user;
-    }
-  }
-
-  if (userMatch == null) {
-    return {error : 'Invalid AuthUserId'};
-  } else if (checkQuizName(name, userMatch.quizzes) != true) {
-    return checkQuizName(name, userMatch.quizzes);
+  let user = validUserId(authUserId, data.users)
+  if ('error' in user) {
+    return user;
+  } else if (checkQuizName(name, user.quizzes) != true) {
+    return checkQuizName(name, user.quizzes);
   } else if (description.length > 100) {
     return {error: 'Description cannot be greater than 100 characters'};
   }
@@ -54,7 +48,7 @@ function adminQuizCreate(authUserId, name, description) {
   }
 
   data.quizzes.push({newQuiz})
-  userMatch.quizzes.push({quizId: data.quizIdStore, name: name});
+  user.quizzes.push({quizId: data.quizIdStore, name: name});
   return {
     quizId: data.quizIdStore
   };
