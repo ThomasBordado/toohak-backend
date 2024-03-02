@@ -138,7 +138,7 @@ describe('adminQuizRemove testing', () => {
     test('User owns quiz with same name as given quizId', () => {
       let user2 = adminAuthRegister('chloe@gmail.com', 'password1', 'Chloe', 'Turner');
       adminQuizCreate(user2.authUserId, 'My Quiz', 'My description.')
-      expect(adminQuizRemove(user.authUserId, quiz.quizId)).toStrictEqual({error: expect.any(String)});
+      expect(adminQuizRemove(user2.authUserId, quiz.quizId)).toStrictEqual({error: expect.any(String)});
     });
     test('Remove same quiz twice', () => {
       adminQuizRemove(user.authUserId, quiz.quizId);
