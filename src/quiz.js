@@ -8,14 +8,14 @@ import timestamp from 'unix-timestamp-offset';
  * @returns {{quizzes: [{quizId: number, name: string,}]}} - for valid authUserID
  */
 function adminQuizList(authUserId) {
-  return {
-    quizzes: [
-      {
-        quizId: 1,
-        name: 'My Quiz',
-      }
-    ]
-  };
+
+  let data = getData();
+  let user = validUserId(authUserId, data.users);
+  if ('error' in user) {
+    return user;
+  }
+
+  return {quizzes: user.quizzes};
 }
 
 /**
@@ -103,4 +103,4 @@ function adminQuizDescriptionUpdate(authUserId, quizId, description) {
   };
 }
 
-export {adminQuizCreate};
+export {adminQuizList, adminQuizCreate};
