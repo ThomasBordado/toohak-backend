@@ -41,13 +41,13 @@ function adminQuizCreate(authUserId, name, description) {
   data.quizIdStore += 1;
   let newQuiz = {
     quizId: data.quizIdStore,
-      name: name,
-      timeCreated: timestamp(),
-      timeLastEdited: timestamp(),
-      description: description,
+    name: name,
+    timeCreated: timestamp(),
+    timeLastEdited: timestamp(),
+    description: description,
   }
 
-  data.quizzes.push({newQuiz})
+  data.quizzes.push(newQuiz)
   user.quizzes.push({quizId: data.quizIdStore, name: name});
   return {
     quizId: data.quizIdStore
@@ -61,6 +61,26 @@ function adminQuizCreate(authUserId, name, description) {
  * @returns {} - for valid authUserId and quizId
  */
 function adminQuizRemove(authUserId, quizId) {
+
+  let data = getData();
+  let user = validUserId(authUserId, data.users)
+  if ('error' in user) {
+    return user;
+  }
+  
+  const quizzesIndex = data.quizzes.findIndex(quizzes => quizzes.quizId === quizId);
+  if (quizzesIndex == -1) {
+    return {error: 'Invalid quizId'};
+  }
+
+  const userQuizzesIndex = user.quizzes.findIndex(quizzes => quizzes.quizId === quizId);
+  if (userQuizzesIndex == -1) {
+    return {error: 'User does not own quiz'};
+  }
+
+  data.quizzes.splice(quizzesIndex, 1);
+  user.quizzes.splice(userQuizzesIndex, 1);
+
   return {};
 }
 
@@ -103,4 +123,4 @@ function adminQuizDescriptionUpdate(authUserId, quizId, description) {
   };
 }
 
-export {adminQuizList, adminQuizCreate};
+export {adminQuizList, adminQuizCreate, adminQuizRemove};
