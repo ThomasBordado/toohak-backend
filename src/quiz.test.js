@@ -38,6 +38,7 @@ describe('adminQuizList testing', () => {
       let quiz = adminQuizCreate(user.authUserId, 'My Quiz', 'My description.');
       let quiz2 = adminQuizCreate(user.authUserId, 'My Second Quiz', 'My description.');
       let quiz3 = adminQuizCreate(user.authUserId, 'My Third Quiz', 'My description.');
+      let quizList = adminQuizList(user.authUserId);
       let expectedList = {
         quizzes: [
           {
@@ -55,8 +56,8 @@ describe('adminQuizList testing', () => {
         ]
       };
       //sorting both arrays in order of unique quizId so that the order of array matches
+      quizList.quizzes.sort((a, b) => a.quizId - b.quizId);
       expectedList.quizzes.sort((a, b) => a.quizId - b.quizId);
-      let quizList = adminQuizList(user.authUserId).quizzes.sort((a, b) => a.quizId - b.quizId);
       expect(quizList).toStrictEqual(expectedList);
     });
   });
