@@ -108,6 +108,6 @@ describe('Test adminUserDetails', () => {
     // 2. Invalid authUserId
     test('Test Invalid User ID', () => {
         expect(adminUserDetails(adminAuthRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith'))).toStrictEqual({ authUserId: expect.any(Number) });
-        expect(adminUserDetails('helloworld')).toStrictEqual({ error: expect.any(String) });
+        expect(adminUserDetails(user1.authUserId + 1)).toStrictEqual({ error: expect.any(String) });
     })
 })
