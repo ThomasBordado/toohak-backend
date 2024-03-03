@@ -97,6 +97,7 @@ describe('Test adminAuthLogin', () => {
 /**
  * Test for user password update
  */
+import { usersList } from './authUtil.js';
 beforeEach(()=> {
     clear();
     
@@ -145,7 +146,7 @@ test('adminUserPasswordUpdate return type', () => {
         email: 'validemail@gmail.com', 
         password: '1234567b', 
         prevpassword: ['1234567a'], 
-        numSuccessfulLogins: 0,
+        numSuccessfulLogins: 1,
         numFailedPasswordsSinceLastLogin: 0,
         quizzes: [],
   }]
@@ -156,8 +157,7 @@ test('adminUserPasswordUpdate return type', () => {
 test('adminUserPasswordUpdate return type', () => {
     clear();
     adminAuthRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith');
-    adminAuthRegister('validemail2@gmail.com', '1234567a', 'Jane', 'Smith');
-    adminUserDetailsUpdate(2, 'validemail1@gmail.com', 'Jennifer', 'Lawson');
+    adminAuthRegister('validemail2@gmail.com', '1234567a', 'Jennifer', 'Smith');
     adminUserPasswordUpdate(2, '1234567a', '1234567b');
     adminUserPasswordUpdate(2, '1234567b', '1234567c');
     expect(usersList()).toStrictEqual(
@@ -166,17 +166,17 @@ test('adminUserPasswordUpdate return type', () => {
         nameLast: 'Smith', 
         email: 'validemail@gmail.com', 
         password: '1234567a', 
-        prevpassword: [], 
-        numSuccessfulLogins: 0,
+        prevpassword: ['1234567a'], 
+        numSuccessfulLogins: 1,
         numFailedPasswordsSinceLastLogin: 0,
         quizzes: [],
   }, {userId: 2, 
     nameFirst: 'Jennifer', 
-    nameLast: 'Lawson', 
-    email: 'validemail1@gmail.com', 
+    nameLast: 'Smith', 
+    email: 'validemail2@gmail.com', 
     password: '1234567c', 
     prevpassword: ['1234567a', '1234567b'], 
-    numSuccessfulLogins: 0,
+    numSuccessfulLogins: 1,
     numFailedPasswordsSinceLastLogin: 0,
     quizzes: [],
 }]
