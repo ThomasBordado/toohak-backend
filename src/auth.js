@@ -29,7 +29,7 @@ function adminAuthRegister(email, password, nameFirst, nameLast) {
         nameLast: nameLast,
         email: email,
         password: password,
-        prevpassword: [password],
+        prevpassword: [],
         numSuccessfulLogins: 1,
         numFailedPasswordsSinceLastLogin: 0,
         quizzes: [],
@@ -144,9 +144,7 @@ function adminUserPasswordUpdate( authUserId, oldPassword, newPassword ) {
     let data = getData();
     const user = data.users.find(users => users.userId === authUserId);
     user.password = newPassword;
-    if (user.prevpassword != oldPassword) {
-        user.prevpassword.push(oldPassword);
-    }
+    user.prevpassword.push(oldPassword);
     setData(data);
     
         return {};

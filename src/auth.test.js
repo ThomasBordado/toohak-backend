@@ -166,7 +166,7 @@ test('adminUserPasswordUpdate return type', () => {
         nameLast: 'Smith', 
         email: 'validemail@gmail.com', 
         password: '1234567a', 
-        prevpassword: ['1234567a'], 
+        prevpassword: [], 
         numSuccessfulLogins: 1,
         numFailedPasswordsSinceLastLogin: 0,
         quizzes: [],
