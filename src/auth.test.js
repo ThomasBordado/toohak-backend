@@ -1,7 +1,7 @@
 import { adminAuthRegister, adminAuthLogin, adminUserDetails, adminUserDetailsUpdate, adminUserPasswordUpdate } from './auth.js';
 import { clear } from './other.js';
 
-beforeEach(()=> {
+beforeEach(() => {
     clear();
 })
 
@@ -57,13 +57,13 @@ describe('Test adminAuthRegister', () => {
     test('Test password invalid length adminAuthRegister', () => {
         expect(adminAuthRegister('hayden.smith@unsw.edu.au', 'pass', 'Hayden', 'Smithson!')).toStrictEqual({ error: expect.any(String) });
     });
-    
+
     // 9. Invalid password conditions.
     test('Test password invalid adminAuthRegister', () => {
         expect(adminAuthRegister('hayden.smith@unsw.edu.au', 'password', 'Hayden', 'Smithson!')).toStrictEqual({ error: expect.any(String) });
         expect(adminAuthRegister('hayden.smith@unsw.edu.au', '12345678', 'Hayden', 'Smithson!')).toStrictEqual({ error: expect.any(String) });
     });
-    
+
 });
 
 
@@ -78,7 +78,7 @@ describe('Test adminAuthLogin', () => {
 
     // 2. Logging into an non-existing email then registering the email and logging in.
     test('Test email address does not exist', () => {
-        expect(adminAuthLogin('thomas@gmail.com', 'password1')).toStrictEqual({error: expect.any(String)});
+        expect(adminAuthLogin('thomas@gmail.com', 'password1')).toStrictEqual({ error: expect.any(String) });
         let result = adminAuthRegister('thomas@gmail.com', 'password1', 'Thomas', 'Bordado');
         expect(adminAuthLogin('thomas@gmail.com', 'password1')).toStrictEqual(result);
     });
@@ -86,8 +86,28 @@ describe('Test adminAuthLogin', () => {
     // 3. Incorrect Password for given email.
     test('Test incorrect password', () => {
         expect(adminAuthRegister('thomas@gmail.com', 'password1', 'Thomas', 'Bordado')).toStrictEqual({ authUserId: expect.any(Number) });
-        expect(adminAuthLogin('thomas@gmail.com', 'password2')).toStrictEqual({error: expect.any(String)});
+        expect(adminAuthLogin('thomas@gmail.com', 'password2')).toStrictEqual({ error: expect.any(String) });
     });
 
     test.todo('Add tests checking numSuccessfulLogins and numSuccessfulLogins and numFailedPasswordsSinceLastLogin is updated');
 });
+
+
+describe('Test adminUserDetails', () => {
+
+    // 1. Succesful return of account details
+    test('Test succesful get user details', () => {
+        let result = adminUserDetails(adminAuthRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith'));
+        expect(result).toStrictEqual({ authUserId: expect.any(Number) });
+        expect(result).toStrictEqual({ name: expect.any(String) });
+        expect(result).toStrictEqual({ email: expect.any(String) });
+        expect(result).toStrictEqual({ numSuccesLogin: expect.any(Number) });
+        expect(result).toStrictEqual({ numFailPassword: expect.any(Number) });
+    });
+
+    // 2. Invalid authUserId
+    test('Test Invalid User ID', () => {
+        expect(adminUserDetails(adminAuthRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith'))).toStrictEqual({ authUserId: expect.any(Number) });
+        expect(adminUserDetails('helloworld')).toStrictEqual({ error: expect.any(String) });
+    })
+})
