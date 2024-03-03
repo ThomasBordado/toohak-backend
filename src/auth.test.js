@@ -1,5 +1,4 @@
 import { adminAuthRegister, adminAuthLogin, adminUserDetails, adminUserDetailsUpdate, adminUserPasswordUpdate } from './auth.js';
-import { getData } from './dataStore.js';
 import { clear } from './other.js';
 
 beforeEach(()=> {
@@ -87,8 +86,8 @@ describe('adminUserDetailsUpdate', () => {
     });
 
     test.each([
-        {test: 'invalid authUserId', authUserId: -99, email: 'validemail@gmail.com', nameFirst: 'Jane', nameLast: 'Smith'},
-        {test: 'invalid authUserId', authUserId: 999, email: 'validemail@gmail.com', nameFirst: 'Jane', nameLast: 'Smith'},
+        {test: 'invalid authUserId', authUserId: data + 1, email: 'validemail@gmail.com', nameFirst: 'Jane', nameLast: 'Smith'},
+        {test: 'invalid authUserId', authUserId: data + 99, email: 'validemail@gmail.com', nameFirst: 'Jane', nameLast: 'Smith'},
         {test: 'invalid email', authUserId: 1, email: 'invalidemail', nameFirst: 'Jane', nameLast: 'Smith'},
         {test: 'invalid nameFirst(contain invalid characters)', authUserId: 1, email: 'validemail@gmail.com', nameFirst: 'J++', nameLast: 'Smith'},
         {test: 'invalid nameFirst(too short)', authUserId: 1, email: 'validemail@gmail.com', nameFirst: 'J', nameLast: 'Smith'},
@@ -105,7 +104,7 @@ describe('adminUserDetailsUpdate', () => {
 // 2. Testing for return value
 test('adminUserDetailsUpdate return type', () => {
     clear();
-    let data = adminAuthRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith');
+    adminAuthRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith');
     expect(adminUserDetailsUpdate(1, 'validemail1@gmail.com', 'Jane', 'Smith')).toStrictEqual({});
 
 })
