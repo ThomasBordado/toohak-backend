@@ -85,8 +85,8 @@ describe('adminUserPasswordUpdate', () => {
     });
 
     test.each([
-        {test: 'invalid authUserId', authUserId: -99, oldPassword: '1234567a', newPassword: '1234567b'},
-        {test: 'invalid authUserId', authUserId: 999, oldPassword: '1234567a', newPassword: '1234567b'},
+        {test: 'invalid authUserId', authUserId: data + 1, oldPassword: '1234567a', newPassword: '1234567b'},
+        {test: 'invalid authUserId', authUserId: data + 99, oldPassword: '1234567a', newPassword: '1234567b'},
         {test: 'old password incorrect', authUserId: 1,oldPassword: '1234567b', newPassword: '1234567c'},
         {test: 'Old Password and New Password match exactly', oldPassword: '1234567a', newPassword: '1234567a'},
         {test: 'New password not valid(too short)', authUserId: 1, oldPassword: '1234567a', newPassword: '123'},
