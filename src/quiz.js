@@ -1,3 +1,7 @@
+import {getData, setData} from './dataStore.js';
+import {validUserId, checkQuizName} from './quizUtil.js';
+import timestamp from 'unix-timestamp-offset';
+
 /**
  * Provides a list of all quizzes that are owned by the currently logged in user
  * @param {number} authUserId - unique identifier for an academic
@@ -21,9 +25,32 @@ function adminQuizList(authUserId) {
  * @param {string} description - quiz description
  * @returns {{quizId: number}} - for valid authUserID, name and discription
  */
+
 function adminQuizCreate(authUserId, name, description) {
+
+  let data = getData();
+  let user = validUserId(authUserId, data.users)
+  if ('error' in user) {
+    return user;
+  } else if (checkQuizName(name, user.quizzes) != true) {
+    return checkQuizName(name, user.quizzes);
+  } else if (description.length > 100) {
+    return {error: 'Description cannot be greater than 100 characters'};
+  }
+  
+  data.quizIdStore += 1;
+  let newQuiz = {
+    quizId: data.quizIdStore,
+      name: name,
+      timeCreated: timestamp(),
+      timeLastEdited: timestamp(),
+      description: description,
+  }
+
+  data.quizzes.push({newQuiz})
+  user.quizzes.push({quizId: data.quizIdStore, name: name});
   return {
-    quizId: 2
+    quizId: data.quizIdStore
   };
 }
 
@@ -75,3 +102,5 @@ function adminQuizDescriptionUpdate(authUserId, quizId, description) {
 
   };
 }
+
+export {adminQuizCreate};

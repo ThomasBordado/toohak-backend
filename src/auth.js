@@ -30,7 +30,7 @@ function adminAuthRegister(email, password, nameFirst, nameLast) {
         email: email,
         password: password,
         prevpassword:[],
-        numSuccessfulLogins: 0,
+        numSuccessfulLogins: 1,
         numFailedPasswordsSinceLastLogin: 0,
         quizzes: [],
     };
@@ -46,7 +46,7 @@ function adminAuthRegister(email, password, nameFirst, nameLast) {
  * @param {string} email - User's email
  * @param {string} password - User's password
  * 
- * @returns {authUserId: number} - unique identifier for an academic, given email and password
+ * @returns {authUserId: number} - unique identifier for a user, given email and password
  */
 function adminAuthLogin(email, password) {
     let users = getData().users;
