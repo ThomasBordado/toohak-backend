@@ -29,7 +29,6 @@ function adminAuthRegister(email, password, nameFirst, nameLast) {
         nameLast: nameLast,
         email: email,
         password: password,
-        prevpassword:[],
         numSuccessfulLogins: 0,
         numFailedPasswordsSinceLastLogin: 0,
         quizzes: [],
@@ -104,7 +103,7 @@ function adminUserDetails(authUserId) {
  * @returns {} - For updated user details 
  */
 function adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast) {
-    return {};
+    return { };
 }
 
 
