@@ -50,7 +50,7 @@ function adminAuthRegister(email, password, nameFirst, nameLast) {
 function adminAuthLogin(email, password) {
     let users = getData().users;
     if (users.length === 0) {
-        return { 
+        return {
             error: 'Email address does not exist.'
         };
     }
@@ -84,12 +84,12 @@ function adminAuthLogin(email, password) {
 function adminUserDetails(authUserId) {
     return {
         user: {
-            userId: 1, 
-            name: 'Hayden Smith', 
+            userId: 1,
+            name: 'Hayden Smith',
             email: 'hayden.smith@unsw.edu.au',
-            numSuccessfulLogins: 3, 
+            numSuccessfulLogins: 3,
             numFailedPasswordsSinceLastLogin: 1,
-        } 
+        }
     };
 }
 
@@ -97,13 +97,13 @@ function adminUserDetails(authUserId) {
  * Given an admin user's authUserId and a set of properties, update the properties of this logged in admin user.
  * @param {number} authUserId - unique identifier for an academic
  * @param {string} email - User's email
- * @param {string} nameFrist - User's first name
+ * @param {string} nameFirst - User's first name
  * @param {string} nameLast - User's last name
  * 
  * @returns {} - For updated user details 
  */
 function adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast) {
-    return { };
+    return {};
 }
 
 /** 
@@ -113,7 +113,7 @@ function adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast) {
 * @param {string} newPassword - the new password
 * @return {} - the password been updated
 */
-function adminUserPasswordUpdate( authUserId, oldPassword, newPassword ) {
+function adminUserPasswordUpdate(authUserId, oldPassword, newPassword) {
     return {};
 }
 
