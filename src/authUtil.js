@@ -97,6 +97,7 @@ function usersList() {
     return(data.users);
 }
 
+
 /**
  * Given the two objects and check if they are the same
  * @param {object} - object1
