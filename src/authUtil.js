@@ -87,6 +87,7 @@ function isValidUserId(authUserId) {
     return false;
 }
 
+
 /**
  * A helper function for my test. Show the user list
  * 
@@ -96,8 +97,6 @@ function usersList() {
     let data = getData();
     return(data.users);
 }
-
-
 /**
  * Given the two objects and check if they are the same
  * @param {object} - object1
@@ -151,7 +150,29 @@ function isNewPasswordUsed(authUserId, newPassword) {
         return true;
     }
     return false;
-    
 }
 
-export { checkEmail, checkPassword, checkName, isValidUserId, usersList, isSame, isPasswordCorrect, isNewPasswordUsed};
+
+/**
+ * Check a given email. If valid return true and if the email
+ * is in use by other users
+ * @param {string} email - User's email
+ * 
+ * @returns {boolean} - False if it is a used email.
+ */
+function isEmailUsedByOther(email, authUserId) {
+    let data = getData();
+    
+    if (data.users.length === 0) {
+        return false;
+    }    
+    
+    const userWithSameEmail = data.users.find(users => users.email === email && users.userId !== authUserId);
+    if (userWithSameEmail) {
+        return true;
+    }
+
+    return false;
+}
+
+export { checkEmail, checkPassword, checkName, isValidUserId, usersList, isSame, isPasswordCorrect,isNewPasswordUsed , isEmailUsedByOther} ;
