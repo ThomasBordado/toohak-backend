@@ -113,7 +113,7 @@ describe('adminUserDetailsUpdate', () => {
         {test: 'invalid authUserId', authUserId: data.authUserId + 1, email: 'validemail@gmail.com', nameFirst: 'Jane', nameLast: 'Smith'},
         {test: 'invalid authUserId', authUserId: data.authUserId + 99, email: 'validemail@gmail.com', nameFirst: 'Jane', nameLast: 'Smith'},
         {test: 'invalid email', authUserId: data.authUserId, email: 'invalidemail', nameFirst: 'Jane', nameLast: 'Smith'},
-        {test: 'invalid nameFirst(contain invalid characters)', authUserId: 1, email: 'validemail@gmail.com', nameFirst: 'J++', nameLast: 'Smith'},
+        {test: 'invalid nameFirst(contain invalid characters)', authUserId: data.authUserId, email: 'validemail@gmail.com', nameFirst: 'J++', nameLast: 'Smith'},
         {test: 'invalid nameFirst(too short)', authUserId: data.authUserId, email: 'validemail@gmail.com', nameFirst: 'J', nameLast: 'Smith'},
         {test: 'invalid nameFirst(too long)', authUserId: data.authUserId, email: 'validemail@gmail.com', nameFirst: 'JaneJaneJaneJaneJaneJane', nameLast: 'Smith'},
         {test: 'invalid nameLast(contain invalid characters)', authUserId: data.authUserId, email: 'validemail@gmail.com', nameFirst: 'Jane', nameLast: 'S++'},
