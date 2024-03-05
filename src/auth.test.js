@@ -112,13 +112,13 @@ describe('adminUserDetailsUpdate', () => {
         data = adminAuthRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith'),
         {test: 'invalid authUserId', authUserId: data.authUserId + 1, email: 'validemail@gmail.com', nameFirst: 'Jane', nameLast: 'Smith'},
         {test: 'invalid authUserId', authUserId: data.authUserId + 99, email: 'validemail@gmail.com', nameFirst: 'Jane', nameLast: 'Smith'},
-        {test: 'invalid email', authUserId: 1, email: 'invalidemail', nameFirst: 'Jane', nameLast: 'Smith'},
+        {test: 'invalid email', authUserId: data.authUserId, email: 'invalidemail', nameFirst: 'Jane', nameLast: 'Smith'},
         {test: 'invalid nameFirst(contain invalid characters)', authUserId: 1, email: 'validemail@gmail.com', nameFirst: 'J++', nameLast: 'Smith'},
-        {test: 'invalid nameFirst(too short)', authUserId: 1, email: 'validemail@gmail.com', nameFirst: 'J', nameLast: 'Smith'},
-        {test: 'invalid nameFirst(too long)', authUserId: 1, email: 'validemail@gmail.com', nameFirst: 'JaneJaneJaneJaneJaneJane', nameLast: 'Smith'},
-        {test: 'invalid nameLast(contain invalid characters)', authUserId: 1, email: 'validemail@gmail.com', nameFirst: 'Jane', nameLast: 'S++'},
-        {test: 'invalid nameLast(too short)', authUserId: 1, email: 'validemail@gmail.com', nameFirst: 'Jane', nameLast: 'S'},
-        {test: 'invalid nameLast(too long)', authUserId: 1, email: 'validemail@gmail.com', nameFirst: 'Jane', nameLast: 'SmithSmithSmithSmithSmith'},
+        {test: 'invalid nameFirst(too short)', authUserId: data.authUserId, email: 'validemail@gmail.com', nameFirst: 'J', nameLast: 'Smith'},
+        {test: 'invalid nameFirst(too long)', authUserId: data.authUserId, email: 'validemail@gmail.com', nameFirst: 'JaneJaneJaneJaneJaneJane', nameLast: 'Smith'},
+        {test: 'invalid nameLast(contain invalid characters)', authUserId: data.authUserId, email: 'validemail@gmail.com', nameFirst: 'Jane', nameLast: 'S++'},
+        {test: 'invalid nameLast(too short)', authUserId: data.authUserId, email: 'validemail@gmail.com', nameFirst: 'Jane', nameLast: 'S'},
+        {test: 'invalid nameLast(too long)', authUserId: data.authUserId, email: 'validemail@gmail.com', nameFirst: 'Jane', nameLast: 'SmithSmithSmithSmithSmith'},
 
     ]) ("adminUserDetailsUpdate error: '$test'", ({authUserId, email, nameFirst, nameLast}) => {
         expect(adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast)).toStrictEqual({error: expect.any(String)});
@@ -137,11 +137,11 @@ test('adminUserDetailsUpdate return type', () => {
 //one user
 test('adminUserDetailsUpdate return type', () => {          
     clear();
-    adminAuthRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith');
-    adminUserDetailsUpdate(1, 'validemail1@gmail.com', 'Jennifer', 'Lawson');
+    let id1 = adminAuthRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith');
+    adminUserDetailsUpdate(id1.authUserId, 'validemail1@gmail.com', 'Jennifer', 'Lawson');
     let result = usersList().sort((a, b) => a.userId - b.userId)
     let users =[
-        {userId: 1, 
+        {userId: id1.authUserId, 
         nameFirst: 'Jennifer', 
         nameLast: 'Lawson', 
         email: 'validemail1@gmail.com', 
@@ -158,12 +158,12 @@ test('adminUserDetailsUpdate return type', () => {
 //more than one user
 test('adminUserDetailsUpdate return type', () => {
     clear();
-    adminAuthRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith');
-    adminAuthRegister('validemail2@gmail.com', '1234567a', 'Jane', 'Smith');
-    adminUserDetailsUpdate(2, 'validemail1@gmail.com', 'Jennifer', 'Lawson');
+    let id1 = adminAuthRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith');
+    let id2 = adminAuthRegister('validemail2@gmail.com', '1234567a', 'Jane', 'Smith');
+    adminUserDetailsUpdate(id2.authUserId, 'validemail1@gmail.com', 'Jennifer', 'Lawson');
     let result = usersList().sort((a, b) => a.userId - b.userId)
     let users =
-        [{userId: 1, 
+        [{userId: id1.authUserId, 
         nameFirst: 'Jane', 
         nameLast: 'Smith', 
         email: 'validemail@gmail.com', 
@@ -172,7 +172,7 @@ test('adminUserDetailsUpdate return type', () => {
         numSuccessfulLogins: 1,
         numFailedPasswordsSinceLastLogin: 0,
         quizzes: [],
-  }, {userId: 2, 
+  }, {userId: id2.authUserId, 
     nameFirst: 'Jennifer', 
     nameLast: 'Lawson', 
     email: 'validemail1@gmail.com', 
