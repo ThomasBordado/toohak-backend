@@ -91,3 +91,98 @@ describe('Test adminAuthLogin', () => {
 
     test.todo('Add tests checking numSuccessfulLogins and numSuccessfulLogins and numFailedPasswordsSinceLastLogin is updated');
 });
+
+
+/**
+ * Test for adminUserDetailsUpdate
+ */
+import {usersList} from './authUtil.js'
+beforeEach(()=> {
+    clear();
+    
+});
+
+
+describe('adminUserDetailsUpdate', () => {
+    let data;
+    beforeEach(() => {
+    });
+
+    test.each([
+        data = adminAuthRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith'),
+        {test: 'invalid authUserId', authUserId: data.authUserId + 1, email: 'validemail@gmail.com', nameFirst: 'Jane', nameLast: 'Smith'},
+        {test: 'invalid authUserId', authUserId: data.authUserId + 99, email: 'validemail@gmail.com', nameFirst: 'Jane', nameLast: 'Smith'},
+        {test: 'invalid email', authUserId: data.authUserId, email: 'invalidemail', nameFirst: 'Jane', nameLast: 'Smith'},
+        {test: 'invalid nameFirst(contain invalid characters)', authUserId: data.authUserId, email: 'validemail@gmail.com', nameFirst: 'J++', nameLast: 'Smith'},
+        {test: 'invalid nameFirst(too short)', authUserId: data.authUserId, email: 'validemail@gmail.com', nameFirst: 'J', nameLast: 'Smith'},
+        {test: 'invalid nameFirst(too long)', authUserId: data.authUserId, email: 'validemail@gmail.com', nameFirst: 'JaneJaneJaneJaneJaneJane', nameLast: 'Smith'},
+        {test: 'invalid nameLast(contain invalid characters)', authUserId: data.authUserId, email: 'validemail@gmail.com', nameFirst: 'Jane', nameLast: 'S++'},
+        {test: 'invalid nameLast(too short)', authUserId: data.authUserId, email: 'validemail@gmail.com', nameFirst: 'Jane', nameLast: 'S'},
+        {test: 'invalid nameLast(too long)', authUserId: data.authUserId, email: 'validemail@gmail.com', nameFirst: 'Jane', nameLast: 'SmithSmithSmithSmithSmith'},
+
+    ]) ("adminUserDetailsUpdate error: '$test'", ({authUserId, email, nameFirst, nameLast}) => {
+        expect(adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast)).toStrictEqual({error: expect.any(String)});
+    })
+});
+
+// 2. Testing for return value
+test('adminUserDetailsUpdate return type', () => {
+    clear();
+    let data = adminAuthRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith');
+    expect(adminUserDetailsUpdate(data.authUserId, 'validemail1@gmail.com', 'Jane', 'Smith')).toStrictEqual({});
+
+})
+
+// 3. Testing for behaviors
+//one user
+test('adminUserDetailsUpdate return type', () => {          
+    clear();
+    let id1 = adminAuthRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith');
+    adminUserDetailsUpdate(id1.authUserId, 'validemail1@gmail.com', 'Jennifer', 'Lawson');
+    let result = usersList().sort((a, b) => a.userId - b.userId)
+    let users =[
+        {userId: id1.authUserId, 
+        nameFirst: 'Jennifer', 
+        nameLast: 'Lawson', 
+        email: 'validemail1@gmail.com', 
+        password: '1234567a', 
+        prevpassword: [], 
+        numSuccessfulLogins: 1,
+        numFailedPasswordsSinceLastLogin: 0,
+        quizzes: [],
+        }
+    ]
+    let expectedList = users.sort((a, b) => a.userId - b.userId);
+    expect(result).toStrictEqual(expectedList);
+})
+//more than one user
+test('adminUserDetailsUpdate return type', () => {
+    clear();
+    let id1 = adminAuthRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith');
+    let id2 = adminAuthRegister('validemail2@gmail.com', '1234567a', 'Jane', 'Smith');
+    adminUserDetailsUpdate(id2.authUserId, 'validemail1@gmail.com', 'Jennifer', 'Lawson');
+    let result = usersList().sort((a, b) => a.userId - b.userId)
+    let users =
+        [{userId: id1.authUserId, 
+        nameFirst: 'Jane', 
+        nameLast: 'Smith', 
+        email: 'validemail@gmail.com', 
+        password: '1234567a', 
+        prevpassword: [], 
+        numSuccessfulLogins: 1,
+        numFailedPasswordsSinceLastLogin: 0,
+        quizzes: [],
+  }, {userId: id2.authUserId, 
+    nameFirst: 'Jennifer', 
+    nameLast: 'Lawson', 
+    email: 'validemail1@gmail.com', 
+    password: '1234567a', 
+    prevpassword: [], 
+    numSuccessfulLogins: 1,
+    numFailedPasswordsSinceLastLogin: 0,
+    quizzes: [],
+}];
+    let expectedList = users.sort((a, b) => a.userId - b.userId);
+    expect(result).toStrictEqual(expectedList);
+
+})

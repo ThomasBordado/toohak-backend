@@ -67,4 +67,34 @@ function checkName(name, position) {
     return true;
 }
 
-export { checkEmail, checkPassword, checkName };
+/**
+ * Given an authUserId and check if it's exists in the user list
+ * @param {number} authUserId - unique identifier for an academic
+ * 
+ * @return {boolean} -if Id is valid reutrn true, else return false
+ */
+function isValidUserId(authUserId) {
+    let data = getData();
+    if (data.length === 0) {
+        return false;
+    }
+
+    for (const users of data.users) {
+        if (users.userId === authUserId) {
+            return true
+        }
+    }
+    return false;
+}
+
+/**
+ * A helper function for my test. Show the user list
+ * 
+ * @return {Array} -users from data
+ */
+function usersList() {
+    let data = getData();
+    return(data.users);
+}
+
+export { checkEmail, checkPassword, checkName, isValidUserId, usersList};

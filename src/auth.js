@@ -1,4 +1,4 @@
-import { checkEmail, checkPassword, checkName } from './authUtil.js';
+import { checkEmail, checkPassword, checkName, isValidUserId } from './authUtil.js';
 import { getData, setData } from './dataStore.js';
 
 /**
@@ -29,6 +29,7 @@ function adminAuthRegister(email, password, nameFirst, nameLast) {
         nameLast: nameLast,
         email: email,
         password: password,
+        prevpassword:[],
         numSuccessfulLogins: 1,
         numFailedPasswordsSinceLastLogin: 0,
         quizzes: [],
@@ -103,8 +104,42 @@ function adminUserDetails(authUserId) {
  * @returns {} - For updated user details 
  */
 function adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast) {
-    return { };
+    // 1. Check if AuthUserId is a valid user
+    if (!isValidUserId(authUserId)) {
+        return {error: 'AuthUserId is not a valid user.'};
+    }
+    
+    // 2. Check if the email is used by another user(excluding the current authorised user)
+    if (checkEmail(email) != true) {
+        return checkEmail(email);
+    }
+
+    // 4. Check if NameFirst contains characters other than lowercase letters,
+    // uppercase letters, spaces, hyphens, or apostrophes
+    if (checkName(nameFirst) != true) {
+        return checkName(nameFirst, 'First');
+    }
+
+    // 7. Check the length of NameLast
+    if (checkName(nameLast) != true) {
+        return checkName(nameLast, 'Last')
+    }
+    
+    // 8. Update the data
+    let data = getData();
+    for (const users of data.users) {
+        if (users.userId === authUserId) {
+            users.email = email;
+            users.nameFirst = nameFirst;
+            users.nameLast = nameLast;
+            setData(data);
+            break;
+        }
+    }
+
+    return {};
 }
+
 
 /** 
 *Given details relating to a password change, update the password of a logged in user.
@@ -117,4 +152,4 @@ function adminUserPasswordUpdate( authUserId, oldPassword, newPassword ) {
     return {};
 }
 
-export { adminAuthRegister, adminAuthLogin };
+export { adminAuthRegister, adminAuthLogin, adminUserDetailsUpdate};
