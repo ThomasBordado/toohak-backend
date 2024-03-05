@@ -108,17 +108,17 @@ describe('adminUserPasswordUpdate', () => {
     let data;
     beforeEach(() => {
         clear();
-        data = adminAuthRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith');
     });
 
     test.each([
-        {test: 'invalid authUserId', authUserId: data + 1, oldPassword: '1234567a', newPassword: '1234567b'},
-        {test: 'invalid authUserId', authUserId: data + 99, oldPassword: '1234567a', newPassword: '1234567b'},
-        {test: 'old password incorrect', authUserId: 1,oldPassword: '1234567b', newPassword: '1234567c'},
+        data = adminAuthRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith'),
+        {test: 'invalid authUserId', authUserId: data.authUserId + 1, oldPassword: '1234567a', newPassword: '1234567b'},
+        {test: 'invalid authUserId', authUserId: data.authUserId + 99, oldPassword: '1234567a', newPassword: '1234567b'},
+        {test: 'old password incorrect', authUserId: data.authUserId,oldPassword: '1234567b', newPassword: '1234567c'},
         {test: 'Old Password and New Password match exactly', oldPassword: '1234567a', newPassword: '1234567a'},
-        {test: 'New password not valid(too short)', authUserId: 1, oldPassword: '1234567a', newPassword: '123'},
-        {test: 'New password not valid(does not contain letter)', authUserId: 1,oldPassword: '1234567a', newPassword: '12345678'},
-        {test: 'New password not valid(does not contain number)', authUserId: 1, oldPassword: '1234567a', newPassword: 'abcdefgh'},
+        {test: 'New password not valid(too short)', authUserId: data.authUserId, oldPassword: '1234567a', newPassword: '123'},
+        {test: 'New password not valid(does not contain letter)', authUserId: data.authUserId,oldPassword: '1234567a', newPassword: '12345678'},
+        {test: 'New password not valid(does not contain number)', authUserId: data.authUserId, oldPassword: '1234567a', newPassword: 'abcdefgh'},
 
     ]) ("adminUserPasswordUpdate error: '$test'", ({authUserId, oldPassword, newPassword}) => {
         expect(adminUserPasswordUpdate(authUserId, oldPassword, newPassword)).toStrictEqual({error: expect.any(String)});
@@ -129,7 +129,7 @@ describe('adminUserPasswordUpdate', () => {
 test('adminUserPasswordUpdate return type', () => {
     clear();
     let data = adminAuthRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith');
-    expect(adminUserPasswordUpdate(1, '1234567a', '1234567b')).toStrictEqual({});
+    expect(adminUserPasswordUpdate(data.authUserId, '1234567a', '1234567b')).toStrictEqual({});
 
 })
 
@@ -137,10 +137,11 @@ test('adminUserPasswordUpdate return type', () => {
 //one user
 test('adminUserPasswordUpdate return type', () => {          
     clear();
-    adminAuthRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith');
+    let id1 = adminAuthRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith');
     adminUserPasswordUpdate(1, '1234567a', '1234567b');
-    expect(usersList()).toStrictEqual(
-        [{userId: 1, 
+    let result1 = usersList().sort((a, b) => a.userId - b.userId)
+    let users1 =
+        [{userId: id1.authUserId, 
         nameFirst: 'Jane', 
         nameLast: 'Smith', 
         email: 'validemail@gmail.com', 
@@ -149,19 +150,21 @@ test('adminUserPasswordUpdate return type', () => {
         numSuccessfulLogins: 1,
         numFailedPasswordsSinceLastLogin: 0,
         quizzes: [],
-  }]
-    );
+    }];
+    let expectedList = users1.sort((a, b) => a.userId - b.userId);
+    expect(result1).toStrictEqual(expectedList);
 
 })
 //more than one user and with adminUserDetailsUpdate, many times
 test('adminUserPasswordUpdate return type', () => {
     clear();
-    adminAuthRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith');
-    adminAuthRegister('validemail2@gmail.com', '1234567a', 'Jennifer', 'Smith');
+    let id1 = adminAuthRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith');
+    let id2 = adminAuthRegister('validemail2@gmail.com', '1234567a', 'Jennifer', 'Smith');
     adminUserPasswordUpdate(2, '1234567a', '1234567b');
     adminUserPasswordUpdate(2, '1234567b', '1234567c');
-    expect(usersList()).toStrictEqual(
-        [{userId: 1, 
+    let result = usersList().sort((a, b) => a.userId - b.userId)
+    let users =
+        [{userId: id1.authUserId, 
         nameFirst: 'Jane', 
         nameLast: 'Smith', 
         email: 'validemail@gmail.com', 
@@ -170,7 +173,7 @@ test('adminUserPasswordUpdate return type', () => {
         numSuccessfulLogins: 1,
         numFailedPasswordsSinceLastLogin: 0,
         quizzes: [],
-  }, {userId: 2, 
+  }, {userId: id2.authUserId, 
     nameFirst: 'Jennifer', 
     nameLast: 'Smith', 
     email: 'validemail2@gmail.com', 
@@ -179,7 +182,9 @@ test('adminUserPasswordUpdate return type', () => {
     numSuccessfulLogins: 1,
     numFailedPasswordsSinceLastLogin: 0,
     quizzes: [],
-}]
-    );
+    }];
+    let expectedList = users.sort((a, b) => a.userId - b.userId);
+    expect(result).toStrictEqual(expectedList);
+
 
 })
