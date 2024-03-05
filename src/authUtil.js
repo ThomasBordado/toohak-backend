@@ -97,4 +97,61 @@ function usersList() {
     return(data.users);
 }
 
-export { checkEmail, checkPassword, checkName, isValidUserId, usersList};
+
+/**
+ * Given the two objects and check if they are the same
+ * @param {object} - object1
+ * @param {object} - object2
+ * 
+ * @return {boolean} - return true if the two objects are the same
+ */
+function isSame(a, b) {
+    if (a === b) {
+        return true;
+    }
+    return false;
+}
+
+
+/**
+ * Given the UserId and a password, check if the entered password correct
+ * @param {number} authUserId - unique Id for user
+ * @param {string} enterdPassword - the password entered
+ * 
+ * @returns {boolean} - return false if password isn't correct
+ */
+function isPasswordCorrect(authUserId, enterdPassword) {
+    let data = getData();
+    const user = data.users.find(users => users.userId === authUserId);
+    if (user.password === enterdPassword) {
+        return true;
+    } else {
+    return false
+    }
+}
+
+/**
+ * Given the UserId and new password, check if it's used before by this user
+ * @param {string} newPassword -the new password
+ * @param {string} authUserId - unique Id for authUser
+ * 
+ * @return {boolean} - return false if the new password is not used before by the user
+ */
+function isNewPasswordUsed(authUserId, newPassword) {
+    let data = getData();
+    const user = data.users.find(users => users.userId === authUserId);
+    
+    // If prevpassword is empty
+    if (user.prevpassword.length === 0) {
+        return false;
+    }
+
+    const found = user.prevpassword.find(prevpassword => prevpassword === newPassword);
+    if (found !== undefined) {
+        return true;
+    }
+    return false;
+    
+}
+
+export { checkEmail, checkPassword, checkName, isValidUserId, usersList, isSame, isPasswordCorrect, isNewPasswordUsed};
