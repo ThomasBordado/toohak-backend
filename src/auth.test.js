@@ -138,7 +138,7 @@ test('adminUserPasswordUpdate return type', () => {
 test('adminUserPasswordUpdate return type', () => {          
     clear();
     let id1 = adminAuthRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith');
-    adminUserPasswordUpdate(1, '1234567a', '1234567b');
+    adminUserPasswordUpdate(id1.authUserId, '1234567a', '1234567b');
     let result1 = usersList().sort((a, b) => a.userId - b.userId)
     let users1 =
         [{userId: id1.authUserId, 
@@ -160,8 +160,8 @@ test('adminUserPasswordUpdate return type', () => {
     clear();
     let id1 = adminAuthRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith');
     let id2 = adminAuthRegister('validemail2@gmail.com', '1234567a', 'Jennifer', 'Smith');
-    adminUserPasswordUpdate(2, '1234567a', '1234567b');
-    adminUserPasswordUpdate(2, '1234567b', '1234567c');
+    adminUserPasswordUpdate(id2.authUserId, '1234567a', '1234567b');
+    adminUserPasswordUpdate(id2.authUserId, '1234567b', '1234567c');
     let result = usersList().sort((a, b) => a.userId - b.userId)
     let users =
         [{userId: id1.authUserId, 
