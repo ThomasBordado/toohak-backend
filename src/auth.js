@@ -1,4 +1,4 @@
-import { checkEmail, checkPassword, checkName } from './authUtil.js';
+import { checkEmail, checkPassword, checkName, isValidUserId, isSame, isPasswordCorrect, isNewPasswordUsed } from './authUtil.js';
 import { getData, setData } from './dataStore.js';
 
 /**
@@ -29,6 +29,7 @@ function adminAuthRegister(email, password, nameFirst, nameLast) {
         nameLast: nameLast,
         email: email,
         password: password,
+        prevpassword: [],
         numSuccessfulLogins: 1,
         numFailedPasswordsSinceLastLogin: 0,
         quizzes: [],
@@ -103,8 +104,42 @@ function adminUserDetails(authUserId) {
  * @returns {} - For updated user details 
  */
 function adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast) {
-    return { };
+    // 1. Check if AuthUserId is a valid user
+    if (!isValidUserId(authUserId)) {
+        return {error: 'AuthUserId is not a valid user.'};
+    }
+    
+    // 2. Check if the email is used by another user(excluding the current authorised user)
+    if (checkEmail(email) != true) {
+        return checkEmail(email);
+    }
+
+    // 4. Check if NameFirst contains characters other than lowercase letters,
+    // uppercase letters, spaces, hyphens, or apostrophes
+    if (checkName(nameFirst) != true) {
+        return checkName(nameFirst, 'First');
+    }
+
+    // 7. Check the length of NameLast
+    if (checkName(nameLast) != true) {
+        return checkName(nameLast, 'Last')
+    }
+    
+    // 8. Update the data
+    let data = getData();
+    for (const users of data.users) {
+        if (users.userId === authUserId) {
+            users.email = email;
+            users.nameFirst = nameFirst;
+            users.nameLast = nameLast;
+            setData(data);
+            break;
+        }
+    }
+
+    return {};
 }
+
 
 /** 
 *Given details relating to a password change, update the password of a logged in user.
@@ -114,7 +149,39 @@ function adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast) {
 * @return {} - the password been updated
 */
 function adminUserPasswordUpdate( authUserId, oldPassword, newPassword ) {
-    return {};
+    // 1. Check if AuthUserId is valid
+    if (!isValidUserId(authUserId)) {
+        return {error: 'AuthUserId is not a valid user.'}
+    }
+    
+    // 2. Check if the old password is correct
+    if (!isPasswordCorrect(authUserId, oldPassword)) {
+        return {error: 'Old Password is not the correct old password.'}
+    }
+    
+    // 3. Check if the old and new passwords are exactly the same
+    if (isSame(oldPassword, newPassword)) {
+        return {error: 'Old Password and New Password match exactly.'}
+    }
+       
+    // 4. Check if the password is used by this user
+    if (isNewPasswordUsed(authUserId, newPassword)) {
+        return {error: 'New Password has already been used before by this user.'}
+    }
+    
+    // 5. Check is the new password valid
+    if (checkPassword(newPassword) != true) {
+        return checkPassword(newPassword);
+    }
+    
+    let data = getData();
+    const user = data.users.find(users => users.userId === authUserId);
+    user.password = newPassword;
+    user.prevpassword.push(oldPassword);
+    setData(data);
+    
+        return {};
 }
 
-export { adminAuthRegister, adminAuthLogin };
+
+export { adminAuthRegister, adminAuthLogin, adminUserDetails, adminUserDetailsUpdate, adminUserPasswordUpdate };
