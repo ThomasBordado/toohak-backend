@@ -86,25 +86,25 @@ describe('adminQuizNameUpdate testing', () => {
 });
 
 describe('adminQuizDescriptionUpdate testing', () => {
+  let user;
+  let quiz;
+  beforeEach(() => {
+    user = adminAuthRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith');
+    quiz = adminQuizCreate(user.authUserId, 'My Quiz', 'My description.');
+  });
 
   // 1. Succesful quiz description update
   test('Test Succesful adminQuizDescriptionUpdate', () => {
-    const user = adminAuthRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith');
-    const quiz = adminQuizCreate(user.authUserId, 'My Quiz', 'My description.');
     expect(adminQuizDescriptionUpdate(user.authUserId, quiz.quizId, 'My updated description.')).toStrictEqual({});
   });
 
   // 2. authUserId is not a valid user 
   test('Test authUserId is not valid', () => {
-    const user = adminAuthRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith');
-    const quiz = adminQuizCreate(user.authUserId, 'My Quiz', 'My description.');
     expect(adminQuizDescriptionUpdate(user.authUserId + 1, quiz.quizId, 'My updated description.')).toStrictEqual({ error: expect.any(String) });
   });
 
   // 3. Quiz Id does not refer to a valid quiz
   test('Test quizid does not refer to valid quiz', () => {
-    const user = adminAuthRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith');
-    const quiz = adminQuizCreate(user.authUserId, 'My Quiz', 'My description.');
     expect(adminQuizDescriptionUpdate(user.authUserId, quiz.quizId + 1, 'My updated description.')).toStrictEqual({ error: expect.any(String) });
   });
 
@@ -113,11 +113,11 @@ describe('adminQuizDescriptionUpdate testing', () => {
     const user1 = adminAuthRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith');
     const user2 = adminAuthRegister('jared@gmail.com', 'password3', 'Jared', 'Simion');
     const notmyquiz = adminQuizCreate(user2.authUserId, 'My Quiz2', 'My description.');
-    expect(adminQuizDescriptionUpdate(user1.authUserId, notmyquiz, 'My updated description.')).toStrictEqual({ error: expect.any(String) });
+    expect(adminQuizDescriptionUpdate(user1.authUserId, notmyquiz.quizId, 'My updated description.')).toStrictEqual({ error: expect.any(String) });
   });
 
   //5. Quiz description is more than 100 characters long
   test('Test quiz description < 100 characters long', () => {
-    expect(adminQuizDescriptionUpdate(user.authUserId, 'My quiz', 'My very, very, very, very, very, very, very, very, very, very, very, very, very, very, long description.')).toStrictEqual({ error: expect.any(String) });
+    expect(adminQuizDescriptionUpdate(user.authUserId, quiz.quizId, 'My very, very, very, very, very, very, very, very, very, very, very, very, very, very, long description.')).toStrictEqual({ error: expect.any(String) });
   });
 });
