@@ -106,12 +106,12 @@ beforeEach(()=> {
 describe('adminUserDetailsUpdate', () => {
     let data;
     beforeEach(() => {
-        data = adminAuthRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith');
     });
 
     test.each([
-        {test: 'invalid authUserId', authUserId: data + 1, email: 'validemail@gmail.com', nameFirst: 'Jane', nameLast: 'Smith'},
-        {test: 'invalid authUserId', authUserId: data + 99, email: 'validemail@gmail.com', nameFirst: 'Jane', nameLast: 'Smith'},
+        data = adminAuthRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith'),
+        {test: 'invalid authUserId', authUserId: data.authUserId + 1, email: 'validemail@gmail.com', nameFirst: 'Jane', nameLast: 'Smith'},
+        {test: 'invalid authUserId', authUserId: data.authUserId + 99, email: 'validemail@gmail.com', nameFirst: 'Jane', nameLast: 'Smith'},
         {test: 'invalid email', authUserId: 1, email: 'invalidemail', nameFirst: 'Jane', nameLast: 'Smith'},
         {test: 'invalid nameFirst(contain invalid characters)', authUserId: 1, email: 'validemail@gmail.com', nameFirst: 'J++', nameLast: 'Smith'},
         {test: 'invalid nameFirst(too short)', authUserId: 1, email: 'validemail@gmail.com', nameFirst: 'J', nameLast: 'Smith'},
