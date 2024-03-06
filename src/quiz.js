@@ -1,5 +1,5 @@
-import {getData, setData} from './dataStore.js';
-import {validUserId, checkQuizName} from './quizUtil.js';
+import { getData, setData } from './dataStore.js';
+import { validUserId, checkQuizName } from './quizUtil.js';
 import timestamp from 'unix-timestamp-offset';
 
 /**
@@ -35,20 +35,20 @@ function adminQuizCreate(authUserId, name, description) {
   } else if (checkQuizName(name, user.quizzes) != true) {
     return checkQuizName(name, user.quizzes);
   } else if (description.length > 100) {
-    return {error: 'Description cannot be greater than 100 characters'};
+    return { error: 'Description cannot be greater than 100 characters' };
   }
-  
+
   data.quizIdStore += 1;
   let newQuiz = {
     quizId: data.quizIdStore,
-      name: name,
-      timeCreated: timestamp(),
-      timeLastEdited: timestamp(),
-      description: description,
+    name: name,
+    timeCreated: timestamp(),
+    timeLastEdited: timestamp(),
+    description: description,
   }
 
-  data.quizzes.push({newQuiz})
-  user.quizzes.push({quizId: data.quizIdStore, name: name});
+  data.quizzes.push({ newQuiz })
+  user.quizzes.push({ quizId: data.quizIdStore, name: name });
   return {
     quizId: data.quizIdStore
   };
@@ -97,10 +97,31 @@ function adminQuizNameUpdate(authUserID, quizId, name) {
  * @param {string} desciption - description of quiz
  * @returns {} - Updates quiz desciption
  */
-function adminQuizDescriptionUpdate(authUserId, quizId, description) {
-  return {
+function adminQuizDescriptionUpdate(authUserId, quizId, newDescription) {
 
-  };
+  let data = getData();
+  let user = validUserId(authUserId, data.users);
+  if ('error' in user) {
+    return user;
+  }
+  const quizIndex = data.quizzes.findIndex(quizzes => quizzes.quizId === quizId);
+
+  if (quizIndex === -1) {
+    return { error: 'Invalid quizId' };
+  }
+
+  const userQuizIndex = user.quizzes.findIndex(quizzes => quizzes.quizId === quizId);
+  if (userQuizIndex == -1) {
+    return { error: 'User does not own this quiz' };
+  }
+  if (newDescription.length > 100) {
+    return { error: 'New description cannot be greater than 100 characters' };
+  }
+
+  data.quizzes[quizIndex].description = newDescription;
+  setData(data);
+
+  return {};
 }
 
-export {adminQuizCreate};
+export { adminQuizCreate, adminQuizDescriptionUpdate };
