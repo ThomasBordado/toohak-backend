@@ -1,6 +1,7 @@
 import { checkEmail, checkPassword, checkName, isValidUserId, isSame, isPasswordCorrect, isNewPasswordUsed, isEmailUsedByOther } from './authUtil.js';
 import isEmail from 'validator/lib/isEmail.js';
 import { getData, setData } from './dataStore.js';
+import { validUserId } from './quizUtil.js';
 
 /**
  * Register a user with an email, password, and names, then returns their authUserId.
@@ -52,7 +53,7 @@ function adminAuthRegister(email, password, nameFirst, nameLast) {
 function adminAuthLogin(email, password) {
     let users = getData().users;
     if (users.length === 0) {
-        return { 
+        return {
             error: 'Email address does not exist.'
         };
     }
@@ -84,14 +85,21 @@ function adminAuthLogin(email, password) {
  * 
  */
 function adminUserDetails(authUserId) {
+
+    let data = getData();
+    let user = validUserId(authUserId, data.users)
+
+    if ('error' in user) {
+        return user;
+    }
     return {
         user: {
-            userId: 1, 
-            name: 'Hayden Smith', 
-            email: 'hayden.smith@unsw.edu.au',
-            numSuccessfulLogins: 3, 
-            numFailedPasswordsSinceLastLogin: 1,
-        } 
+            userId: user.userId,
+            name: user.nameFirst + ' ' + user.nameLast,
+            email: user.email,
+            numSuccessfulLogins: user.numSuccessfulLogins,
+            numFailedPasswordsSinceLastLogin: user.numFailedPasswordsSinceLastLogin,
+        }
     };
 }
 
@@ -99,7 +107,7 @@ function adminUserDetails(authUserId) {
  * Given an admin user's authUserId and a set of properties, update the properties of this logged in admin user.
  * @param {number} authUserId - unique identifier for an academic
  * @param {string} email - User's email
- * @param {string} nameFrist - User's first name
+ * @param {string} nameFirst - User's first name
  * @param {string} nameLast - User's last name
  * 
  * @returns {} - For updated user details 
@@ -142,7 +150,6 @@ function adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast) {
             break;
         }
     }
-
     return {};
 }
 
