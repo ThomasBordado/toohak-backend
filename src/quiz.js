@@ -119,6 +119,8 @@ function adminQuizDescriptionUpdate(authUserId, quizId, newDescription) {
   }
 
   data.quizzes[quizIndex].description = newDescription;
+  data.quizzes[quizIndex].timeLastEdited = timestamp();
+
   setData(data);
 
   return {};
