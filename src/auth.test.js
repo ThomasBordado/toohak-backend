@@ -90,7 +90,33 @@ describe('Test adminAuthLogin', () => {
         expect(adminAuthLogin('thomas@gmail.com', 'password2')).toStrictEqual({ error: expect.any(String) });
     });
 
-    test.todo('Add tests checking numSuccessfulLogins and numSuccessfulLogins and numFailedPasswordsSinceLastLogin is updated');
+    test('Test numSuccessfulLogins and numFailedPasswordsSinceLastLogin', () => {
+        // Register a user Hayden Smith
+        let user = adminAuthRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith');
+        // Get details of Hayden
+        let details = adminUserDetails(user.authUserId);
+        // Check that he has only logged in once and had no fails
+        expect(details.user.numSuccessfulLogins).toStrictEqual(1);
+        expect(details.user.numFailedPasswordsSinceLastLogin).toStrictEqual(0);
+        // Login to hayden
+        adminAuthLogin('hayden.smith@unsw.edu.au', 'password1');
+        details = adminUserDetails(user.authUserId);
+        // Number of logins increase
+        expect(details.user.numSuccessfulLogins).toStrictEqual(2);
+        expect(details.user.numFailedPasswordsSinceLastLogin).toStrictEqual(0);
+        // Fail a login
+        adminAuthLogin('hayden.smith@unsw.edu.au', 'password2');
+        details = adminUserDetails(user.authUserId);
+        // Number of failed logins increase
+        expect(details.user.numSuccessfulLogins).toStrictEqual(2);
+        expect(details.user.numFailedPasswordsSinceLastLogin).toStrictEqual(1);
+        // Login correctly
+        adminAuthLogin('hayden.smith@unsw.edu.au', 'password1');
+        details = adminUserDetails(user.authUserId);
+        // Number of failed logins resets to 0
+        expect(details.user.numSuccessfulLogins).toStrictEqual(3);
+        expect(details.user.numFailedPasswordsSinceLastLogin).toStrictEqual(0);
+    });
 });
 
 describe('Test adminUserDetails', () => {
