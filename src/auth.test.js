@@ -110,9 +110,11 @@ describe('adminUserDetailsUpdate', () => {
 
     test.each([
         data = adminAuthRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith'),
+        adminAuthRegister('validemail1@gmail.com', 'Jennifer', 'Lawson'),
         {test: 'invalid authUserId', authUserId: data.authUserId + 1, email: 'validemail@gmail.com', nameFirst: 'Jane', nameLast: 'Smith'},
         {test: 'invalid authUserId', authUserId: data.authUserId + 99, email: 'validemail@gmail.com', nameFirst: 'Jane', nameLast: 'Smith'},
         {test: 'invalid email', authUserId: data.authUserId, email: 'invalidemail', nameFirst: 'Jane', nameLast: 'Smith'},
+        {test: 'email used by other', authUserId: data.authUserId, email: 'validemail1@gmail.com', nameFirst: 'Jane', nameLast: 'Smith'},
         {test: 'invalid nameFirst(contain invalid characters)', authUserId: data.authUserId, email: 'validemail@gmail.com', nameFirst: 'J++', nameLast: 'Smith'},
         {test: 'invalid nameFirst(too short)', authUserId: data.authUserId, email: 'validemail@gmail.com', nameFirst: 'J', nameLast: 'Smith'},
         {test: 'invalid nameFirst(too long)', authUserId: data.authUserId, email: 'validemail@gmail.com', nameFirst: 'JaneJaneJaneJaneJaneJane', nameLast: 'Smith'},
@@ -135,7 +137,7 @@ test('adminUserDetailsUpdate return type', () => {
 
 // 3. Testing for behaviors
 //one user
-test('adminUserDetailsUpdate return type', () => {          
+test('adminUserDetailsUpdate one user', () => {          
     clear();
     let id1 = adminAuthRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith');
     adminUserDetailsUpdate(id1.authUserId, 'validemail1@gmail.com', 'Jennifer', 'Lawson');
@@ -156,7 +158,7 @@ test('adminUserDetailsUpdate return type', () => {
     expect(result).toStrictEqual(expectedList);
 })
 //more than one user
-test('adminUserDetailsUpdate return type', () => {
+test('adminUserDetailsUpdate update (more than one user)', () => {
     clear();
     let id1 = adminAuthRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith');
     let id2 = adminAuthRegister('validemail2@gmail.com', '1234567a', 'Jane', 'Smith');
@@ -187,7 +189,37 @@ test('adminUserDetailsUpdate return type', () => {
 
 })
 
+// Able to change if email is same as the old one
+test('adminUserDetailsUpdate new email is as same as the old one', () => {
+    clear();
+    let id1 = adminAuthRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith');
+    let id2 = adminAuthRegister('validemail2@gmail.com', '1234567a', 'Jane', 'Smith');
+    adminUserDetailsUpdate(id2.authUserId, 'validemail2@gmail.com', 'Jennifer', 'Lawson');
+    let result = usersList().sort((a, b) => a.userId - b.userId)
+    let users =
+        [{userId: id1.authUserId, 
+        nameFirst: 'Jane', 
+        nameLast: 'Smith', 
+        email: 'validemail@gmail.com',
+        password: '1234567a', 
+        prevpassword: [], 
+        numSuccessfulLogins: 1,
+        numFailedPasswordsSinceLastLogin: 0,
+        quizzes: [],
+  }, {userId: id2.authUserId, 
+    nameFirst: 'Jennifer', 
+    nameLast: 'Lawson', 
+    email: 'validemail2@gmail.com', 
+    password: '1234567a', 
+    prevpassword: [], 
+    numSuccessfulLogins: 1,
+    numFailedPasswordsSinceLastLogin: 0,
+    quizzes: [],
+}];
+    let expectedList = users.sort((a, b) => a.userId - b.userId);
+    expect(result).toStrictEqual(expectedList);
 
+})
 
 
 /**

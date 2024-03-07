@@ -1,4 +1,5 @@
-import { checkEmail, checkPassword, checkName, isValidUserId, isSame, isPasswordCorrect, isNewPasswordUsed } from './authUtil.js';
+import { checkEmail, checkPassword, checkName, isValidUserId, isSame, isPasswordCorrect, isNewPasswordUsed, isEmailUsedByOther } from './authUtil.js';
+import isEmail from 'validator/lib/isEmail.js';
 import { getData, setData } from './dataStore.js';
 
 /**
@@ -109,9 +110,14 @@ function adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast) {
         return {error: 'AuthUserId is not a valid user.'};
     }
     
-    // 2. Check if the email is used by another user(excluding the current authorised user)
-    if (checkEmail(email) != true) {
-        return checkEmail(email);
+    // 2. Check if the new email is invalid
+    if (!isEmail(email)) {
+        return {error: 'This is not a valid email.'};
+    }
+
+    // 3. Check if the email is used by another user(excluding the current authorised user)
+    if (isEmailUsedByOther(email, authUserId)) {
+        return {error: 'Email is used by other user.'}
     }
 
     // 4. Check if NameFirst contains characters other than lowercase letters,
@@ -120,12 +126,12 @@ function adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast) {
         return checkName(nameFirst, 'First');
     }
 
-    // 7. Check the length of NameLast
+    // 5. Check the length of NameLast
     if (checkName(nameLast) != true) {
         return checkName(nameLast, 'Last')
     }
     
-    // 8. Update the data
+    // 6. Update the data
     let data = getData();
     for (const users of data.users) {
         if (users.userId === authUserId) {
