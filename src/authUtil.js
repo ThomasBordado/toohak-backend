@@ -67,4 +67,112 @@ function checkName(name, position) {
     return true;
 }
 
-export { checkEmail, checkPassword, checkName };
+/**
+ * Given an authUserId and check if it's exists in the user list
+ * @param {number} authUserId - unique identifier for an academic
+ * 
+ * @return {boolean} -if Id is valid reutrn true, else return false
+ */
+function isValidUserId(authUserId) {
+    let data = getData();
+    if (data.length === 0) {
+        return false;
+    }
+
+    for (const users of data.users) {
+        if (users.userId === authUserId) {
+            return true
+        }
+    }
+    return false;
+}
+
+
+/**
+ * A helper function for my test. Show the user list
+ * 
+ * @return {Array} -users from data
+ */
+function usersList() {
+    let data = getData();
+    return(data.users);
+}
+/**
+ * Given the two objects and check if they are the same
+ * @param {object} - object1
+ * @param {object} - object2
+ * 
+ * @return {boolean} - return true if the two objects are the same
+ */
+function isSame(a, b) {
+    if (a === b) {
+        return true;
+    }
+    return false;
+}
+
+
+/**
+ * Given the UserId and a password, check if the entered password correct
+ * @param {number} authUserId - unique Id for user
+ * @param {string} enterdPassword - the password entered
+ * 
+ * @returns {boolean} - return false if password isn't correct
+ */
+function isPasswordCorrect(authUserId, enterdPassword) {
+    let data = getData();
+    const user = data.users.find(users => users.userId === authUserId);
+    if (user.password === enterdPassword) {
+        return true;
+    } else {
+    return false
+    }
+}
+
+/**
+ * Given the UserId and new password, check if it's used before by this user
+ * @param {string} newPassword -the new password
+ * @param {string} authUserId - unique Id for authUser
+ * 
+ * @return {boolean} - return false if the new password is not used before by the user
+ */
+function isNewPasswordUsed(authUserId, newPassword) {
+    let data = getData();
+    const user = data.users.find(users => users.userId === authUserId);
+    
+    // If prevpassword is empty
+    if (user.prevpassword.length === 0) {
+        return false;
+    }
+
+    const found = user.prevpassword.find(prevpassword => prevpassword === newPassword);
+    if (found !== undefined) {
+        return true;
+    }
+    return false;
+}
+
+
+/**
+ * Check a given email. If valid return true and if the email
+ * is in use by other users
+ * @param {string} email - User's email
+ * 
+ * @returns {boolean} - False if it is a used email.
+ */
+function isEmailUsedByOther(email, authUserId) {
+    let data = getData();
+    
+    if (data.users.length === 0) {
+        return false;
+    }    
+    
+    const userWithSameEmail = data.users.find(users => users.email === email && users.userId !== authUserId);
+    if (userWithSameEmail) {
+        return true;
+    }
+
+    return false;
+}
+
+export { checkEmail, checkPassword, checkName, isValidUserId, usersList, isSame, isPasswordCorrect,isNewPasswordUsed , isEmailUsedByOther} ;
