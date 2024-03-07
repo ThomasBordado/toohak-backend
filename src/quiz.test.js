@@ -53,7 +53,7 @@ describe('adminQuizInfo testing', () => {
     describe('Successful cases', () => {
         test('Return correct object containing quiz info', () => {
         expect(adminQuizInfo(user.authUserId, quiz.quizId)).toStrictEqual({
-            quizId: 1,
+            quizId: quiz.quizId,
             name: 'My Quiz',
             timeCreated: expect.any(Number),
             timeLastEdited: expect.any(Number),
