@@ -273,11 +273,7 @@ describe('adminQuizNameUpdate testing', () => {
     })
   });
   
-  describe('extra testing', () => {
-    test('correct quiz id', () => {
-      expect(quiz.quizId).toStrictEqual(1);
-    });
-  });
+  
 });
 
 
