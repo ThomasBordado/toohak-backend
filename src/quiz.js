@@ -89,14 +89,34 @@ function adminQuizRemove(authUserId, quizId) {
  * @param {number} quizId - unique identifier for a quiz
  * @returns {{quizId: number, name: string, timeCreated: number, timeLastEdited: number, description: string}} - for valid authUserId and quizId
  */
-function adminQuizInfo(authUserId, quizId) {
-  return {
-    quizId: 1,
-    name: 'My Quiz',
-    timeCreated: 1683125870,
-    timeLastEdited: 1683125871,
-    description: 'This is my quiz',
-  };
+export function adminQuizInfo(authUserId, quizId) {
+
+  let data = getData();
+  let user = validUserId(authUserId, data.users)
+  if ('error' in user) {
+      return user;
+  }
+
+  const quizzesIndex = data.quizzes.findIndex(quizzes => quizzes.quizId === quizId);
+  if (quizzesIndex == -1) {
+      return {error: 'Invalid quizId'};
+  }
+
+  const userQuizzesIndex = user.quizzes.findIndex(quizzes => quizzes.quizId === quizId);
+  if (userQuizzesIndex == -1) {
+      return {error: 'User does not own quiz'};
+  }
+
+  return data.quizzes[quizzesIndex];
+
+
+  // return {
+  //   quizId: 1,
+  //   name: 'My Quiz',
+  //   timeCreated: 1683125870,
+  //   timeLastEdited: 1683125871,
+  //   description: 'This is my quiz',
+  // };
 }
 
 /**
