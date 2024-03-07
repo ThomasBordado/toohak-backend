@@ -47,7 +47,7 @@ function adminQuizCreate(authUserId, name, description) {
     description: description,
   }
 
-  data.quizzes.push({ newQuiz })
+  data.quizzes.push(newQuiz)
   user.quizzes.push({ quizId: data.quizIdStore, name: name });
   return {
     quizId: data.quizIdStore
