@@ -97,17 +97,22 @@ describe('Test adminUserDetails', () => {
 
     // 1. Succesful return of account details
     test('Test succesful get user details', () => {
-        let result = adminUserDetails(adminAuthRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith'));
-        expect(result).toStrictEqual({ authUserId: expect.any(Number) });
-        expect(result).toStrictEqual({ name: expect.any(String) });
-        expect(result).toStrictEqual({ email: expect.any(String) });
-        expect(result).toStrictEqual({ numSuccesLogin: expect.any(Number) });
-        expect(result).toStrictEqual({ numFailPassword: expect.any(Number) });
+        let user1 = adminAuthRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith');
+        let result = adminUserDetails(user1.authUserId);
+        let user = {
+            userId: user1.authUserId,
+            name: 'Hayden Smith',
+            email: 'hayden.smith@unsw.edu.au',
+            numSuccessfulLogins: 1,
+            numFailedPasswordsSinceLastLogin: 0,
+        }
+
+        expect(result).toStrictEqual({ user: user });
     });
 
     // 2. Invalid authUserId
     test('Test Invalid User ID', () => {
-        expect(adminUserDetails(adminAuthRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith'))).toStrictEqual({ authUserId: expect.any(Number) });
+        let user1 = adminAuthRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith');
         expect(adminUserDetails(user1.authUserId + 1)).toStrictEqual({ error: expect.any(String) });
     })
 })

@@ -1,5 +1,6 @@
 import { checkEmail, checkPassword, checkName } from './authUtil.js';
 import { getData, setData } from './dataStore.js';
+import { validUserId } from './quizUtil.js';
 
 /**
  * Register a user with an email, password, and names, then returns their authUserId.
@@ -82,13 +83,20 @@ function adminAuthLogin(email, password) {
  * 
  */
 function adminUserDetails(authUserId) {
+
+    let data = getData();
+    let user = validUserId(authUserId, data.users)
+
+    if ('error' in user) {
+        return user;
+    }
     return {
         user: {
-            userId: 1,
-            name: 'Hayden Smith',
-            email: 'hayden.smith@unsw.edu.au',
-            numSuccessfulLogins: 3,
-            numFailedPasswordsSinceLastLogin: 1,
+            userId: user.userId,
+            name: user.nameFirst + ' ' + user.nameLast,
+            email: user.email,
+            numSuccessfulLogins: user.numSuccessfulLogins,
+            numFailedPasswordsSinceLastLogin: user.numFailedPasswordsSinceLastLogin,
         }
     };
 }
@@ -103,6 +111,7 @@ function adminUserDetails(authUserId) {
  * @returns {} - For updated user details 
  */
 function adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast) {
+
     return {};
 }
 
@@ -117,4 +126,4 @@ function adminUserPasswordUpdate(authUserId, oldPassword, newPassword) {
     return {};
 }
 
-export { adminAuthRegister, adminAuthLogin };
+export { adminAuthRegister, adminAuthLogin, adminUserDetails };
