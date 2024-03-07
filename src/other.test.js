@@ -3,7 +3,7 @@ import { adminAuthRegister, adminAuthLogin } from './auth.js';
 import { adminQuizList, adminQuizCreate } from './quiz.js';
 
 
-beforeEach(()=> {
+beforeEach(() => {
     clear();
 })
 
@@ -33,7 +33,6 @@ test('Test clear quizzes', () => {
     let quiz2 = adminQuizCreate(user.authUserId, 'My Second Quiz', 'My description.');
     let quiz3 = adminQuizCreate(user.authUserId, 'My Third Quiz', 'My description.');
     let quizList = adminQuizList(user.authUserId);
-    console.log(quizList);
     let expectedList = {
         quizzes: [
             {
@@ -59,6 +58,6 @@ test('Test clear quizzes', () => {
 
     expect(adminQuizList(user.authUserId)).toStrictEqual({ error: expect.any(String) });
     user = adminAuthRegister('haydensmith@gmail.com', 'password1', 'Tester', 'One');
-    expect(adminQuizList(user.authUserId)).toStrictEqual({quizzes: []});
-    
+    expect(adminQuizList(user.authUserId)).toStrictEqual({ quizzes: [] });
+
 });
