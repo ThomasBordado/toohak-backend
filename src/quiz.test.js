@@ -188,10 +188,95 @@ describe('adminQuizInfo testing', () => {
 
 describe('adminQuizNameUpdate testing', () => {
 
+  let user;
+  let quiz;
+  beforeEach(() => {
+    user = adminAuthRegister('ethan@gmail.com', 'password1', 'Ethan', 'Mcgregor');
+    quiz = adminQuizCreate(user.authUserId, 'My Quiz', 'My description.');
+  });
+
+  describe('Unsuccessful Cases', () => {
+    test('Invalid AuthUserId', () => {
+      expect(adminQuizNameUpdate(user.authUserId + 1, quiz.quizId, "Ethans quiz")).toStrictEqual({error: expect.any(String)});
+    });
+    test('Invalid quizId', () => {
+      expect(adminQuizNameUpdate(user.authUserId, quiz.quizId + 1, "Ethans quiz")).toStrictEqual({error: expect.any(String)});
+    });
+    test('User does not own quiz with given quizId', () => {
+      let user2 = adminAuthRegister('ethanm@gmail.com', 'password12', 'Ethanm', 'EMcGregor');
+      expect(adminQuizNameUpdate(user2.authUserId, quiz.quizId, "Ethans quiz")).toStrictEqual({error: expect.any(String)});
+    });
+    test('User owns quiz with same name as given quizId', () => {
+      let user2 = adminAuthRegister('ethanm@gmail.com', 'password12', 'Ethanm', 'EMcGregor');
+      adminQuizCreate(user2.authUserId, 'My Quiz', 'My description.')
+      expect(adminQuizNameUpdate(user2.authUserId, quiz.quizId, "Ethans quiz")).toStrictEqual({error: expect.any(String)});
+    });
+    test('Invalid name: Contains non-alphanumeric characters', () => {
+      expect(adminQuizNameUpdate(user.authUserId, quiz.quizId, "My Quiz!")).toStrictEqual({error: expect.any(String)});
+    });
+    test('Invalid name: blank name', () => {
+      expect(adminQuizNameUpdate(user.authUserId, quiz.quizId, "")).toStrictEqual({error: expect.any(String)});
+    });
+    test('Invalid name: < 3 characters', () => {
+      expect(adminQuizNameUpdate(user.authUserId, quiz.quizId, "My")).toStrictEqual({error: expect.any(String)});
+    });
+    test('Invalid name: > 30 characters', () => {
+      expect(adminQuizNameUpdate(user.authUserId, quiz.quizId, "My very very very very long Quiz")).toStrictEqual({error: expect.any(String)});
+    });
+    test('Invalid name: name already used', () => {
+      adminQuizCreate(user.authUserId, 'My Quiz', 'My description');
+      expect(adminQuizNameUpdate(user.authUserId, quiz.quizId, 'My Quiz')).toStrictEqual({error: expect.any(String)});
+    });
+  });
+  
+    
+  describe('Successful cases', () => {
+    test('Return correct object containing quiz info', () => {
+      expect(adminQuizNameUpdate(user.authUserId, quiz.quizId, "Ethansquiz")).toStrictEqual({});
+      
+    });
+    // test('names have been correctly updated', () => {
+    //   let data = getData();
+    //   adminQuizNameUpdate(user.authUserId, quiz.quizId, "Ethansquiz")
+    //   expect(data.quizzes[0].name).toStrictEqual('banana');
+    // });
+    test('successfully change single name', () => {
+      adminQuizNameUpdate(user.authUserId, quiz.quizId, "Ethansquiz");
+      expect(adminQuizList(user.authUserId)).toStrictEqual({quizzes: [{quizId: quiz.quizId, name: 'Ethansquiz'}]});
+    })
+    test('successfully change multiple names', () => {    
+      let quiz2 = adminQuizCreate(user.authUserId, 'My Second Quiz', 'My Second description.');
+      let quiz3 = adminQuizCreate(user.authUserId, 'My Third Quiz', 'My Third description.');
+      adminQuizNameUpdate(user.authUserId, quiz.quizId, "Ethansquiz");
+      adminQuizNameUpdate(user.authUserId, quiz2.quizId, "Ethanssecondquiz");
+      let quizList = adminQuizList(user.authUserId);
+      let expectedList = {
+        quizzes: [
+          {
+            quizId: quiz.quizId,
+            name: 'Ethansquiz',
+          },
+          {
+            quizId: quiz2.quizId,
+            name: 'Ethanssecondquiz',
+          },
+          {
+            quizId: quiz3.quizId,
+            name: 'My Third Quiz',
+          }
+        ]
+
+      }
+      quizList.quizzes.sort((a, b) => a.quizId - b.quizId);
+      expectedList.quizzes.sort((a, b) => a.quizId - b.quizId);
+      expect(quizList).toStrictEqual(expectedList);
+    })
+  });
+  
+  
 });
+
 
 describe('adminQuizDescriptionUpdate testing', () => {
 
 });
-  
-          
