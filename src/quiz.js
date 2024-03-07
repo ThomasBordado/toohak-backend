@@ -129,6 +129,8 @@ export function adminQuizNameUpdate(authUserId, quizId, name) {
   
   data.quizzes[quizzesIndex].name = name;
   user.quizzes[userQuizzesIndex].name = name;
+  data.quizzes[quizzesIndex].timeLastEdited = timestamp();
+  user.quizzes[userQuizzesIndex].timeLastEdited = timestamp();
 
 
   return {};
