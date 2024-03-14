@@ -1,4 +1,4 @@
-import { getData } from './dataStore.js'
+import { getData } from './dataStore.js';
 
 /**
  * Reset the state of the application back to the start.
@@ -13,4 +13,4 @@ function clear() {
   return {};
 }
 
-  export { clear };
+export { clear };

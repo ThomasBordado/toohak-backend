@@ -34,17 +34,14 @@
 function validUserId(authUserId, userData) {
   // searches for authUserId and returns user if found
   for (const user of userData) {
-    if (user.userId == authUserId) {
+    if (user.userId === authUserId) {
       return user;
     }
   }
 
   // returns error if not found
-  return {error: 'Invalid AuthUserId'};
+  return { error: 'Invalid AuthUserId' };
 }
-
-
-
 
 /**
  * Check if quiz name is valid.
@@ -59,10 +56,9 @@ function validUserId(authUserId, userData) {
  * @returns {error: string}} - for invalid quiz name
  */
 function checkQuizName(name, quizzesOwned) {
-
   // error if quiz name is < 3 && > 30 character
   if (name.length < 3 || name.length > 30) {
-    return {error: 'Quiz name must be between 3 and 30 characters'};
+    return { error: 'Quiz name must be between 3 and 30 characters' };
   }
 
   // error if a character is not a letter(upper or lower) number,  or space
@@ -74,12 +70,12 @@ function checkQuizName(name, quizzesOwned) {
 
   // error if name matches name of quiz previously owned by user
   for (const quiz of quizzesOwned) {
-    if (quiz.name == name) {
-      return {error: 'Quiz name previously used by user'}
+    if (quiz.name === name) {
+      return { error: 'Quiz name previously used by user' };
     }
   }
-  
+
   return true;
 }
 
-export {checkQuizName, validUserId};
+export { checkQuizName, validUserId };
