@@ -8,6 +8,7 @@ import sui from 'swagger-ui-express';
 import fs from 'fs';
 import path from 'path';
 import process from 'process';
+import { adminUserDetailsUpdate } from './auth';
 
 // Set up web app
 const app = express();
@@ -34,6 +35,20 @@ app.get('/echo', (req: Request, res: Response) => {
   const data = req.query.echo as string;
   return res.json(echo(data));
 });
+
+app.put('/v1/admin/user/details', (req: Request, res: Response) => {
+  const { authUserId, email, nameFirst, nameLast } = req.body;
+  const response = adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast);
+  if ('error' in response) {
+    return res.status(400).json(response);
+  }
+  return res.json(response);
+});
+
+
+
+
+
 
 // ====================================================================
 //  ================= WORK IS DONE ABOVE THIS LINE ===================
