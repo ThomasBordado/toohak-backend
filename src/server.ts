@@ -8,6 +8,7 @@ import sui from 'swagger-ui-express';
 import fs from 'fs';
 import path from 'path';
 import process from 'process';
+import { adminUserPasswordUpdate } from './auth';
 
 // Set up web app
 const app = express();
@@ -34,6 +35,16 @@ app.get('/echo', (req: Request, res: Response) => {
   const data = req.query.echo as string;
   return res.json(echo(data));
 });
+
+app.put('/v1/admin/user/password', (req: Request, res: Response) => {
+  const { authUserId, oldPassword, newPassword } = req.body;
+  const response = adminUserPasswordUpdate(authUserId, oldPassword, newPassword);
+  if ('error' in response) {
+    return res.status(400).json(response);
+  }
+  return res.json(response);
+});
+
 
 // ====================================================================
 //  ================= WORK IS DONE ABOVE THIS LINE ===================
