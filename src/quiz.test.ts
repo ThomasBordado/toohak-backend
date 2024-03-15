@@ -5,18 +5,19 @@ import {
   adminQuizInfo,
   adminQuizNameUpdate,
   adminQuizDescriptionUpdate,
-} from './quiz.js';
+} from './quiz';
 
-import { clear } from './other.js';
+import { clear } from './other';
 
-import { adminAuthRegister } from './auth.js';
+import { adminAuthRegister } from './auth';
+import { quizUser } from './interfaces';
 
 beforeEach(() => {
   clear();
 });
 
 describe('adminQuizList testing', () => {
-  let user;
+  let user: any;
   beforeEach(() => {
     user = adminAuthRegister('chloe@gmail.com', 'password1', 'Chloe', 'Turner');
   });
@@ -32,14 +33,14 @@ describe('adminQuizList testing', () => {
       expect(adminQuizList(user.authUserId)).toStrictEqual({ quizzes: [] });
     });
     test('One quiz owned', () => {
-      const quiz = adminQuizCreate(user.authUserId, 'My Quiz', 'My description.');
+      const quiz: any = adminQuizCreate(user.authUserId, 'My Quiz', 'My description.');
       expect(adminQuizList(user.authUserId)).toStrictEqual({ quizzes: [{ quizId: quiz.quizId, name: 'My Quiz' }] });
     });
     test('Multiple quizzes owned', () => {
-      const quiz = adminQuizCreate(user.authUserId, 'My Quiz', 'My description.');
-      const quiz2 = adminQuizCreate(user.authUserId, 'My Second Quiz', 'My description.');
-      const quiz3 = adminQuizCreate(user.authUserId, 'My Third Quiz', 'My description.');
-      const quizList = adminQuizList(user.authUserId);
+      const quiz: any = adminQuizCreate(user.authUserId, 'My Quiz', 'My description.');
+      const quiz2: any = adminQuizCreate(user.authUserId, 'My Second Quiz', 'My description.');
+      const quiz3: any = adminQuizCreate(user.authUserId, 'My Third Quiz', 'My description.');
+      const quizList: any = adminQuizList(user.authUserId);
       const expectedList = {
         quizzes: [
           {
@@ -57,15 +58,15 @@ describe('adminQuizList testing', () => {
         ]
       };
       // sorting both arrays in order of unique quizId so that the order of array matches
-      quizList.quizzes.sort((a, b) => a.quizId - b.quizId);
-      expectedList.quizzes.sort((a, b) => a.quizId - b.quizId);
+      quizList.quizzes.sort((a: quizUser, b: quizUser) => a.quizId - b.quizId);
+      expectedList.quizzes.sort((a: quizUser, b: quizUser) => a.quizId - b.quizId);
       expect(quizList).toStrictEqual(expectedList);
     });
   });
 });
 
 describe('adminQuizCreate testing', () => {
-  let user;
+  let user: any;
   beforeEach(() => {
     user = adminAuthRegister('chloe@gmail.com', 'password1', 'Chloe', 'Turner');
   });
@@ -99,8 +100,8 @@ describe('adminQuizCreate testing', () => {
       expect(adminQuizCreate(user.authUserId, 'My Quiz', 'My description.')).toStrictEqual({ quizId: expect.any(Number) });
     });
     test('Create two quizes w/ unique quizId', () => {
-      const quiz1 = adminQuizCreate(user.authUserId, 'My Quiz', 'My description.');
-      const quiz2 = adminQuizCreate(user.authUserId, 'My Quiz2', 'My description.');
+      const quiz1: any = adminQuizCreate(user.authUserId, 'My Quiz', 'My description.');
+      const quiz2: any = adminQuizCreate(user.authUserId, 'My Quiz2', 'My description.');
       expect(quiz1).toStrictEqual({ quizId: expect.any(Number) });
       expect(quiz2).toStrictEqual({ quizId: expect.any(Number) });
       expect(quiz1.quizId).not.toStrictEqual(quiz2.quizId);
@@ -110,15 +111,15 @@ describe('adminQuizCreate testing', () => {
     });
     test('Same name used by different user', () => {
       adminQuizCreate(user.authUserId, 'My Quiz', 'My description.');
-      const user2 = adminAuthRegister('hayden.smith@unsw.edu.au', 'password2', 'Hayden', 'Smith');
+      const user2: any = adminAuthRegister('hayden.smith@unsw.edu.au', 'password2', 'Hayden', 'Smith');
       expect(adminQuizCreate(user2.authUserId, 'My Quiz', 'My other description.')).toStrictEqual({ quizId: expect.any(Number) });
     });
   });
 });
 
 describe('adminQuizRemove testing', () => {
-  let user;
-  let quiz;
+  let user: any;
+  let quiz: any;
   beforeEach(() => {
     user = adminAuthRegister('chloe@gmail.com', 'password1', 'Chloe', 'Turner');
     quiz = adminQuizCreate(user.authUserId, 'My Quiz', 'My description.');
@@ -132,11 +133,11 @@ describe('adminQuizRemove testing', () => {
       expect(adminQuizRemove(user.authUserId, quiz.quizId + 1)).toStrictEqual({ error: expect.any(String) });
     });
     test('User does not own quiz with given quizId', () => {
-      const user2 = adminAuthRegister('chloe@gmail.com', 'password1', 'Chloe', 'Turner');
+      const user2: any = adminAuthRegister('chloe@gmail.com', 'password1', 'Chloe', 'Turner');
       expect(adminQuizRemove(user2.authUserId, quiz.quizId)).toStrictEqual({ error: expect.any(String) });
     });
     test('User owns quiz with same name as given quizId', () => {
-      const user2 = adminAuthRegister('chloe@gmail.com', 'password1', 'Chloe', 'Turner');
+      const user2: any = adminAuthRegister('chloe@gmail.com', 'password1', 'Chloe', 'Turner');
       adminQuizCreate(user2.authUserId, 'My Quiz', 'My description.');
       expect(adminQuizRemove(user2.authUserId, quiz.quizId)).toStrictEqual({ error: expect.any(String) });
     });
@@ -151,11 +152,11 @@ describe('adminQuizRemove testing', () => {
       expect(adminQuizList(user.authUserId)).toStrictEqual({ quizzes: [] });
     });
     test('Remove multiple quizzes', () => {
-      const quiz2 = adminQuizCreate(user.authUserId, 'My Second Quiz', 'My description.');
-      const quiz3 = adminQuizCreate(user.authUserId, 'My Third Quiz', 'My description.');
+      const quiz2: any = adminQuizCreate(user.authUserId, 'My Second Quiz', 'My description.');
+      const quiz3: any = adminQuizCreate(user.authUserId, 'My Third Quiz', 'My description.');
 
       expect(adminQuizRemove(user.authUserId, quiz2.quizId)).toStrictEqual({});
-      const quizList = adminQuizList(user.authUserId);
+      const quizList: any = adminQuizList(user.authUserId);
       const expectedList = {
         quizzes: [
           {
@@ -168,8 +169,8 @@ describe('adminQuizRemove testing', () => {
           },
         ]
       };
-      quizList.quizzes.sort((a, b) => a.quizId - b.quizId);
-      expectedList.quizzes.sort((a, b) => a.quizId - b.quizId);
+      quizList.quizzes.sort((a: quizUser, b: quizUser) => a.quizId - b.quizId);
+      expectedList.quizzes.sort((a: quizUser, b: quizUser) => a.quizId - b.quizId);
       expect(quizList).toStrictEqual(expectedList);
 
       expect(adminQuizRemove(user.authUserId, quiz.quizId)).toStrictEqual({});
@@ -182,8 +183,8 @@ describe('adminQuizRemove testing', () => {
 });
 
 describe('adminQuizInfo testing', () => {
-  let user;
-  let quiz;
+  let user: any;
+  let quiz: any;
   beforeEach(() => {
     user = adminAuthRegister('ethan@gmail.com', 'password1', 'Ethan', 'McGregor');
     quiz = adminQuizCreate(user.authUserId, 'My Quiz', 'My description.');
@@ -197,11 +198,11 @@ describe('adminQuizInfo testing', () => {
       expect(adminQuizInfo(user.authUserId, quiz.quizId + 1)).toStrictEqual({ error: expect.any(String) });
     });
     test('User does not own quiz with given quizId', () => {
-      const user2 = adminAuthRegister('ethanm@gmail.com', 'password12', 'Ethanm', 'EMcGregor');
+      const user2: any = adminAuthRegister('ethanm@gmail.com', 'password12', 'Ethanm', 'EMcGregor');
       expect(adminQuizInfo(user2.authUserId, quiz.quizId)).toStrictEqual({ error: expect.any(String) });
     });
     test('User owns quiz with same name as given quizId', () => {
-      const user2 = adminAuthRegister('ethanm@gmail.com', 'password12', 'Ethanm', 'EMcGregor');
+      const user2: any = adminAuthRegister('ethanm@gmail.com', 'password12', 'Ethanm', 'EMcGregor');
       adminQuizCreate(user2.authUserId, 'My Quiz', 'My description.');
       expect(adminQuizInfo(user2.authUserId, quiz.quizId)).toStrictEqual({ error: expect.any(String) });
     });
@@ -220,8 +221,8 @@ describe('adminQuizInfo testing', () => {
 });
 
 describe('adminQuizNameUpdate testing', () => {
-  let user;
-  let quiz;
+  let user: any;
+  let quiz: any;
   beforeEach(() => {
     user = adminAuthRegister('ethan@gmail.com', 'password1', 'Ethan', 'Mcgregor');
     quiz = adminQuizCreate(user.authUserId, 'My Quiz', 'My description.');
@@ -235,11 +236,11 @@ describe('adminQuizNameUpdate testing', () => {
       expect(adminQuizNameUpdate(user.authUserId, quiz.quizId + 1, 'Ethans quiz')).toStrictEqual({ error: expect.any(String) });
     });
     test('User does not own quiz with given quizId', () => {
-      const user2 = adminAuthRegister('ethanm@gmail.com', 'password12', 'Ethanm', 'EMcGregor');
+      const user2: any = adminAuthRegister('ethanm@gmail.com', 'password12', 'Ethanm', 'EMcGregor');
       expect(adminQuizNameUpdate(user2.authUserId, quiz.quizId, 'Ethans quiz')).toStrictEqual({ error: expect.any(String) });
     });
     test('User owns quiz with same name as given quizId', () => {
-      const user2 = adminAuthRegister('ethanm@gmail.com', 'password12', 'Ethanm', 'EMcGregor');
+      const user2: any = adminAuthRegister('ethanm@gmail.com', 'password12', 'Ethanm', 'EMcGregor');
       adminQuizCreate(user2.authUserId, 'My Quiz', 'My description.');
       expect(adminQuizNameUpdate(user2.authUserId, quiz.quizId, 'Ethans quiz')).toStrictEqual({ error: expect.any(String) });
     });
@@ -275,11 +276,11 @@ describe('adminQuizNameUpdate testing', () => {
       expect(adminQuizList(user.authUserId)).toStrictEqual({ quizzes: [{ quizId: quiz.quizId, name: 'Ethansquiz' }] });
     });
     test('successfully change multiple names', () => {
-      const quiz2 = adminQuizCreate(user.authUserId, 'My Second Quiz', 'My Second description.');
-      const quiz3 = adminQuizCreate(user.authUserId, 'My Third Quiz', 'My Third description.');
+      const quiz2: any = adminQuizCreate(user.authUserId, 'My Second Quiz', 'My Second description.');
+      const quiz3: any = adminQuizCreate(user.authUserId, 'My Third Quiz', 'My Third description.');
       adminQuizNameUpdate(user.authUserId, quiz.quizId, 'Ethansquiz');
       adminQuizNameUpdate(user.authUserId, quiz2.quizId, 'Ethanssecondquiz');
-      const quizList = adminQuizList(user.authUserId);
+      const quizList: any = adminQuizList(user.authUserId);
       const expectedList = {
         quizzes: [
           {
@@ -297,16 +298,16 @@ describe('adminQuizNameUpdate testing', () => {
         ]
 
       };
-      quizList.quizzes.sort((a, b) => a.quizId - b.quizId);
-      expectedList.quizzes.sort((a, b) => a.quizId - b.quizId);
+      quizList.quizzes.sort((a: quizUser, b: quizUser) => a.quizId - b.quizId);
+      expectedList.quizzes.sort((a: quizUser, b: quizUser) => a.quizId - b.quizId);
       expect(quizList).toStrictEqual(expectedList);
     });
   });
 });
 
 describe('adminQuizDescriptionUpdate testing', () => {
-  let user;
-  let quiz;
+  let user: any;
+  let quiz: any;
   beforeEach(() => {
     user = adminAuthRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith');
     quiz = adminQuizCreate(user.authUserId, 'My Quiz', 'My description.');
@@ -329,9 +330,9 @@ describe('adminQuizDescriptionUpdate testing', () => {
 
   // 4. Quiz Id does not refer to a quiz this user owns
   test('Test quizid does not refer to a quiz this user owns', () => {
-    const user1 = adminAuthRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith');
-    const user2 = adminAuthRegister('jared@gmail.com', 'password3', 'Jared', 'Simion');
-    const notmyquiz = adminQuizCreate(user2.authUserId, 'My Quiz2', 'My description.');
+    const user1: any = adminAuthRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith');
+    const user2: any = adminAuthRegister('jared@gmail.com', 'password3', 'Jared', 'Simion');
+    const notmyquiz: any = adminQuizCreate(user2.authUserId, 'My Quiz2', 'My description.');
     expect(adminQuizDescriptionUpdate(user1.authUserId, notmyquiz.quizId, 'My updated description.')).toStrictEqual({ error: expect.any(String) });
   });
 

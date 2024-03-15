@@ -1,13 +1,12 @@
-import { getData, setData } from './dataStore.js';
-import { validUserId, checkQuizName } from './quizUtil.js';
-import timestamp from 'unix-timestamp-offset';
+import { getData, setData } from './dataStore';
+import { validUserId, checkQuizName } from './quizUtil';
 
 /**
  * Provides a list of all quizzes that are owned by the currently logged in user
  * @param {number} authUserId - unique identifier for an academic
  * @returns {{quizzes: [{quizId: number, name: string,}]}} - for valid authUserID
  */
-function adminQuizList(authUserId) {
+export const adminQuizList = (authUserId: number) => {
   const data = getData();
   const user = validUserId(authUserId, data.users);
   if ('error' in user) {
@@ -15,7 +14,7 @@ function adminQuizList(authUserId) {
   }
 
   return { quizzes: user.quizzes };
-}
+};
 
 /**
  * Given basic details about a new quiz, create one for the logged in user.
@@ -25,7 +24,7 @@ function adminQuizList(authUserId) {
  * @returns {{quizId: number}} - for valid authUserID, name and discription
  */
 
-function adminQuizCreate(authUserId, name, description) {
+export const adminQuizCreate = (authUserId: number, name: string, description: string) => {
   const data = getData();
   const user = validUserId(authUserId, data.users);
   if ('error' in user) {
@@ -40,8 +39,8 @@ function adminQuizCreate(authUserId, name, description) {
   const newQuiz = {
     quizId: data.quizIdStore,
     name: name,
-    timeCreated: timestamp(),
-    timeLastEdited: timestamp(),
+    timeCreated: Math.floor(Date.now() / 1000),
+    timeLastEdited: Math.floor(Date.now() / 1000),
     description: description,
   };
 
@@ -50,7 +49,7 @@ function adminQuizCreate(authUserId, name, description) {
   return {
     quizId: data.quizIdStore
   };
-}
+};
 
 /**
  * Given a particular quiz, permanently remove the quiz
@@ -58,7 +57,7 @@ function adminQuizCreate(authUserId, name, description) {
  * @param {number} quizId - unique identifier for a quiz
  * @returns {} - for valid authUserId and quizId
  */
-function adminQuizRemove(authUserId, quizId) {
+export const adminQuizRemove = (authUserId: number, quizId: number) => {
   const data = getData();
   const user = validUserId(authUserId, data.users);
   if ('error' in user) {
@@ -79,14 +78,14 @@ function adminQuizRemove(authUserId, quizId) {
   user.quizzes.splice(userQuizzesIndex, 1);
 
   return {};
-}
+};
 
 /** Get all of the relevant information about the current quiz.
  * @param {number} authUserId - unique identifier for an academic
  * @param {number} quizId - unique identifier for a quiz
  * @returns {{quizId: number, name: string, timeCreated: number, timeLastEdited: number, description: string}} - for valid authUserId and quizId
  */
-export function adminQuizInfo(authUserId, quizId) {
+export const adminQuizInfo = (authUserId: number, quizId: number) => {
   const data = getData();
   const user = validUserId(authUserId, data.users);
   if ('error' in user) {
@@ -112,7 +111,7 @@ export function adminQuizInfo(authUserId, quizId) {
   //   timeLastEdited: 1683125871,
   //   description: 'This is my quiz',
   // };
-}
+};
 
 /**
  * Update the name of the relevant quiz.
@@ -121,7 +120,7 @@ export function adminQuizInfo(authUserId, quizId) {
  * @param {string} name - quiz name
  * @returns {} - for valid authUserId, quizId and description
  */
-export function adminQuizNameUpdate(authUserId, quizId, name) {
+export const adminQuizNameUpdate = (authUserId: number, quizId: number, name: string) => {
   const data = getData();
   const user = validUserId(authUserId, data.users);
   if ('error' in user) {
@@ -142,10 +141,10 @@ export function adminQuizNameUpdate(authUserId, quizId, name) {
 
   data.quizzes[quizzesIndex].name = name;
   user.quizzes[userQuizzesIndex].name = name;
-  data.quizzes[quizzesIndex].timeLastEdited = timestamp();
+  data.quizzes[quizzesIndex].timeLastEdited = Math.floor(Date.now() / 1000);
 
   return {};
-}
+};
 
 /**
  * Update the description of the relevant quiz.
@@ -154,7 +153,7 @@ export function adminQuizNameUpdate(authUserId, quizId, name) {
  * @param {string} desciption - description of quiz
  * @returns {} - Updates quiz desciption
  */
-function adminQuizDescriptionUpdate(authUserId, quizId, newDescription) {
+export const adminQuizDescriptionUpdate = (authUserId: number, quizId: number, newDescription: string) => {
   const data = getData();
   const user = validUserId(authUserId, data.users);
   if ('error' in user) {
@@ -175,11 +174,9 @@ function adminQuizDescriptionUpdate(authUserId, quizId, newDescription) {
   }
 
   data.quizzes[quizIndex].description = newDescription;
-  data.quizzes[quizIndex].timeLastEdited = timestamp();
+  data.quizzes[quizIndex].timeLastEdited = Math.floor(Date.now() / 1000);
 
   setData(data);
 
   return {};
-}
-
-export { adminQuizList, adminQuizCreate, adminQuizRemove, adminQuizDescriptionUpdate };
+};

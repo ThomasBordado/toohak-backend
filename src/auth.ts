@@ -1,7 +1,8 @@
-import { checkEmail, checkPassword, checkName, isValidUserId, isSame, isPasswordCorrect, isNewPasswordUsed, isEmailUsedByOther } from './authUtil.js';
+import { checkEmail, checkPassword, checkName, isValidUserId, isSame, isPasswordCorrect, isNewPasswordUsed, isEmailUsedByOther } from './authUtil';
 import isEmail from 'validator/lib/isEmail.js';
-import { getData, setData } from './dataStore.js';
-import { validUserId } from './quizUtil.js';
+import { getData, setData } from './dataStore';
+import { validUserId } from './quizUtil';
+import { user } from './interfaces';
 
 /**
  * Register a user with an email, password, and names, then returns their authUserId.
@@ -12,7 +13,7 @@ import { validUserId } from './quizUtil.js';
  *
  * @returns {authUserId: number} - unique identifier for an academic, registering with email, password and name.
  */
-function adminAuthRegister(email, password, nameFirst, nameLast) {
+export const adminAuthRegister = (email: string, password: string, nameFirst: string, nameLast: string) => {
   if (checkEmail(email) !== true) {
     return checkEmail(email);
   } else if (checkPassword(password) !== true) {
@@ -25,7 +26,7 @@ function adminAuthRegister(email, password, nameFirst, nameLast) {
 
   const data = getData();
   data.userIdStore += 1;
-  const newUser = {
+  const newUser: user = {
     userId: data.userIdStore,
     nameFirst: nameFirst,
     nameLast: nameLast,
@@ -41,7 +42,7 @@ function adminAuthRegister(email, password, nameFirst, nameLast) {
   return {
     authUserId: newUser.userId
   };
-}
+};
 
 /**
  * Given a registered user's email and password returns their authUserId value.
@@ -50,7 +51,7 @@ function adminAuthRegister(email, password, nameFirst, nameLast) {
  *
  * @returns {authUserId: number} - unique identifier for a user, given email and password
  */
-function adminAuthLogin(email, password) {
+export const adminAuthLogin = (email: string, password: string) => {
   const users = getData().users;
   if (users.length === 0) {
     return {
@@ -73,7 +74,7 @@ function adminAuthLogin(email, password) {
   return {
     error: 'Email address does not exist.'
   };
-}
+};
 
 /**
  * Given an admin user's authUserId, return details about the user.
@@ -84,7 +85,7 @@ function adminAuthLogin(email, password) {
  * Object containing user details
  *
  */
-function adminUserDetails(authUserId) {
+export const adminUserDetails = (authUserId: number) => {
   const data = getData();
   const user = validUserId(authUserId, data.users);
 
@@ -100,7 +101,7 @@ function adminUserDetails(authUserId) {
       numFailedPasswordsSinceLastLogin: user.numFailedPasswordsSinceLastLogin,
     }
   };
-}
+};
 
 /**
  * Given an admin user's authUserId and a set of properties, update the properties of this logged in admin user.
@@ -111,7 +112,7 @@ function adminUserDetails(authUserId) {
  *
  * @returns {} - For updated user details
  */
-function adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast) {
+export const adminUserDetailsUpdate = (authUserId: number, email: string, nameFirst: string, nameLast: string) => {
   // 1. Check if AuthUserId is a valid user
   if (!isValidUserId(authUserId)) {
     return { error: 'AuthUserId is not a valid user.' };
@@ -129,12 +130,12 @@ function adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast) {
 
   // 4. Check if NameFirst contains characters other than lowercase letters,
   // uppercase letters, spaces, hyphens, or apostrophes
-  if (checkName(nameFirst) !== true) {
+  if (checkName(nameFirst, 'First') !== true) {
     return checkName(nameFirst, 'First');
   }
 
   // 5. Check the length of NameLast
-  if (checkName(nameLast) !== true) {
+  if (checkName(nameLast, 'Last') !== true) {
     return checkName(nameLast, 'Last');
   }
 
@@ -150,7 +151,7 @@ function adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast) {
     }
   }
   return {};
-}
+};
 
 /**
 *Given details relating to a password change, update the password of a logged in user.
@@ -159,7 +160,7 @@ function adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast) {
 * @param {string} newPassword - the new password
 * @return {} - the password been updated
 */
-function adminUserPasswordUpdate(authUserId, oldPassword, newPassword) {
+export const adminUserPasswordUpdate = (authUserId: number, oldPassword: string, newPassword: string) => {
   // 1. Check if AuthUserId is valid
   if (!isValidUserId(authUserId)) {
     return { error: 'AuthUserId is not a valid user.' };
@@ -192,6 +193,4 @@ function adminUserPasswordUpdate(authUserId, oldPassword, newPassword) {
   setData(data);
 
   return {};
-}
-
-export { adminAuthRegister, adminAuthLogin, adminUserDetails, adminUserDetailsUpdate, adminUserPasswordUpdate };
+};
