@@ -1,7 +1,7 @@
 import { adminAuthRegister, adminAuthLogin, adminUserDetails, adminUserDetailsUpdate, adminUserPasswordUpdate } from './auth';
 import { clear } from './other';
 import { usersList } from './authUtil';
-import { user } from './interfaces';
+import { UserId, user, UserDetailsReturn } from './interfaces';
 
 beforeEach(() => {
   clear();
@@ -10,8 +10,8 @@ beforeEach(() => {
 describe('Test adminAuthRegister', () => {
   // 1. Successful Register of two users
   test('Test registering two users', () => {
-    const user1: any = adminAuthRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith');
-    const user2: any = adminAuthRegister('thomas.bordado@unsw.edu.au', 'password2', 'Thomas', 'Bordado');
+    const user1 = adminAuthRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith') as UserId;
+    const user2 = adminAuthRegister('thomas.bordado@unsw.edu.au', 'password2', 'Thomas', 'Bordado') as UserId;
     expect(user1).toStrictEqual({ authUserId: expect.any(Number) });
     expect(user2).toStrictEqual({ authUserId: expect.any(Number) });
     expect(user1.authUserId).not.toStrictEqual(user2.authUserId);
@@ -88,27 +88,27 @@ describe('Test adminAuthLogin', () => {
 
   test('Test numSuccessfulLogins and numFailedPasswordsSinceLastLogin', () => {
     // Register a user Hayden Smith
-    const user: any = adminAuthRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith');
+    const user = adminAuthRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith') as UserId;
     // Get details of Hayden
-    let details: any = adminUserDetails(user.authUserId);
+    let details = adminUserDetails(user.authUserId) as UserDetailsReturn;
     // Check that he has only logged in once and had no fails
     expect(details.user.numSuccessfulLogins).toStrictEqual(1);
     expect(details.user.numFailedPasswordsSinceLastLogin).toStrictEqual(0);
     // Login to hayden
     adminAuthLogin('hayden.smith@unsw.edu.au', 'password1');
-    details = adminUserDetails(user.authUserId);
+    details = adminUserDetails(user.authUserId) as UserDetailsReturn;
     // Number of logins increase
     expect(details.user.numSuccessfulLogins).toStrictEqual(2);
     expect(details.user.numFailedPasswordsSinceLastLogin).toStrictEqual(0);
     // Fail a login
     adminAuthLogin('hayden.smith@unsw.edu.au', 'password2');
-    details = adminUserDetails(user.authUserId);
+    details = adminUserDetails(user.authUserId) as UserDetailsReturn;
     // Number of failed logins increase
     expect(details.user.numSuccessfulLogins).toStrictEqual(2);
     expect(details.user.numFailedPasswordsSinceLastLogin).toStrictEqual(1);
     // Login correctly
     adminAuthLogin('hayden.smith@unsw.edu.au', 'password1');
-    details = adminUserDetails(user.authUserId);
+    details = adminUserDetails(user.authUserId) as UserDetailsReturn;
     // Number of failed logins resets to 0
     expect(details.user.numSuccessfulLogins).toStrictEqual(3);
     expect(details.user.numFailedPasswordsSinceLastLogin).toStrictEqual(0);
@@ -118,7 +118,7 @@ describe('Test adminAuthLogin', () => {
 describe('Test adminUserDetails', () => {
   // 1. Succesful return of account details
   test('Test succesful get user details', () => {
-    const user1: any = adminAuthRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith');
+    const user1 = adminAuthRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith') as UserId;
     const result = adminUserDetails(user1.authUserId);
     const user = {
       userId: user1.authUserId,
@@ -133,7 +133,7 @@ describe('Test adminUserDetails', () => {
 
   // 2. Invalid authUserId
   test('Test Invalid User ID', () => {
-    const user1: any = adminAuthRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith');
+    const user1 = adminAuthRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith') as UserId;
     expect(adminUserDetails(user1.authUserId + 1)).toStrictEqual({ error: expect.any(String) });
   });
 });
@@ -143,9 +143,9 @@ describe('Test adminUserDetails', () => {
  */
 
 describe('adminUserDetailsUpdate', () => {
-  let data: any;
+  let data: UserId;
   beforeEach(() => {
-    data = adminAuthRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith');
+    data = adminAuthRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith') as UserId;
   });
 
   test('adminUserDetailsUpdate error: invalid authUserId', () => {
@@ -195,7 +195,7 @@ describe('adminUserDetailsUpdate', () => {
 
   // more than one user
   test('adminUserDetailsUpdate update (more than one user)', () => {
-    const id2: any = adminAuthRegister('validemail2@gmail.com', '1234567a', 'Jane', 'Smith');
+    const id2 = adminAuthRegister('validemail2@gmail.com', '1234567a', 'Jane', 'Smith') as UserId;
     adminUserDetailsUpdate(id2.authUserId, 'validemail1@gmail.com', 'Jennifer', 'Lawson');
     const result = usersList().sort((a, b) => a.userId - b.userId);
     const users: user[] =
@@ -226,7 +226,7 @@ describe('adminUserDetailsUpdate', () => {
 
   // Able to change if email is same as the old one
   test('adminUserDetailsUpdate new email is as same as the old one', () => {
-    const id2: any = adminAuthRegister('validemail2@gmail.com', '1234567a', 'Jane', 'Smith');
+    const id2 = adminAuthRegister('validemail2@gmail.com', '1234567a', 'Jane', 'Smith') as UserId;
     adminUserDetailsUpdate(id2.authUserId, 'validemail2@gmail.com', 'Jennifer', 'Lawson');
     const result = usersList().sort((a, b) => a.userId - b.userId);
     const users: user[] =
@@ -261,9 +261,9 @@ describe('adminUserDetailsUpdate', () => {
  */
 
 describe('adminUserPasswordUpdate', () => {
-  let data: any;
+  let data: UserId;
   beforeEach(() => {
-    data = adminAuthRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith');
+    data = adminAuthRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith') as UserId;
   });
 
   test('adminUserPasswordUpdate error: invalid authUserId', () => {
@@ -308,7 +308,7 @@ describe('adminUserPasswordUpdate', () => {
 
   // more than one user and with adminUserDetailsUpdate, many times
   test('adminUserPasswordUpdate return type', () => {
-    const id2:any = adminAuthRegister('validemail2@gmail.com', '1234567a', 'Jennifer', 'Smith');
+    const id2 = adminAuthRegister('validemail2@gmail.com', '1234567a', 'Jennifer', 'Smith') as UserId;
     adminUserPasswordUpdate(id2.authUserId, '1234567a', '1234567b');
     adminUserPasswordUpdate(id2.authUserId, '1234567b', '1234567c');
     const result = usersList().sort((a, b) => a.userId - b.userId);

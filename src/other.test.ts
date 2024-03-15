@@ -1,7 +1,7 @@
 import { clear } from './other';
 import { adminAuthRegister, adminAuthLogin } from './auth';
 import { adminQuizList, adminQuizCreate } from './quiz';
-import { quizUser } from './interfaces';
+import { quizId, QuizListReturn, quizUser, UserId } from './interfaces';
 
 beforeEach(() => {
   clear();
@@ -26,11 +26,11 @@ test('Test clear registered user', () => {
 
 // Add a test to clear quizzes when we are able to make quizzes.
 test('Test clear quizzes', () => {
-  let user: any = adminAuthRegister('haydensmith@gmail.com', 'password1', 'Tester', 'One');
-  const quiz: any = adminQuizCreate(user.authUserId, 'My Quiz', 'My description.');
-  const quiz2: any = adminQuizCreate(user.authUserId, 'My Second Quiz', 'My description.');
-  const quiz3: any = adminQuizCreate(user.authUserId, 'My Third Quiz', 'My description.');
-  const quizList: any = adminQuizList(user.authUserId);
+  let user = adminAuthRegister('haydensmith@gmail.com', 'password1', 'Tester', 'One') as UserId;
+  const quiz = adminQuizCreate(user.authUserId, 'My Quiz', 'My description.') as quizId;
+  const quiz2 = adminQuizCreate(user.authUserId, 'My Second Quiz', 'My description.') as quizId;
+  const quiz3 = adminQuizCreate(user.authUserId, 'My Third Quiz', 'My description.') as quizId;
+  const quizList = adminQuizList(user.authUserId) as QuizListReturn;
   const expectedList = {
     quizzes: [
       {
@@ -55,6 +55,6 @@ test('Test clear quizzes', () => {
   expect(clear()).toStrictEqual({});
 
   expect(adminQuizList(user.authUserId)).toStrictEqual({ error: expect.any(String) });
-  user = adminAuthRegister('haydensmith@gmail.com', 'password1', 'Tester', 'One');
+  user = adminAuthRegister('haydensmith@gmail.com', 'password1', 'Tester', 'One') as UserId;
   expect(adminQuizList(user.authUserId)).toStrictEqual({ quizzes: [] });
 });

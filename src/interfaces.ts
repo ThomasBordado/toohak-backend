@@ -25,6 +25,17 @@ export interface user {
   quizzes: quizUser[];
 }
 
+export interface UserDetails {
+  userId: number;
+  name: string;
+  email: string;
+  password: string;
+  prevpassword: string[];
+  numSuccessfulLogins: number;
+  numFailedPasswordsSinceLastLogin: number;
+  quizzes: quizUser[];
+}
+
 export interface ErrorReturn {
   error: string;
 }
@@ -38,7 +49,11 @@ export interface quizId {
 }
 
 export interface UserDetailsReturn {
-  user: user;
+  user: UserDetails;
+}
+
+export interface QuizListReturn {
+  quizzes: quizUser[];
 }
 
 export interface DataStore {
