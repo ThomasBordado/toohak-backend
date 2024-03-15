@@ -11,8 +11,6 @@ export interface quizUser {
   name: string;
 }
 
-export type EmptyObject = Record<string, never>;
-
 export interface user {
   userId: number;
   nameFirst: string;
@@ -24,16 +22,14 @@ export interface user {
   numFailedPasswordsSinceLastLogin: number;
   quizzes: quizUser[];
 }
+export type EmptyObject = Record<string, never>;
 
 export interface UserDetails {
   userId: number;
   name: string;
   email: string;
-  password: string;
-  prevpassword: string[];
   numSuccessfulLogins: number;
   numFailedPasswordsSinceLastLogin: number;
-  quizzes: quizUser[];
 }
 
 export interface ErrorReturn {
@@ -44,12 +40,12 @@ export interface UserId {
   authUserId: number;
 }
 
-export interface quizId {
-  quizId: number;
-}
-
 export interface UserDetailsReturn {
   user: UserDetails;
+}
+
+export interface quizId {
+  quizId: number;
 }
 
 export interface QuizListReturn {

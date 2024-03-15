@@ -1,4 +1,5 @@
 import { getData, setData } from './dataStore';
+import { EmptyObject, ErrorReturn, QuizListReturn, quiz, quizId } from './interfaces';
 import { validUserId, checkQuizName } from './quizUtil';
 
 /**
@@ -6,7 +7,7 @@ import { validUserId, checkQuizName } from './quizUtil';
  * @param {number} authUserId - unique identifier for an academic
  * @returns {{quizzes: [{quizId: number, name: string,}]}} - for valid authUserID
  */
-export const adminQuizList = (authUserId: number) => {
+export const adminQuizList = (authUserId: number): QuizListReturn | ErrorReturn => {
   const data = getData();
   const user = validUserId(authUserId, data.users);
   if ('error' in user) {
@@ -24,13 +25,13 @@ export const adminQuizList = (authUserId: number) => {
  * @returns {{quizId: number}} - for valid authUserID, name and discription
  */
 
-export const adminQuizCreate = (authUserId: number, name: string, description: string) => {
+export const adminQuizCreate = (authUserId: number, name: string, description: string): quizId | ErrorReturn => {
   const data = getData();
   const user = validUserId(authUserId, data.users);
   if ('error' in user) {
     return user;
   } else if (checkQuizName(name, user.quizzes) !== true) {
-    return checkQuizName(name, user.quizzes);
+    return checkQuizName(name, user.quizzes) as ErrorReturn;
   } else if (description.length > 100) {
     return { error: 'Description cannot be greater than 100 characters' };
   }
@@ -57,7 +58,7 @@ export const adminQuizCreate = (authUserId: number, name: string, description: s
  * @param {number} quizId - unique identifier for a quiz
  * @returns {} - for valid authUserId and quizId
  */
-export const adminQuizRemove = (authUserId: number, quizId: number) => {
+export const adminQuizRemove = (authUserId: number, quizId: number): EmptyObject | ErrorReturn => {
   const data = getData();
   const user = validUserId(authUserId, data.users);
   if ('error' in user) {
@@ -85,7 +86,7 @@ export const adminQuizRemove = (authUserId: number, quizId: number) => {
  * @param {number} quizId - unique identifier for a quiz
  * @returns {{quizId: number, name: string, timeCreated: number, timeLastEdited: number, description: string}} - for valid authUserId and quizId
  */
-export const adminQuizInfo = (authUserId: number, quizId: number) => {
+export const adminQuizInfo = (authUserId: number, quizId: number): quiz | ErrorReturn => {
   const data = getData();
   const user = validUserId(authUserId, data.users);
   if ('error' in user) {
@@ -120,13 +121,13 @@ export const adminQuizInfo = (authUserId: number, quizId: number) => {
  * @param {string} name - quiz name
  * @returns {} - for valid authUserId, quizId and description
  */
-export const adminQuizNameUpdate = (authUserId: number, quizId: number, name: string) => {
+export const adminQuizNameUpdate = (authUserId: number, quizId: number, name: string): EmptyObject | ErrorReturn => {
   const data = getData();
   const user = validUserId(authUserId, data.users);
   if ('error' in user) {
     return user;
   } else if (checkQuizName(name, user.quizzes) !== true) {
-    return checkQuizName(name, user.quizzes);
+    return checkQuizName(name, user.quizzes) as ErrorReturn;
   }
 
   const quizzesIndex = data.quizzes.findIndex(quizzes => quizzes.quizId === quizId);
@@ -153,7 +154,7 @@ export const adminQuizNameUpdate = (authUserId: number, quizId: number, name: st
  * @param {string} desciption - description of quiz
  * @returns {} - Updates quiz desciption
  */
-export const adminQuizDescriptionUpdate = (authUserId: number, quizId: number, newDescription: string) => {
+export const adminQuizDescriptionUpdate = (authUserId: number, quizId: number, newDescription: string): EmptyObject | ErrorReturn => {
   const data = getData();
   const user = validUserId(authUserId, data.users);
   if ('error' in user) {

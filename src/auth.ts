@@ -2,7 +2,7 @@ import { checkEmail, checkPassword, checkName, isValidUserId, isSame, isPassword
 import isEmail from 'validator/lib/isEmail.js';
 import { getData, setData } from './dataStore';
 import { validUserId } from './quizUtil';
-import { user } from './interfaces';
+import { EmptyObject, ErrorReturn, UserDetailsReturn, UserId, user } from './interfaces';
 
 /**
  * Register a user with an email, password, and names, then returns their authUserId.
@@ -13,15 +13,15 @@ import { user } from './interfaces';
  *
  * @returns {authUserId: number} - unique identifier for an academic, registering with email, password and name.
  */
-export const adminAuthRegister = (email: string, password: string, nameFirst: string, nameLast: string) => {
+export const adminAuthRegister = (email: string, password: string, nameFirst: string, nameLast: string): UserId | ErrorReturn => {
   if (checkEmail(email) !== true) {
-    return checkEmail(email);
+    return checkEmail(email) as ErrorReturn;
   } else if (checkPassword(password) !== true) {
-    return checkPassword(password);
+    return checkPassword(password) as ErrorReturn;
   } else if (checkName(nameFirst, 'First') !== true) {
-    return checkName(nameFirst, 'First');
+    return checkName(nameFirst, 'First') as ErrorReturn;
   } else if (checkName(nameLast, 'Last') !== true) {
-    return checkName(nameLast, 'Last');
+    return checkName(nameLast, 'Last') as ErrorReturn;
   }
 
   const data = getData();
@@ -51,7 +51,7 @@ export const adminAuthRegister = (email: string, password: string, nameFirst: st
  *
  * @returns {authUserId: number} - unique identifier for a user, given email and password
  */
-export const adminAuthLogin = (email: string, password: string) => {
+export const adminAuthLogin = (email: string, password: string): UserId | ErrorReturn => {
   const users = getData().users;
   if (users.length === 0) {
     return {
@@ -85,7 +85,7 @@ export const adminAuthLogin = (email: string, password: string) => {
  * Object containing user details
  *
  */
-export const adminUserDetails = (authUserId: number) => {
+export const adminUserDetails = (authUserId: number): UserDetailsReturn | ErrorReturn => {
   const data = getData();
   const user = validUserId(authUserId, data.users);
 
@@ -112,7 +112,7 @@ export const adminUserDetails = (authUserId: number) => {
  *
  * @returns {} - For updated user details
  */
-export const adminUserDetailsUpdate = (authUserId: number, email: string, nameFirst: string, nameLast: string) => {
+export const adminUserDetailsUpdate = (authUserId: number, email: string, nameFirst: string, nameLast: string): EmptyObject | ErrorReturn => {
   // 1. Check if AuthUserId is a valid user
   if (!isValidUserId(authUserId)) {
     return { error: 'AuthUserId is not a valid user.' };
@@ -131,12 +131,12 @@ export const adminUserDetailsUpdate = (authUserId: number, email: string, nameFi
   // 4. Check if NameFirst contains characters other than lowercase letters,
   // uppercase letters, spaces, hyphens, or apostrophes
   if (checkName(nameFirst, 'First') !== true) {
-    return checkName(nameFirst, 'First');
+    return checkName(nameFirst, 'First') as ErrorReturn;
   }
 
   // 5. Check the length of NameLast
   if (checkName(nameLast, 'Last') !== true) {
-    return checkName(nameLast, 'Last');
+    return checkName(nameLast, 'Last') as ErrorReturn;
   }
 
   // 6. Update the data
@@ -160,7 +160,7 @@ export const adminUserDetailsUpdate = (authUserId: number, email: string, nameFi
 * @param {string} newPassword - the new password
 * @return {} - the password been updated
 */
-export const adminUserPasswordUpdate = (authUserId: number, oldPassword: string, newPassword: string) => {
+export const adminUserPasswordUpdate = (authUserId: number, oldPassword: string, newPassword: string): EmptyObject | ErrorReturn => {
   // 1. Check if AuthUserId is valid
   if (!isValidUserId(authUserId)) {
     return { error: 'AuthUserId is not a valid user.' };
@@ -183,7 +183,7 @@ export const adminUserPasswordUpdate = (authUserId: number, oldPassword: string,
 
   // 5. Check is the new password valid
   if (checkPassword(newPassword) !== true) {
-    return checkPassword(newPassword);
+    return checkPassword(newPassword) as ErrorReturn;
   }
 
   const data = getData();
