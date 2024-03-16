@@ -36,14 +36,16 @@ app.get('/echo', (req: Request, res: Response) => {
   return res.json(echo(data));
 });
 
-app.put('/v1/admin/user/password', (req: Request, res: Response) => {
-  const { authUserId, oldPassword, newPassword } = req.body;
-  const response = adminUserPasswordUpdate(authUserId, oldPassword, newPassword);
+app.post('/v1/admin/quiz/{quizid}/transfer', (req: Request, res: Response) => {
+  const quizId = parseInt(req.params.quizid);
+  const { userEmail } = req.body;
+  const response = quizTransfer(userEmail);
   if ('error' in response) {
     return res.status(400).json(response);
   }
-  return res.json(response);
-});
+  res.json(response);
+    
+})
 
 
 // ====================================================================
