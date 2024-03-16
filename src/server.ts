@@ -8,6 +8,7 @@ import sui from 'swagger-ui-express';
 import fs from 'fs';
 import path from 'path';
 import process from 'process';
+import { adminQuizCreate } from './quiz';
 
 // Set up web app
 const app = express();
@@ -34,6 +35,15 @@ app.get('/echo', (req: Request, res: Response) => {
   const data = req.query.echo as string;
   return res.json(echo(data));
 });
+
+app.post('/v1/admin/quiz/{quizid}/question', (req: Request, res: Response) => {
+    const { question, duration, points, answers } = req.body;
+    const response = quizQuestionCreate(question, duration, points, answers);
+    if ('error' in response) {
+        return res.status(400).json(response);
+    }
+    res.json(response);
+})
 
 // ====================================================================
 //  ================= WORK IS DONE ABOVE THIS LINE ===================
