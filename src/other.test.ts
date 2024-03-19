@@ -1,6 +1,7 @@
-import { clear } from './other.js';
-import { adminAuthRegister, adminAuthLogin } from './auth.js';
-import { adminQuizList, adminQuizCreate } from './quiz.js';
+import { clear } from './other';
+import { adminAuthRegister, adminAuthLogin } from './auth';
+import { adminQuizList, adminQuizCreate } from './quiz';
+import { quizId, QuizListReturn, quizUser, UserId } from './interfaces';
 
 beforeEach(() => {
   clear();
@@ -25,11 +26,11 @@ test('Test clear registered user', () => {
 
 // Add a test to clear quizzes when we are able to make quizzes.
 test('Test clear quizzes', () => {
-  let user = adminAuthRegister('haydensmith@gmail.com', 'password1', 'Tester', 'One');
-  const quiz = adminQuizCreate(user.authUserId, 'My Quiz', 'My description.');
-  const quiz2 = adminQuizCreate(user.authUserId, 'My Second Quiz', 'My description.');
-  const quiz3 = adminQuizCreate(user.authUserId, 'My Third Quiz', 'My description.');
-  const quizList = adminQuizList(user.authUserId);
+  let user = adminAuthRegister('haydensmith@gmail.com', 'password1', 'Tester', 'One') as UserId;
+  const quiz = adminQuizCreate(user.authUserId, 'My Quiz', 'My description.') as quizId;
+  const quiz2 = adminQuizCreate(user.authUserId, 'My Second Quiz', 'My description.') as quizId;
+  const quiz3 = adminQuizCreate(user.authUserId, 'My Third Quiz', 'My description.') as quizId;
+  const quizList = adminQuizList(user.authUserId) as QuizListReturn;
   const expectedList = {
     quizzes: [
       {
@@ -47,13 +48,13 @@ test('Test clear quizzes', () => {
     ]
   };
 
-  quizList.quizzes.sort((a, b) => a.quizId - b.quizId);
-  expectedList.quizzes.sort((a, b) => a.quizId - b.quizId);
+  quizList.quizzes.sort((a: quizUser, b:quizUser) => a.quizId - b.quizId);
+  expectedList.quizzes.sort((a: quizUser, b: quizUser) => a.quizId - b.quizId);
   expect(quizList).toStrictEqual(expectedList);
 
   expect(clear()).toStrictEqual({});
 
   expect(adminQuizList(user.authUserId)).toStrictEqual({ error: expect.any(String) });
-  user = adminAuthRegister('haydensmith@gmail.com', 'password1', 'Tester', 'One');
+  user = adminAuthRegister('haydensmith@gmail.com', 'password1', 'Tester', 'One') as UserId;
   expect(adminQuizList(user.authUserId)).toStrictEqual({ quizzes: [] });
 });
