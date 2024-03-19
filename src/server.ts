@@ -38,9 +38,14 @@ app.get('/echo', (req: Request, res: Response) => {
 
 app.post('/v1/admin/quiz/{quizid}/transfer', (req: Request, res: Response) => {
   const quizId = parseInt(req.params.quizid);
-  const { userEmail } = req.body;
-  const response = quizTransfer(userEmail);
+  const { token, userEmail } = req.body;
+  const response = quizTransfer(token, userEmail);
   if ('error' in response) {
+    if (response.error === 'Token is empty or invalid') {
+      return res.status(401).json(response);
+    } else if (response.error === 'Valid token is provided, but user is not an owner of this quiz') {
+      return res.status(403).json(response);
+    }
     return res.status(400).json(response);
   }
   res.json(response);
