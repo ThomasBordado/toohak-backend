@@ -1,6 +1,6 @@
 import express, { json, Request, Response } from 'express';
 import { echo } from './newecho';
-import morgan, { token } from 'morgan';
+import morgan from 'morgan';
 import config from './config.json';
 import cors from 'cors';
 import YAML from 'yaml';
