@@ -2,7 +2,7 @@ import { checkEmail, checkPassword, checkName, isValidUserId, isSame, isPassword
 import isEmail from 'validator/lib/isEmail.js';
 import { getData, setData } from './dataStore';
 import { validUserId } from './quizUtil';
-import { EmptyObject, ErrorReturn, UserDetailsReturn, UserId, user, SessionId } from './interfaces';
+import { EmptyObject, ErrorReturn, UserDetailsReturn, user, SessionId } from './interfaces';
 
 /**
  * Register a user with an email, password, and names, then returns their authUserId.
@@ -26,7 +26,7 @@ export const adminAuthRegister = (email: string, password: string, nameFirst: st
 
   const data = getData();
   data.userIdStore += 1;
-  let sessionId = data.sessionIdStore += 1;
+  const sessionId = data.sessionIdStore += 1;
   const newUser: user = {
     userId: data.userIdStore,
     nameFirst: nameFirst,
@@ -65,7 +65,7 @@ export const adminAuthLogin = (email: string, password: string): SessionId | Err
     user.numSuccessfulLogins++;
     user.numFailedPasswordsSinceLastLogin = 0;
 
-    let sessionId = getData().sessionIdStore += 1;
+    const sessionId = getData().sessionIdStore += 1;
     user.sessions.push(sessionId);
     return {
       sessionId: sessionId
@@ -199,4 +199,3 @@ export const adminUserPasswordUpdate = (authUserId: number, oldPassword: string,
 
   return {};
 };
-

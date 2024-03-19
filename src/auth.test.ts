@@ -1,7 +1,7 @@
 import { adminAuthRegister, adminAuthLogin, adminUserDetails, adminUserDetailsUpdate, adminUserPasswordUpdate } from './auth';
 import { clear } from './other';
 import { usersList } from './authUtil';
-import { UserId, user, UserDetailsReturn } from './interfaces';
+import { UserId, user, UserDetailsReturn, SessionId } from './interfaces';
 
 beforeEach(() => {
   clear();
@@ -10,11 +10,11 @@ beforeEach(() => {
 describe('Test adminAuthRegister', () => {
   // 1. Successful Register of two users
   test('Test registering two users', () => {
-    const user1 = adminAuthRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith') as UserId;
-    const user2 = adminAuthRegister('thomas.bordado@unsw.edu.au', 'password2', 'Thomas', 'Bordado') as UserId;
+    const user1 = adminAuthRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith') as SessionId;
+    const user2 = adminAuthRegister('thomas.bordado@unsw.edu.au', 'password2', 'Thomas', 'Bordado') as SessionId;
     expect(user1).toStrictEqual({ authUserId: expect.any(Number) });
     expect(user2).toStrictEqual({ authUserId: expect.any(Number) });
-    expect(user1.authUserId).not.toStrictEqual(user2.authUserId);
+    expect(user1.sessionId).not.toStrictEqual(user2.sessionId);
   });
 
   // 2. Add an email and then try add the same email.
@@ -88,27 +88,27 @@ describe('Test adminAuthLogin', () => {
 
   test('Test numSuccessfulLogins and numFailedPasswordsSinceLastLogin', () => {
     // Register a user Hayden Smith
-    const user = adminAuthRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith') as UserId;
+    const user = adminAuthRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith') as SessionId;
     // Get details of Hayden
-    let details = adminUserDetails(user.authUserId) as UserDetailsReturn;
+    let details = adminUserDetails(user.sessionId) as UserDetailsReturn;
     // Check that he has only logged in once and had no fails
     expect(details.user.numSuccessfulLogins).toStrictEqual(1);
     expect(details.user.numFailedPasswordsSinceLastLogin).toStrictEqual(0);
     // Login to hayden
     adminAuthLogin('hayden.smith@unsw.edu.au', 'password1');
-    details = adminUserDetails(user.authUserId) as UserDetailsReturn;
+    details = adminUserDetails(user.sessionId) as UserDetailsReturn;
     // Number of logins increase
     expect(details.user.numSuccessfulLogins).toStrictEqual(2);
     expect(details.user.numFailedPasswordsSinceLastLogin).toStrictEqual(0);
     // Fail a login
     adminAuthLogin('hayden.smith@unsw.edu.au', 'password2');
-    details = adminUserDetails(user.authUserId) as UserDetailsReturn;
+    details = adminUserDetails(user.sessionId) as UserDetailsReturn;
     // Number of failed logins increase
     expect(details.user.numSuccessfulLogins).toStrictEqual(2);
     expect(details.user.numFailedPasswordsSinceLastLogin).toStrictEqual(1);
     // Login correctly
     adminAuthLogin('hayden.smith@unsw.edu.au', 'password1');
-    details = adminUserDetails(user.authUserId) as UserDetailsReturn;
+    details = adminUserDetails(user.sessionId) as UserDetailsReturn;
     // Number of failed logins resets to 0
     expect(details.user.numSuccessfulLogins).toStrictEqual(3);
     expect(details.user.numFailedPasswordsSinceLastLogin).toStrictEqual(0);

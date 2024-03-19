@@ -117,15 +117,3 @@ export const requestClear = () => {
 };
 
 // ========================================================================= //
-
-test('Test', () => {
-    //requestClear();
-
-    const resPost = requestRegister('Thomas@gmail.com', 'password1', 'Thomas', 'Bordado');
-    const sessionId = (resPost.jsonBody as { sessionId: number }).sessionId;
-    expect(resPost.statusCode).toStrictEqual(200);
-
-    /*const resPost2 = requestLogin('Thomas@gmail.com', 'password1');
-    const sessionId2 = (resPost2.jsonBody as { sessionId: number }).sessionId;
-    expect(resPost2.statusCode).toStrictEqual(200);*/
-});
