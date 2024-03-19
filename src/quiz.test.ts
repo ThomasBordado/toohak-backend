@@ -342,9 +342,6 @@ describe('adminQuizDescriptionUpdate testing', () => {
   });
 });
 
-
-
-
 /*
 describe('Testing Post /v1/admin/quiz/{quizid}/transfer', () => {
   test('Correct status code and return value', () => {
@@ -352,7 +349,7 @@ describe('Testing Post /v1/admin/quiz/{quizid}/transfer', () => {
         json: { email: '', password: '', nameFirst: '', nameLast: '' }
       });
     const adminAuthRegisterJson1 = JSON.parse(adminAuthRegisterResponse1.body.toString());
-    
+
     request('POST', `/v1/admin/auth/logout`, {
       json: { token: adminAuthRegisterJson1.token }
     });
@@ -433,7 +430,6 @@ describe('Testing Post /v1/admin/quiz/{quizid}/transfer', () => {
       qs: { }
     });
 
-
   const adminAuthRegisterResponse1 = request('POST', `${SERVER_URL}/v1/admin/auth/register`, {
     json: { email: '', password: '', nameFirst: '', nameLast: '' }
   });
@@ -456,11 +452,11 @@ describe('Testing Post /v1/admin/quiz/{quizid}/transfer', () => {
   test.each([
     {
       token: '',
-      userEmaill: '11111@qq.com'    // 	Token is empty
+      userEmaill: '11111@qq.com'     // Token is empty
     },
     {
       token: '',
-      userEmaill: ''                // 	Token is invalid (does not refer to valid logged in user session)
+      userEmaill: ''                 // Token is invalid (does not refer to valid logged in user session)
     },
   ])(
     'Error with token="$token"',
@@ -479,7 +475,7 @@ describe('Testing Post /v1/admin/quiz/{quizid}/transfer', () => {
         json: { email: '', password: '', nameFirst: '', nameLast: '' }
       });
     const adminAuthRegisterJson1 = JSON.parse(adminAuthRegisterResponse1.body.toString());
-    
+
     request('POST', `/v1/admin/auth/logout`, {
       json: { token: adminAuthRegisterJson1.token }
     });

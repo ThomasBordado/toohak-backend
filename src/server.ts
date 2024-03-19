@@ -8,7 +8,7 @@ import sui from 'swagger-ui-express';
 import fs from 'fs';
 import path from 'path';
 import process from 'process';
-import { quizTransfer } from './quiz'
+import { quizTransfer } from './quiz';
 
 // Set up web app
 const app = express();
@@ -49,9 +49,7 @@ app.post('/v1/admin/quiz/{quizid}/transfer', (req: Request, res: Response) => {
     return res.status(400).json(response);
   }
   res.json(response);
-    
-})
-
+});
 
 // ====================================================================
 //  ================= WORK IS DONE ABOVE THIS LINE ===================

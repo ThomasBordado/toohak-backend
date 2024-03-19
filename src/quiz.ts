@@ -182,7 +182,6 @@ export const adminQuizDescriptionUpdate = (authUserId: number, quizId: number, n
   return {};
 };
 
-
 export const quizTransfer = (token: number, userEmail: string, quizId: number): EmptyObject | ErrorReturn => {
-    return {};
-}
+  return {};
+};
