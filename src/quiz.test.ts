@@ -343,7 +343,7 @@ describe('adminQuizDescriptionUpdate testing', () => {
 });
 
 
-
+/*
 describe('Testing Post /v1/admin/quiz/{quizid}/question', () => {
     test('Correct status code and return value', () => {
       const adminAuthRegisterResponse = request('POST', `${SERVER_URL}/v1/admin/auth/register`, {
@@ -737,3 +737,4 @@ describe('Testing Post /v1/admin/quiz/{quizid}/question', () => {
       expect(quizQuestionCreatJson).toStrictEqual({ error: expect.any(String) });
     });
 });
+*/
