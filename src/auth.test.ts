@@ -1,163 +1,343 @@
-import { port, url } from './config.json';
-const SERVER_URL = `${url}:${port}`;
+import { adminAuthRegister, adminAuthLogin, adminUserDetails, adminUserDetailsUpdate, adminUserPasswordUpdate } from './auth';
+import { clear } from './other';
+import { usersList } from './authUtil';
+import { UserId, user, UserDetailsReturn } from './interfaces';
 
-describe('Testing Post /v1/admin/quiz/{quizid}/transfer', () => {
-  test('Correct status code and return value', () => {
-    const adminAuthRegisterResponse1 = request('POST', `${SERVER_URL}/v1/admin/auth/register`, {
-        json: { email: '', password: '', nameFirst: '', nameLast: '' }
-      });
-    const adminAuthRegisterJson1 = JSON.parse(adminAuthRegisterResponse1.body.toString());
-    
-    request('POST', `/v1/admin/auth/logout`, {
-      json: { token: adminAuthRegisterJson1.token }
-    });
+beforeEach(() => {
+  clear();
+});
 
-    const adminAuthRegisterResponse2 = request('POST', `${SERVER_URL}/v1/admin/auth/register`, {
-      json: { email: '', password: '', nameFirst: '', nameLast: '' }
-    });
-  const adminAuthRegisterJson2 = JSON.parse(adminAuthRegisterResponse2.body.toString());
-
-    const adminQuizCreateResponse = request('POST', `${SERVER_URL}/v1/admin/quiz`, {
-      json: { token: '', name: '', description: '' }
-    });
-    const adminQuizCreateJson = JSON.parse(adminQuizCreateResponse.body.toString());
-
-    const quizTransferResponse = request('POST', `${SERVER_URL}/v1/admin/quiz/${adminQuizCreateJson.quizid}/transfer`, {
-      json: {
-        tokem: adminAuthRegisterJson2.token,
-        userEmail: ''
-      }
-    });
-    const quizTransferJson = JSON.parse(quizTransferResponse.body.toString());
-    expect(quizTransferResponse.statusCode).toStrictEqual(200);
-    expect(quizTransferJson).toStrictEqual({ });
+describe('Test adminAuthRegister', () => {
+  // 1. Successful Register of two users
+  test('Test registering two users', () => {
+    const user1 = adminAuthRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith') as UserId;
+    const user2 = adminAuthRegister('thomas.bordado@unsw.edu.au', 'password2', 'Thomas', 'Bordado') as UserId;
+    expect(user1).toStrictEqual({ authUserId: expect.any(Number) });
+    expect(user2).toStrictEqual({ authUserId: expect.any(Number) });
+    expect(user1.authUserId).not.toStrictEqual(user2.authUserId);
   });
 
-  test('Error test for 400 error', () => {
-
-    const adminAuthRegisterResponse1 = request('POST', `${SERVER_URL}/v1/admin/auth/register`, {
-      json: { email: '', password: '', nameFirst: '', nameLast: '' }
-    });
-    const adminAuthRegisterJson1 = JSON.parse(adminAuthRegisterResponse1.body.toString());
-
-    request('POST', `/v1/admin/auth/logout`, {
-      json: { token: adminAuthRegisterJson1.token }
-    });
-
-    const adminAuthRegisterResponse2 = request('POST', `${SERVER_URL}/v1/admin/auth/register`, {
-      json: { email: '', password: '', nameFirst: '', nameLast: '' }
-    });
-    const adminAuthRegisterJson2 = JSON.parse(adminAuthRegisterResponse2.body.toString());
-
-    const adminQuizCreateResponse = request('POST', `${SERVER_URL}/v1/admin/quiz`, {
-      json: { token: '', name: '', description: '' }
-    });
-    const adminQuizCreateJson = JSON.parse(adminQuizCreateResponse.body.toString());
-
-    test.each([
-      {
-        token: adminAuthRegisterJson2.token,
-        userEmaill: '11111@qq.com'    // userEmail is not a real user
-      },
-      {
-        token: adminAuthRegisterJson2.token,
-        userEmaill: ''                // userEmail is the current logged in user
-      },
-      {
-        token: adminAuthRegisterJson2.token,
-        userEmaill: ''                // Quiz ID refers to a quiz that has a name that is already used by the target user
-      },
-      {
-        token: adminAuthRegisterJson2.token,
-        userEmaill: ''                // Any session for this quiz is not in END state
-      },
-    ])(
-      'Error with token="$token", userEmail=$userEmail"',
-      ({ token, userEmaill }) => {
-        const quizTransfereResponse = request('POST', `${SERVER_URL}/v1/admin/quiz/${adminQuizCreateJson.quizid}/transfer`, {
-          json: { token, userEmaill }
-        });
-        expect(quizTransfereResponse.statusCode).toStrictEqual(400);
-        const quizTransfereJson = JSON.parse(quizTransfereResponse.body.toString());
-        expect(quizTransfereJson).toStrictEqual({ error: expect.any(String) });
-      });
+  // 2. Add an email and then try add the same email.
+  test('Test email in use adminAuthRegister', () => {
+    expect(adminAuthRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith')).toStrictEqual({ authUserId: expect.any(Number) });
+    expect(adminAuthRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith')).toStrictEqual({ error: expect.any(String) });
   });
 
-  test('Error test for 401 error', () => {
-    request('DELETE', `${SERVER_URL}/v1/clear`, {
-      qs: { }
-    });
-
-
-  const adminAuthRegisterResponse1 = request('POST', `${SERVER_URL}/v1/admin/auth/register`, {
-    json: { email: '', password: '', nameFirst: '', nameLast: '' }
-  });
-  const adminAuthRegisterJson1 = JSON.parse(adminAuthRegisterResponse1.body.toString());
-
-  request('POST', `/v1/admin/auth/logout`, {
-    json: { token: adminAuthRegisterJson1.token }
+  // 3. Provide an invlaid email.
+  test('Test invalid email adminAuthRegister', () => {
+    expect(adminAuthRegister('hayden.smithson', 'password3', 'Hayden', 'Smith')).toStrictEqual({ error: expect.any(String) });
   });
 
-  const adminAuthRegisterResponse2 = request('POST', `${SERVER_URL}/v1/admin/auth/register`, {
-    json: { email: '', password: '', nameFirst: '', nameLast: '' }
+  // 4. Invalid Characters in First name.
+  test('Test first name invalid characters adminAuthRegister', () => {
+    expect(adminAuthRegister('hayden.smith@unsw.edu.au', 'password3', 'Hayden!', 'Smithson')).toStrictEqual({ error: expect.any(String) });
+    expect(adminAuthRegister('hayden.smith@unsw.edu.au', 'password3', 'Hayden1', 'Smithson')).toStrictEqual({ error: expect.any(String) });
+    expect(adminAuthRegister('hayden.smith@unsw.edu.au', 'password3', 'Hay?den', 'Smithson')).toStrictEqual({ error: expect.any(String) });
   });
-  const adminAuthRegisterJson2 = JSON.parse(adminAuthRegisterResponse2.body.toString());
 
-  const adminQuizCreateResponse = request('POST', `${SERVER_URL}/v1/admin/quiz`, {
-    json: { token: '', name: '', description: '' }
+  // 5. Invalid length of First name.
+  test('Test first name invalid length adminAuthRegister', () => {
+    expect(adminAuthRegister('hayden.smith@unsw.edu.au', 'password3', 'H', 'Smithson')).toStrictEqual({ error: expect.any(String) });
+    expect(adminAuthRegister('hayden.smith@unsw.edu.au', 'password3', 'haydenhaydenhaydenhayden', 'Smithson')).toStrictEqual({ error: expect.any(String) });
   });
-  const adminQuizCreateJson = JSON.parse(adminQuizCreateResponse.body.toString());
+
+  // 6. Invalid Character in Last name.
+  test('Test last name invalid characters adminAuthRegister', () => {
+    expect(adminAuthRegister('hayden.smith@unsw.edu.au', 'password3', 'Hayden', 'Smithson!')).toStrictEqual({ error: expect.any(String) });
+    expect(adminAuthRegister('hayden.smith@unsw.edu.au', 'password3', 'Hayden', 'Smithson1')).toStrictEqual({ error: expect.any(String) });
+    expect(adminAuthRegister('hayden.smith@unsw.edu.au', 'password3', 'Hayden', '{Smith}')).toStrictEqual({ error: expect.any(String) });
+  });
+
+  // 7. Invalid length of Last name.
+  test('Test last name invalid length adminAuthRegister', () => {
+    expect(adminAuthRegister('hayden.smith@unsw.edu.au', 'password3', 'Hayden', 'S')).toStrictEqual({ error: expect.any(String) });
+    expect(adminAuthRegister('hayden.smith@unsw.edu.au', 'password3', 'Hayden', 'SmithSmithSmithSmithSmith')).toStrictEqual({ error: expect.any(String) });
+  });
+
+  // 8. Invalid password length.
+  test('Test password invalid length adminAuthRegister', () => {
+    expect(adminAuthRegister('hayden.smith@unsw.edu.au', 'pass', 'Hayden', 'Smithson!')).toStrictEqual({ error: expect.any(String) });
+  });
+
+  // 9. Invalid password conditions.
+  test('Test password invalid adminAuthRegister', () => {
+    expect(adminAuthRegister('hayden.smith@unsw.edu.au', 'password', 'Hayden', 'Smithson!')).toStrictEqual({ error: expect.any(String) });
+    expect(adminAuthRegister('hayden.smith@unsw.edu.au', '12345678', 'Hayden', 'Smithson!')).toStrictEqual({ error: expect.any(String) });
+  });
+});
+
+describe('Test adminAuthLogin', () => {
+  // 1. Successful login to an existing account.
+  test('Test successful login', () => {
+    const result = adminAuthRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith');
+    expect(adminAuthLogin('hayden.smith@unsw.edu.au', 'password1')).toStrictEqual(result);
+  });
+
+  // 2. Logging into an non-existing email then registering the email and logging in.
+  test('Test email address does not exist', () => {
+    expect(adminAuthLogin('thomas@gmail.com', 'password1')).toStrictEqual({ error: expect.any(String) });
+    const result = adminAuthRegister('thomas@gmail.com', 'password1', 'Thomas', 'Bordado');
+    expect(adminAuthLogin('thomas@gmail.com', 'password1')).toStrictEqual(result);
+  });
+
+  // 3. Incorrect Password for given email.
+  test('Test incorrect password', () => {
+    expect(adminAuthRegister('thomas@gmail.com', 'password1', 'Thomas', 'Bordado')).toStrictEqual({ authUserId: expect.any(Number) });
+    expect(adminAuthLogin('thomas@gmail.com', 'password2')).toStrictEqual({ error: expect.any(String) });
+  });
+
+  test('Test numSuccessfulLogins and numFailedPasswordsSinceLastLogin', () => {
+    // Register a user Hayden Smith
+    const user = adminAuthRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith') as UserId;
+    // Get details of Hayden
+    let details = adminUserDetails(user.authUserId) as UserDetailsReturn;
+    // Check that he has only logged in once and had no fails
+    expect(details.user.numSuccessfulLogins).toStrictEqual(1);
+    expect(details.user.numFailedPasswordsSinceLastLogin).toStrictEqual(0);
+    // Login to hayden
+    adminAuthLogin('hayden.smith@unsw.edu.au', 'password1');
+    details = adminUserDetails(user.authUserId) as UserDetailsReturn;
+    // Number of logins increase
+    expect(details.user.numSuccessfulLogins).toStrictEqual(2);
+    expect(details.user.numFailedPasswordsSinceLastLogin).toStrictEqual(0);
+    // Fail a login
+    adminAuthLogin('hayden.smith@unsw.edu.au', 'password2');
+    details = adminUserDetails(user.authUserId) as UserDetailsReturn;
+    // Number of failed logins increase
+    expect(details.user.numSuccessfulLogins).toStrictEqual(2);
+    expect(details.user.numFailedPasswordsSinceLastLogin).toStrictEqual(1);
+    // Login correctly
+    adminAuthLogin('hayden.smith@unsw.edu.au', 'password1');
+    details = adminUserDetails(user.authUserId) as UserDetailsReturn;
+    // Number of failed logins resets to 0
+    expect(details.user.numSuccessfulLogins).toStrictEqual(3);
+    expect(details.user.numFailedPasswordsSinceLastLogin).toStrictEqual(0);
+  });
+});
+
+describe('Test adminUserDetails', () => {
+  // 1. Succesful return of account details
+  test('Test succesful get user details', () => {
+    const user1 = adminAuthRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith') as UserId;
+    const result = adminUserDetails(user1.authUserId);
+    const user = {
+      userId: user1.authUserId,
+      name: 'Hayden Smith',
+      email: 'hayden.smith@unsw.edu.au',
+      numSuccessfulLogins: 1,
+      numFailedPasswordsSinceLastLogin: 0,
+    };
+
+    expect(result).toStrictEqual({ user: user });
+  });
+
+  // 2. Invalid authUserId
+  test('Test Invalid User ID', () => {
+    const user1 = adminAuthRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith') as UserId;
+    expect(adminUserDetails(user1.authUserId + 1)).toStrictEqual({ error: expect.any(String) });
+  });
+});
+
+/**
+ * Test for adminUserDetailsUpdate
+ */
+
+describe('adminUserDetailsUpdate', () => {
+  let data: UserId;
+  beforeEach(() => {
+    data = adminAuthRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith') as UserId;
+  });
+
+  test('adminUserDetailsUpdate error: invalid authUserId', () => {
+    expect(adminUserDetailsUpdate(data.authUserId + 1, 'validemail1@gmail.com', 'Jane', 'Smith')).toStrictEqual({ error: expect.any(String) });
+  });
 
   test.each([
-    {
-      token: '',
-      userEmaill: '11111@qq.com'    // 	Token is empty
-    },
-    {
-      token: '',
-      userEmaill: ''                // 	Token is invalid (does not refer to valid logged in user session)
-    },
-  ])(
-    'Error with token="$token"',
-    ({ token, userEmaill }) => {
-      const quizTransfereResponse = request('POST', `${SERVER_URL}/v1/admin/quiz/${adminQuizCreateJson.quizid}/transfer`, {
-        json: { token, userEmaill }
-      });
-      expect(quizTransfereResponse.statusCode).toStrictEqual(401);
-      const quizTransfereJson = JSON.parse(quizTransfereResponse.body.toString());
-      expect(quizTransfereJson).toStrictEqual({ error: expect.any(String) });
-    });
+    { test: 'invalid email', email: 'invalidemail', nameFirst: 'Jane', nameLast: 'Smith' },
+    { test: 'email used by other', email: 'validemail1@gmail.com', nameFirst: 'Jane', nameLast: 'Smith' },
+    { test: 'invalid nameFirst(contain invalid characters)', email: 'validemail@gmail.com', nameFirst: 'J++', nameLast: 'Smith' },
+    { test: 'invalid nameFirst(too short)', email: 'validemail@gmail.com', nameFirst: 'J', nameLast: 'Smith' },
+    { test: 'invalid nameFirst(too long)', email: 'validemail@gmail.com', nameFirst: 'JaneJaneJaneJaneJaneJane', nameLast: 'Smith' },
+    { test: 'invalid nameLast(contain invalid characters)', email: 'validemail@gmail.com', nameFirst: 'Jane', nameLast: 'S++' },
+    { test: 'invalid nameLast(too short)', email: 'validemail@gmail.com', nameFirst: 'Jane', nameLast: 'S' },
+    { test: 'invalid nameLast(too long)', email: 'validemail@gmail.com', nameFirst: 'Jane', nameLast: 'SmithSmithSmithSmithSmith' },
+  ])("adminUserDetailsUpdate error: '$test'", ({ email, nameFirst, nameLast }) => {
+    adminAuthRegister('validemail1@gmail.com', 'password7', 'Jennifer', 'Lawson');
+    expect(adminUserDetailsUpdate(data.authUserId, email, nameFirst, nameLast)).toStrictEqual({ error: expect.any(String) });
   });
 
-  test('Error test for 403 error, Valid token is provided, but user is not an owner of this quiz', () => {
-    const adminAuthRegisterResponse1 = request('POST', `${SERVER_URL}/v1/admin/auth/register`, {
-        json: { email: '', password: '', nameFirst: '', nameLast: '' }
-      });
-    const adminAuthRegisterJson1 = JSON.parse(adminAuthRegisterResponse1.body.toString());
-    
-    request('POST', `/v1/admin/auth/logout`, {
-      json: { token: adminAuthRegisterJson1.token }
-    });
+  // 2. Testing for return value
+  test('adminUserDetailsUpdate return type', () => {
+    expect(adminUserDetailsUpdate(data.authUserId, 'validemail1@gmail.com', 'Jane', 'Smith')).toStrictEqual({});
+  });
 
-    const adminAuthRegisterResponse2 = request('POST', `${SERVER_URL}/v1/admin/auth/register`, {
-      json: { email: '', password: '', nameFirst: '', nameLast: '' }
-    });
-  const adminAuthRegisterJson2 = JSON.parse(adminAuthRegisterResponse2.body.toString());
-
-    const adminQuizCreateResponse = request('POST', `${SERVER_URL}/v1/admin/quiz`, {
-      json: { token: '', name: '', description: '' }
-    });
-    const adminQuizCreateJson = JSON.parse(adminQuizCreateResponse.body.toString());
-
-    const quizTransferResponse = request('POST', `${SERVER_URL}/v1/admin/quiz/${adminQuizCreateJson.quizid}/transfer`, {
-      json: {
-        tokem: '',
-        userEmail: ''
+  // 3. Testing for behaviors
+  // one user
+  test('adminUserDetailsUpdate one user', () => {
+    adminUserDetailsUpdate(data.authUserId, 'validemail1@gmail.com', 'Jennifer', 'Lawson');
+    const result = usersList().sort((a, b) => a.userId - b.userId);
+    const users: user[] = [
+      {
+        userId: data.authUserId,
+        nameFirst: 'Jennifer',
+        nameLast: 'Lawson',
+        email: 'validemail1@gmail.com',
+        password: '1234567a',
+        prevpassword: [],
+        numSuccessfulLogins: 1,
+        numFailedPasswordsSinceLastLogin: 0,
+        quizzes: [],
       }
-    });
-    const quizTransferJson = JSON.parse(quizTransferResponse.body.toString());
-    expect(quizTransferResponse.statusCode).toStrictEqual(403);
-    expect(quizTransferJson).toStrictEqual({ error: expect.any(String) });
+    ];
+    const expectedList = users.sort((a, b) => a.userId - b.userId);
+    expect(result).toStrictEqual(expectedList);
+  });
+
+  // more than one user
+  test('adminUserDetailsUpdate update (more than one user)', () => {
+    const id2 = adminAuthRegister('validemail2@gmail.com', '1234567a', 'Jane', 'Smith') as UserId;
+    adminUserDetailsUpdate(id2.authUserId, 'validemail1@gmail.com', 'Jennifer', 'Lawson');
+    const result = usersList().sort((a, b) => a.userId - b.userId);
+    const users: user[] =
+          [{
+            userId: data.authUserId,
+            nameFirst: 'Jane',
+            nameLast: 'Smith',
+            email: 'validemail@gmail.com',
+            password: '1234567a',
+            prevpassword: [],
+            numSuccessfulLogins: 1,
+            numFailedPasswordsSinceLastLogin: 0,
+            quizzes: [],
+          }, {
+            userId: id2.authUserId,
+            nameFirst: 'Jennifer',
+            nameLast: 'Lawson',
+            email: 'validemail1@gmail.com',
+            password: '1234567a',
+            prevpassword: [],
+            numSuccessfulLogins: 1,
+            numFailedPasswordsSinceLastLogin: 0,
+            quizzes: [],
+          }];
+    const expectedList = users.sort((a, b) => a.userId - b.userId);
+    expect(result).toStrictEqual(expectedList);
+  });
+
+  // Able to change if email is same as the old one
+  test('adminUserDetailsUpdate new email is as same as the old one', () => {
+    const id2 = adminAuthRegister('validemail2@gmail.com', '1234567a', 'Jane', 'Smith') as UserId;
+    adminUserDetailsUpdate(id2.authUserId, 'validemail2@gmail.com', 'Jennifer', 'Lawson');
+    const result = usersList().sort((a, b) => a.userId - b.userId);
+    const users: user[] =
+          [{
+            userId: data.authUserId,
+            nameFirst: 'Jane',
+            nameLast: 'Smith',
+            email: 'validemail@gmail.com',
+            password: '1234567a',
+            prevpassword: [],
+            numSuccessfulLogins: 1,
+            numFailedPasswordsSinceLastLogin: 0,
+            quizzes: [],
+          }, {
+            userId: id2.authUserId,
+            nameFirst: 'Jennifer',
+            nameLast: 'Lawson',
+            email: 'validemail2@gmail.com',
+            password: '1234567a',
+            prevpassword: [],
+            numSuccessfulLogins: 1,
+            numFailedPasswordsSinceLastLogin: 0,
+            quizzes: [],
+          }];
+    const expectedList = users.sort((a, b) => a.userId - b.userId);
+    expect(result).toStrictEqual(expectedList);
+  });
+});
+
+/**
+ * Test for user password update
+ */
+
+describe('adminUserPasswordUpdate', () => {
+  let data: UserId;
+  beforeEach(() => {
+    data = adminAuthRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith') as UserId;
+  });
+
+  test('adminUserPasswordUpdate error: invalid authUserId', () => {
+    expect(adminUserPasswordUpdate(data.authUserId + 1, '1234567a', '1234567b')).toStrictEqual({ error: expect.any(String) });
+  });
+
+  test.each([
+    { test: 'old password incorrect', oldPassword: '1234567b', newPassword: '1234567c' },
+    { test: 'Old Password and New Password match exactly', oldPassword: '1234567a', newPassword: '1234567a' },
+    { test: 'New password not valid(too short)', oldPassword: '1234567a', newPassword: '123' },
+    { test: 'New password not valid(does not contain letter)', oldPassword: '1234567a', newPassword: '12345678' },
+    { test: 'New password not valid(does not contain number)', oldPassword: '1234567a', newPassword: 'abcdefgh' },
+  ])("adminUserPasswordUpdate error: '$test'", ({ oldPassword, newPassword }) => {
+    expect(adminUserPasswordUpdate(data.authUserId, oldPassword, newPassword)).toStrictEqual({ error: expect.any(String) });
+  });
+
+  // 2. Testing for return value
+  test('adminUserPasswordUpdate return type', () => {
+    expect(adminUserPasswordUpdate(data.authUserId, '1234567a', '1234567b')).toStrictEqual({});
+  });
+
+  // 3. Testing for behaviors
+  // one user
+  test('adminUserPasswordUpdate return type', () => {
+    adminUserPasswordUpdate(data.authUserId, '1234567a', '1234567b');
+    const result1 = usersList().sort((a, b) => a.userId - b.userId);
+    const users1: user[] =
+          [{
+            userId: data.authUserId,
+            nameFirst: 'Jane',
+            nameLast: 'Smith',
+            email: 'validemail@gmail.com',
+            password: '1234567b',
+            prevpassword: ['1234567a'],
+            numSuccessfulLogins: 1,
+            numFailedPasswordsSinceLastLogin: 0,
+            quizzes: [],
+          }];
+    const expectedList = users1.sort((a, b) => a.userId - b.userId);
+    expect(result1).toStrictEqual(expectedList);
+  });
+
+  // more than one user and with adminUserDetailsUpdate, many times
+  test('adminUserPasswordUpdate return type', () => {
+    const id2 = adminAuthRegister('validemail2@gmail.com', '1234567a', 'Jennifer', 'Smith') as UserId;
+    adminUserPasswordUpdate(id2.authUserId, '1234567a', '1234567b');
+    adminUserPasswordUpdate(id2.authUserId, '1234567b', '1234567c');
+    const result = usersList().sort((a, b) => a.userId - b.userId);
+    const users: user[] =
+          [{
+            userId: data.authUserId,
+            nameFirst: 'Jane',
+            nameLast: 'Smith',
+            email: 'validemail@gmail.com',
+            password: '1234567a',
+            prevpassword: [],
+            numSuccessfulLogins: 1,
+            numFailedPasswordsSinceLastLogin: 0,
+            quizzes: [],
+          },
+          {
+            userId: id2.authUserId,
+            nameFirst: 'Jennifer',
+            nameLast: 'Smith',
+            email: 'validemail2@gmail.com',
+            password: '1234567c',
+            prevpassword: ['1234567a', '1234567b'],
+            numSuccessfulLogins: 1,
+            numFailedPasswordsSinceLastLogin: 0,
+            quizzes: [],
+          }];
+    const expectedList = users.sort((a, b) => a.userId - b.userId);
+    expect(result).toStrictEqual(expectedList);
   });
 
 });
+
