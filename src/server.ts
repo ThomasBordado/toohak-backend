@@ -8,6 +8,7 @@ import sui from 'swagger-ui-express';
 import fs from 'fs';
 import path from 'path';
 import process from 'process';
+import { quizTransfer } from './quiz'
 
 // Set up web app
 const app = express();
