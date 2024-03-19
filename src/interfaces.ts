@@ -1,3 +1,5 @@
+import { string } from "yaml/dist/schema/common/string";
+
 export interface quiz {
   quizId: number;
   name: string;
@@ -50,6 +52,24 @@ export interface quizId {
 
 export interface QuizListReturn {
   quizzes: quizUser[];
+}
+
+export interface quizQuestionCreatInput {
+  questionBody: {
+    question: string;
+    duration: number;
+    points: number;
+    answers: [
+      {
+        answer: string;
+        correct: boolean;
+      }
+    ]
+  }
+}
+
+export interface quizQuestionCreatReturn {
+  questionId: number;
 }
 
 export interface DataStore {
