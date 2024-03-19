@@ -8,6 +8,7 @@ import sui from 'swagger-ui-express';
 import fs from 'fs';
 import path from 'path';
 import process from 'process';
+import { adminQuizList } from './quiz';
 
 // Set up web app
 const app = express();
@@ -35,7 +36,16 @@ app.get('/echo', (req: Request, res: Response) => {
   return res.json(echo(data));
 });
 
-// ====================================================================
+app.get('/v1/admin/quiz/list', (req: Request, res: Response) => {
+  const token = parseInt(req.query.token as string);
+  const result = adminQuizList(token);
+  if ('error' in result) {
+    return res.status(401).json(result);
+  }
+  res.json(result);
+});
+
+// ==================================================================
 //  ================= WORK IS DONE ABOVE THIS LINE ===================
 // ====================================================================
 
