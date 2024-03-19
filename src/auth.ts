@@ -142,7 +142,7 @@ export const adminUserDetailsUpdate = (token: number, email: string, nameFirst: 
   // 6. Update the data
   const data = getData();
   for (const users of data.users) {
-    if (users.token === token) {
+    if (users.userId === token) {
       users.email = email;
       users.nameFirst = nameFirst;
       users.nameLast = nameLast;
