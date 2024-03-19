@@ -8,7 +8,7 @@ import sui from 'swagger-ui-express';
 import fs from 'fs';
 import path from 'path';
 import process from 'process';
-import { adminUserDetailsUpdate } from './auth'
+import { adminUserDetailsUpdate } from './auth';
 
 // Set up web app
 const app = express();
@@ -45,16 +45,11 @@ app.put('/v1/admin/user/details', (req: Request, res: Response) => {
     } else if (response.error === 'Valid token is provided, but user is not an owner of this quiz') {
       return res.status(403).json(response);
     }
-    
+
     return res.status(400).json(response);
   }
   return res.json(response);
 });
-
-
-
-
-
 
 // ====================================================================
 //  ================= WORK IS DONE ABOVE THIS LINE ===================
