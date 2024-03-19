@@ -1,5 +1,5 @@
 import { getData, setData } from './dataStore';
-import { EmptyObject, ErrorReturn, QuizListReturn, quiz, quizId } from './interfaces';
+import { EmptyObject, ErrorReturn, QuizListReturn, quiz, quizId, quizQuestionCreatInput, quizQuestionCreatReturn } from './interfaces';
 import { validUserId, checkQuizName } from './quizUtil';
 
 /**
@@ -181,3 +181,13 @@ export const adminQuizDescriptionUpdate = (authUserId: number, quizId: number, n
 
   return {};
 };
+
+
+
+
+/**
+ * quizQuestionCreat
+ */
+export const quizQuestionCreat = (token: number, questionBody: quizQuestionCreatInput, quizId: number): quizQuestionCreatReturn | ErrorReturn=> {
+    return {questionId: 5546};
+}
