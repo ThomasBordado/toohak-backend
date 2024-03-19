@@ -155,19 +155,19 @@ export const adminUserDetailsUpdate = (authUserId: number, email: string, nameFi
 
 /**
 *Given details relating to a password change, update the password of a logged in user.
-* @param {number} authUserId - unique Id for authUser
+* @param {number} token - unique Id for logged in user
 * @param {string} oldPassword - the password user willing to change
 * @param {string} newPassword - the new password
 * @return {} - the password been updated
 */
-export const adminUserPasswordUpdate = (authUserId: number, oldPassword: string, newPassword: string): EmptyObject | ErrorReturn => {
+export const adminUserPasswordUpdate = (token: number, oldPassword: string, newPassword: string): EmptyObject | ErrorReturn => {
   // 1. Check if AuthUserId is valid
-  if (!isValidUserId(authUserId)) {
+  if (!isValidUserId(token)) {
     return { error: 'AuthUserId is not a valid user.' };
   }
 
   // 2. Check if the old password is correct
-  if (!isPasswordCorrect(authUserId, oldPassword)) {
+  if (!isPasswordCorrect(token, oldPassword)) {
     return { error: 'Old Password is not the correct old password.' };
   }
 
@@ -177,7 +177,7 @@ export const adminUserPasswordUpdate = (authUserId: number, oldPassword: string,
   }
 
   // 4. Check if the password is used by this user
-  if (isNewPasswordUsed(authUserId, newPassword)) {
+  if (isNewPasswordUsed(token, newPassword)) {
     return { error: 'New Password has already been used before by this user.' };
   }
 
@@ -187,7 +187,7 @@ export const adminUserPasswordUpdate = (authUserId: number, oldPassword: string,
   }
 
   const data = getData();
-  const user = data.users.find(users => users.userId === authUserId);
+  const user = data.users.find(users => users.token === token);
   user.password = newPassword;
   user.prevpassword.push(oldPassword);
   setData(data);
