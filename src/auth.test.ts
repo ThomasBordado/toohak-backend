@@ -338,6 +338,4 @@ describe('adminUserPasswordUpdate', () => {
     const expectedList = users.sort((a, b) => a.userId - b.userId);
     expect(result).toStrictEqual(expectedList);
   });
-
 });
-
