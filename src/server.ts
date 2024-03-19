@@ -1,6 +1,6 @@
 import express, { json, Request, Response } from 'express';
 import { echo } from './newecho';
-import morgan from 'morgan';
+import morgan, { token } from 'morgan';
 import config from './config.json';
 import cors from 'cors';
 import YAML from 'yaml';
@@ -37,8 +37,8 @@ app.get('/echo', (req: Request, res: Response) => {
 });
 
 app.put('/v1/admin/user/details', (req: Request, res: Response) => {
-  const { authUserId, email, nameFirst, nameLast } = req.body;
-  const response = adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast);
+  const { token, email, nameFirst, nameLast } = req.body;
+  const response = adminUserDetailsUpdate(token, email, nameFirst, nameLast);
   if ('error' in response) {
     return res.status(400).json(response);
   }
