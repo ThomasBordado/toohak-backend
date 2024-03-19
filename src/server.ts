@@ -8,6 +8,7 @@ import sui from 'swagger-ui-express';
 import fs from 'fs';
 import path from 'path';
 import process from 'process';
+import { adminUserDetails } from './auth';
 
 // Set up web app
 const app = express();
@@ -35,6 +36,15 @@ app.get('/echo', (req: Request, res: Response) => {
   return res.json(echo(data));
 });
 
+app.get('/v1/admin/userdetails', (req: Request, res: Response) => {
+  const token = parseInt(req.query.token as string);
+  const response = adminUserDetails(token)
+  if ('error' in response) {
+    return res.status(401).json(response);
+  }
+  res.json(response);
+}
+)
 // ====================================================================
 //  ================= WORK IS DONE ABOVE THIS LINE ===================
 // ====================================================================
