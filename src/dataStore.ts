@@ -1,5 +1,7 @@
+import { DataStore } from './interfaces';
+
 // YOU SHOULD MODIFY THIS OBJECT BELOW ONLY
-let data = {
+let data: DataStore = {
   users: [],
   quizzes: [],
   userIdStore: 0,
@@ -30,7 +32,7 @@ function getData() {
 }
 
 // Use set(newData) to pass in the entire data object, with modifications made
-function setData(newData) {
+function setData(newData: DataStore) {
   data = newData;
 }
 

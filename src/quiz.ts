@@ -1,22 +1,21 @@
-import { getData, setData } from './dataStore.js';
-import { validUserId, checkQuizName } from './quizUtil.js';
-import timestamp from 'unix-timestamp-offset';
+import { getData, setData } from './dataStore';
+import { EmptyObject, ErrorReturn, QuizListReturn, quiz, quizId } from './interfaces';
+import { validUserId, checkQuizName } from './quizUtil';
 
 /**
  * Provides a list of all quizzes that are owned by the currently logged in user
  * @param {number} authUserId - unique identifier for an academic
  * @returns {{quizzes: [{quizId: number, name: string,}]}} - for valid authUserID
  */
-function adminQuizList(authUserId) {
-
-  let data = getData();
-  let user = validUserId(authUserId, data.users);
+export const adminQuizList = (authUserId: number): QuizListReturn | ErrorReturn => {
+  const data = getData();
+  const user = validUserId(authUserId, data.users);
   if ('error' in user) {
     return user;
   }
 
-  return {quizzes: user.quizzes};
-}
+  return { quizzes: user.quizzes };
+};
 
 /**
  * Given basic details about a new quiz, create one for the logged in user.
@@ -26,33 +25,32 @@ function adminQuizList(authUserId) {
  * @returns {{quizId: number}} - for valid authUserID, name and discription
  */
 
-function adminQuizCreate(authUserId, name, description) {
-
-  let data = getData();
-  let user = validUserId(authUserId, data.users)
+export const adminQuizCreate = (authUserId: number, name: string, description: string): quizId | ErrorReturn => {
+  const data = getData();
+  const user = validUserId(authUserId, data.users);
   if ('error' in user) {
     return user;
-  } else if (checkQuizName(name, user.quizzes) != true) {
-    return checkQuizName(name, user.quizzes);
+  } else if (checkQuizName(name, user.quizzes) !== true) {
+    return checkQuizName(name, user.quizzes) as ErrorReturn;
   } else if (description.length > 100) {
     return { error: 'Description cannot be greater than 100 characters' };
   }
 
   data.quizIdStore += 1;
-  let newQuiz = {
+  const newQuiz = {
     quizId: data.quizIdStore,
     name: name,
-    timeCreated: timestamp(),
-    timeLastEdited: timestamp(),
+    timeCreated: Math.floor(Date.now() / 1000),
+    timeLastEdited: Math.floor(Date.now() / 1000),
     description: description,
-  }
+  };
 
-  data.quizzes.push(newQuiz)
+  data.quizzes.push(newQuiz);
   user.quizzes.push({ quizId: data.quizIdStore, name: name });
   return {
     quizId: data.quizIdStore
   };
-}
+};
 
 /**
  * Given a particular quiz, permanently remove the quiz
@@ -60,55 +58,52 @@ function adminQuizCreate(authUserId, name, description) {
  * @param {number} quizId - unique identifier for a quiz
  * @returns {} - for valid authUserId and quizId
  */
-function adminQuizRemove(authUserId, quizId) {
-
-  let data = getData();
-  let user = validUserId(authUserId, data.users)
+export const adminQuizRemove = (authUserId: number, quizId: number): EmptyObject | ErrorReturn => {
+  const data = getData();
+  const user = validUserId(authUserId, data.users);
   if ('error' in user) {
     return user;
   }
-  
+
   const quizzesIndex = data.quizzes.findIndex(quizzes => quizzes.quizId === quizId);
-  if (quizzesIndex == -1) {
-    return {error: 'Invalid quizId'};
+  if (quizzesIndex === -1) {
+    return { error: 'Invalid quizId' };
   }
 
   const userQuizzesIndex = user.quizzes.findIndex(quizzes => quizzes.quizId === quizId);
-  if (userQuizzesIndex == -1) {
-    return {error: 'User does not own quiz'};
+  if (userQuizzesIndex === -1) {
+    return { error: 'User does not own quiz' };
   }
 
   data.quizzes.splice(quizzesIndex, 1);
   user.quizzes.splice(userQuizzesIndex, 1);
 
   return {};
-}
+};
 
 /** Get all of the relevant information about the current quiz.
  * @param {number} authUserId - unique identifier for an academic
  * @param {number} quizId - unique identifier for a quiz
  * @returns {{quizId: number, name: string, timeCreated: number, timeLastEdited: number, description: string}} - for valid authUserId and quizId
  */
-export function adminQuizInfo(authUserId, quizId) {
-
-  let data = getData();
-  let user = validUserId(authUserId, data.users)
+export const adminQuizInfo = (authUserId: number, quizId: number): quiz | ErrorReturn => {
+  const data = getData();
+  const user = validUserId(authUserId, data.users);
   if ('error' in user) {
-      return user;
+    return user;
   }
 
   const quizzesIndex = data.quizzes.findIndex(quizzes => quizzes.quizId === quizId);
-  if (quizzesIndex == -1) {
-      return {error: 'Invalid quizId'};
+  if (quizzesIndex === -1) {
+    return { error: 'Invalid quizId' };
   }
 
   const userQuizzesIndex = user.quizzes.findIndex(quizzes => quizzes.quizId === quizId);
-  if (userQuizzesIndex == -1) {
-      return {error: 'User does not own quiz'};
+  if (userQuizzesIndex === -1) {
+    return { error: 'User does not own quiz' };
   }
 
   return data.quizzes[quizzesIndex];
-
 
   // return {
   //   quizId: 1,
@@ -117,7 +112,7 @@ export function adminQuizInfo(authUserId, quizId) {
   //   timeLastEdited: 1683125871,
   //   description: 'This is my quiz',
   // };
-}
+};
 
 /**
  * Update the name of the relevant quiz.
@@ -126,34 +121,31 @@ export function adminQuizInfo(authUserId, quizId) {
  * @param {string} name - quiz name
  * @returns {} - for valid authUserId, quizId and description
  */
-export function adminQuizNameUpdate(authUserId, quizId, name) {
-  
-  let data = getData();
-  let user = validUserId(authUserId, data.users)
+export const adminQuizNameUpdate = (authUserId: number, quizId: number, name: string): EmptyObject | ErrorReturn => {
+  const data = getData();
+  const user = validUserId(authUserId, data.users);
   if ('error' in user) {
     return user;
-  } else if (checkQuizName(name, user.quizzes) != true) {
-    return checkQuizName(name, user.quizzes);
+  } else if (checkQuizName(name, user.quizzes) !== true) {
+    return checkQuizName(name, user.quizzes) as ErrorReturn;
   }
-  
+
   const quizzesIndex = data.quizzes.findIndex(quizzes => quizzes.quizId === quizId);
-  if (quizzesIndex == -1) {
-    return {error: 'Invalid quizId'};
+  if (quizzesIndex === -1) {
+    return { error: 'Invalid quizId' };
   }
 
   const userQuizzesIndex = user.quizzes.findIndex(quizzes => quizzes.quizId === quizId);
-  if (userQuizzesIndex == -1) {
-    return {error: 'User does not own quiz'};
+  if (userQuizzesIndex === -1) {
+    return { error: 'User does not own quiz' };
   }
 
-  
   data.quizzes[quizzesIndex].name = name;
   user.quizzes[userQuizzesIndex].name = name;
-  data.quizzes[quizzesIndex].timeLastEdited = timestamp();
-
+  data.quizzes[quizzesIndex].timeLastEdited = Math.floor(Date.now() / 1000);
 
   return {};
-}
+};
 
 /**
  * Update the description of the relevant quiz.
@@ -162,10 +154,9 @@ export function adminQuizNameUpdate(authUserId, quizId, name) {
  * @param {string} desciption - description of quiz
  * @returns {} - Updates quiz desciption
  */
-function adminQuizDescriptionUpdate(authUserId, quizId, newDescription) {
-
-  let data = getData();
-  let user = validUserId(authUserId, data.users);
+export const adminQuizDescriptionUpdate = (authUserId: number, quizId: number, newDescription: string): EmptyObject | ErrorReturn => {
+  const data = getData();
+  const user = validUserId(authUserId, data.users);
   if ('error' in user) {
     return user;
   }
@@ -176,7 +167,7 @@ function adminQuizDescriptionUpdate(authUserId, quizId, newDescription) {
   }
 
   const userQuizIndex = user.quizzes.findIndex(quizzes => quizzes.quizId === quizId);
-  if (userQuizIndex == -1) {
+  if (userQuizIndex === -1) {
     return { error: 'User does not own this quiz' };
   }
   if (newDescription.length > 100) {
@@ -184,11 +175,9 @@ function adminQuizDescriptionUpdate(authUserId, quizId, newDescription) {
   }
 
   data.quizzes[quizIndex].description = newDescription;
-  data.quizzes[quizIndex].timeLastEdited = timestamp();
+  data.quizzes[quizIndex].timeLastEdited = Math.floor(Date.now() / 1000);
 
   setData(data);
 
   return {};
-}
-
-export {adminQuizList, adminQuizCreate, adminQuizRemove, adminQuizDescriptionUpdate};
+};
