@@ -37,8 +37,8 @@ app.get('/echo', (req: Request, res: Response) => {
 });
 
 app.post('/v1/admin/quiz/{quizid}/question', (req: Request, res: Response) => {
-    const { question, duration, points, answers } = req.body;
-    const response = quizQuestionCreate(question, duration, points, answers);
+    const { token, questionBody } = req.body;
+    const response = quizQuestionCreate(token, questionBody);
     if ('error' in response) {
       if (response.error === 'Token is empty or invalid') {
         return res.status(401).json(response);
