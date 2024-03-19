@@ -112,10 +112,10 @@ export const adminUserDetails = (authUserId: number): UserDetailsReturn | ErrorR
  *
  * @returns {} - For updated user details
  */
-export const adminUserDetailsUpdate = (authUserId: number, email: string, nameFirst: string, nameLast: string): EmptyObject | ErrorReturn => {
+export const adminUserDetailsUpdate = (token: number, email: string, nameFirst: string, nameLast: string): EmptyObject | ErrorReturn => {
   // 1. Check if AuthUserId is a valid user
-  if (!isValidUserId(authUserId)) {
-    return { error: 'AuthUserId is not a valid user.' };
+  if (!isValidUserId(token)) {
+    return { error: 'Token is empty or invalid' };
   }
 
   // 2. Check if the new email is invalid
@@ -124,7 +124,7 @@ export const adminUserDetailsUpdate = (authUserId: number, email: string, nameFi
   }
 
   // 3. Check if the email is used by another user(excluding the current authorised user)
-  if (isEmailUsedByOther(email, authUserId)) {
+  if (isEmailUsedByOther(email, token)) {
     return { error: 'Email is used by other user.' };
   }
 
@@ -142,7 +142,7 @@ export const adminUserDetailsUpdate = (authUserId: number, email: string, nameFi
   // 6. Update the data
   const data = getData();
   for (const users of data.users) {
-    if (users.userId === authUserId) {
+    if (users.token === token) {
       users.email = email;
       users.nameFirst = nameFirst;
       users.nameLast = nameLast;
