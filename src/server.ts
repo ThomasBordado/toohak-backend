@@ -40,6 +40,12 @@ app.put('/v1/admin/user/details', (req: Request, res: Response) => {
   const { token, email, nameFirst, nameLast } = req.body;
   const response = adminUserDetailsUpdate(token, email, nameFirst, nameLast);
   if ('error' in response) {
+    if (response.error === 'Token is empty or invalid') {
+      return res.status(401).json(response);
+    } else if (response.error === 'Valid token is provided, but user is not an owner of this quiz') {
+      return res.status(403).json(response);
+    }
+    
     return res.status(400).json(response);
   }
   return res.json(response);
