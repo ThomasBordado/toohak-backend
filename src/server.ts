@@ -37,9 +37,13 @@ app.get('/echo', (req: Request, res: Response) => {
 });
 
 app.put('/v1/admin/user/password', (req: Request, res: Response) => {
-  const { authUserId, oldPassword, newPassword } = req.body;
-  const response = adminUserPasswordUpdate(authUserId, oldPassword, newPassword);
+  const { token, oldPassword, newPassword } = req.body;
+  const response = adminUserPasswordUpdate(token, oldPassword, newPassword);
   if ('error' in response) {
+    if (response.error === 'Token is empty or invalid') {
+      return res.status(401).json(response);
+    }
+    
     return res.status(400).json(response);
   }
   return res.json(response);
