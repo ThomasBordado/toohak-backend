@@ -43,12 +43,11 @@ app.put('/v1/admin/user/password', (req: Request, res: Response) => {
     if (response.error === 'Token is empty or invalid') {
       return res.status(401).json(response);
     }
-    
+
     return res.status(400).json(response);
   }
   return res.json(response);
 });
-
 
 // ====================================================================
 //  ================= WORK IS DONE ABOVE THIS LINE ===================
