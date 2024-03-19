@@ -187,7 +187,7 @@ export const adminUserPasswordUpdate = (token: number, oldPassword: string, newP
   }
 
   const data = getData();
-  const user = data.users.find(users => users.token === token);
+  const user = data.users.find(users => users.userId === token);
   user.password = newPassword;
   user.prevpassword.push(oldPassword);
   setData(data);
