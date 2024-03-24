@@ -1,4 +1,4 @@
-import { QuizListReturn, SessionId, quizId, quizUser } from './interfaces';
+import { SessionId, quizId } from './interfaces';
 import { requestQuizCreate, requestRegister, requestClear } from './wrapper';
 
 beforeEach(() => {
@@ -62,39 +62,39 @@ describe('adminQuizCreate testing', () => {
 
   describe('Unsuccessful Cases', () => {
     test('Invalid SessionId', () => {
-      const result  = requestQuizCreate(user.sessionId + 1, 'My Quiz', 'My description.');
+      const result = requestQuizCreate(user.sessionId + 1, 'My Quiz', 'My description.');
       expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
       console.log(result.jsonBody);
       expect(result.statusCode).toStrictEqual(401);
     });
     test('Invalid name: Contains non-alphanumeric characters', () => {
-      const result  = requestQuizCreate(user.sessionId, 'My Quiz!', 'My description.');
+      const result = requestQuizCreate(user.sessionId, 'My Quiz!', 'My description.');
       expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
       expect(result.statusCode).toStrictEqual(400);
     });
     test('Invalid name: blank name', () => {
-      const result  = requestQuizCreate(user.sessionId, '', 'My description.');
+      const result = requestQuizCreate(user.sessionId, '', 'My description.');
       expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
       expect(result.statusCode).toStrictEqual(400);
     });
     test('Invalid name: < 3 characters', () => {
-      const result  = requestQuizCreate(user.sessionId, 'My', 'My description.');
+      const result = requestQuizCreate(user.sessionId, 'My', 'My description.');
       expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
       expect(result.statusCode).toStrictEqual(400);
     });
     test('Invalid name: > 30 characters', () => {
-      const result  = requestQuizCreate(user.sessionId, 'My very very very very long Quiz', 'My description.');
+      const result = requestQuizCreate(user.sessionId, 'My very very very very long Quiz', 'My description.');
       expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
       expect(result.statusCode).toStrictEqual(400);
     });
     test('Invalid name: name already used', () => {
       requestQuizCreate(user.sessionId, 'My Quiz', 'My description');
-      const result  = requestQuizCreate(user.sessionId, 'My Quiz', 'My description.');
+      const result = requestQuizCreate(user.sessionId, 'My Quiz', 'My description.');
       expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
       expect(result.statusCode).toStrictEqual(400);
     });
     test('Invalid description: > 100 characters', () => {
-      const result  = requestQuizCreate(user.sessionId, 'My Quiz', 'My very, very, very, very, very, very, very, very, very, very, very, very, very, very, long description.');
+      const result = requestQuizCreate(user.sessionId, 'My Quiz', 'My very, very, very, very, very, very, very, very, very, very, very, very, very, very, long description.');
       expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
       expect(result.statusCode).toStrictEqual(400);
     });

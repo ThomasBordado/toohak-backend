@@ -62,11 +62,11 @@ app.post('/v1/admin/quiz', (req: Request, res: Response) => {
   const token = parseInt(req.body.token as string);
   const { name, description } = req.body;
   const result = adminQuizCreate(token, name, description);
-  
+
   if ('error' in result) {
-    if (result.error === `Token is empty or invalid`) {
+    if (result.error.localeCompare('Token is empty or invalid') === 0) {
       return res.status(401).json(result);
-    } 
+    }
     return res.status(400).json(result);
   }
   res.json(result);
