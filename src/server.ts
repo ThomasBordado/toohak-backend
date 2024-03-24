@@ -9,6 +9,8 @@ import fs from 'fs';
 import path from 'path';
 import process from 'process';
 import { adminQuizCreate } from './quiz';
+import { adminAuthRegister } from './auth';
+import { clear } from './other'
 
 // Set up web app
 const app = express();
@@ -36,6 +38,17 @@ app.get('/echo', (req: Request, res: Response) => {
   return res.json(echo(data));
 });
 
+app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
+  const { email, password, nameFirst, nameLast } = req.body;
+  const response = adminAuthRegister(email, password, nameFirst, nameLast);
+
+  if ('error' in response) {
+    return res.status(400).json(response);
+  }
+  res.json(response);
+});
+
+
 app.post('/v1/admin/quiz', (req: Request, res: Response) => {
   // Everything in req.body will be of the correct type
   const token = parseInt(req.body.token as string);
@@ -48,6 +61,11 @@ app.post('/v1/admin/quiz', (req: Request, res: Response) => {
     return res.status(400).json(result);
   }
   res.json(result);
+});
+
+app.delete('/v1/clear', (req: Request, res: Response) => {
+  // Note: clear() should return an empty object, i.e. {}
+  res.json(clear());
 });
 
 // ====================================================================

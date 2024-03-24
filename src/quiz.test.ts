@@ -1,9 +1,8 @@
-import { clear } from './other';
 import { QuizListReturn, SessionId, quizId, quizUser } from './interfaces';
-import { requestQuizCreate, requestRegister } from './wrapper';
+import { requestQuizCreate, requestRegister, requestClear } from './wrapper';
 
 beforeEach(() => {
-  clear();
+  requestClear();
 });
 
 // describe('adminQuizList testing', () => {
@@ -87,6 +86,7 @@ describe('adminQuizCreate testing', () => {
   });
   describe('Successful cases', () => {
     test('Create single quiz', () => {
+      console.log(user);
       expect(requestQuizCreate(user.sessionId, 'My Quiz', 'My description.').jsonBody).toStrictEqual({ quizId: expect.any(Number) });
     });
     test('Create two quizes w/ unique quizId', () => {

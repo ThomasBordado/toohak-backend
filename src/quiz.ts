@@ -19,7 +19,7 @@ export const adminQuizList = (authUserId: number): QuizListReturn | ErrorReturn 
 
 /**
  * Given basic details about a new quiz, create one for the logged in user.
- * @param {number} authUserId - unique identifier for an academic
+ * @param {number} token - unique identifier for an academic
  * @param {string} name - quiz name
  * @param {string} description - quiz description
  * @returns {{quizId: number}} - for valid authUserID, name and discription
