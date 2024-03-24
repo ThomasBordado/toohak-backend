@@ -26,7 +26,7 @@ export const adminAuthRegister = (email: string, password: string, nameFirst: st
 
   const data = getData();
   data.userIdStore += 1;
-  const sessionId = data.sessionIdStore + 1
+  const sessionId = data.sessionIdStore + 1;
   const newUser: user = {
     userId: data.userIdStore,
     nameFirst: nameFirst,

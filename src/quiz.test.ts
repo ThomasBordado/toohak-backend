@@ -1,16 +1,5 @@
-import {
-  adminQuizList,
-  adminQuizCreate,
-  adminQuizRemove,
-  adminQuizInfo,
-  adminQuizNameUpdate,
-  adminQuizDescriptionUpdate,
-} from './quiz';
-
-import { clear } from './other';
-import { requestRegister, requestQuizList, requestQuizCreate, requestClear } from './wrapper'
-import { adminAuthRegister } from './auth';
-import { QuizListReturn, SessionId, UserId, quizId, quizUser } from './interfaces';
+import { requestRegister, requestQuizList, requestQuizCreate, requestClear } from './wrapper';
+import { QuizListReturn, SessionId, quizId, quizUser } from './interfaces';
 
 beforeEach(() => {
   requestClear();
@@ -25,7 +14,7 @@ describe('adminQuizList testing', () => {
   describe('Unsuccessful Cases', () => {
     test('Invalid AuthUserId', () => {
       requestQuizCreate(user.sessionId, 'My Quiz', 'My description.');
-      const result = requestQuizList(user.sessionId + 1)
+      const result = requestQuizList(user.sessionId + 1);
       expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
       expect(result.statusCode).toStrictEqual(401);
     });
