@@ -8,9 +8,9 @@ import sui from 'swagger-ui-express';
 import fs from 'fs';
 import path from 'path';
 import process from 'process';
-import { adminQuizCreate } from './quiz';
 import { adminAuthRegister } from './auth';
-import { clear } from './other'
+import { clear } from './other';
+import { adminQuizList, adminQuizCreate } from './quiz';
 
 // Set up web app
 const app = express();
@@ -48,16 +48,25 @@ app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
   res.json(response);
 });
 
+app.get('/v1/admin/quiz/list', (req: Request, res: Response) => {
+  const token = parseInt(req.query.token as string);
+  const result = adminQuizList(token);
+  if ('error' in result) {
+    return res.status(401).json(result);
+  }
+  res.json(result);
+});
 
 app.post('/v1/admin/quiz', (req: Request, res: Response) => {
   // Everything in req.body will be of the correct type
   const token = parseInt(req.body.token as string);
   const { name, description } = req.body;
   const result = adminQuizCreate(token, name, description);
+  
   if ('error' in result) {
-    if (result.error === 'Token is empty or Invalid') {
+    if (result.error === `Token is empty or invalid`) {
       return res.status(401).json(result);
-    }
+    } 
     return res.status(400).json(result);
   }
   res.json(result);
@@ -68,7 +77,7 @@ app.delete('/v1/clear', (req: Request, res: Response) => {
   res.json(clear());
 });
 
-// ====================================================================
+// ==================================================================
 //  ================= WORK IS DONE ABOVE THIS LINE ===================
 // ====================================================================
 
