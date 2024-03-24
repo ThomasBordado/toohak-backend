@@ -8,6 +8,7 @@ import sui from 'swagger-ui-express';
 import fs from 'fs';
 import path from 'path';
 import process from 'process';
+import { adminQuizRemove } from './quiz';
 
 // Set up web app
 const app = express();
@@ -33,6 +34,19 @@ const HOST: string = process.env.IP || 'localhost';
 app.get('/echo', (req: Request, res: Response) => {
   const data = req.query.echo as string;
   return res.json(echo(data));
+});
+
+app.delete('/v1/admin/quiz/{quizid}', (req: Request, res: Response) => {
+  const token = parseInt(req.body.token as string);
+  const quizId = parseInt(req.params.quizid as string);
+  const result = adminQuizRemove(token, quizId);
+  if ('error' in result) {
+    if (result.error.localeCompare('Token is empty or invalid') === 0) {
+      return res.status(401).json(result);
+    }
+    return res.status(403).json(result);
+  }
+  res.json(result);
 });
 
 // ====================================================================
