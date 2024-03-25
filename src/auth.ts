@@ -2,7 +2,7 @@ import { checkEmail, checkPassword, checkName, isValidUserId, isSame, isPassword
 import isEmail from 'validator/lib/isEmail.js';
 import { getData, setData } from './dataStore';
 import { validUserId } from './quizUtil';
-import { EmptyObject, ErrorReturn, SessionId, UserDetailsReturn, UserId, user } from './interfaces';
+import { EmptyObject, ErrorReturn, UserDetailsReturn, user, SessionId } from './interfaces';
 
 /**
  * Register a user with an email, password, and names, then returns their authUserId.
@@ -26,7 +26,7 @@ export const adminAuthRegister = (email: string, password: string, nameFirst: st
 
   const data = getData();
   data.userIdStore += 1;
-  const sessionId = data.sessionIdStore + 1;
+  const sessionId = data.sessionIdStore += 1;
   const newUser: user = {
     userId: data.userIdStore,
     nameFirst: nameFirst,
@@ -37,7 +37,7 @@ export const adminAuthRegister = (email: string, password: string, nameFirst: st
     numSuccessfulLogins: 1,
     numFailedPasswordsSinceLastLogin: 0,
     quizzes: [],
-    sessions: [sessionId],
+    sessions: [sessionId]
   };
 
   data.users.push(newUser);
@@ -51,9 +51,9 @@ export const adminAuthRegister = (email: string, password: string, nameFirst: st
  * @param {string} email - User's email
  * @param {string} password - User's password
  *
- * @returns {authUserId: number} - unique identifier for a user, given email and password
+ * @returns {sessionId: number} - unique identifier for a user, given email and password
  */
-export const adminAuthLogin = (email: string, password: string): UserId | ErrorReturn => {
+export const adminAuthLogin = (email: string, password: string): SessionId | ErrorReturn => {
   const users = getData().users;
   if (users.length === 0) {
     return {
@@ -64,8 +64,11 @@ export const adminAuthLogin = (email: string, password: string): UserId | ErrorR
   if (user && user.password === password) {
     user.numSuccessfulLogins++;
     user.numFailedPasswordsSinceLastLogin = 0;
+
+    const sessionId = getData().sessionIdStore += 1;
+    user.sessions.push(sessionId);
     return {
-      authUserId: user.userId
+      sessionId: sessionId
     };
   } else if (user && user.password !== password) {
     user.numFailedPasswordsSinceLastLogin++;
