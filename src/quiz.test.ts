@@ -1,13 +1,4 @@
 import { requestRegister, requestQuizList, requestQuizCreate, requestClear } from './wrapper';
-import {
-  adminQuizList,
-  adminQuizCreate,
-  adminQuizRemove,
-  adminQuizInfo,
-  adminQuizNameUpdate,
-  adminQuizDescriptionUpdate,
-} from './quiz';
-import { adminAuthRegister } from './auth';
 import { QuizListReturn, SessionId, quizId, quizUser } from './interfaces';
 
 beforeEach(() => {
