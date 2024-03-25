@@ -22,6 +22,7 @@ export interface user {
   numFailedPasswordsSinceLastLogin: number;
   quizzes: quizUser[];
   sessions: number[];
+  trash: quiz[];
 }
 export type EmptyObject = Record<string, never>;
 

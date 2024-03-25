@@ -9,7 +9,7 @@ import fs from 'fs';
 import path from 'path';
 import process from 'process';
 import { clear } from './other';
-import { adminQuizList, adminQuizCreate } from './quiz';
+import { adminQuizList, adminQuizCreate, adminQuizRemove } from './quiz';
 import { adminAuthLogin, adminAuthRegister } from './auth';
 
 // Set up web app
@@ -72,12 +72,24 @@ app.post('/v1/admin/quiz', (req: Request, res: Response) => {
   const token = parseInt(req.body.token as string);
   const { name, description } = req.body;
   const result = adminQuizCreate(token, name, description);
-
   if ('error' in result) {
     if (result.error.localeCompare('Token is empty or invalid') === 0) {
       return res.status(401).json(result);
     }
     return res.status(400).json(result);
+  }
+  res.json(result);
+});
+
+app.delete('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
+  const token = parseInt(req.query.token as string);
+  const quizId = parseInt(req.params.quizid as string);
+  const result = adminQuizRemove(token, quizId);
+  if ('error' in result) {
+    if (result.error.localeCompare('Token is empty or invalid') === 0) {
+      return res.status(401).json(result);
+    }
+    return res.status(403).json(result);
   }
   res.json(result);
 });
