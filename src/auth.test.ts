@@ -111,7 +111,6 @@ describe('Test adminAuthLogin', () => {
     const res = requestLogin('hayden.smith@unsw.edu.au', 'password1');
     expect(res.jsonBody).toStrictEqual({ sessionId: expect.any(Number) });
     expect(res.statusCode).toStrictEqual(200);
-
   });
 
   // 2. Logging into an non-existing email then registering the email and logging in.
@@ -128,7 +127,7 @@ describe('Test adminAuthLogin', () => {
   // 3. Incorrect Password for given email.
   test('Test incorrect password', () => {
     requestRegister('thomas@gmail.com', 'password1', 'Thomas', 'Bordado');
-    let res = requestLogin('thomas@gmail.com', 'password2');
+    const res = requestLogin('thomas@gmail.com', 'password2');
     expect(res.jsonBody).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toStrictEqual(400);
   });
