@@ -63,5 +63,4 @@ export interface DataStore {
   userIdStore: number;
   quizIdStore: number;
   sessionIdStore: number;
-
 }
