@@ -119,4 +119,3 @@ export const requestClear = () => {
 export const requestQuizViewTrash = (token: number) => {
   return requestHelper('GET', '/v1/admin/quiz/trash', { token });
 };
-

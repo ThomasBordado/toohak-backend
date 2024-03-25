@@ -184,7 +184,7 @@ export const adminQuizDescriptionUpdate = (authUserId: number, quizId: number, n
   return {};
 };
 
-export const adminQuizViewTrash = (token: number): QuizListReturn | ErrorReturn =>{
+export const adminQuizViewTrash = (token: number): QuizListReturn | ErrorReturn => {
   const data = getData();
   const user = validUserId(token, data.users);
   if ('error' in user) {
@@ -196,5 +196,5 @@ export const adminQuizViewTrash = (token: number): QuizListReturn | ErrorReturn 
     name: quiz.name,
   }));
 
-  return { quizzes: trashList };  
-}
+  return { quizzes: trashList };
+};
