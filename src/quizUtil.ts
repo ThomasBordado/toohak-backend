@@ -40,7 +40,6 @@ export const validUserId = (token: number, userData: user[]) => {
       return user;
     }
   }
-
   // returns error if not found
   return { error: 'Token is empty or invalid' };
 };

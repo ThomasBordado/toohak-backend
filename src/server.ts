@@ -8,9 +8,9 @@ import sui from 'swagger-ui-express';
 import fs from 'fs';
 import path from 'path';
 import process from 'process';
+import { clear } from './other';
 import { adminQuizList, adminQuizCreate, adminQuizRemove } from './quiz';
 import { adminAuthLogin, adminAuthRegister } from './auth';
-import { clear } from './other';
 
 // Set up web app
 const app = express();
@@ -73,7 +73,7 @@ app.post('/v1/admin/quiz', (req: Request, res: Response) => {
   const { name, description } = req.body;
   const result = adminQuizCreate(token, name, description);
   if ('error' in result) {
-    if (result.error === 'Token is empty or Invalid') {
+    if (result.error.localeCompare('Token is empty or invalid') === 0) {
       return res.status(401).json(result);
     }
     return res.status(400).json(result);
