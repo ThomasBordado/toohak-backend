@@ -1,5 +1,5 @@
 import request, { HttpVerb } from 'sync-request-curl';
-import { port, url } from '../src/config.json';
+import { port, url } from './config.json';
 
 const SERVER_URL = `${url}:${port}`;
 
@@ -115,5 +115,3 @@ export const requestUpdateQuizDescription = (token: number, description: string,
 export const requestClear = () => {
   return requestHelper('DELETE', '/v1/clear', {});
 };
-
-// ========================================================================= //

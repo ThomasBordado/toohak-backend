@@ -33,16 +33,15 @@ import { quizUser, user } from './interfaces';
  * } - for valid AuthUserId
   * @returns {error: string}} - for invalid AuthUserId
   */
-export const validUserId = (authUserId: number, userData: user[]) => {
+export const validUserId = (token: number, userData: user[]) => {
   // searches for authUserId and returns user if found
   for (const user of userData) {
-    if (user.userId === authUserId) {
+    if (user.sessions.includes(token)) {
       return user;
     }
   }
-
   // returns error if not found
-  return { error: 'Invalid AuthUserId' };
+  return { error: 'Token is empty or invalid' };
 };
 
 /**
