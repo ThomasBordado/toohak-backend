@@ -54,13 +54,13 @@ export const adminQuizCreate = (authUserId: number, name: string, description: s
 
 /**
  * Given a particular quiz, permanently remove the quiz
- * @param {number} authUserId - unique identifier for an academic
+ * @param {number} token - unique identifier for a session
  * @param {number} quizId - unique identifier for a quiz
  * @returns {} - for valid authUserId and quizId
  */
-export const adminQuizRemove = (authUserId: number, quizId: number): EmptyObject | ErrorReturn => {
+export const adminQuizRemove = (token: number, quizId: number): EmptyObject | ErrorReturn => {
   const data = getData();
-  const user = validUserId(authUserId, data.users);
+  const user = validUserId(token, data.users);
   if ('error' in user) {
     return user;
   }
@@ -69,12 +69,14 @@ export const adminQuizRemove = (authUserId: number, quizId: number): EmptyObject
   if (quizzesIndex === -1) {
     return { error: 'Invalid quizId' };
   }
-
+  
   const userQuizzesIndex = user.quizzes.findIndex(quizzes => quizzes.quizId === quizId);
   if (userQuizzesIndex === -1) {
     return { error: 'User does not own quiz' };
   }
 
+  const quiz = data.quizzes.find(quizzes => quizzes.quizId === quizId);
+  user.trash.push(quiz);
   data.quizzes.splice(quizzesIndex, 1);
   user.quizzes.splice(userQuizzesIndex, 1);
 
