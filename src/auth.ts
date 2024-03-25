@@ -11,7 +11,7 @@ import { EmptyObject, ErrorReturn, UserDetailsReturn, user, SessionId } from './
  * @param {string} nameFirst - User's first name
  * @param {string} nameLast - User's last name
  *
- * @returns {authUserId: number} - unique identifier for an academic, registering with email, password and name.
+ * @returns {sessionId: number} - unique identifier for a session, registering with email, password and name.
  */
 export const adminAuthRegister = (email: string, password: string, nameFirst: string, nameLast: string): SessionId | ErrorReturn => {
   if (checkEmail(email) !== true) {
@@ -51,7 +51,7 @@ export const adminAuthRegister = (email: string, password: string, nameFirst: st
  * @param {string} email - User's email
  * @param {string} password - User's password
  *
- * @returns {authUserId: number} - unique identifier for a user, given email and password
+ * @returns {sessionId: number} - unique identifier for a user, given email and password
  */
 export const adminAuthLogin = (email: string, password: string): SessionId | ErrorReturn => {
   const users = getData().users;
