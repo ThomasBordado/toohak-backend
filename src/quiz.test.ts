@@ -383,7 +383,7 @@ describe('/v1/admin/quiz/trash testing', () => {
     });
     test('single quiz in trash', () => {
       requestQuizTrash(user.sessionId, quiz.quizId);
-      expect(requestQuizList(user.sessionId).jsonBody).toStrictEqual({ quizzes: [{ quizId: quiz.quizId, name: 'My Quiz' }] });
+      expect(requestQuizViewTrash(user.sessionId).jsonBody).toStrictEqual({ quizzes: [{ quizId: quiz.quizId, name: 'My Quiz' }] });
     });
 
     test('Remove multiple quizzes', () => {
