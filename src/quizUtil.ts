@@ -36,10 +36,8 @@ import { quizUser, user } from './interfaces';
 export const validUserId = (token: number, userData: user[]) => {
   // searches for sessionId and returns user if found
   for (const user of userData) {
-    for (const session of user.sessions) {
-      if (session === token) {
-        return user;
-      }
+    if (user.sessions.includes(token)) {
+      return user;
     }
   }
 

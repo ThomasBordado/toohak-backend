@@ -26,7 +26,7 @@ export const adminAuthRegister = (email: string, password: string, nameFirst: st
 
   const data = getData();
   data.userIdStore += 1;
-  const sessionId = data.sessionIdStore + 1;
+  data.sessionIdStore += 1;
   const newUser: user = {
     userId: data.userIdStore,
     nameFirst: nameFirst,
@@ -37,13 +37,13 @@ export const adminAuthRegister = (email: string, password: string, nameFirst: st
     numSuccessfulLogins: 1,
     numFailedPasswordsSinceLastLogin: 0,
     quizzes: [],
-    sessions: [sessionId],
+    sessions: [data.sessionIdStore],
     trash: [],
   };
 
   data.users.push(newUser);
   return {
-    sessionId: newUser.userId
+    sessionId: data.sessionIdStore
   };
 };
 

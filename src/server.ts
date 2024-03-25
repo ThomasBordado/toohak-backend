@@ -71,7 +71,7 @@ app.post('/v1/admin/quiz', (req: Request, res: Response) => {
   res.json(result);
 });
 
-app.delete('/v1/admin/quiz/{quizid}', (req: Request, res: Response) => {
+app.delete('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
   const token = parseInt(req.query.token as string);
   const quizId = parseInt(req.params.quizid as string);
   const result = adminQuizRemove(token, quizId);
