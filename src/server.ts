@@ -9,7 +9,7 @@ import fs from 'fs';
 import path from 'path';
 import process from 'process';
 import { clear } from './other';
-import { adminQuizList, adminQuizCreate, adminQuizRemove } from './quiz';
+import { adminQuizList, adminQuizCreate, adminQuizRemove, adminQuizViewTrash } from './quiz';
 import { adminAuthLogin, adminAuthRegister } from './auth';
 
 // Set up web app
@@ -77,6 +77,15 @@ app.post('/v1/admin/quiz', (req: Request, res: Response) => {
       return res.status(401).json(result);
     }
     return res.status(400).json(result);
+  }
+  res.json(result);
+});
+
+app.get('/v1/admin/quiz/trash', (req: Request, res: Response) => {
+  const token = parseInt(req.query.token as string);
+  const result = adminQuizViewTrash(token);
+  if ('error' in result) {
+    return res.status(401).json(result);
   }
   res.json(result);
 });
