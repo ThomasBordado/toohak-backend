@@ -10,5 +10,7 @@ export const clear = (): EmptyObject => {
   getData().userIdStore = 0;
   getData().quizzes = [];
   getData().quizIdStore = 0;
+  getData().userIdStore = 0;
+  getData().sessionIdStore = 0;
   return {};
 };

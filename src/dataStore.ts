@@ -5,7 +5,8 @@ let data: DataStore = {
   users: [],
   quizzes: [],
   userIdStore: 0,
-  quizIdStore: 0
+  quizIdStore: 0,
+  sessionIdStore: 0
 };
 
 // YOU SHOULD MODIFY THIS OBJECT ABOVE ONLY
