@@ -19,15 +19,15 @@ export const adminQuizList = (token: number): QuizListReturn | ErrorReturn => {
 
 /**
  * Given basic details about a new quiz, create one for the logged in user.
- * @param {number} authUserId - unique identifier for an academic
+ * @param {number} token - unique identifier for an academic
  * @param {string} name - quiz name
  * @param {string} description - quiz description
  * @returns {{quizId: number}} - for valid authUserID, name and discription
  */
 
-export const adminQuizCreate = (authUserId: number, name: string, description: string): quizId | ErrorReturn => {
+export const adminQuizCreate = (token: number, name: string, description: string): quizId | ErrorReturn => {
   const data = getData();
-  const user = validUserId(authUserId, data.users);
+  const user = validUserId(token, data.users);
   if ('error' in user) {
     return user;
   } else if (checkQuizName(name, user.quizzes) !== true) {
