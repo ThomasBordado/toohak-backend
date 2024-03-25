@@ -108,20 +108,41 @@ describe('Test adminAuthLogin', () => {
   // 1. Successful login to an existing account.
   test('Test successful login', () => {
     requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith');
-    expect(requestLogin('hayden.smith@unsw.edu.au', 'password1').jsonBody).toStrictEqual({ sessionId: expect.any(Number) });
+    const res = requestLogin('hayden.smith@unsw.edu.au', 'password1');
+    expect(res.jsonBody).toStrictEqual({ sessionId: expect.any(Number) });
+    expect(res.statusCode).toStrictEqual(200);
+
   });
 
   // 2. Logging into an non-existing email then registering the email and logging in.
   test('Test email address does not exist', () => {
-    expect(requestLogin('thomas@gmail.com', 'password1').jsonBody).toStrictEqual({ error: expect.any(String) });
+    let res = requestLogin('thomas@gmail.com', 'password1');
+    expect(res.jsonBody).toStrictEqual({ error: expect.any(String) });
+    expect(res.statusCode).toStrictEqual(400);
     requestRegister('thomas@gmail.com', 'password1', 'Thomas', 'Bordado');
-    expect(requestLogin('thomas@gmail.com', 'password1').jsonBody).toStrictEqual({ sessionId: expect.any(Number) });
+    res = requestLogin('thomas@gmail.com', 'password1');
+    expect(res.jsonBody).toStrictEqual({ sessionId: expect.any(Number) });
+    expect(res.statusCode).toStrictEqual(200);
   });
 
   // 3. Incorrect Password for given email.
   test('Test incorrect password', () => {
+    requestRegister('thomas@gmail.com', 'password1', 'Thomas', 'Bordado');
+    let res = requestLogin('thomas@gmail.com', 'password2');
+    expect(res.jsonBody).toStrictEqual({ error: expect.any(String) });
+    expect(res.statusCode).toStrictEqual(400);
+  });
+
+  // 4. Incorrect Password for given email.
+  test('Test login to two different sessions', () => {
     expect(requestRegister('thomas@gmail.com', 'password1', 'Thomas', 'Bordado').jsonBody).toStrictEqual({ sessionId: expect.any(Number) });
-    expect(requestLogin('thomas@gmail.com', 'password2').jsonBody).toStrictEqual({ error: expect.any(String) });
+    const res1 = requestLogin('thomas@gmail.com', 'password1');
+    const res2 = requestLogin('thomas@gmail.com', 'password1');
+    expect(res1.jsonBody).toStrictEqual({ sessionId: expect.any(Number) });
+    expect(res2.jsonBody).toStrictEqual({ sessionId: expect.any(Number) });
+    expect(res1.statusCode).toStrictEqual(200);
+    expect(res2.statusCode).toStrictEqual(200);
+    expect(res1.jsonBody.sessionId).not.toStrictEqual(res2.jsonBody.sessionId);
   });
 
   /* test('Test numSuccessfulLogins and numFailedPasswordsSinceLastLogin', () => {
