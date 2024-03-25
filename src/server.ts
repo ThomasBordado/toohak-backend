@@ -82,11 +82,6 @@ app.post('/v1/admin/quiz', (req: Request, res: Response) => {
 });
 
 app.delete('/v1/clear', (req: Request, res: Response) => {
-  // Note: clear() should return an empty object, i.e. {}
-  res.json(clear());
-});
-
-app.delete('/v1/clear', (req: Request, res: Response) => {
   const response = clear();
   res.json(response);
 });
