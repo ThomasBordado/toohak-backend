@@ -4,12 +4,12 @@ import { validUserId, checkQuizName } from './quizUtil';
 
 /**
  * Provides a list of all quizzes that are owned by the currently logged in user
- * @param {number} authUserId - unique identifier for an academic
+ * @param {number} token - unique identifier for an academic
  * @returns {{quizzes: [{quizId: number, name: string,}]}} - for valid authUserID
  */
-export const adminQuizList = (authUserId: number): QuizListReturn | ErrorReturn => {
+export const adminQuizList = (token: number): QuizListReturn | ErrorReturn => {
   const data = getData();
-  const user = validUserId(authUserId, data.users);
+  const user = validUserId(token, data.users);
   if ('error' in user) {
     return user;
   }

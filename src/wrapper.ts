@@ -115,5 +115,3 @@ export const requestUpdateQuizDescription = (token: number, description: string,
 export const requestClear = () => {
   return requestHelper('DELETE', '/v1/clear', {});
 };
-
-// ========================================================================= //
