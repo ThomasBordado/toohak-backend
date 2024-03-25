@@ -69,7 +69,7 @@ export const adminQuizRemove = (token: number, quizId: number): EmptyObject | Er
   if (quizzesIndex === -1) {
     return { error: 'Invalid quizId' };
   }
-  
+
   const userQuizzesIndex = user.quizzes.findIndex(quizzes => quizzes.quizId === quizId);
   if (userQuizzesIndex === -1) {
     return { error: 'User does not own quiz' };

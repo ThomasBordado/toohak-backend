@@ -97,7 +97,7 @@ export const requestQuizCreate = (token: number, name: string, description: stri
 };
 
 export const requestQuizTrash = (token: number, quizId: number) => {
-  return requestHelper('DELETE', `/v1/admin/quiz/${quizId}`, { token, quizId });
+  return requestHelper('DELETE', `/v1/admin/quiz/${quizId}`, { token });
 };
 
 export const requestQuizInfo = (token: number, quizId: number) => {

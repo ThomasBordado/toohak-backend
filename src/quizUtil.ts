@@ -41,7 +41,6 @@ export const validUserId = (token: number, userData: user[]) => {
         return user;
       }
     }
-
   }
 
   // returns error if not found

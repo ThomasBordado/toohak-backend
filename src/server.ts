@@ -8,7 +8,9 @@ import sui from 'swagger-ui-express';
 import fs from 'fs';
 import path from 'path';
 import process from 'process';
-import { adminQuizRemove } from './quiz';
+import { adminAuthRegister } from './auth';
+import { clear } from './other';
+import { adminQuizList, adminQuizCreate, adminQuizRemove } from './quiz';
 
 // Set up web app
 const app = express();
@@ -36,8 +38,41 @@ app.get('/echo', (req: Request, res: Response) => {
   return res.json(echo(data));
 });
 
-app.delete('/v1/admin/quiz/{quizid}', (req: Request, res: Response) => {
+app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
+  const { email, password, nameFirst, nameLast } = req.body;
+  const response = adminAuthRegister(email, password, nameFirst, nameLast);
+
+  if ('error' in response) {
+    return res.status(400).json(response);
+  }
+  res.json(response);
+});
+
+app.get('/v1/admin/quiz/list', (req: Request, res: Response) => {
+  const token = parseInt(req.query.token as string);
+  const result = adminQuizList(token);
+  if ('error' in result) {
+    return res.status(401).json(result);
+  }
+  res.json(result);
+});
+
+app.post('/v1/admin/quiz', (req: Request, res: Response) => {
+  // Everything in req.body will be of the correct type
   const token = parseInt(req.body.token as string);
+  const { name, description } = req.body;
+  const result = adminQuizCreate(token, name, description);
+  if ('error' in result) {
+    if (result.error === 'Token is empty or Invalid') {
+      return res.status(401).json(result);
+    }
+    return res.status(400).json(result);
+  }
+  res.json(result);
+});
+
+app.delete('/v1/admin/quiz/{quizid}', (req: Request, res: Response) => {
+  const token = parseInt(req.query.token as string);
   const quizId = parseInt(req.params.quizid as string);
   const result = adminQuizRemove(token, quizId);
   if ('error' in result) {
@@ -47,6 +82,11 @@ app.delete('/v1/admin/quiz/{quizid}', (req: Request, res: Response) => {
     return res.status(403).json(result);
   }
   res.json(result);
+});
+
+app.delete('/v1/clear', (req: Request, res: Response) => {
+  // Note: clear() should return an empty object, i.e. {}
+  res.json(clear());
 });
 
 // ====================================================================
