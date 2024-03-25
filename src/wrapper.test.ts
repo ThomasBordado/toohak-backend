@@ -117,3 +117,8 @@ export const requestClear = () => {
 };
 
 // ========================================================================= //
+
+test('Example test for wrapper', () => {
+  const response = requestRegister('hayden', 'password1', 'Hayden', 'Smith');
+  expect(response.statusCode).toStrictEqual(400);
+});
