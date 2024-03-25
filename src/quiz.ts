@@ -183,3 +183,18 @@ export const adminQuizDescriptionUpdate = (authUserId: number, quizId: number, n
 
   return {};
 };
+
+export const adminQuizViewTrash = (token: number): QuizListReturn | ErrorReturn =>{
+  const data = getData();
+  const user = validUserId(token, data.users);
+  if ('error' in user) {
+    return user;
+  }
+
+  const trashList = user.trash.map(quiz => ({
+    quizId: quiz.quizId,
+    name: quiz.name,
+  }));
+
+  return { quizzes: trashList };  
+}
