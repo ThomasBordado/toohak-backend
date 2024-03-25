@@ -1,7 +1,7 @@
 import { clear } from './other';
 import { adminAuthRegister, adminAuthLogin } from './auth';
 import { adminQuizList, adminQuizCreate } from './quiz';
-import { quizId, QuizListReturn, quizUser, UserId } from './interfaces';
+import { quizId, QuizListReturn, quizUser, SessionId } from './interfaces';
 
 beforeEach(() => {
   clear();
@@ -11,11 +11,11 @@ test('Test clear registered user', () => {
   expect(clear()).toStrictEqual({});
 
   // Register a user
-  const user = adminAuthRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith');
-  expect(user).toStrictEqual({ authUserId: expect.any(Number) });
+  const user = adminAuthRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith') as SessionId;
+  expect(user).toStrictEqual({ sessionId: expect.any(Number) });
 
   // Login successfully
-  expect(adminAuthLogin('hayden.smith@unsw.edu.au', 'password1')).toStrictEqual(user);
+  expect(adminAuthLogin('hayden.smith@unsw.edu.au', 'password1')).toStrictEqual({ sessionId: expect.any(Number) });
 
   // Clear registered users
   expect(clear()).toStrictEqual({});
@@ -26,11 +26,11 @@ test('Test clear registered user', () => {
 
 // Add a test to clear quizzes when we are able to make quizzes.
 test('Test clear quizzes', () => {
-  let user = adminAuthRegister('haydensmith@gmail.com', 'password1', 'Tester', 'One') as UserId;
-  const quiz = adminQuizCreate(user.authUserId, 'My Quiz', 'My description.') as quizId;
-  const quiz2 = adminQuizCreate(user.authUserId, 'My Second Quiz', 'My description.') as quizId;
-  const quiz3 = adminQuizCreate(user.authUserId, 'My Third Quiz', 'My description.') as quizId;
-  const quizList = adminQuizList(user.authUserId) as QuizListReturn;
+  let user = adminAuthRegister('haydensmith@gmail.com', 'password1', 'Tester', 'One') as SessionId;
+  const quiz = adminQuizCreate(user.sessionId, 'My Quiz', 'My description.') as quizId;
+  const quiz2 = adminQuizCreate(user.sessionId, 'My Second Quiz', 'My description.') as quizId;
+  const quiz3 = adminQuizCreate(user.sessionId, 'My Third Quiz', 'My description.') as quizId;
+  const quizList = adminQuizList(user.sessionId) as QuizListReturn;
   const expectedList = {
     quizzes: [
       {
@@ -54,7 +54,7 @@ test('Test clear quizzes', () => {
 
   expect(clear()).toStrictEqual({});
 
-  expect(adminQuizList(user.authUserId)).toStrictEqual({ error: expect.any(String) });
-  user = adminAuthRegister('haydensmith@gmail.com', 'password1', 'Tester', 'One') as UserId;
-  expect(adminQuizList(user.authUserId)).toStrictEqual({ quizzes: [] });
+  expect(adminQuizList(user.sessionId)).toStrictEqual({ error: expect.any(String) });
+  user = adminAuthRegister('haydensmith@gmail.com', 'password1', 'Tester', 'One') as SessionId;
+  expect(adminQuizList(user.sessionId)).toStrictEqual({ quizzes: [] });
 });
