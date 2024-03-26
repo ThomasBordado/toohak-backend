@@ -1,6 +1,6 @@
 import isEmail from 'validator/lib/isEmail.js';
 import { getData } from './dataStore';
-import { user } from './interfaces';
+import { SessionId, user } from './interfaces';
 /**
  * Check a given email. If valid return true and if the email
  * is in use or is invalid determined by validator return error object
@@ -72,14 +72,14 @@ export const checkName = (name: string, position: string) => {
  *
  * @return {boolean} -if Id is valid reutrn true, else return false
  */
-export const isValidUserId = (authUserId: number): boolean => {
+export const isValidToken = (token: SessionId): boolean => {
   const data = getData();
   if (data.users.length === 0) {
     return false;
   }
 
   for (const users of data.users) {
-    if (users.userId === authUserId) {
+    if (users.sessions.includes(parseInt(token.token))) {
       return true;
     }
   }
@@ -116,9 +116,9 @@ export const isSame = (a: string, b: string): boolean => {
  *
  * @returns {boolean} - return false if password isn't correct
  */
-export const isPasswordCorrect = (authUserId: number, enterdPassword: string): boolean => {
+export const isPasswordCorrect = (token: SessionId, enterdPassword: string): boolean => {
   const data = getData();
-  const user = data.users.find(users => users.userId === authUserId);
+  const user = data.users.find(users => users.sessions.includes(parseInt(token.token)));
   if (user.password === enterdPassword) {
     return true;
   } else {
@@ -133,9 +133,9 @@ export const isPasswordCorrect = (authUserId: number, enterdPassword: string): b
  *
  * @return {boolean} - return false if the new password is not used before by the user
  */
-export const isNewPasswordUsed = (authUserId: number, newPassword: string): boolean => {
+export const isNewPasswordUsed = (token: SessionId, newPassword: string): boolean => {
   const data = getData();
-  const user = data.users.find(users => users.userId === authUserId);
+  const user = data.users.find(users => users.sessions.includes(parseInt(token.token)));
 
   // If prevpassword is empty
   if (user.prevpassword.length === 0) {
@@ -156,14 +156,14 @@ export const isNewPasswordUsed = (authUserId: number, newPassword: string): bool
  *
  * @returns {boolean} - False if it is a used email.
  */
-export const isEmailUsedByOther = (email: string, authUserId: number): boolean => {
+export const isEmailUsedByOther = (email: string, token: SessionId): boolean => {
   const data = getData();
 
   if (data.users.length === 0) {
     return false;
   }
 
-  const userWithSameEmail = data.users.find(users => users.email === email && users.userId !== authUserId);
+  const userWithSameEmail = data.users.find(users => users.email === email && !users.sessions.includes(parseInt(token.token)));
   if (userWithSameEmail) {
     return true;
   }
