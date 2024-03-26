@@ -76,7 +76,9 @@ export const adminQuizRemove = (token: number, quizId: number): EmptyObject | Er
   }
 
   const quiz = data.quizzes.find(quizzes => quizzes.quizId === quizId);
-  user.trash.push(quiz);
+  const quizUser = user.quizzes.find(quizzes => quizzes.quizId === quizId);
+  data.trash.push(quiz);
+  user.trash.push(quizUser);
   data.quizzes.splice(quizzesIndex, 1);
   user.quizzes.splice(userQuizzesIndex, 1);
 
@@ -191,10 +193,5 @@ export const adminQuizViewTrash = (token: number): QuizListReturn | ErrorReturn 
     return user;
   }
 
-  const trashList = user.trash.map(quiz => ({
-    quizId: quiz.quizId,
-    name: quiz.name,
-  }));
-
-  return { quizzes: trashList };
+  return { quizzes: user.trash };
 };
