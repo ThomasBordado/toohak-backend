@@ -101,12 +101,12 @@ app.delete('/v1/admin/quiz/trash/empty', (req: Request, res: Response) => {
   const result = adminQuizTrashEmpty(token, quizIds);
 
   if ('error' in result) {
-    if (result.error.localeCompare('One or more of the Quiz IDs is not currently in the trash') === 0) {
-      return res.status(400).json(result);
-    } else if (result.error.localeCompare('Token is empty or invalid') === 0) {
+    if (result.error.localeCompare('Token is empty or invalid') === 0) {
       return res.status(401).json(result);
+    } else if (result.error.localeCompare('Valid token, but one or more of the Quiz IDs is not owned by current user') === 0) {
+      return res.status(403).json(result);
     }
-    return res.status(403).json(result);
+    return res.status(400).json(result);
   }
   res.json(result);
 });
