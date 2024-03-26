@@ -218,7 +218,7 @@ export const adminQuizRestore = (token: number, quizId: number): EmptyObject | E
   } else if (checkQuizName(user.trash[userQuizIndex].name, user.quizzes) !== true) {
     return checkQuizName(user.trash[userQuizIndex].name, user.quizzes) as ErrorReturn;
   }
-
+  data.trash[quizzesIndex].timeLastEdited = Math.floor(Date.now() / 1000);
   data.quizzes.push(data.trash[quizzesIndex]);
   user.quizzes.push(user.trash[userQuizIndex]);
   data.trash.splice(quizzesIndex, 1);
