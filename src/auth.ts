@@ -200,3 +200,28 @@ export const adminUserPasswordUpdate = (authUserId: number, oldPassword: string,
 
   return {};
 };
+
+/**
+ * Given a registered user's email and password returns their authUserId value.
+ * @param {string} sessionId - Session ID as a string
+ *
+ * @returns {} - No return on successful logout,
+ * Error if the session doesnt exist.
+ */
+export const adminAuthLogout = (token: string): EmptyObject | ErrorReturn => {
+  const tokenInt = parseInt(token);
+  const users = getData().users;
+  for (const user of users) {
+    if (user.sessions.includes(tokenInt)) {
+      // If we find the session remove it from current sessions.
+      const index = user.sessions.indexOf(tokenInt);
+      if (index !== -1) {
+        user.sessions.splice(index, 1);
+      }
+      return {};
+    }
+  }
+  return {
+    error: 'This is not a valid session.'
+  };
+};

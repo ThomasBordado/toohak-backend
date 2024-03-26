@@ -10,7 +10,7 @@ import path from 'path';
 import process from 'process';
 import { clear } from './other';
 import { adminQuizList, adminQuizCreate, adminQuizRemove } from './quiz';
-import { adminAuthLogin, adminAuthRegister } from './auth';
+import { adminAuthLogin, adminAuthRegister, adminAuthLogout } from './auth';
 
 // Set up web app
 const app = express();
@@ -59,14 +59,13 @@ app.post('/v1/admin/auth/login', (req: Request, res: Response) => {
 });
 
 app.post('/v1/admin/auth/logout', (req: Request, res: Response) => {
+  const { token } = req.body;
+  const response = adminAuthLogout(token);
 
-  // const { token } = req.body;
-  // const response = adminAuthLogout(token);
-
-  // if ('error' in response) {
-  //   return res.status(400).json(response);
-  // }
-  // res.json(response);
+  if ('error' in response) {
+    return res.status(401).json(response);
+  }
+  res.json(response);
 });
 
 app.get('/v1/admin/quiz/list', (req: Request, res: Response) => {
