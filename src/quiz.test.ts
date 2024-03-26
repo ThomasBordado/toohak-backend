@@ -355,10 +355,9 @@ describe('adminQuizDescriptionUpdate testing', () => {
 
   // 4. Quiz Id does not refer to a quiz this user owns
   test('Test quizid does not refer to a quiz this user owns', () => {
-    const user1 = requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith').jsonBody as SessionId;
     const user2 = requestRegister('jared@gmail.com', 'password3', 'Jared', 'Simion').jsonBody as SessionId;
     const notmyquiz = requestQuizCreate(user2.token, 'My Quiz2', 'My description.').jsonBody as quizId;
-    const result = requestUpdateQuizDescription(user1.token, notmyquiz.quizId, 'My updated description.');
+    const result = requestUpdateQuizDescription(user.token, notmyquiz.quizId, 'My updated description.');
     expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
     expect(result.statusCode).toStrictEqual(403);
   });
