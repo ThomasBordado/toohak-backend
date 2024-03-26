@@ -1,6 +1,6 @@
 import { getData, setData } from './dataStore';
 import { EmptyObject, ErrorReturn, QuizListReturn, quiz, quizId } from './interfaces';
-import { validUserId, checkQuizName } from './quizUtil';
+import { validUserId, checkQuizName, collectTrash } from './quizUtil';
 
 /**
  * Provides a list of all quizzes that are owned by the currently logged in user
@@ -180,6 +180,53 @@ export const adminQuizDescriptionUpdate = (authUserId: number, quizId: number, n
   data.quizzes[quizIndex].timeLastEdited = Math.floor(Date.now() / 1000);
 
   setData(data);
+
+  return {};
+};
+
+/**
+ * Empty the Trash with quizzes
+ * @param {number} token - unique identifier for a session
+ * @param {number[]} quizIds- array of quizIds to delete
+ * @returns {} - empties quizzes if they exist in the trash
+ */
+export const adminQuizTrashEmpty = (token: number, quizIds: number[]): EmptyObject | ErrorReturn => {
+  const data = getData();
+
+  const allTrash = collectTrash();
+  // Check if all quizzes are in the trash
+  for (const quizId of quizIds) {
+    if (!allTrash.includes(quizId)) {
+      return {
+        error: 'One or more of the Quiz IDs is not currently in the trash'
+      };
+    }
+  }
+  // Check if the token is valid
+  const user = validUserId(token, data.users);
+  if ('error' in user) {
+    return user;
+  }
+  // Check if the current user owns the quizzes being removed.
+  const trashIds = [];
+  for (const quiz of user.trash) {
+    trashIds.push(quiz.quizId);
+  }
+  for (const quizId of quizIds) {
+    if (!trashIds.includes(quizId)) {
+      return {
+        error: 'Valid token is provided, but one or more of the Quiz IDs refers to a quiz that this current user does not own'
+      };
+    }
+  }
+
+  for (const quizId of quizIds) {
+    const quizIndex = user.trash.findIndex(quiz => quiz.quizId === quizId);
+    if (quizIndex === -1) {
+      return { error: 'Invalid quizId' };
+    }
+    user.trash.splice(quizIndex, 1);
+  }
 
   return {};
 };

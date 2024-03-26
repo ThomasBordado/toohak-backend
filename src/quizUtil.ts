@@ -1,4 +1,5 @@
 import { quizUser, user } from './interfaces';
+import { getData } from './dataStore';
 
 /**
  * Check if AuthUserId is valid.
@@ -77,4 +78,20 @@ export const checkQuizName = (name: string, quizzesOwned: quizUser[]) => {
   }
 
   return true;
+};
+
+/**
+ * Check if quiz name is valid.
+ * @param {}
+* @returns {number[]} - array of all quizIds
+*/
+export const collectTrash = () => {
+  const data = getData();
+  const trash: number[] = [];
+  for (const user of data.users) {
+    for (const quiz of user.trash) {
+      trash.push(quiz.quizId);
+    }
+  }
+  return trash;
 };

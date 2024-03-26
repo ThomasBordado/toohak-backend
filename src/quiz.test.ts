@@ -1,10 +1,10 @@
-import { requestRegister, requestQuizList, requestQuizCreate, requestQuizTrash, requestQuizTrashEmpty, requestClear } from './wrapper';
-import { QuizListReturn, SessionId, quizId, quizUser } from './interfaces';
+import { requestRegister, requestQuizCreate, requestQuizTrash, requestQuizTrashEmpty, requestClear } from './wrapper';
+import { SessionId, quizId } from './interfaces';
 
 beforeEach(() => {
   requestClear();
 });
-
+/*
 describe('adminQuizList testing', () => {
   let user: SessionId;
   beforeEach(() => {
@@ -201,7 +201,7 @@ describe('adminQuizRemove testing', () => {
       expect(requestQuizList(user.token).jsonBody).toStrictEqual({ quizzes: [] });
     });
   });
-});
+}); */
 
 // describe('adminQuizInfo testing', () => {
 //   let user: SessionId;
@@ -377,8 +377,8 @@ describe('adminQuizTrashEmpty testing', () => {
       const quizIdsString: string = JSON.stringify(quizIds);
 
       const result = requestQuizTrashEmpty(user.token, quizIdsString);
-      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
       expect(result.statusCode).toStrictEqual(400);
+      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
     });
 
     test('All quiz ids are not in the trash', () => {

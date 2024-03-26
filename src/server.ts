@@ -9,7 +9,7 @@ import fs from 'fs';
 import path from 'path';
 import process from 'process';
 import { clear } from './other';
-import { adminQuizList, adminQuizCreate, adminQuizRemove } from './quiz';
+import { adminQuizList, adminQuizCreate, adminQuizRemove, adminQuizTrashEmpty } from './quiz';
 import { adminAuthLogin, adminAuthRegister } from './auth';
 
 // Set up web app
@@ -95,23 +95,15 @@ app.delete('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
 });
 
 app.delete('/v1/admin/quiz/trash/empty', (req: Request, res: Response) => {
-  // const token = parseInt(req.query.token as string);
-  // const quizIds = parseInt(req.query.quizids as string);
-
-  // const result = adminQuizTrashEmpty(token, quizIds);
-
-  // if ('error' in result) {
-  //   if (result.error.localeCompare('Token is empty or invalid') === 0) {
-  //     return res.status(401).json(result);
-  //   }
-  //   return res.status(403).json(result);
-  // }
-  // res.json(result);
   const token = parseInt(req.query.token as string);
-  const quizId = parseInt(req.params.quizid as string);
-  const result = adminQuizRemove(token, quizId);
+  const quizIds = JSON.parse(req.query.quizIds as string);
+
+  const result = adminQuizTrashEmpty(token, quizIds);
+
   if ('error' in result) {
-    if (result.error.localeCompare('Token is empty or invalid') === 0) {
+    if (result.error.localeCompare('One or more of the Quiz IDs is not currently in the trash') === 0) {
+      return res.status(400).json(result);
+    } else if (result.error.localeCompare('Token is empty or invalid') === 0) {
       return res.status(401).json(result);
     }
     return res.status(403).json(result);

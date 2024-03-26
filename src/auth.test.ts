@@ -1,6 +1,7 @@
 import { requestRegister, requestLogin, requestClear } from './wrapper';
-// import { usersList } from './authUtil';
+import { usersList } from './authUtil';
 import { SessionId } from './interfaces';
+import { adminAuthRegister } from './auth';
 
 beforeEach(() => {
   requestClear();
@@ -18,6 +19,8 @@ describe('Test adminAuthRegister', () => {
     expect(user1).not.toStrictEqual(user2);
     expect(response1.statusCode).toStrictEqual(200);
     expect(response2.statusCode).toStrictEqual(200);
+    adminAuthRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith');
+    console.log(usersList());
   });
 
   // 2. Add an email and then try add the same email.
