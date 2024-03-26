@@ -90,7 +90,7 @@ app.put('/v1/admin/quiz/:quizid/description', (req: Request, res: Response) => {
   if ('error' in result) {
     if (result.error.localeCompare('Token is empy or invalid') === 0) {
       return res.status(401).json(result);
-    } else if (result.error === 'Invalid quizId' || result.error === 'User does not own quiz') {
+    } else if (result.error.localeCompare('Invalid quizId') === 0 || result.error.localeCompare('User does not own quiz') === 0) {
       return res.status(403).json(result);
     }
     return res.status(400).json(result);
