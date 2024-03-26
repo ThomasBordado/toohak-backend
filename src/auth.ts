@@ -1,8 +1,9 @@
-import { checkEmail, checkPassword, checkName, isValidUserId, isSame, isPasswordCorrect, isNewPasswordUsed, isEmailUsedByOther } from './authUtil';
+import { checkEmail, checkPassword, checkName, isValidToken, isSame, isPasswordCorrect, isNewPasswordUsed, isEmailUsedByOther } from './authUtil';
 import isEmail from 'validator/lib/isEmail.js';
 import { getData, setData } from './dataStore';
 import { validUserId } from './quizUtil';
 import { EmptyObject, ErrorReturn, UserDetailsReturn, user, SessionId } from './interfaces';
+import { token } from 'morgan';
 
 /**
  * Register a user with an email, password, and names, then returns their authUserId.
@@ -111,16 +112,16 @@ export const adminUserDetails = (authUserId: number): UserDetailsReturn | ErrorR
 
 /**
  * Given an admin user's authUserId and a set of properties, update the properties of this logged in admin user.
- * @param {number} authUserId - unique identifier for an academic
+ * @param {string} token - unique identifier for an academic
  * @param {string} email - User's email
  * @param {string} nameFirst - User's first name
  * @param {string} nameLast - User's last name
  *
  * @returns {} - For updated user details
  */
-export const adminUserDetailsUpdate = (token: number, email: string, nameFirst: string, nameLast: string): EmptyObject | ErrorReturn => {
+export const adminUserDetailsUpdate = (token: string, email: string, nameFirst: string, nameLast: string): EmptyObject | ErrorReturn => {
   // 1. Check if AuthUserId is a valid user
-  if (!isValidUserId(token)) {
+  if (!isValidToken(token)) {
     return { error: 'Token is empty or invalid' };
   }
 
@@ -148,7 +149,7 @@ export const adminUserDetailsUpdate = (token: number, email: string, nameFirst: 
   // 6. Update the data
   const data = getData();
   for (const users of data.users) {
-    if (users.userId === token) {
+    if (users.sessions.includes(parseInt(token))) {
       users.email = email;
       users.nameFirst = nameFirst;
       users.nameLast = nameLast;
@@ -168,7 +169,7 @@ export const adminUserDetailsUpdate = (token: number, email: string, nameFirst: 
 */
 export const adminUserPasswordUpdate = (authUserId: number, oldPassword: string, newPassword: string): EmptyObject | ErrorReturn => {
   // 1. Check if AuthUserId is valid
-  if (!isValidUserId(authUserId)) {
+  if (!isValidToken(authUserId.toString())) {
     return { error: 'AuthUserId is not a valid user.' };
   }
 
