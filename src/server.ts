@@ -11,7 +11,7 @@ import process from 'process';
 import { clear } from './other';
 import { adminQuizList, adminQuizCreate, adminQuizRemove } from './quiz';
 import { adminAuthLogin, adminAuthRegister, adminUserDetailsUpdate } from './auth';
-import { loadData, saveData } from './p';
+import { saveData } from './p';
 
 // Set up web app
 const app = express();
@@ -41,7 +41,6 @@ app.get('/echo', (req: Request, res: Response) => {
 
 app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
   const { email, password, nameFirst, nameLast } = req.body;
-  loadData();
   const response = adminAuthRegister(email, password, nameFirst, nameLast);
   saveData();
   if ('error' in response) {
@@ -52,7 +51,6 @@ app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
 
 app.post('/v1/admin/auth/login', (req: Request, res: Response) => {
   const { email, password } = req.body;
-  loadData();
   const response = adminAuthLogin(email, password);
   saveData();
   if ('error' in response) {
@@ -63,7 +61,6 @@ app.post('/v1/admin/auth/login', (req: Request, res: Response) => {
 
 app.put('/v1/admin/user/details', (req: Request, res: Response) => {
   const { token, email, nameFirst, nameLast } = req.body;
-  loadData();
   const response = adminUserDetailsUpdate(token, email, nameFirst, nameLast);
   saveData();
   if ('error' in response) {
