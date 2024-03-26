@@ -1,4 +1,4 @@
-import { requestRegister, requestQuizList, requestQuizCreate, requestQuizTrash, requestClear } from './wrapper';
+import { requestRegister, requestQuizList, requestQuizCreate, requestQuizTrash, requestQuizTrashEmpty, requestClear } from './wrapper';
 import { QuizListReturn, SessionId, quizId, quizUser } from './interfaces';
 
 beforeEach(() => {
@@ -361,3 +361,171 @@ describe('adminQuizRemove testing', () => {
 //     expect(adminQuizDescriptionUpdate(user.sessionId, quiz.quizId, 'My very, very, very, very, very, very, very, very, very, very, very, very, very, very, long description.')).toStrictEqual({ error: expect.any(String) });
 //   });
 // });
+
+describe('adminQuizTrashEmpty testing', () => {
+  let user: SessionId;
+  let quiz: quizId;
+  beforeEach(() => {
+    user = requestRegister('tom@gmail.com', 'password1', 'Tom', 'Thompson').jsonBody as SessionId;
+    quiz = requestQuizCreate(user.token, 'First Quiz', 'Good description').jsonBody as quizId;
+  });
+
+  describe('Unsuccessful Cases', () => {
+    test('One quizId is not currently in the trash', () => {
+      const quizIds: number[] = [quiz.quizId];
+      // Convert the list to a JSON string
+      const quizIdsString: string = JSON.stringify(quizIds);
+
+      const result = requestQuizTrashEmpty(user.token, quizIdsString);
+      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
+      expect(result.statusCode).toStrictEqual(400);
+    });
+
+    test('All quiz ids are not in the trash', () => {
+      const quiz2 = requestQuizCreate(user.token, 'Second Quiz', 'Better description').jsonBody as quizId;
+      const quiz3 = requestQuizCreate(user.token, 'Third Quiz', 'Best description').jsonBody as quizId;
+
+      // Send the first 2 quizzes into the trash
+      requestQuizTrash(user.token, quiz.quizId);
+      requestQuizTrash(user.token, quiz2.quizId);
+
+      const quizIds: number[] = [quiz.quizId, quiz2.quizId, quiz3.quizId];
+      // Convert the list to a JSON string
+      const quizIdsString: string = JSON.stringify(quizIds);
+
+      const result = requestQuizTrashEmpty(user.token, quizIdsString);
+      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
+      expect(result.statusCode).toStrictEqual(400);
+    });
+
+    test('Token refers to invalid session', () => {
+      requestQuizTrash(user.token, quiz.quizId);
+
+      const quizIds: number[] = [quiz.quizId];
+      // Convert the list to a JSON string
+      const quizIdsString: string = JSON.stringify(quizIds);
+
+      const newToken = parseInt(user.token) + 1;
+      const result = requestQuizTrashEmpty(newToken.toString(), quizIdsString);
+      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
+      expect(result.statusCode).toStrictEqual(401);
+    });
+
+    test('Token refers to empty session', () => {
+      requestQuizTrash(user.token, quiz.quizId);
+
+      const quizIds: number[] = [quiz.quizId];
+      // Convert the list to a JSON string
+      const quizIdsString: string = JSON.stringify(quizIds);
+
+      const result = requestQuizTrashEmpty('', quizIdsString);
+      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
+      expect(result.statusCode).toStrictEqual(401);
+    });
+
+    test('Quiz is not owned by current session', () => {
+      const user2 = requestRegister('John@gmail.com', 'password1', 'John', 'Flow').jsonBody as SessionId;
+      const quiz2 = requestQuizCreate(user2.token, 'Quiz of John', 'Quiz of John').jsonBody as quizId;
+      requestQuizTrash(user.token, quiz.quizId);
+      requestQuizTrash(user2.token, quiz2.quizId);
+
+      const quizIds: number[] = [quiz.quizId, quiz2.quizId];
+      // Convert the list to a JSON string
+      const quizIdsString: string = JSON.stringify(quizIds);
+
+      const result = requestQuizTrashEmpty(user.token, quizIdsString);
+      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
+      expect(result.statusCode).toStrictEqual(403);
+    });
+  });
+
+  describe('Successful cases', () => {
+    test('Empty One Item in Trash', () => {
+      requestQuizTrash(user.token, quiz.quizId);
+
+      const quizIds: number[] = [quiz.quizId];
+      // Convert the list to a JSON string
+      const quizIdsString: string = JSON.stringify(quizIds);
+
+      const response = requestQuizTrashEmpty(user.token, quizIdsString);
+      expect(response.jsonBody).toStrictEqual({});
+      expect(response.statusCode).toStrictEqual(200);
+    });
+
+    test('Empty all items in Trash', () => {
+      const quiz2 = requestQuizCreate(user.token, 'Second Quiz', 'Better description').jsonBody as quizId;
+      const quiz3 = requestQuizCreate(user.token, 'Third Quiz', 'Best description').jsonBody as quizId;
+
+      // Send the first 2 quizzes into the trash
+      requestQuizTrash(user.token, quiz.quizId);
+      requestQuizTrash(user.token, quiz2.quizId);
+      requestQuizTrash(user.token, quiz3.quizId);
+
+      const quizIds: number[] = [quiz.quizId, quiz2.quizId, quiz3.quizId];
+      // Convert the list to a JSON string
+      const quizIdsString: string = JSON.stringify(quizIds);
+
+      const response = requestQuizTrashEmpty(user.token, quizIdsString);
+      expect(response.jsonBody).toStrictEqual({});
+      expect(response.statusCode).toStrictEqual(200);
+    });
+
+    test('Empty last item in Trash', () => {
+      const quiz2 = requestQuizCreate(user.token, 'Second Quiz', 'Better description').jsonBody as quizId;
+      const quiz3 = requestQuizCreate(user.token, 'Third Quiz', 'Best description').jsonBody as quizId;
+
+      // Send the first 2 quizzes into the trash
+      requestQuizTrash(user.token, quiz.quizId);
+      requestQuizTrash(user.token, quiz2.quizId);
+      requestQuizTrash(user.token, quiz3.quizId);
+
+      const quizIds: number[] = [quiz3.quizId];
+      // Convert the list to a JSON string
+      const quizIdsString: string = JSON.stringify(quizIds);
+
+      const response = requestQuizTrashEmpty(user.token, quizIdsString);
+      expect(response.jsonBody).toStrictEqual({});
+      expect(response.statusCode).toStrictEqual(200);
+    });
+
+    test('Empty first item in Trash', () => {
+      const quiz2 = requestQuizCreate(user.token, 'Second Quiz', 'Better description').jsonBody as quizId;
+      const quiz3 = requestQuizCreate(user.token, 'Third Quiz', 'Best description').jsonBody as quizId;
+
+      // Send the first 2 quizzes into the trash
+      requestQuizTrash(user.token, quiz.quizId);
+      requestQuizTrash(user.token, quiz2.quizId);
+      requestQuizTrash(user.token, quiz3.quizId);
+
+      const quizIds: number[] = [quiz.quizId];
+      // Convert the list to a JSON string
+      const quizIdsString: string = JSON.stringify(quizIds);
+
+      const response = requestQuizTrashEmpty(user.token, quizIdsString);
+      expect(response.jsonBody).toStrictEqual({});
+      expect(response.statusCode).toStrictEqual(200);
+    });
+
+    test('Empty odd items in Trash', () => {
+      const quiz2 = requestQuizCreate(user.token, 'Second Quiz', 'Better description').jsonBody as quizId;
+      const quiz3 = requestQuizCreate(user.token, 'Third Quiz', 'Best description').jsonBody as quizId;
+      const quiz4 = requestQuizCreate(user.token, 'Fourth Quiz', 'Bad description').jsonBody as quizId;
+      const quiz5 = requestQuizCreate(user.token, 'Fifth Quiz', 'Worst description').jsonBody as quizId;
+
+      // Send the first 2 quizzes into the trash
+      requestQuizTrash(user.token, quiz.quizId);
+      requestQuizTrash(user.token, quiz2.quizId);
+      requestQuizTrash(user.token, quiz3.quizId);
+      requestQuizTrash(user.token, quiz4.quizId);
+      requestQuizTrash(user.token, quiz5.quizId);
+
+      const quizIds: number[] = [quiz.quizId, quiz3.quizId, quiz5.quizId];
+      // Convert the list to a JSON string
+      const quizIdsString: string = JSON.stringify(quizIds);
+
+      const response = requestQuizTrashEmpty(user.token, quizIdsString);
+      expect(response.jsonBody).toStrictEqual({});
+      expect(response.statusCode).toStrictEqual(200);
+    });
+  });
+});

@@ -94,6 +94,31 @@ app.delete('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
   res.json(result);
 });
 
+app.delete('/v1/admin/quiz/trash/empty', (req: Request, res: Response) => {
+  // const token = parseInt(req.query.token as string);
+  // const quizIds = parseInt(req.query.quizids as string);
+
+  // const result = adminQuizTrashEmpty(token, quizIds);
+
+  // if ('error' in result) {
+  //   if (result.error.localeCompare('Token is empty or invalid') === 0) {
+  //     return res.status(401).json(result);
+  //   }
+  //   return res.status(403).json(result);
+  // }
+  // res.json(result);
+  const token = parseInt(req.query.token as string);
+  const quizId = parseInt(req.params.quizid as string);
+  const result = adminQuizRemove(token, quizId);
+  if ('error' in result) {
+    if (result.error.localeCompare('Token is empty or invalid') === 0) {
+      return res.status(401).json(result);
+    }
+    return res.status(403).json(result);
+  }
+  res.json(result);
+});
+
 app.delete('/v1/clear', (req: Request, res: Response) => {
   const response = clear();
   res.json(response);

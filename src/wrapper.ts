@@ -112,6 +112,10 @@ export const requestUpdateQuizDescription = (token: string, description: string,
   return requestHelper('PUT', `/v1/admin/quiz/${quizId}/description`, { token, description, quizId });
 };
 
+export const requestQuizTrashEmpty = (token: string, quizIds: string) => {
+  return requestHelper('DELETE', '/v1/admin/quiz/trash/empty', { token, quizIds });
+};
+
 export const requestClear = () => {
   return requestHelper('DELETE', '/v1/clear', {});
 };
