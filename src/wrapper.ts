@@ -76,39 +76,39 @@ export const requestLogin = (email: string, password: string) => {
   return requestHelper('POST', '/v1/admin/auth/login', { email, password });
 };
 
-export const requestGetUserDetails = (token: number) => {
+export const requestGetUserDetails = (token: string) => {
   return requestHelper('GET', '/v1/admin/user/details', { token });
 };
 
-export const requestUpdateUserDetails = (token: number, email: string, nameFirst: string, nameLast: string) => {
+export const requestUpdateUserDetails = (token: string, email: string, nameFirst: string, nameLast: string) => {
   return requestHelper('PUT', '/v1/admin/user/details', { token, email, nameFirst, nameLast });
 };
 
-export const requestUpdatePassword = (token: number, oldPassword: string, newPassword: string) => {
+export const requestUpdatePassword = (token: string, oldPassword: string, newPassword: string) => {
   return requestHelper('PUT', '/v1/admin/user/password', { token, oldPassword, newPassword });
 };
 
-export const requestQuizList = (token: number) => {
+export const requestQuizList = (token: string) => {
   return requestHelper('GET', '/v1/admin/quiz/list', { token });
 };
 
-export const requestQuizCreate = (token: number, name: string, description: string) => {
+export const requestQuizCreate = (token: string, name: string, description: string) => {
   return requestHelper('POST', '/v1/admin/quiz', { token, name, description });
 };
 
-export const requestQuizTrash = (token: number, quizId: number) => {
+export const requestQuizTrash = (token: string, quizId: number) => {
   return requestHelper('DELETE', `/v1/admin/quiz/${quizId}`, { token });
 };
 
-export const requestQuizInfo = (token: number, quizId: number) => {
+export const requestQuizInfo = (token: string, quizId: number) => {
   return requestHelper('GET', `/v1/admin/quiz/${quizId}`, { token, quizId });
 };
 
-export const requestUpdateQuizName = (token: number, name: string, quizId: number) => {
+export const requestUpdateQuizName = (token: string, name: string, quizId: number) => {
   return requestHelper('PUT', `/v1/admin/quiz/${quizId}/name`, { token, name, quizId });
 };
 
-export const requestUpdateQuizDescription = (token: number, description: string, quizId: number) => {
+export const requestUpdateQuizDescription = (token: string, description: string, quizId: number) => {
   return requestHelper('PUT', `/v1/admin/quiz/${quizId}/description`, { token, description, quizId });
 };
 
