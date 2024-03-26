@@ -104,7 +104,7 @@ export const requestQuizInfo = (token: string, quizId: number) => {
   return requestHelper('GET', `/v1/admin/quiz/${quizId}`, { token, quizId });
 };
 
-export const requestUpdateQuizName = (token: string, name: string, quizId: number) => {
+export const requestUpdateQuizName = (token: string, quizId: number, name: string ) => {
   return requestHelper('PUT', `/v1/admin/quiz/${quizId}/name`, { token, name, quizId });
 };
 

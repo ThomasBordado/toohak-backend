@@ -1,4 +1,4 @@
-import { requestRegister, requestQuizList, requestQuizCreate, requestQuizTrash, requestClear } from './wrapper';
+import { requestRegister, requestQuizList, requestQuizCreate, requestQuizTrash, requestClear, requestQuizInfo, requestUpdateQuizName } from './wrapper';
 import { QuizListReturn, SessionId, quizId, quizUser } from './interfaces';
 
 beforeEach(() => {
@@ -203,127 +203,151 @@ describe('adminQuizRemove testing', () => {
   });
 });
 
-// describe('adminQuizInfo testing', () => {
-//   let user: SessionId;
-//   let quiz: quizId;
-//   beforeEach(() => {
-//     user = adminAuthRegister('ethan@gmail.com', 'password1', 'Ethan', 'McGregor') as SessionId;
-//     quiz = adminQuizCreate(user.sessionId, 'My Quiz', 'My description.') as quizId;
-//   });
+describe('adminQuizInfo testing', () => {
+  let user: SessionId;
+  let quiz: quizId;
+  beforeEach(() => {
+    user = requestRegister('ethan@gmail.com', 'password1', 'Ethan', 'McGregor').jsonBody as SessionId;
+    quiz = requestQuizCreate(user.token, 'My Quiz', 'My description.').jsonBody as quizId;
+  });
 
-//   describe('Unsuccessful Cases', () => {
-//     test('Invalid AuthUserId', () => {
-//       expect(adminQuizInfo(user.sessionId + 1, quiz.quizId)).toStrictEqual({ error: expect.any(String) });
-//     });
-//     test('Invalid quizId', () => {
-//       expect(adminQuizInfo(user.sessionId, quiz.quizId + 1)).toStrictEqual({ error: expect.any(String) });
-//     });
-//     test('User does not own quiz with given quizId', () => {
-//       const user2 = adminAuthRegister('ethanm@gmail.com', 'password12', 'Ethanm', 'EMcGregor') as SessionId;
-//       expect(adminQuizInfo(user2.sessionId, quiz.quizId)).toStrictEqual({ error: expect.any(String) });
-//     });
-//     test('User owns quiz with same name as given quizId', () => {
-//       const user2 = adminAuthRegister('ethanm@gmail.com', 'password12', 'Ethanm', 'EMcGregor') as SessionId;
-//       adminQuizCreate(user2.sessionId, 'My Quiz', 'My description.');
-//       expect(adminQuizInfo(user2.sessionId, quiz.quizId)).toStrictEqual({ error: expect.any(String) });
-//     });
-//   });
-//   describe('Successful cases', () => {
-//     test('Return correct object containing quiz info', () => {
-//       expect(adminQuizInfo(user.sessionId, quiz.quizId)).toStrictEqual({
-//         quizId: quiz.quizId,
-//         name: 'My Quiz',
-//         timeCreated: expect.any(Number),
-//         timeLastEdited: expect.any(Number),
-//         description: 'My description.',
-//       });
-//     });
-//   });
-// });
+  describe('Unsuccessful Cases', () => {
+    test('Invalid AuthUserId', () => {
+      const result = requestQuizInfo(user.token + 1, quiz.quizId);
+      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
+      expect(result.statusCode).toStrictEqual(401);
+    });
+    test('Invalid quizId', () => {
+      expect(requestQuizInfo(user.token, quiz.quizId + 1)).toStrictEqual({ error: expect.any(String) });
+    });
+    test('User does not own quiz with given quizId', () => {
+      const user2 = requestRegister('ethanm@gmail.com', 'password12', 'Ethanm', 'EMcGregor').jsonBody as SessionId;
+      const result = requestQuizInfo(user2.token, quiz.quizId);
+      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
+      expect(result.statusCode).toStrictEqual(403);
+    });
+    test('User owns quiz with same name as given quizId', () => {
+      const user2 = requestRegister('ethanm@gmail.com', 'password12', 'Ethanm', 'EMcGregor').jsonBody as SessionId;
+      requestQuizCreate(user2.token, 'My Quiz', 'My description.');
+      const result = requestQuizInfo(user2.token, quiz.quizId);
+      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
+      expect(result.statusCode).toStrictEqual(403);
+    });
+  });
+  describe('Successful cases', () => {
+    test('Return correct object containing quiz info', () => {
+      expect(requestQuizInfo(user.token, quiz.quizId)).toStrictEqual({
+        quizId: quiz.quizId,
+        name: 'My Quiz',
+        timeCreated: expect.any(Number),
+        timeLastEdited: expect.any(Number),
+        description: 'My description.',
+      });
+    });
+  });
+});
 
-// describe('adminQuizNameUpdate testing', () => {
-//   let user: SessionId;
-//   let quiz: quizId;
-//   beforeEach(() => {
-//     user = adminAuthRegister('ethan@gmail.com', 'password1', 'Ethan', 'Mcgregor') as SessionId;
-//     quiz = adminQuizCreate(user.sessionId, 'My Quiz', 'My description.') as quizId;
-//   });
+describe('adminQuizNameUpdate testing', () => {
+  let user: SessionId;
+  let quiz: quizId;
+  beforeEach(() => {
+    user = requestRegister('ethan@gmail.com', 'password1', 'Ethan', 'Mcgregor').jsonBody as SessionId;
+    quiz = requestQuizCreate(user.token, 'My Quiz', 'My description.').jsonBody as quizId;
+  });
 
-//   describe('Unsuccessful Cases', () => {
-//     test('Invalid AuthUserId', () => {
-//       expect(adminQuizNameUpdate(user.sessionId + 1, quiz.quizId, 'Ethans quiz')).toStrictEqual({ error: expect.any(String) });
-//     });
-//     test('Invalid quizId', () => {
-//       expect(adminQuizNameUpdate(user.sessionId, quiz.quizId + 1, 'Ethans quiz')).toStrictEqual({ error: expect.any(String) });
-//     });
-//     test('User does not own quiz with given quizId', () => {
-//       const user2 = adminAuthRegister('ethanm@gmail.com', 'password12', 'Ethanm', 'EMcGregor') as SessionId;
-//       expect(adminQuizNameUpdate(user2.sessionId, quiz.quizId, 'Ethans quiz')).toStrictEqual({ error: expect.any(String) });
-//     });
-//     test('User owns quiz with same name as given quizId', () => {
-//       const user2 = adminAuthRegister('ethanm@gmail.com', 'password12', 'Ethanm', 'EMcGregor') as SessionId;
-//       adminQuizCreate(user2.sessionId, 'My Quiz', 'My description.');
-//       expect(adminQuizNameUpdate(user2.sessionId, quiz.quizId, 'Ethans quiz')).toStrictEqual({ error: expect.any(String) });
-//     });
-//     test('Invalid name: Contains non-alphanumeric characters', () => {
-//       expect(adminQuizNameUpdate(user.sessionId, quiz.quizId, 'My Quiz!')).toStrictEqual({ error: expect.any(String) });
-//     });
-//     test('Invalid name: blank name', () => {
-//       expect(adminQuizNameUpdate(user.sessionId, quiz.quizId, '')).toStrictEqual({ error: expect.any(String) });
-//     });
-//     test('Invalid name: < 3 characters', () => {
-//       expect(adminQuizNameUpdate(user.sessionId, quiz.quizId, 'My')).toStrictEqual({ error: expect.any(String) });
-//     });
-//     test('Invalid name: > 30 characters', () => {
-//       expect(adminQuizNameUpdate(user.sessionId, quiz.quizId, 'My very very very very long Quiz')).toStrictEqual({ error: expect.any(String) });
-//     });
-//     test('Invalid name: name already used', () => {
-//       adminQuizCreate(user.sessionId, 'My Quiz', 'My description');
-//       expect(adminQuizNameUpdate(user.sessionId, quiz.quizId, 'My Quiz')).toStrictEqual({ error: expect.any(String) });
-//     });
-//   });
+  describe('Unsuccessful Cases', () => {
+    test('Invalid AuthUserId', () => {
+      const result = requestUpdateQuizName(user.token + 1, quiz.quizId, 'Ethans quiz');
+      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
+      expect(result.statusCode).toStrictEqual(401);
+    });
+    test('Invalid quizId', () => {
+      const result = requestUpdateQuizName(user.token, quiz.quizId + 1, 'Ethans quiz');
+      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
+      expect(result.statusCode).toStrictEqual(403);
+    });
+    test('User does not own quiz with given quizId', () => {
+      const user2 = requestRegister('ethanm@gmail.com', 'password12', 'Ethanm', 'EMcGregor').jsonBody as SessionId;
+      const result = requestUpdateQuizName(user2.token, quiz.quizId, 'Ethans quiz');
+      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
+      expect(result.statusCode).toStrictEqual(403);
+    });
+    test('User owns quiz with same name as given quizId', () => {
+      const user2 = requestRegister('ethanm@gmail.com', 'password12', 'Ethanm', 'EMcGregor').jsonBody as SessionId;
+      requestQuizCreate(user2.token, 'My Quiz', 'My description.');
+      const result = requestUpdateQuizName(user2.token, quiz.quizId, 'Ethans quiz');
+      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
+      expect(result.statusCode).toStrictEqual(400);
+    });
+    test('Invalid name: Contains non-alphanumeric characters', () => {
+      const result = requestUpdateQuizName(user.token, quiz.quizId, 'My Quiz!');
+      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
+      expect(result.statusCode).toStrictEqual(400);
+    });
+    test('Invalid name: blank name', () => {
+      const result = requestUpdateQuizName(user.token, quiz.quizId, '');
+      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
+      expect(result.statusCode).toStrictEqual(400);
+    });
+    test('Invalid name: < 3 characters', () => {
+      const result = requestUpdateQuizName(user.token, quiz.quizId, 'My');
+      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
+      expect(result.statusCode).toStrictEqual(400);
+    });
+    test('Invalid name: > 30 characters', () => {
+      const result = requestUpdateQuizName(user.token, quiz.quizId, 'My very very very very long Quiz');
+      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
+      expect(result.statusCode).toStrictEqual(400);
+    });
+    test('Invalid name: name already used', () => {
+      requestQuizCreate(user.token, 'My Quiz', 'My description');
+      const result = requestUpdateQuizName(user.token, quiz.quizId, 'My Quiz');
+      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
+      expect(result.statusCode).toStrictEqual(400);
+    });
+  });
 
-//   describe('Successful cases', () => {
-//     test('Return correct object containing quiz info', () => {
-//       expect(adminQuizNameUpdate(user.sessionId, quiz.quizId, 'Ethansquiz')).toStrictEqual({});
-//     });
-//     // test('names have been correctly updated', () => {
-//     //   let data = getData();
-//     //   adminQuizNameUpdate(user.authUserId, quiz.quizId, "Ethansquiz")
-//     //   expect(data.quizzes[0].name).toStrictEqual('banana');
-//     // });
-//     test('successfully change single name', () => {
-//       adminQuizNameUpdate(user.sessionId, quiz.quizId, 'Ethansquiz');
-//       expect(adminQuizList(user.sessionId)).toStrictEqual({ quizzes: [{ quizId: quiz.quizId, name: 'Ethansquiz' }] });
-//     });
-//     test('successfully change multiple names', () => {
-//       const quiz2 = adminQuizCreate(user.sessionId, 'My Second Quiz', 'My Second description.') as quizId;
-//       const quiz3 = adminQuizCreate(user.sessionId, 'My Third Quiz', 'My Third description.') as quizId;
-//       adminQuizNameUpdate(user.sessionId, quiz.quizId, 'Ethansquiz');
-//       adminQuizNameUpdate(user.sessionId, quiz2.quizId, 'Ethanssecondquiz');
-//       const quizList = adminQuizList(user.sessionId) as QuizListReturn;
-//       const expectedList = {
-//         quizzes: [
-//           {
-//             quizId: quiz.quizId,
-//             name: 'Ethansquiz',
-//           },
-//           {
-//             quizId: quiz2.quizId,
-//             name: 'Ethanssecondquiz',
-//           },
-//           {
-//             quizId: quiz3.quizId,
-//             name: 'My Third Quiz',
-//           }
-//         ]
-//       };
-//       quizList.quizzes.sort((a: quizUser, b: quizUser) => a.quizId - b.quizId);
-//       expectedList.quizzes.sort((a: quizUser, b: quizUser) => a.quizId - b.quizId);
-//       expect(quizList).toStrictEqual(expectedList);
-//     });
-//   });
-// });
+  describe('Successful cases', () => {
+    test('Return correct object containing quiz info', () => {
+      expect(requestUpdateQuizName(user.token, quiz.quizId, 'Ethansquiz')).toStrictEqual({});
+    });
+    // test('names have been correctly updated', () => {
+    //   let data = getData();
+    //   adminQuizNameUpdate(user.authUserId, quiz.quizId, "Ethansquiz")
+    //   expect(data.quizzes[0].name).toStrictEqual('banana');
+    // });
+    test('successfully change single name', () => {
+      requestUpdateQuizName(user.token, quiz.quizId, 'Ethansquiz');
+      expect(requestQuizList(user.token)).toStrictEqual({ quizzes: [{ quizId: quiz.quizId, name: 'Ethansquiz' }] });
+    });
+    test('successfully change multiple names', () => {
+      const quiz2 = requestQuizCreate(user.token, 'My Second Quiz', 'My Second description.').jsonBody as quizId;
+      const quiz3 = requestQuizCreate(user.token, 'My Third Quiz', 'My Third description.').jsonBody as quizId;
+      requestUpdateQuizName(user.token, quiz.quizId, 'Ethansquiz');
+      requestUpdateQuizName(user.token, quiz2.quizId, 'Ethanssecondquiz');
+      const quizList = requestQuizList(user.token).jsonBody as QuizListReturn;
+      const expectedList = {
+        quizzes: [
+          {
+            quizId: quiz.quizId,
+            name: 'Ethansquiz',
+          },
+          {
+            quizId: quiz2.quizId,
+            name: 'Ethanssecondquiz',
+          },
+          {
+            quizId: quiz3.quizId,
+            name: 'My Third Quiz',
+          }
+        ]
+      };
+      quizList.quizzes.sort((a: quizUser, b: quizUser) => a.quizId - b.quizId);
+      expectedList.quizzes.sort((a: quizUser, b: quizUser) => a.quizId - b.quizId);
+      expect(quizList).toStrictEqual(expectedList);
+    });
+  });
+});
 
 // describe('adminQuizDescriptionUpdate testing', () => {
 //   let user: SessionId;
