@@ -8,13 +8,9 @@ import sui from 'swagger-ui-express';
 import fs from 'fs';
 import path from 'path';
 import process from 'process';
-<<<<<<< HEAD
-import { quizQuestionCreat } from './quiz';
-=======
 import { clear } from './other';
-import { adminQuizList, adminQuizCreate, adminQuizRemove } from './quiz';
+import { adminQuizList, adminQuizCreate, adminQuizRemove, quizQuestionCreat } from './quiz';
 import { adminAuthLogin, adminAuthRegister } from './auth';
->>>>>>> master
 
 // Set up web app
 const app = express();
@@ -42,7 +38,6 @@ app.get('/echo', (req: Request, res: Response) => {
   return res.json(echo(data));
 });
 
-<<<<<<< HEAD
 app.post('/v1/admin/quiz/{quizid}/question', (req: Request, res: Response) => {
   const quizId = parseInt(req.params.quizid);  
   const { token, questionBody } = req.body;
@@ -57,7 +52,6 @@ app.post('/v1/admin/quiz/{quizid}/question', (req: Request, res: Response) => {
     }
     res.json(response);
 })
-=======
 app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
   const { email, password, nameFirst, nameLast } = req.body;
   const response = adminAuthRegister(email, password, nameFirst, nameLast);
@@ -118,7 +112,6 @@ app.delete('/v1/clear', (req: Request, res: Response) => {
   const response = clear();
   res.json(response);
 });
->>>>>>> master
 
 // ====================================================================
 //  ================= WORK IS DONE ABOVE THIS LINE ===================
