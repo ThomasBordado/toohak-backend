@@ -219,7 +219,6 @@ describe('adminQuizInfo testing', () => {
     });
     test('Invalid quizId', () => {
       expect(requestQuizInfo(user.token, quiz.quizId + 1).jsonBody).toStrictEqual({ error: expect.any(String) });
-      
     });
     test('User does not own quiz with given quizId', () => {
       const user2 = requestRegister('ethanm@gmail.com', 'password12', 'Ethanm', 'EMcGregor').jsonBody as SessionId;

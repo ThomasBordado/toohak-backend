@@ -119,7 +119,6 @@ app.put('/v1/admin/quiz/:quizid/name', (req: Request, res: Response) => {
       return res.status(403).json(result);
     } 
     return res.status(400).json(result);
-    
   }
   res.json(result);
 });
