@@ -223,6 +223,6 @@ export const adminQuizRestore = (token: number, quizId: number): EmptyObject | E
   user.quizzes.push(user.trash[userQuizIndex]);
   data.trash.splice(quizzesIndex, 1);
   user.trash.splice(userQuizIndex, 1);
-  
+
   return {};
 };

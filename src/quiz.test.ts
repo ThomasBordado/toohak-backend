@@ -382,7 +382,7 @@ describe('/v1/admin/quiz/{quizid}/restore testing', () => {
       expect(result.statusCode).toStrictEqual(403);
     });
     test('User owns quiz with same name as restored quiz', () => {
-      const res1 = requestQuizTrash(user.sessionId, quiz.quizId);
+      requestQuizTrash(user.sessionId, quiz.quizId);
       requestQuizCreate(user.sessionId, 'My Quiz', 'My description.');
       const result = requestQuizRestore(user.sessionId, quiz.quizId);
       expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
