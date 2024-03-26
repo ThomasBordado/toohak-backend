@@ -101,9 +101,8 @@ app.post('/v1/admin/quiz', (req: Request, res: Response) => {
 app.delete('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
   const token = parseInt(req.query.token as string);
   const quizId = parseInt(req.params.quizid as string);
-  loadData();
   const result = adminQuizRemove(token, quizId);
-  saveData();
+
   if ('error' in result) {
     if (result.error.localeCompare('Token is empty or invalid') === 0) {
       return res.status(401).json(result);
@@ -141,11 +140,9 @@ app.use((req: Request, res: Response) => {
 const server = app.listen(PORT, HOST, () => {
   // DO NOT CHANGE THIS LINE
   console.log(`⚡️ Server started on port ${PORT} at ${HOST}`);
-  loadData();
 });
 
 // For coverage, handle Ctrl+C gracefully
 process.on('SIGINT', () => {
   server.close(() => console.log('Shutting down server gracefully.'));
-  saveData();
 });
