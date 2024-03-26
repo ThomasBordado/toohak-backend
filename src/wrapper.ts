@@ -4,10 +4,10 @@ import { port, url } from './config.json';
 const SERVER_URL = `${url}:${port}`;
 
 interface RequestHelperReturnType {
-    statusCode: number;
-    jsonBody?: Record<string, any>;
-    error?: string;
-  }
+  statusCode: number;
+  jsonBody?: Record<string, any>;
+  error?: string;
+}
 /**
  * Sends a request to the given route and return its results
  *
@@ -108,8 +108,8 @@ export const requestUpdateQuizName = (token: string, name: string, quizId: numbe
   return requestHelper('PUT', `/v1/admin/quiz/${quizId}/name`, { token, name, quizId });
 };
 
-export const requestUpdateQuizDescription = (token: string, description: string, quizId: number) => {
-  return requestHelper('PUT', `/v1/admin/quiz/${quizId}/description`, { token, description, quizId });
+export const requestUpdateQuizDescription = (token: string, quizId: number, description: string) => {
+  return requestHelper('PUT', `/v1/admin/quiz/${quizId}/description`, { token, quizId, description });
 };
 
 export const requestClear = () => {
