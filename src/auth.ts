@@ -1,4 +1,4 @@
-import { checkEmail, checkPassword, checkName, isValidUserId, isSame, isPasswordCorrect, isNewPasswordUsed, isEmailUsedByOther } from './authUtil';
+import { checkEmail, checkPassword, checkName, isValidToken, isSame, isPasswordCorrect, isNewPasswordUsed, isEmailUsedByOther } from './authUtil';
 import isEmail from 'validator/lib/isEmail.js';
 import { getData, setData } from './dataStore';
 import { validUserId } from './quizUtil';
@@ -118,9 +118,9 @@ export const adminUserDetails = (authUserId: number): UserDetailsReturn | ErrorR
  *
  * @returns {} - For updated user details
  */
-export const adminUserDetailsUpdate = (authUserId: number, email: string, nameFirst: string, nameLast: string): EmptyObject | ErrorReturn => {
+export const adminUserDetailsUpdate = (token: SessionId, email: string, nameFirst: string, nameLast: string): EmptyObject | ErrorReturn => {
   // 1. Check if AuthUserId is a valid user
-  if (!isValidUserId(authUserId)) {
+  if (!isValidToken(token)) {
     return { error: 'AuthUserId is not a valid user.' };
   }
 
@@ -130,7 +130,7 @@ export const adminUserDetailsUpdate = (authUserId: number, email: string, nameFi
   }
 
   // 3. Check if the email is used by another user(excluding the current authorised user)
-  if (isEmailUsedByOther(email, authUserId)) {
+  if (isEmailUsedByOther(email, token)) {
     return { error: 'Email is used by other user.' };
   }
 
@@ -148,7 +148,7 @@ export const adminUserDetailsUpdate = (authUserId: number, email: string, nameFi
   // 6. Update the data
   const data = getData();
   for (const users of data.users) {
-    if (users.userId === authUserId) {
+    if (users.sessions.includes(parseInt(token.token))) {
       users.email = email;
       users.nameFirst = nameFirst;
       users.nameLast = nameLast;
@@ -166,9 +166,9 @@ export const adminUserDetailsUpdate = (authUserId: number, email: string, nameFi
 * @param {string} newPassword - the new password
 * @return {} - the password been updated
 */
-export const adminUserPasswordUpdate = (token: number, oldPassword: string, newPassword: string): EmptyObject | ErrorReturn => {
+export const adminUserPasswordUpdate = (token: SessionId, oldPassword: string, newPassword: string): EmptyObject | ErrorReturn => {
   // 1. Check if AuthUserId is valid
-  if (!isValidUserId(token)) {
+  if (!isValidToken(token)) {
     return { error: 'AuthUserId is not a valid user.' };
   }
 
@@ -193,7 +193,7 @@ export const adminUserPasswordUpdate = (token: number, oldPassword: string, newP
   }
 
   const data = getData();
-  const user = data.users.find(users => users.userId === token);
+  const user = data.users.find(users => users.sessions.includes(parseInt(token.token)));
   user.password = newPassword;
   user.prevpassword.push(oldPassword);
   setData(data);
