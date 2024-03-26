@@ -85,12 +85,12 @@ app.put('/v1/admin/quiz/:quizid/description', (req: Request, res: Response) => {
   // Everything in req.body will be of the correct type
   const quizId = parseInt(req.params.quizid as string);
   const token = parseInt(req.body.token as string);
-  const { newDescription } = req.body;
-  const result = adminQuizDescriptionUpdate(token, quizId, newDescription);
+  const { description } = req.body;
+  const result = adminQuizDescriptionUpdate(token, quizId, description);
   if ('error' in result) {
-    if (result.error.localeCompare('Token is empy or invalid') === 0) {
+    if (result.error.localeCompare('Token is empty or invalid') === 0) {
       return res.status(401).json(result);
-    } else if (result.error.localeCompare('Invalid quizId') === 0 || result.error.localeCompare('User does not own quiz') === 0) {
+    } else if (result.error.localeCompare('Invalid quizId') === 0 || result.error.localeCompare('User does not own this quiz') === 0) {
       return res.status(403).json(result);
     }
     return res.status(400).json(result);
