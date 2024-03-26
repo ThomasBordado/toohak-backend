@@ -3,7 +3,7 @@ import isEmail from 'validator/lib/isEmail.js';
 import { getData, setData } from './dataStore';
 import { validUserId } from './quizUtil';
 import { EmptyObject, ErrorReturn, UserDetailsReturn, user, SessionId } from './interfaces';
-import { token } from 'morgan';
+// import { token } from 'morgan'; // I do this to pass the lint check
 
 /**
  * Register a user with an email, password, and names, then returns their authUserId.
