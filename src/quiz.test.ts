@@ -15,7 +15,7 @@ describe('adminQuizList testing', () => {
     test('Invalid AuthUserId', () => {
       requestQuizCreate(user.token, 'My Quiz', 'My description.');
       const result = requestQuizList(user.token + 1);
-      expect(result.jsonBody).toStrictEqual({ error: 'cow' });
+      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
       expect(result.statusCode).toStrictEqual(401);
     });
   });
@@ -213,13 +213,13 @@ describe('adminQuizInfo testing', () => {
 
   describe('Unsuccessful Cases', () => {
     test('Invalid AuthUserId', () => {
-      let result = requestQuizInfo(user.token + 1, quiz.quizId);
-      const actual = (result.jsonBody as SessionId);
-      expect(actual).toStrictEqual({ error: expect.any(String) });
+      const result = requestQuizInfo(user.token + 1, quiz.quizId);
+      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
       expect(result.statusCode).toStrictEqual(401);
     });
     test('Invalid quizId', () => {
-      expect(requestQuizInfo(user.token, quiz.quizId + 1)).toStrictEqual({ error: expect.any(String) });
+      expect(requestQuizInfo(user.token, quiz.quizId + 1).jsonBody).toStrictEqual({ error: expect.any(String) });
+      
     });
     test('User does not own quiz with given quizId', () => {
       const user2 = requestRegister('ethanm@gmail.com', 'password12', 'Ethanm', 'EMcGregor').jsonBody as SessionId;
@@ -237,13 +237,15 @@ describe('adminQuizInfo testing', () => {
   });
   describe('Successful cases', () => {
     test('Return correct object containing quiz info', () => {
-      expect(requestQuizInfo(user.token, quiz.quizId)).toStrictEqual({
+      const result = requestQuizInfo(user.token, quiz.quizId);
+      expect(result.jsonBody).toStrictEqual({
         quizId: quiz.quizId,
         name: 'My Quiz',
         timeCreated: expect.any(Number),
         timeLastEdited: expect.any(Number),
         description: 'My description.',
       });
+      expect(result.statusCode).toStrictEqual(200);
     });
   });
 });
@@ -278,7 +280,7 @@ describe('adminQuizNameUpdate testing', () => {
       requestQuizCreate(user2.token, 'My Quiz', 'My description.');
       const result = requestUpdateQuizName(user2.token, quiz.quizId, 'Ethans quiz');
       expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-      expect(result.statusCode).toStrictEqual(400);
+      expect(result.statusCode).toStrictEqual(403);
     });
     test('Invalid name: Contains non-alphanumeric characters', () => {
       const result = requestUpdateQuizName(user.token, quiz.quizId, 'My Quiz!');
@@ -310,7 +312,9 @@ describe('adminQuizNameUpdate testing', () => {
 
   describe('Successful cases', () => {
     test('Return correct object containing quiz info', () => {
-      expect(requestUpdateQuizName(user.token, quiz.quizId, 'Ethansquiz')).toStrictEqual({});
+      const result = requestUpdateQuizName(user.token, quiz.quizId, 'Ethansquiz');
+      expect(result.jsonBody).toStrictEqual({});
+      expect(result.statusCode).toStrictEqual(200);
     });
     // test('names have been correctly updated', () => {
     //   let data = getData();
@@ -319,7 +323,9 @@ describe('adminQuizNameUpdate testing', () => {
     // });
     test('successfully change single name', () => {
       requestUpdateQuizName(user.token, quiz.quizId, 'Ethansquiz');
-      expect(requestQuizList(user.token)).toStrictEqual({ quizzes: [{ quizId: quiz.quizId, name: 'Ethansquiz' }] });
+      const result = requestQuizList(user.token);
+      expect(result.jsonBody).toStrictEqual({ quizzes: [{ quizId: quiz.quizId, name: 'Ethansquiz' }] });
+      expect(result.statusCode).toStrictEqual(200);
     });
     test('successfully change multiple names', () => {
       const quiz2 = requestQuizCreate(user.token, 'My Second Quiz', 'My Second description.').jsonBody as quizId;

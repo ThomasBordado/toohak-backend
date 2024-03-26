@@ -115,11 +115,11 @@ app.put('/v1/admin/quiz/:quizid/name', (req: Request, res: Response) => {
   if ('error' in result) {
     if (result.error.localeCompare('Token is empty or invalid') === 0) {
       return res.status(401).json(result);
-    }
-    if (result.error.localeCompare('Quiz name must be between 3 and 30 characters') === 0 || result.error.localeCompare('Name can only contain alphanumeric characters and spaces') === 0 || result.error.localeCompare('Quiz name previously used by user') === 0) {
-      return res.status(400).json(result);
-    }
-    return res.status(403).json(result);
+    } else if (result.error.localeCompare('Invalid quizId') === 0 || result.error.localeCompare('User does not own quiz') === 0) {
+      return res.status(403).json(result);
+    } 
+    return res.status(400).json(result);
+    
   }
   res.json(result);
 });
