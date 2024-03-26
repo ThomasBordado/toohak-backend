@@ -119,7 +119,7 @@ export const adminUserDetails = (authUserId: number): UserDetailsReturn | ErrorR
  *
  * @returns {} - For updated user details
  */
-export const adminUserDetailsUpdate = (token: string, email: string, nameFirst: string, nameLast: string): EmptyObject | ErrorReturn => {
+export const adminUserDetailsUpdate = (token: SessionId, email: string, nameFirst: string, nameLast: string): EmptyObject | ErrorReturn => {
   // 1. Check if AuthUserId is a valid user
   if (!isValidToken(token)) {
     return { error: 'Token is empty or invalid' };
@@ -149,7 +149,7 @@ export const adminUserDetailsUpdate = (token: string, email: string, nameFirst: 
   // 6. Update the data
   const data = getData();
   for (const users of data.users) {
-    if (users.sessions.includes(parseInt(token))) {
+    if (users.sessions.includes(parseInt(token.token))) {
       users.email = email;
       users.nameFirst = nameFirst;
       users.nameLast = nameLast;
@@ -167,14 +167,14 @@ export const adminUserDetailsUpdate = (token: string, email: string, nameFirst: 
 * @param {string} newPassword - the new password
 * @return {} - the password been updated
 */
-export const adminUserPasswordUpdate = (authUserId: number, oldPassword: string, newPassword: string): EmptyObject | ErrorReturn => {
+export const adminUserPasswordUpdate = (token: SessionId, oldPassword: string, newPassword: string): EmptyObject | ErrorReturn => {
   // 1. Check if AuthUserId is valid
-  if (!isValidToken(authUserId.toString())) {
+  if (!isValidToken(token)) {
     return { error: 'AuthUserId is not a valid user.' };
   }
 
   // 2. Check if the old password is correct
-  if (!isPasswordCorrect(authUserId, oldPassword)) {
+  if (!isPasswordCorrect(1, oldPassword)) {
     return { error: 'Old Password is not the correct old password.' };
   }
 
@@ -184,7 +184,7 @@ export const adminUserPasswordUpdate = (authUserId: number, oldPassword: string,
   }
 
   // 4. Check if the password is used by this user
-  if (isNewPasswordUsed(authUserId, newPassword)) {
+  if (isNewPasswordUsed(1, newPassword)) {
     return { error: 'New Password has already been used before by this user.' };
   }
 
@@ -194,7 +194,7 @@ export const adminUserPasswordUpdate = (authUserId: number, oldPassword: string,
   }
 
   const data = getData();
-  const user = data.users.find(users => users.userId === authUserId);
+  const user = data.users.find(users => users.userId === 1);
   user.password = newPassword;
   user.prevpassword.push(oldPassword);
   setData(data);
