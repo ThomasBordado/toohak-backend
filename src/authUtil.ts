@@ -2,6 +2,7 @@ import isEmail from 'validator/lib/isEmail.js';
 import { getData } from './dataStore';
 import { ErrorReturn, UserId, user } from './interfaces';
 import { ErrorToken } from 'yaml/dist/parse/cst';
+import { loadData, saveData } from './t';
 /**
  * Check a given email. If valid return true and if the email
  * is in use or is invalid determined by validator return error object
@@ -92,6 +93,7 @@ export const isValidToken = (token: string): boolean => {
  * @return {Array} -users from data
  */
 export const usersList = (): user[] => {
+  loadData();
   const data = getData();
   return (data.users);
 };
