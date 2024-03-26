@@ -1,7 +1,6 @@
 import { requestRegister, requestLogin, requestClear, requestUpdateUserDetails } from './wrapper';
 import { usersList, getUserId } from './authUtil';
 import { SessionId, UserId, user } from './interfaces';
-import { Token } from 'yaml/dist/parse/cst';
 
 beforeEach(() => {
   requestClear();
@@ -234,7 +233,7 @@ describe('requestUpdateUserDetails', () => {
 
   // 3. Testing for behaviors
   // one user
-  test('requestUpdateUserDetails one user', () => { 
+  test('requestUpdateUserDetails one user', () => {
     requestUpdateUserDetails(data.token, 'validemail1@gmail.com', 'Jennifer', 'Lawson');
     const result = usersList().sort((a, b) => a.userId - b.userId);
     const userId = getUserId(data.token) as UserId;

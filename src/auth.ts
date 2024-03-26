@@ -1,9 +1,9 @@
-import { checkEmail, checkPassword, checkName, isValidToken, isSame, isPasswordCorrect, isNewPasswordUsed, isEmailUsedByOther, usersList } from './authUtil';
+import { checkEmail, checkPassword, checkName, isValidToken, isSame, isPasswordCorrect, isNewPasswordUsed, isEmailUsedByOther } from './authUtil';
 import isEmail from 'validator/lib/isEmail.js';
 import { getData, setData } from './dataStore';
 import { validUserId } from './quizUtil';
 import { EmptyObject, ErrorReturn, UserDetailsReturn, user, SessionId } from './interfaces';
-import { loadData } from './p';
+// import { loadData } from './p';
 
 /**
  * Register a user with an email, password, and names, then returns their authUserId.
@@ -120,7 +120,7 @@ export const adminUserDetails = (authUserId: number): UserDetailsReturn | ErrorR
  * @returns {} - For updated user details
  */
 export const adminUserDetailsUpdate = (token: string, email: string, nameFirst: string, nameLast: string): EmptyObject | ErrorReturn => {
-    // 1. Check if AuthUserId is a valid user
+  // 1. Check if AuthUserId is a valid user
   if (!isValidToken(token)) {
     return { error: 'Token is empty or invalid' };
   }
