@@ -38,13 +38,13 @@ app.get('/echo', (req: Request, res: Response) => {
 
 app.get('/v1/admin/userdetails', (req: Request, res: Response) => {
   const token = parseInt(req.query.token as string);
-  const response = adminUserDetails(token)
+  const response = adminUserDetails(token);
   if ('error' in response) {
     return res.status(401).json(response);
   }
   res.json(response);
 }
-)
+);
 // ====================================================================
 //  ================= WORK IS DONE ABOVE THIS LINE ===================
 // ====================================================================
