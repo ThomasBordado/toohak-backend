@@ -1,4 +1,4 @@
-import { requestRegister, requestLogin, requestClear } from './wrapper';
+import { requestRegister, requestLogin, requestClear, requestGetUserDetails } from './wrapper';
 // import { usersList } from './authUtil';
 import { SessionId } from './interfaces';
 
@@ -176,10 +176,10 @@ describe('Test adminAuthLogin', () => {
 describe('Test adminUserDetails', () => {
   // 1. Succesful return of account details
   test('Test succesful get user details', () => {
-    const user1 = adminAuthRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith') as UserId;
-    const result = adminUserDetails(user1.authUserId);
+    const user1 = requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith').jsonBody as SessionId;
+    const result = requestGetUserDetails(user1.token);
     const user = {
-      userId: user1.authUserId,
+      userId: user1.token,
       name: 'Hayden Smith',
       email: 'hayden.smith@unsw.edu.au',
       numSuccessfulLogins: 1,
@@ -191,8 +191,10 @@ describe('Test adminUserDetails', () => {
 
   // 2. Invalid authUserId
   test('Test Invalid User ID', () => {
-    const user1 = adminAuthRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith') as UserId;
-    expect(adminUserDetails(user1.authUserId + 1)).toStrictEqual({ error: expect.any(String) });
+    const user1 = requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith').jsonBody as SessionId;
+    const result = requestGetUserDetails(user1.token + 1);
+    expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
+    expect(result.statusCode).toStrictEqual(401);
   });
 });
 */
