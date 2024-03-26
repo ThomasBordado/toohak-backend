@@ -13,8 +13,8 @@ describe('Test adminAuthRegister', () => {
     const response2 = requestRegister('thomas.bordado@unsw.edu.au', 'password2', 'Thomas', 'Bordado');
     const user1 = (response1.jsonBody as SessionId);
     const user2 = (response2.jsonBody as SessionId);
-    expect(user1).toStrictEqual({ sessionId: expect.any(Number) });
-    expect(user2).toStrictEqual({ sessionId: expect.any(Number) });
+    expect(user1).toStrictEqual({ token: expect.any(String) });
+    expect(user2).toStrictEqual({ token: expect.any(String) });
     expect(user1).not.toStrictEqual(user2);
     expect(response1.statusCode).toStrictEqual(200);
     expect(response2.statusCode).toStrictEqual(200);
@@ -24,7 +24,7 @@ describe('Test adminAuthRegister', () => {
   test('Test email in use adminAuthRegister', () => {
     let response = requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith');
     const user = (response.jsonBody as SessionId);
-    expect(user).toStrictEqual({ sessionId: expect.any(Number) });
+    expect(user).toStrictEqual({ token: expect.any(String) });
     expect(response.statusCode).toStrictEqual(200);
     response = requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith');
     const error = response.jsonBody;
@@ -109,7 +109,7 @@ describe('Test adminAuthLogin', () => {
   test('Test successful login', () => {
     requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith');
     const res = requestLogin('hayden.smith@unsw.edu.au', 'password1');
-    expect(res.jsonBody).toStrictEqual({ sessionId: expect.any(Number) });
+    expect(res.jsonBody).toStrictEqual({ token: expect.any(String) });
     expect(res.statusCode).toStrictEqual(200);
   });
 
@@ -120,7 +120,7 @@ describe('Test adminAuthLogin', () => {
     expect(res.statusCode).toStrictEqual(400);
     requestRegister('thomas@gmail.com', 'password1', 'Thomas', 'Bordado');
     res = requestLogin('thomas@gmail.com', 'password1');
-    expect(res.jsonBody).toStrictEqual({ sessionId: expect.any(Number) });
+    expect(res.jsonBody).toStrictEqual({ token: expect.any(String) });
     expect(res.statusCode).toStrictEqual(200);
   });
 
@@ -134,14 +134,14 @@ describe('Test adminAuthLogin', () => {
 
   // 4. Incorrect Password for given email.
   test('Test login to two different sessions', () => {
-    expect(requestRegister('thomas@gmail.com', 'password1', 'Thomas', 'Bordado').jsonBody).toStrictEqual({ sessionId: expect.any(Number) });
+    expect(requestRegister('thomas@gmail.com', 'password1', 'Thomas', 'Bordado').jsonBody).toStrictEqual({ token: expect.any(String) });
     const res1 = requestLogin('thomas@gmail.com', 'password1');
     const res2 = requestLogin('thomas@gmail.com', 'password1');
-    expect(res1.jsonBody).toStrictEqual({ sessionId: expect.any(Number) });
-    expect(res2.jsonBody).toStrictEqual({ sessionId: expect.any(Number) });
+    expect(res1.jsonBody).toStrictEqual({ token: expect.any(String) });
+    expect(res2.jsonBody).toStrictEqual({ token: expect.any(String) });
     expect(res1.statusCode).toStrictEqual(200);
     expect(res2.statusCode).toStrictEqual(200);
-    expect(res1.jsonBody.sessionId).not.toStrictEqual(res2.jsonBody.sessionId);
+    expect(res1.jsonBody.token).not.toStrictEqual(res2.jsonBody.token);
   });
 
   /* test('Test numSuccessfulLogins and numFailedPasswordsSinceLastLogin', () => {

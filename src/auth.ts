@@ -11,7 +11,7 @@ import { EmptyObject, ErrorReturn, UserDetailsReturn, user, SessionId } from './
  * @param {string} nameFirst - User's first name
  * @param {string} nameLast - User's last name
  *
- * @returns {sessionId: number} - unique identifier for a session, registering with email, password and name.
+ * @returns {token: string} - unique identifier for a session, registering with email, password and name.
  */
 export const adminAuthRegister = (email: string, password: string, nameFirst: string, nameLast: string): SessionId | ErrorReturn => {
   if (checkEmail(email) !== true) {
@@ -43,7 +43,7 @@ export const adminAuthRegister = (email: string, password: string, nameFirst: st
 
   data.users.push(newUser);
   return {
-    sessionId: sessionId
+    token: sessionId.toString()
   };
 };
 
@@ -52,7 +52,7 @@ export const adminAuthRegister = (email: string, password: string, nameFirst: st
  * @param {string} email - User's email
  * @param {string} password - User's password
  *
- * @returns {sessionId: number} - unique identifier for a user, given email and password
+ * @returns {sessionId: string} - unique identifier for a user session, given email and password
  */
 export const adminAuthLogin = (email: string, password: string): SessionId | ErrorReturn => {
   const users = getData().users;
@@ -69,7 +69,7 @@ export const adminAuthLogin = (email: string, password: string): SessionId | Err
     const sessionId = getData().sessionIdStore += 1;
     user.sessions.push(sessionId);
     return {
-      sessionId: sessionId
+      token: sessionId.toString()
     };
   } else if (user && user.password !== password) {
     user.numFailedPasswordsSinceLastLogin++;
