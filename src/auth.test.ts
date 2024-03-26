@@ -1,4 +1,4 @@
-import { requestRegister, requestLogin, requestClear, requestGetUserDetails } from './wrapper';
+import { requestRegister, requestLogin, requestClear } from './wrapper';
 // import { usersList } from './authUtil';
 import { SessionId } from './interfaces';
 
