@@ -118,7 +118,7 @@ export const adminUserDetails = (authUserId: number): UserDetailsReturn | ErrorR
  *
  * @returns {} - For updated user details
  */
-export const adminUserDetailsUpdate = (token: SessionId, email: string, nameFirst: string, nameLast: string): EmptyObject | ErrorReturn => {
+export const adminUserDetailsUpdate = (token: string, email: string, nameFirst: string, nameLast: string): EmptyObject | ErrorReturn => {
   // 1. Check if AuthUserId is a valid user
   if (!isValidToken(token)) {
     return { error: 'AuthUserId is not a valid user.' };
@@ -148,7 +148,7 @@ export const adminUserDetailsUpdate = (token: SessionId, email: string, nameFirs
   // 6. Update the data
   const data = getData();
   for (const users of data.users) {
-    if (users.sessions.includes(parseInt(token.token))) {
+    if (users.sessions.includes(parseInt(token))) {
       users.email = email;
       users.nameFirst = nameFirst;
       users.nameLast = nameLast;
@@ -166,7 +166,7 @@ export const adminUserDetailsUpdate = (token: SessionId, email: string, nameFirs
 * @param {string} newPassword - the new password
 * @return {} - the password been updated
 */
-export const adminUserPasswordUpdate = (token: SessionId, oldPassword: string, newPassword: string): EmptyObject | ErrorReturn => {
+export const adminUserPasswordUpdate = (token: string, oldPassword: string, newPassword: string): EmptyObject | ErrorReturn => {
   // 1. Check if AuthUserId is valid
   if (!isValidToken(token)) {
     return { error: 'AuthUserId is not a valid user.' };
@@ -193,7 +193,7 @@ export const adminUserPasswordUpdate = (token: SessionId, oldPassword: string, n
   }
 
   const data = getData();
-  const user = data.users.find(users => users.sessions.includes(parseInt(token.token)));
+  const user = data.users.find(users => users.sessions.includes(parseInt(token)));
   user.password = newPassword;
   user.prevpassword.push(oldPassword);
   setData(data);

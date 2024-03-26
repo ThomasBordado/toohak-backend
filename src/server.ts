@@ -11,6 +11,7 @@ import process from 'process';
 import { clear } from './other';
 import { adminQuizList, adminQuizCreate, adminQuizRemove } from './quiz';
 import { adminAuthLogin, adminAuthRegister, adminUserPasswordUpdate } from './auth';
+import { loadData, saveData } from './p';
 
 // Set up web app
 const app = express();
@@ -40,8 +41,9 @@ app.get('/echo', (req: Request, res: Response) => {
 
 app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
   const { email, password, nameFirst, nameLast } = req.body;
+  loadData();
   const response = adminAuthRegister(email, password, nameFirst, nameLast);
-
+  saveData();
   if ('error' in response) {
     return res.status(400).json(response);
   }
@@ -50,8 +52,9 @@ app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
 
 app.post('/v1/admin/auth/login', (req: Request, res: Response) => {
   const { email, password } = req.body;
+  loadData();
   const response = adminAuthLogin(email, password);
-
+  saveData();
   if ('error' in response) {
     return res.status(400).json(response);
   }
@@ -60,7 +63,9 @@ app.post('/v1/admin/auth/login', (req: Request, res: Response) => {
 
 app.put('/v1/admin/user/password', (req: Request, res: Response) => {
   const { token, oldPassword, newPassword } = req.body;
+  loadData();
   const response = adminUserPasswordUpdate(token, oldPassword, newPassword);
+  saveData();
   if ('error' in response) {
     if (response.error === 'Token is empty or invalid') {
       return res.status(401).json(response);
@@ -135,9 +140,11 @@ app.use((req: Request, res: Response) => {
 const server = app.listen(PORT, HOST, () => {
   // DO NOT CHANGE THIS LINE
   console.log(`⚡️ Server started on port ${PORT} at ${HOST}`);
+  loadData();
 });
 
 // For coverage, handle Ctrl+C gracefully
 process.on('SIGINT', () => {
   server.close(() => console.log('Shutting down server gracefully.'));
+  saveData();
 });

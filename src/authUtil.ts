@@ -1,6 +1,8 @@
 import isEmail from 'validator/lib/isEmail.js';
 import { getData } from './dataStore';
-import { SessionId, user } from './interfaces';
+import { SessionId, user, UserId, ErrorReturn } from './interfaces';
+import { Token } from 'yaml/dist/parse/cst';
+import { loadData } from './t';
 /**
  * Check a given email. If valid return true and if the email
  * is in use or is invalid determined by validator return error object
@@ -68,18 +70,18 @@ export const checkName = (name: string, position: string) => {
 
 /**
  * Given an authUserId and check if it's exists in the user list
- * @param {number} authUserId - unique identifier for an academic
+ * @param {number} token - unique identifier for an academic
  *
  * @return {boolean} -if Id is valid reutrn true, else return false
  */
-export const isValidToken = (token: SessionId): boolean => {
+export const isValidToken = (token: string): boolean => {
   const data = getData();
   if (data.users.length === 0) {
     return false;
   }
 
   for (const users of data.users) {
-    if (users.sessions.includes(parseInt(token.token))) {
+    if (users.sessions.includes(parseInt(token))) {
       return true;
     }
   }
@@ -92,6 +94,7 @@ export const isValidToken = (token: SessionId): boolean => {
  * @return {Array} -users from data
  */
 export const usersList = (): user[] => {
+  loadData();
   const data = getData();
   return (data.users);
 };
@@ -111,14 +114,14 @@ export const isSame = (a: string, b: string): boolean => {
 
 /**
  * Given the UserId and a password, check if the entered password correct
- * @param {number} authUserId - unique Id for user
+ * @param {string} token - unique Id for user
  * @param {string} enterdPassword - the password entered
  *
  * @returns {boolean} - return false if password isn't correct
  */
-export const isPasswordCorrect = (token: SessionId, enterdPassword: string): boolean => {
+export const isPasswordCorrect = (token: string, enterdPassword: string): boolean => {
   const data = getData();
-  const user = data.users.find(users => users.sessions.includes(parseInt(token.token)));
+  const user = data.users.find(users => users.sessions.includes(parseInt(token)));
   if (user.password === enterdPassword) {
     return true;
   } else {
@@ -129,13 +132,13 @@ export const isPasswordCorrect = (token: SessionId, enterdPassword: string): boo
 /**
  * Given the UserId and new password, check if it's used before by this user
  * @param {string} newPassword -the new password
- * @param {string} authUserId - unique Id for authUser
+ * @param {string} token - unique Id for authUser
  *
  * @return {boolean} - return false if the new password is not used before by the user
  */
-export const isNewPasswordUsed = (token: SessionId, newPassword: string): boolean => {
+export const isNewPasswordUsed = (token: string, newPassword: string): boolean => {
   const data = getData();
-  const user = data.users.find(users => users.sessions.includes(parseInt(token.token)));
+  const user = data.users.find(users => users.sessions.includes(parseInt(token)));
 
   // If prevpassword is empty
   if (user.prevpassword.length === 0) {
@@ -156,17 +159,29 @@ export const isNewPasswordUsed = (token: SessionId, newPassword: string): boolea
  *
  * @returns {boolean} - False if it is a used email.
  */
-export const isEmailUsedByOther = (email: string, token: SessionId): boolean => {
+export const isEmailUsedByOther = (email: string, token: string): boolean => {
   const data = getData();
 
   if (data.users.length === 0) {
     return false;
   }
 
-  const userWithSameEmail = data.users.find(users => users.email === email && !users.sessions.includes(parseInt(token.token)));
+  const userWithSameEmail = data.users.find(users => users.email === email && !users.sessions.includes(parseInt(token)));
   if (userWithSameEmail) {
     return true;
   }
 
   return false;
 };
+
+/**
+ * 
+ */
+export const getUserId = (token: string): UserId | ErrorReturn => {
+	const data = getData();
+	const user = data.users.find(users => users.sessions.includes(parseInt(token)));
+	if (user) {
+		return { authUserId: user.userId };
+	}
+	return {error: 'invalid token'}
+}
