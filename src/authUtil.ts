@@ -1,6 +1,7 @@
 import isEmail from 'validator/lib/isEmail.js';
 import { getData } from './dataStore';
-import { SessionId, user } from './interfaces';
+import { ErrorReturn, UserId, user } from './interfaces';
+import { ErrorToken } from 'yaml/dist/parse/cst';
 /**
  * Check a given email. If valid return true and if the email
  * is in use or is invalid determined by validator return error object
@@ -72,13 +73,13 @@ export const checkName = (name: string, position: string) => {
  *
  * @return {boolean} -if Id is valid reutrn true, else return false
  */
-export const isValidToken = (token: SessionId): boolean => {
+export const isValidToken = (token: string): boolean => {
   const data = getData();
   if (data.users.length === 0) {
     return false;
   }
   for (const users of data.users) {
-    if (users.sessions.includes(parseInt(token.token))) {
+    if (users.sessions.includes(parseInt(token))) {
       return true;
     }
   }
@@ -155,17 +156,29 @@ export const isNewPasswordUsed = (authUserId: number, newPassword: string): bool
  *
  * @returns {boolean} - False if it is a used email.
  */
-export const isEmailUsedByOther = (email: string, token: SessionId): boolean => {
+export const isEmailUsedByOther = (email: string, token: string): boolean => {
   const data = getData();
 
   if (data.users.length === 0) {
     return false;
   }
 
-  const userWithSameEmail = data.users.find(users => users.email === email && !users.sessions.includes(parseInt(token.token)));
+  const userWithSameEmail = data.users.find(users => users.email === email && !users.sessions.includes(parseInt(token)));
   if (userWithSameEmail) {
     return true;
   }
 
   return false;
 };
+
+/**
+ * 
+ */
+export const getUserId = (token: string): UserId | ErrorReturn => {
+	const data = getData();
+	const user = data.users.find(users => users.sessions.includes(parseInt(token)));
+	if (user) {
+		return { authUserId: user.userId };
+	}
+	return {error: 'invalid token'}
+}
