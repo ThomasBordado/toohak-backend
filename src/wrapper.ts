@@ -113,7 +113,7 @@ export const requestUpdateQuizDescription = (token: string, description: string,
 };
 
 export const requestLogout = (token: string) => {
-  return requestHelper('POST', `/v1/admin/auth/logout`, { token });
+  return requestHelper('POST', '/v1/admin/auth/logout', { token });
 };
 
 export const requestClear = () => {
