@@ -8,13 +8,15 @@ import sui from 'swagger-ui-express';
 import fs from 'fs';
 import path from 'path';
 import process from 'process';
-import { adminUserDetails } from './auth';
+import { clear } from './other';
+import { adminQuizList, adminQuizCreate, adminQuizRemove } from './quiz';
+import { adminAuthLogin, adminAuthRegister, adminUserDetails } from './auth';
 
 // Set up web app
 const app = express();
 // Use middleware that allows us to access the JSON body of requests
 app.use(json());
-// Use middleware that allows for access from other domains
+// Use middleware that allows for access from other dosmains
 app.use(cors());
 // for logging errors (print to terminal)
 app.use(morgan('dev'));
@@ -24,7 +26,7 @@ app.get('/', (req: Request, res: Response) => res.redirect('/docs'));
 app.use('/docs', sui.serve, sui.setup(YAML.parse(file), { swaggerOptions: { docExpansion: config.expandDocs ? 'full' : 'list' } }));
 
 const PORT: number = parseInt(process.env.PORT || config.port);
-const HOST: string = process.env.IP || 'localhost';
+const HOST: string = process.env.IP || '127.0.0.1';
 
 // ====================================================================
 //  ================= WORK IS DONE BELOW THIS LINE ===================
@@ -36,15 +38,76 @@ app.get('/echo', (req: Request, res: Response) => {
   return res.json(echo(data));
 });
 
-app.get('/v1/admin/userdetails', (req: Request, res: Response) => {
+app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
+  const { email, password, nameFirst, nameLast } = req.body;
+  const response = adminAuthRegister(email, password, nameFirst, nameLast);
+
+  if ('error' in response) {
+    return res.status(400).json(response);
+  }
+  res.json(response);
+});
+
+app.post('/v1/admin/auth/login', (req: Request, res: Response) => {
+  const { email, password } = req.body;
+  const response = adminAuthLogin(email, password);
+
+  if ('error' in response) {
+    return res.status(400).json(response);
+  }
+  res.json(response);
+});
+
+app.get('/v1/admin/user/details', (req: Request, res: Response) => {
   const token = parseInt(req.query.token as string);
   const response = adminUserDetails(token);
   if ('error' in response) {
     return res.status(401).json(response);
   }
   res.json(response);
-}
-);
+});
+
+app.get('/v1/admin/quiz/list', (req: Request, res: Response) => {
+  const token = parseInt(req.query.token as string);
+  const result = adminQuizList(token);
+  if ('error' in result) {
+    return res.status(401).json(result);
+  }
+  res.json(result);
+});
+
+app.post('/v1/admin/quiz', (req: Request, res: Response) => {
+  // Everything in req.body will be of the correct type
+  const token = parseInt(req.body.token as string);
+  const { name, description } = req.body;
+  const result = adminQuizCreate(token, name, description);
+  if ('error' in result) {
+    if (result.error.localeCompare('Token is empty or invalid') === 0) {
+      return res.status(401).json(result);
+    }
+    return res.status(400).json(result);
+  }
+  res.json(result);
+});
+
+app.delete('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
+  const token = parseInt(req.query.token as string);
+  const quizId = parseInt(req.params.quizid as string);
+  const result = adminQuizRemove(token, quizId);
+  if ('error' in result) {
+    if (result.error.localeCompare('Token is empty or invalid') === 0) {
+      return res.status(401).json(result);
+    }
+    return res.status(403).json(result);
+  }
+  res.json(result);
+});
+
+app.delete('/v1/clear', (req: Request, res: Response) => {
+  const response = clear();
+  res.json(response);
+});
+
 // ====================================================================
 //  ================= WORK IS DONE ABOVE THIS LINE ===================
 // ====================================================================

@@ -21,6 +21,8 @@ export interface user {
   numSuccessfulLogins: number;
   numFailedPasswordsSinceLastLogin: number;
   quizzes: quizUser[];
+  sessions: number[];
+  trash: quiz[];
 }
 export type EmptyObject = Record<string, never>;
 
@@ -40,6 +42,10 @@ export interface UserId {
   authUserId: number;
 }
 
+export interface SessionId {
+  token: string;
+}
+
 export interface UserDetailsReturn {
   user: UserDetails;
 }
@@ -57,4 +63,5 @@ export interface DataStore {
   quizzes: quiz[];
   userIdStore: number;
   quizIdStore: number;
+  sessionIdStore: number;
 }

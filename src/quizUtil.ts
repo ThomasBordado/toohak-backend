@@ -2,7 +2,7 @@ import { quizUser, user } from './interfaces';
 
 /**
  * Check if AuthUserId is valid.
- * @param {number} AuthUserId - unique identifier for an academic
+ * @param {number} token - unique identifier for a session
  * @param {
  *  Array <{userId: number,
  *    nameFirst: string,
@@ -30,19 +30,18 @@ import { quizUser, user } from './interfaces';
  *    name: string
  *   }>
  *  }
- * } - for valid AuthUserId
-  * @returns {error: string}} - for invalid AuthUserId
+ * } - for valid sessionId
+  * @returns {error: string}} - for invalid sessionId
   */
-export const validUserId = (authUserId: number, userData: user[]) => {
-  // searches for authUserId and returns user if found
+export const validUserId = (token: number, userData: user[]) => {
+  // searches for sessionId and returns user if found
   for (const user of userData) {
-    if (user.userId === authUserId) {
+    if (user.sessions.includes(token)) {
       return user;
     }
   }
-
   // returns error if not found
-  return { error: 'Invalid AuthUserId' };
+  return { error: 'Token is empty or invalid' };
 };
 
 /**

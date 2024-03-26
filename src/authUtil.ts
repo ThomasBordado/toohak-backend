@@ -1,6 +1,6 @@
 import isEmail from 'validator/lib/isEmail.js';
 import { getData } from './dataStore';
-import { user } from './interfaces';
+import { ErrorReturn, UserId, user } from './interfaces';
 /**
  * Check a given email. If valid return true and if the email
  * is in use or is invalid determined by validator return error object
@@ -169,4 +169,13 @@ export const isEmailUsedByOther = (email: string, authUserId: number): boolean =
   }
 
   return false;
+};
+
+export const getUserId = (token: string): UserId | ErrorReturn => {
+  const data = getData();
+  const user = data.users.find(users => users.sessions.includes(parseInt(token)));
+  if (user) {
+    return { authUserId: user.userId };
+  }
+  return { error: 'invalid token' };
 };
