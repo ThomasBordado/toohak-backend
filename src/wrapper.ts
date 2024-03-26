@@ -117,5 +117,5 @@ export const requestClear = () => {
 };
 
 export const requestQuizRestore = (token: number, quizId: number) => {
-  return requestHelper('GET', `/v1/admin/quiz/${quizId}/restore`, { token });
+  return requestHelper('POST', `/v1/admin/quiz/${quizId}/restore`, { token });
 };
