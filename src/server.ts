@@ -110,8 +110,8 @@ app.get('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
 app.put('/v1/admin/quiz/:quizid/name', (req: Request, res: Response) => {
   const quizId = parseInt(req.params.quizid as string);
   const token = parseInt(req.body.token as string);
-  const { description } = req.body;
-  const result = adminQuizNameUpdate(token, quizId, description);
+  const { name } = req.body;
+  const result = adminQuizNameUpdate(token, quizId, name);
   if ('error' in result) {
     if (result.error.localeCompare('Token is empty or invalid') === 0) {
       return res.status(401).json(result);
