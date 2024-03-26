@@ -72,13 +72,13 @@ export const checkName = (name: string, position: string) => {
  *
  * @return {boolean} -if Id is valid reutrn true, else return false
  */
-export const isValidToken = (token: string): boolean => {
+export const isValidToken = (token: SessionId): boolean => {
   const data = getData();
   if (data.users.length === 0) {
     return false;
   }
   for (const users of data.users) {
-    if (users.sessions.includes(parseInt(token))) {
+    if (users.sessions.includes(parseInt(token.token))) {
       return true;
     }
   }
@@ -155,14 +155,14 @@ export const isNewPasswordUsed = (authUserId: number, newPassword: string): bool
  *
  * @returns {boolean} - False if it is a used email.
  */
-export const isEmailUsedByOther = (email: string, token: string): boolean => {
+export const isEmailUsedByOther = (email: string, token: SessionId): boolean => {
   const data = getData();
 
   if (data.users.length === 0) {
     return false;
   }
 
-  const userWithSameEmail = data.users.find(users => users.email === email && !users.sessions.includes(parseInt(token)));
+  const userWithSameEmail = data.users.find(users => users.email === email && !users.sessions.includes(parseInt(token.token)));
   if (userWithSameEmail) {
     return true;
   }
