@@ -15,7 +15,7 @@ describe('adminQuizList testing', () => {
     test('Invalid AuthUserId', () => {
       requestQuizCreate(user.token, 'My Quiz', 'My description.');
       const result = requestQuizList(user.token + 1);
-      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
+      expect(result.jsonBody).toStrictEqual({ error: 'cow' });
       expect(result.statusCode).toStrictEqual(401);
     });
   });
@@ -213,8 +213,9 @@ describe('adminQuizInfo testing', () => {
 
   describe('Unsuccessful Cases', () => {
     test('Invalid AuthUserId', () => {
-      const result = requestQuizInfo(user.token + 1, quiz.quizId);
-      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
+      let result = requestQuizInfo(user.token + 1, quiz.quizId);
+      const actual = (result.jsonBody as SessionId);
+      expect(actual).toStrictEqual({ error: expect.any(String) });
       expect(result.statusCode).toStrictEqual(401);
     });
     test('Invalid quizId', () => {
