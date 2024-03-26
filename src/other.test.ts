@@ -1,36 +1,34 @@
-import { clear } from './other';
-import { adminAuthRegister, adminAuthLogin } from './auth';
-import { adminQuizList, adminQuizCreate } from './quiz';
-import { quizId, QuizListReturn, quizUser, UserId } from './interfaces';
+import { requestRegister, requestLogin, requestClear, requestQuizList, requestQuizCreate } from './wrapper';
+import { quizId, QuizListReturn, quizUser, SessionId } from './interfaces';
 
 beforeEach(() => {
-  clear();
+  requestClear();
 });
 
 test('Test clear registered user', () => {
-  expect(clear()).toStrictEqual({});
+  expect(requestClear().jsonBody).toStrictEqual({});
 
   // Register a user
-  const user = adminAuthRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith');
-  expect(user).toStrictEqual({ authUserId: expect.any(Number) });
+  const user = requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith');
+  expect(user.jsonBody).toStrictEqual({ token: expect.any(String) });
 
   // Login successfully
-  expect(adminAuthLogin('hayden.smith@unsw.edu.au', 'password1')).toStrictEqual(user);
+  expect(requestLogin('hayden.smith@unsw.edu.au', 'password1').jsonBody).toStrictEqual({ token: expect.any(String) });
 
   // Clear registered users
-  expect(clear()).toStrictEqual({});
+  expect(requestClear().jsonBody).toStrictEqual({});
 
   // Unsuccessful login because user doesnt exist anymore
-  expect(adminAuthLogin('hayden.smith@unsw.edu.au', 'password1')).toStrictEqual({ error: expect.any(String) });
+  expect(requestLogin('hayden.smith@unsw.edu.au', 'password1').jsonBody).toStrictEqual({ error: expect.any(String) });
 });
 
 // Add a test to clear quizzes when we are able to make quizzes.
 test('Test clear quizzes', () => {
-  let user = adminAuthRegister('haydensmith@gmail.com', 'password1', 'Tester', 'One') as UserId;
-  const quiz = adminQuizCreate(user.authUserId, 'My Quiz', 'My description.') as quizId;
-  const quiz2 = adminQuizCreate(user.authUserId, 'My Second Quiz', 'My description.') as quizId;
-  const quiz3 = adminQuizCreate(user.authUserId, 'My Third Quiz', 'My description.') as quizId;
-  const quizList = adminQuizList(user.authUserId) as QuizListReturn;
+  let user = requestRegister('haydensmith@gmail.com', 'password1', 'Tester', 'One').jsonBody;
+  const quiz = requestQuizCreate(user.token, 'My Quiz', 'My description.').jsonBody as quizId;
+  const quiz2 = requestQuizCreate(user.token, 'My Second Quiz', 'My description.').jsonBody as quizId;
+  const quiz3 = requestQuizCreate(user.token, 'My Third Quiz', 'My description.').jsonBody as quizId;
+  const quizList = requestQuizList(user.token).jsonBody as QuizListReturn;
   const expectedList = {
     quizzes: [
       {
@@ -52,9 +50,9 @@ test('Test clear quizzes', () => {
   expectedList.quizzes.sort((a: quizUser, b: quizUser) => a.quizId - b.quizId);
   expect(quizList).toStrictEqual(expectedList);
 
-  expect(clear()).toStrictEqual({});
+  expect(requestClear().jsonBody).toStrictEqual({});
 
-  expect(adminQuizList(user.authUserId)).toStrictEqual({ error: expect.any(String) });
-  user = adminAuthRegister('haydensmith@gmail.com', 'password1', 'Tester', 'One') as UserId;
-  expect(adminQuizList(user.authUserId)).toStrictEqual({ quizzes: [] });
+  expect(requestQuizList(user.token).jsonBody).toStrictEqual({ error: expect.any(String) });
+  user = requestRegister('haydensmith@gmail.com', 'password1', 'Tester', 'One').jsonBody as SessionId;
+  expect(requestQuizList(user.token).jsonBody).toStrictEqual({ quizzes: [] });
 });
