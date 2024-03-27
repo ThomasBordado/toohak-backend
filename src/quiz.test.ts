@@ -1,4 +1,4 @@
-import { requestRegister, requestQuizList, requestQuizCreate, requestQuizTrash, requestClear } from './wrapper';
+import { requestRegister, requestQuizList, requestQuizCreate, requestQuizTrash, requestquizTransfer, requestClear } from './wrapper';
 import { QuizListReturn, SessionId, quizId, quizUser } from './interfaces';
 
 beforeEach(() => {
@@ -363,109 +363,63 @@ describe('adminQuizRemove testing', () => {
 
 describe('Testing Post /v1/admin/quiz/{quizid}/transfer', () => {
   test('Correct status code and return value', () => {
-    const adminAuthRegisterResponse1 = request('POST', `${SERVER_URL}/v1/admin/auth/register`, {
-        json: { email: '', password: '', nameFirst: '', nameLast: '' }
-      });
-    const adminAuthRegisterJson1 = JSON.parse(adminAuthRegisterResponse1.body.toString());
+    const user1 = requestRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith').jsonBody as SessionId;
+    requestLogout(user1.token);
 
-    request('POST', `/v1/admin/auth/logout`, {
-      json: { token: adminAuthRegisterJson1.token }
-    });
+    const user2 = requestRegister('validemail2@gmail.com', '1234567a', 'Jennifer', 'Lawson').jsonBody as SessionId;
+    const quiz = requestQuizCreate(user2.token, 'My quiz Name', 'A description of my quiz').jsonBody as quizId;
 
-    const adminAuthRegisterResponse2 = request('POST', `${SERVER_URL}/v1/admin/auth/register`, {
-      json: { email: '', password: '', nameFirst: '', nameLast: '' }
-    });
-  const adminAuthRegisterJson2 = JSON.parse(adminAuthRegisterResponse2.body.toString());
-
-    const adminQuizCreateResponse = request('POST', `${SERVER_URL}/v1/admin/quiz`, {
-      json: { token: '', name: '', description: '' }
-    });
-    const adminQuizCreateJson = JSON.parse(adminQuizCreateResponse.body.toString());
-
-    const quizTransferResponse = request('POST', `${SERVER_URL}/v1/admin/quiz/${adminQuizCreateJson.quizid}/transfer`, {
-      json: {
-        tokem: adminAuthRegisterJson2.token,
-        userEmail: ''
-      }
-    });
-    const quizTransferJson = JSON.parse(quizTransferResponse.body.toString());
+    const quizTransferResponse = requestquizTransfer(user2.token, 'validemail2@gmail.com', quiz.quizId);
     expect(quizTransferResponse.statusCode).toStrictEqual(200);
-    expect(quizTransferJson).toStrictEqual({ });
+    expect(quizTransferResponse.jsonBody).toStrictEqual({ });
   });
 
   test('Error test for 400 error', () => {
+    const user1 = requestRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith').jsonBody as SessionId;
+    const quiz1 = requestQuizCreate(user1.token, 'My quiz Name1', 'A description of my quiz').jsonBody as quizId;
+    requestLogout(user1.token);
 
-    const adminAuthRegisterResponse1 = request('POST', `${SERVER_URL}/v1/admin/auth/register`, {
-      json: { email: '', password: '', nameFirst: '', nameLast: '' }
-    });
-    const adminAuthRegisterJson1 = JSON.parse(adminAuthRegisterResponse1.body.toString());
-
-    request('POST', `/v1/admin/auth/logout`, {
-      json: { token: adminAuthRegisterJson1.token }
-    });
-
-    const adminAuthRegisterResponse2 = request('POST', `${SERVER_URL}/v1/admin/auth/register`, {
-      json: { email: '', password: '', nameFirst: '', nameLast: '' }
-    });
-    const adminAuthRegisterJson2 = JSON.parse(adminAuthRegisterResponse2.body.toString());
-
-    const adminQuizCreateResponse = request('POST', `${SERVER_URL}/v1/admin/quiz`, {
-      json: { token: '', name: '', description: '' }
-    });
-    const adminQuizCreateJson = JSON.parse(adminQuizCreateResponse.body.toString());
+    const user2 = requestRegister('validemail2@gmail.com', '1234567a', 'Jennifer', 'Lawson').jsonBody as SessionId;
+    const quiz2 = requestQuizCreate(user2.token, 'My quiz Name2', 'A description of my quiz').jsonBody as quizId;
+    const quiz3 = requestQuizCreate(user2.token, 'My quiz Name1', 'A description of my quiz').jsonBody as quizId;
 
     test.each([
       {
-        token: adminAuthRegisterJson2.token,
-        userEmaill: '11111@qq.com'    // userEmail is not a real user
+        token: user2.token,
+        userEmaill: '11111@qq.com',    // userEmail is not a real user
+        quizid: quiz2.quizId,
       },
       {
-        token: adminAuthRegisterJson2.token,
-        userEmaill: ''                // userEmail is the current logged in user
+        token: user2.token,
+        userEmaill: 'validemail2@gmail.com',   // userEmail is the current logged in user
+        quizid: quiz2.quizId
       },
       {
-        token: adminAuthRegisterJson2.token,
-        userEmaill: ''                // Quiz ID refers to a quiz that has a name that is already used by the target user
+        token: user2.token,
+        userEmaill: 'validemail@gmail.com',    // Quiz ID refers to a quiz that has a name that is already used by the target user
+        quizid: quiz3.quizId
+
       },
       {
-        token: adminAuthRegisterJson2.token,
-        userEmaill: ''                // Any session for this quiz is not in END state
+        token: user2.token,
+        userEmaill: 'validemail@gmail.com'      // Any session for this quiz is not in END state
       },
     ])(
       'Error with token="$token", userEmail=$userEmail"',
-      ({ token, userEmaill }) => {
-        const quizTransfereResponse = request('POST', `${SERVER_URL}/v1/admin/quiz/${adminQuizCreateJson.quizid}/transfer`, {
-          json: { token, userEmaill }
-        });
-        expect(quizTransfereResponse.statusCode).toStrictEqual(400);
-        const quizTransfereJson = JSON.parse(quizTransfereResponse.body.toString());
-        expect(quizTransfereJson).toStrictEqual({ error: expect.any(String) });
+      ({ token, userEmaill, quizid }) => {
+        const quizTransferResponse = requestquizTransfer(token, userEmaill, quizid);
+        expect(quizTransferResponse.statusCode).toStrictEqual(400);
+        expect(quizTransferResponse.jsonBody).toStrictEqual({ error: expect.any(String) });
       });
   });
 
   test('Error test for 401 error', () => {
-    request('DELETE', `${SERVER_URL}/v1/clear`, {
-      qs: { }
-    });
+  requestClear();
+  const user1 = requestRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith').jsonBody as SessionId;
+    requestLogout(user1.token);
 
-  const adminAuthRegisterResponse1 = request('POST', `${SERVER_URL}/v1/admin/auth/register`, {
-    json: { email: '', password: '', nameFirst: '', nameLast: '' }
-  });
-  const adminAuthRegisterJson1 = JSON.parse(adminAuthRegisterResponse1.body.toString());
-
-  request('POST', `/v1/admin/auth/logout`, {
-    json: { token: adminAuthRegisterJson1.token }
-  });
-
-  const adminAuthRegisterResponse2 = request('POST', `${SERVER_URL}/v1/admin/auth/register`, {
-    json: { email: '', password: '', nameFirst: '', nameLast: '' }
-  });
-  const adminAuthRegisterJson2 = JSON.parse(adminAuthRegisterResponse2.body.toString());
-
-  const adminQuizCreateResponse = request('POST', `${SERVER_URL}/v1/admin/quiz`, {
-    json: { token: '', name: '', description: '' }
-  });
-  const adminQuizCreateJson = JSON.parse(adminQuizCreateResponse.body.toString());
+    const user2 = requestRegister('validemail2@gmail.com', '1234567a', 'Jennifer', 'Lawson').jsonBody as SessionId;
+    const quiz = requestQuizCreate(user2.token, 'My quiz Name', 'A description of my quiz').jsonBody as quizId;
 
   test.each([
     {
@@ -473,49 +427,27 @@ describe('Testing Post /v1/admin/quiz/{quizid}/transfer', () => {
       userEmaill: '11111@qq.com'     // Token is empty
     },
     {
-      token: '',
-      userEmaill: ''                 // Token is invalid (does not refer to valid logged in user session)
+      token: user1.token,
+      userEmaill: 'validemail@gmail.com'    // Token is invalid (does not refer to valid logged in user session)
     },
   ])(
     'Error with token="$token"',
     ({ token, userEmaill }) => {
-      const quizTransfereResponse = request('POST', `${SERVER_URL}/v1/admin/quiz/${adminQuizCreateJson.quizid}/transfer`, {
-        json: { token, userEmaill }
-      });
-      expect(quizTransfereResponse.statusCode).toStrictEqual(401);
-      const quizTransfereJson = JSON.parse(quizTransfereResponse.body.toString());
-      expect(quizTransfereJson).toStrictEqual({ error: expect.any(String) });
+      const quizTransferResponse = requestquizTransfer(token, userEmaill, quiz.quizId);
+      expect(quizTransferResponse.statusCode).toStrictEqual(401);
+      expect(quizTransferResponse.jsonBody).toStrictEqual({ error: expect.any(String) });
     });
   });
 
   test('Error test for 403 error, Valid token is provided, but user is not an owner of this quiz', () => {
-    const adminAuthRegisterResponse1 = request('POST', `${SERVER_URL}/v1/admin/auth/register`, {
-        json: { email: '', password: '', nameFirst: '', nameLast: '' }
-      });
-    const adminAuthRegisterJson1 = JSON.parse(adminAuthRegisterResponse1.body.toString());
+    const user1 = requestRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith').jsonBody as SessionId;
+    const quiz1 = requestQuizCreate(user1.token, 'My quiz Name1', 'A description of my quiz').jsonBody as quizId;
+    requestLogout(user1.token);
 
-    request('POST', `/v1/admin/auth/logout`, {
-      json: { token: adminAuthRegisterJson1.token }
-    });
+    const user2 = requestRegister('validemail2@gmail.com', '1234567a', 'Jennifer', 'Lawson').jsonBody as SessionId;
 
-    const adminAuthRegisterResponse2 = request('POST', `${SERVER_URL}/v1/admin/auth/register`, {
-      json: { email: '', password: '', nameFirst: '', nameLast: '' }
-    });
-  const adminAuthRegisterJson2 = JSON.parse(adminAuthRegisterResponse2.body.toString());
-
-    const adminQuizCreateResponse = request('POST', `${SERVER_URL}/v1/admin/quiz`, {
-      json: { token: '', name: '', description: '' }
-    });
-    const adminQuizCreateJson = JSON.parse(adminQuizCreateResponse.body.toString());
-
-    const quizTransferResponse = request('POST', `${SERVER_URL}/v1/admin/quiz/${adminQuizCreateJson.quizid}/transfer`, {
-      json: {
-        tokem: '',
-        userEmail: ''
-      }
-    });
-    const quizTransferJson = JSON.parse(quizTransferResponse.body.toString());
+    const quizTransferResponse = requestquizTransfer(user2.token, 'validemail@gmail.com', quiz1.quizId);
     expect(quizTransferResponse.statusCode).toStrictEqual(403);
-    expect(quizTransferJson).toStrictEqual({ error: expect.any(String) });
+    expect(quizTransferResponse.jsonBody).toStrictEqual({ error: expect.any(String) });
   });
 });
