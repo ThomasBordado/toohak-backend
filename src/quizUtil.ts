@@ -80,35 +80,51 @@ export const checkQuizName = (name: string, quizzesOwned: quizUser[]) => {
   return true;
 };
 
-export const checkQuestionValid = (quizQuestion: quizQuestionCreatInput, token: string) => {
+export const checkQuestionValid = (quizQuestion: quizQuestionCreatInput, quizId: number) => {
+  // Check the string length
   if (quizQuestion.questionBody.question.length < 5 || quizQuestion.questionBody.question.length > 50) {
     return { error: 'Question string is less than 5 characters in length or greater than 50 characters in length' };
   }
 
+  // Check the answer length
   if (quizQuestion.questionBody.answers.length > 6 || quizQuestion.questionBody.answers.length < 2) {
     return { error : 'The question has more than 6 answers or less than 2 answers'};
   }
 
+  // Check the duration
   if (quizQuestion.questionBody.duration <= 0) {
     return { error: 'The question duration is not a positive number' };
   }
 
+  // Calculate the sum of duration
   const data = getData();
-  const user = data.users.find(users => users.sessions.includes(parseInt(token)));
+  const quiz = data.quizzes.find(quizs => quizs.quizId === quizId);
   let sum = 0;
-  for(let i = 0, i < user.question.length) {
-
+  for (let i = 0; i < quiz.quizQuestions.length; i++) {
+    sum = sum + quiz.quizQuestions[i].duration;
   }
-  
-  return { error: 'The sum of the question durations in the quiz exceeds 3 minutes' };
+  sum = sum + quizQuestion.questionBody.duration;
+  if (sum > 180) {
+    return { error: 'The sum of the question durations in the quiz exceeds 3 minutes' };
+  }
 
+  // Check the point award
   if (quizQuestion.questionBody.points < 1 || quizQuestion.questionBody.points > 10) {
     return { error: 'The points awarded for the question are less than 1 or greater than 10'};
   }
 
-  return { error: 'The length of any answer is shorter than 1 character long, or longer than 30 characters long' };
+  // Check the answer length
+  for (let answer of quizQuestion.questionBody.answers) {
+    if (answer.answer.length < 1 || answer.answer.length > 30) {
+      return { error: 'The length of any answer is shorter than 1 character long, or longer than 30 characters long' };
+    }
+  }
 
+
+  // Check if there's duplicate answers
   return { error: 'Any answer strings are duplicates of one another (within the same question)'};
 
   return { error: 'There are no correct answers' };
+
+  return {};
 };
