@@ -10,7 +10,8 @@ import path from 'path';
 import process from 'process';
 import { clear } from './other';
 import { adminQuizList, adminQuizCreate, adminQuizRemove, adminQuizDescriptionUpdate } from './quiz';
-import { adminAuthLogin, adminAuthRegister } from './auth';
+import { adminAuthLogin, adminAuthRegister, adminUserDetailsUpdate, adminUserPasswordUpdate } from './auth';
+import { loadData, saveData } from './persistence';
 
 // Set up web app
 const app = express();
@@ -56,6 +57,33 @@ app.post('/v1/admin/auth/login', (req: Request, res: Response) => {
     return res.status(400).json(response);
   }
   res.json(response);
+});
+
+app.put('/v1/admin/user/details', (req: Request, res: Response) => {
+  const { token, email, nameFirst, nameLast } = req.body;
+  const response = adminUserDetailsUpdate(token, email, nameFirst, nameLast);
+
+  if ('error' in response) {
+    if (response.error === 'Token is empty or invalid') {
+      return res.status(401).json(response);
+    }
+    return res.status(400).json(response);
+  }
+  return res.json(response);
+});
+
+app.put('/v1/admin/user/password', (req: Request, res: Response) => {
+  const { token, oldPassword, newPassword } = req.body;
+  const response = adminUserPasswordUpdate(token, oldPassword, newPassword);
+
+  if ('error' in response) {
+    if (response.error === 'Token is empty or invalid') {
+      return res.status(401).json(response);
+    }
+
+    return res.status(400).json(response);
+  }
+  return res.json(response);
 });
 
 app.get('/v1/admin/quiz/list', (req: Request, res: Response) => {
@@ -139,9 +167,11 @@ app.use((req: Request, res: Response) => {
 const server = app.listen(PORT, HOST, () => {
   // DO NOT CHANGE THIS LINE
   console.log(`⚡️ Server started on port ${PORT} at ${HOST}`);
+  loadData();
 });
 
 // For coverage, handle Ctrl+C gracefully
 process.on('SIGINT', () => {
   server.close(() => console.log('Shutting down server gracefully.'));
+  saveData();
 });
