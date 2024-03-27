@@ -1,7 +1,6 @@
 import { requestRegister, requestLogin, requestClear, requestGetUserDetails } from './wrapper';
 // import { usersList } from './authUtil';
-import { SessionId } from './interfaces';
-import { Session } from 'inspector';
+import { SessionId, UserId } from './interfaces';
 import { getUserId } from './authUtil';
 
 beforeEach(() => {
@@ -180,9 +179,9 @@ describe('Test adminUserDetails', () => {
   test('Test succesful get user details', () => {
     const user1 = requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith').jsonBody as SessionId;
     const result = requestGetUserDetails(user1.token);
-    const userId = getUserId(user1.token);
+    const userId = getUserId(user1.token) as UserId;
     const user = {
-      userId: userId,
+      userId: userId.authUserId,
       name: 'Hayden Smith',
       email: 'hayden.smith@unsw.edu.au',
       numSuccessfulLogins: 1,

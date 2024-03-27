@@ -3,6 +3,7 @@ import isEmail from 'validator/lib/isEmail.js';
 import { getData, setData } from './dataStore';
 import { validUserId } from './quizUtil';
 import { EmptyObject, ErrorReturn, UserDetailsReturn, user, SessionId } from './interfaces';
+import { saveData } from './persistence';
 
 /**
  * Register a user with an email, password, and names, then returns their authUserId.
@@ -42,6 +43,7 @@ export const adminAuthRegister = (email: string, password: string, nameFirst: st
   };
 
   data.users.push(newUser);
+  saveData();
   return {
     token: sessionId.toString()
   };
@@ -68,6 +70,7 @@ export const adminAuthLogin = (email: string, password: string): SessionId | Err
 
     const sessionId = getData().sessionIdStore += 1;
     user.sessions.push(sessionId);
+    saveData();
     return {
       token: sessionId.toString()
     };
@@ -98,6 +101,7 @@ export const adminUserDetails = (token: number): UserDetailsReturn | ErrorReturn
   if ('error' in user) {
     return user;
   }
+  saveData();
   return {
     user: {
       userId: user.userId,

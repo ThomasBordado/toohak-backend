@@ -11,6 +11,7 @@ import process from 'process';
 import { clear } from './other';
 import { adminQuizList, adminQuizCreate, adminQuizRemove } from './quiz';
 import { adminAuthLogin, adminAuthRegister, adminUserDetails } from './auth';
+import { saveData, loadData } from './persistence';
 
 // Set up web app
 const app = express();
@@ -131,9 +132,11 @@ app.use((req: Request, res: Response) => {
 const server = app.listen(PORT, HOST, () => {
   // DO NOT CHANGE THIS LINE
   console.log(`⚡️ Server started on port ${PORT} at ${HOST}`);
+  loadData();
 });
 
 // For coverage, handle Ctrl+C gracefully
 process.on('SIGINT', () => {
   server.close(() => console.log('Shutting down server gracefully.'));
+  saveData();
 });
