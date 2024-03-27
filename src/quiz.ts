@@ -1,3 +1,4 @@
+import { doesNotMatch } from 'assert';
 import { getData, setData } from './dataStore';
 import { EmptyObject, ErrorReturn, QuizListReturn, quiz, quizId } from './interfaces';
 import { validUserId, checkQuizName } from './quizUtil';
@@ -43,7 +44,7 @@ export const adminQuizCreate = (token: number, name: string, description: string
     timeCreated: Math.floor(Date.now() / 1000),
     timeLastEdited: Math.floor(Date.now() / 1000),
     description: description,
-  };
+  } as quiz;
 
   data.quizzes.push(newQuiz);
   user.quizzes.push({ quizId: data.quizIdStore, name: name });
@@ -183,3 +184,31 @@ export const adminQuizDescriptionUpdate = (authUserId: number, quizId: number, n
 
   return {};
 };
+/*
+export const adminQuizQuestionDuplicate = (token: number, quizId: number, questionId: number): QuestionCreate | ErrorReturn => {
+  const data = getData();
+  const findQuiz = data.quizzes.findIndex(quizzes => quizzes.quizId === quizId);
+  const findQuestion = data.quizzes[findQuiz].quizQuestions.findIndex(quizQuestions => quizQuestions.questionId === questionId);
+  const questionToDuplicate = data.quizzes[findQuiz].quizQuestions[findQuestion];
+  const user = validUserId(token, data.users);
+  const duplicateLocation = findQuestion + 1;
+
+  if ('error' in user) {
+    return user;
+  };
+
+  if (findQuestion === -1) {
+    return { error: 'QuestionId does not exist' };
+  };
+
+  const userQuizIndex = user.quizzes.findIndex(quizzes => quizzes.quizId === quizId);
+  if (userQuizIndex === -1) {
+    return { error: 'User does not own this quiz' };
+  };
+
+  data.quizzes[findQuiz].quizQuestions.splice(duplicateLocation, 0, questionToDuplicate);
+  data.quizzes[findQuiz].timeLastEdited = Math.floor(Date.now() / 1000);
+  setData(data);
+  return { newQuestionId: questionId.toString }
+}
+*/
