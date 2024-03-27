@@ -1,6 +1,8 @@
 import { getData, setData } from './dataStore';
 import { EmptyObject, ErrorReturn, QuizListReturn, quiz, quizId } from './interfaces';
-import { validUserId, checkQuizName } from './quizUtil';
+import { loadData } from './persistence';
+import { validUserId, checkQuizName, isValidToken, isValidQuizId } from './quizUtil';
+import { isEmailUsedByOther } from './authUtil';
 
 /**
  * Provides a list of all quizzes that are owned by the currently logged in user
@@ -43,7 +45,8 @@ export const adminQuizCreate = (token: number, name: string, description: string
     timeCreated: Math.floor(Date.now() / 1000),
     timeLastEdited: Math.floor(Date.now() / 1000),
     description: description,
-  };
+    quizQuestions: [],
+  } as quiz;
 
   data.quizzes.push(newQuiz);
   user.quizzes.push({ quizId: data.quizIdStore, name: name });
@@ -184,6 +187,32 @@ export const adminQuizDescriptionUpdate = (authUserId: number, quizId: number, n
   return {};
 };
 
-export const quizTransfer = (token: number, userEmail: string, quizId: number): EmptyObject | ErrorReturn => {
+export const quizTransfer = (token: string, userEmail: string, quizId: number): EmptyObject | ErrorReturn => {
+  const tokenCheck = isValidToken(token);
+  if (!tokenCheck) {
+    return { error: 'Token is empty or invalid' };
+  }
+  const quizIdCheck = isValidQuizId(token, quizId);
+  if ('error' in quizIdCheck) {
+    return quizIdCheck as ErrorReturn;
+  }
+  const emailCheck = isEmailUsedByOther(token, userEmail);
+  if (!emailCheck) {
+    return {error: 'UserEmail is not a real user or userEmail is the current logged in user'};
+  }
+
+  const data = getData();
+  const findQuiz = data.quizzes.find(quizs => quizs.quizId === quizId);
+  const user = data.users.find(users => users.sessions.includes(parseInt(token)));
+  const quiz = user.quizzes.find(quizzes => quizzes.name === findQuiz.name);
+  if (quiz) {
+    return {error: 'Quiz ID refers to a quiz that has a name that is already used by the target user'};
+  }
+
+  const findState = findQuiz.quizQuestions.find(questions => questions.state === true);
+  if (findState) {
+    return {error: 'Any session for this quiz is not in END state'}
+  }
+
   return {};
 };
