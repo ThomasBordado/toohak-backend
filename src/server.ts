@@ -9,14 +9,15 @@ import fs from 'fs';
 import path from 'path';
 import process from 'process';
 import { clear } from './other';
-import { adminQuizList, adminQuizCreate, adminQuizRemove, quizQuestionCreat } from './quiz';
-import { adminAuthLogin, adminAuthRegister } from './auth';
+import { adminQuizList, adminQuizCreate, adminQuizRemove, adminQuizDescriptionUpdate, quizQuestionCreat } from './quiz';
+import { adminAuthLogin, adminAuthRegister, adminUserDetails, adminUserDetailsUpdate, adminUserPasswordUpdate } from './auth';
+import { loadData, saveData } from './persistence';
 
 // Set up web app
 const app = express();
 // Use middleware that allows us to access the JSON body of requests
 app.use(json());
-// Use middleware that allows for access from other domains
+// Use middleware that allows for access from other dosmains
 app.use(cors());
 // for logging errors (print to terminal)
 app.use(morgan('dev'));
@@ -58,6 +59,42 @@ app.post('/v1/admin/auth/login', (req: Request, res: Response) => {
   res.json(response);
 });
 
+app.get('/v1/admin/user/details', (req: Request, res: Response) => {
+  const token = parseInt(req.query.token as string);
+  const response = adminUserDetails(token);
+  if ('error' in response) {
+    return res.status(401).json(response);
+  }
+  res.json(response);
+});
+
+app.put('/v1/admin/user/details', (req: Request, res: Response) => {
+  const { token, email, nameFirst, nameLast } = req.body;
+  const response = adminUserDetailsUpdate(token, email, nameFirst, nameLast);
+
+  if ('error' in response) {
+    if (response.error === 'Token is empty or invalid') {
+      return res.status(401).json(response);
+    }
+    return res.status(400).json(response);
+  }
+  return res.json(response);
+});
+
+app.put('/v1/admin/user/password', (req: Request, res: Response) => {
+  const { token, oldPassword, newPassword } = req.body;
+  const response = adminUserPasswordUpdate(token, oldPassword, newPassword);
+
+  if ('error' in response) {
+    if (response.error === 'Token is empty or invalid') {
+      return res.status(401).json(response);
+    }
+
+    return res.status(400).json(response);
+  }
+  return res.json(response);
+});
+
 app.get('/v1/admin/quiz/list', (req: Request, res: Response) => {
   const token = parseInt(req.query.token as string);
   const result = adminQuizList(token);
@@ -75,6 +112,23 @@ app.post('/v1/admin/quiz', (req: Request, res: Response) => {
   if ('error' in result) {
     if (result.error.localeCompare('Token is empty or invalid') === 0) {
       return res.status(401).json(result);
+    }
+    return res.status(400).json(result);
+  }
+  res.json(result);
+});
+
+app.put('/v1/admin/quiz/:quizid/description', (req: Request, res: Response) => {
+  // Everything in req.body will be of the correct type
+  const quizId = parseInt(req.params.quizid as string);
+  const token = parseInt(req.body.token as string);
+  const { description } = req.body;
+  const result = adminQuizDescriptionUpdate(token, quizId, description);
+  if ('error' in result) {
+    if (result.error.localeCompare('Token is empty or invalid') === 0) {
+      return res.status(401).json(result);
+    } else if (result.error.localeCompare('Invalid quizId') === 0 || result.error.localeCompare('User does not own this quiz') === 0) {
+      return res.status(403).json(result);
     }
     return res.status(400).json(result);
   }
@@ -137,9 +191,11 @@ app.use((req: Request, res: Response) => {
 const server = app.listen(PORT, HOST, () => {
   // DO NOT CHANGE THIS LINE
   console.log(`⚡️ Server started on port ${PORT} at ${HOST}`);
+  loadData();
 });
 
 // For coverage, handle Ctrl+C gracefully
 process.on('SIGINT', () => {
   server.close(() => console.log('Shutting down server gracefully.'));
+  saveData();
 });

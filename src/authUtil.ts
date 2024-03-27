@@ -1,6 +1,7 @@
 import isEmail from 'validator/lib/isEmail.js';
 import { getData } from './dataStore';
-import { user } from './interfaces';
+import { ErrorReturn, UserId, user } from './interfaces';
+import { loadData } from './persistence';
 /**
  * Check a given email. If valid return true and if the email
  * is in use or is invalid determined by validator return error object
@@ -97,6 +98,7 @@ export const isValidToken = (token: string): boolean => {
  * @return {Array} -users from data
  */
 export const usersList = (): user[] => {
+  loadData();
   const data = getData();
   return (data.users);
 };
@@ -116,14 +118,14 @@ export const isSame = (a: string, b: string): boolean => {
 
 /**
  * Given the UserId and a password, check if the entered password correct
- * @param {number} authUserId - unique Id for user
+ * @param {string} token - unique Id for user
  * @param {string} enterdPassword - the password entered
  *
  * @returns {boolean} - return false if password isn't correct
  */
-export const isPasswordCorrect = (authUserId: number, enterdPassword: string): boolean => {
+export const isPasswordCorrect = (token: string, enterdPassword: string): boolean => {
   const data = getData();
-  const user = data.users.find(users => users.userId === authUserId);
+  const user = data.users.find(users => users.sessions.includes(parseInt(token)));
   if (user.password === enterdPassword) {
     return true;
   } else {
@@ -134,13 +136,13 @@ export const isPasswordCorrect = (authUserId: number, enterdPassword: string): b
 /**
  * Given the UserId and new password, check if it's used before by this user
  * @param {string} newPassword -the new password
- * @param {string} authUserId - unique Id for authUser
+ * @param {string} token - unique Id for authUser
  *
  * @return {boolean} - return false if the new password is not used before by the user
  */
-export const isNewPasswordUsed = (authUserId: number, newPassword: string): boolean => {
+export const isNewPasswordUsed = (token: string, newPassword: string): boolean => {
   const data = getData();
-  const user = data.users.find(users => users.userId === authUserId);
+  const user = data.users.find(users => users.sessions.includes(parseInt(token)));
 
   // If prevpassword is empty
   if (user.prevpassword.length === 0) {
@@ -161,17 +163,35 @@ export const isNewPasswordUsed = (authUserId: number, newPassword: string): bool
  *
  * @returns {boolean} - False if it is a used email.
  */
-export const isEmailUsedByOther = (email: string, authUserId: number): boolean => {
+export const isEmailUsedByOther = (email: string, token: string): boolean => {
   const data = getData();
 
   if (data.users.length === 0) {
     return false;
   }
 
-  const userWithSameEmail = data.users.find(users => users.email === email && users.userId !== authUserId);
+  const userWithSameEmail = data.users.find(users => users.email === email && !users.sessions.includes(parseInt(token)));
   if (userWithSameEmail) {
     return true;
   }
 
   return false;
+};
+
+/**
+ * Given a token and check for the userId
+ * @param {string} token - unique Id for logged in user
+ * @returns {number} userId
+ */
+export const getUserId = (token: string): UserId | ErrorReturn => {
+  loadData();
+  const data = getData();
+  if (token === '') {
+    return { error: 'invalid token' };
+  }
+  const user = data.users.find(users => users.sessions.includes(parseInt(token)));
+  if (user) {
+    return { authUserId: user.userId };
+  }
+  return { error: 'invalid token' };
 };
