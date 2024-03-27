@@ -214,5 +214,12 @@ export const quizTransfer = (token: string, userEmail: string, quizId: number): 
     return {error: 'Any session for this quiz is not in END state'}
   }
 
+  // push the quiz to the target user
+  const targetUser = data.users.find(users => users.email === userEmail);
+  targetUser.quizzes.push(findQuiz);
+  // delete the quiz in origin user
+  const userQuizzesIndex = user.quizzes.findIndex(quizzes => quizzes.quizId === quizId);
+  user.quizzes.splice(userQuizzesIndex, 1);
+  setData(data);
   return {};
 };
