@@ -1,4 +1,4 @@
-import { requestRegister, requestLogin, requestClear, requestUpdateUserDetails, requestUpdatePassword } from './wrapper';
+import { requestRegister, requestLogin, requestClear, requestUpdateUserDetails, requestUpdatePassword, requestGetUserDetails } from './wrapper';
 import { usersList, getUserId } from './authUtil';
 import { SessionId, UserId, user } from './interfaces';
 
@@ -172,21 +172,23 @@ describe('Test adminAuthLogin', () => {
     expect(details.user.numFailedPasswordsSinceLastLogin).toStrictEqual(0);
   }); */
 });
-/*
+
 describe('Test adminUserDetails', () => {
   // 1. Succesful return of account details
   test('Test succesful get user details', () => {
     const user1 = requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith').jsonBody as SessionId;
     const result = requestGetUserDetails(user1.token);
+    const userId = getUserId(user1.token) as UserId;
     const user = {
-      userId: user1.token,
+      userId: userId.authUserId,
       name: 'Hayden Smith',
       email: 'hayden.smith@unsw.edu.au',
       numSuccessfulLogins: 1,
       numFailedPasswordsSinceLastLogin: 0,
     };
 
-    expect(result).toStrictEqual({ user: user });
+    expect(result.jsonBody).toStrictEqual({ user: user });
+    expect(result.statusCode).toStrictEqual(200);
   });
 
   // 2. Invalid authUserId
@@ -197,7 +199,7 @@ describe('Test adminUserDetails', () => {
     expect(result.statusCode).toStrictEqual(401);
   });
 });
-*/
+
 /**
  * Test for requestUpdateUserDetails
  */

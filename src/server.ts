@@ -10,14 +10,14 @@ import path from 'path';
 import process from 'process';
 import { clear } from './other';
 import { adminQuizList, adminQuizCreate, adminQuizRemove, adminQuizDescriptionUpdate } from './quiz';
-import { adminAuthLogin, adminAuthRegister, adminUserDetailsUpdate, adminUserPasswordUpdate } from './auth';
+import { adminAuthLogin, adminAuthRegister, adminUserDetails, adminUserDetailsUpdate, adminUserPasswordUpdate } from './auth';
 import { loadData, saveData } from './persistence';
 
 // Set up web app
 const app = express();
 // Use middleware that allows us to access the JSON body of requests
 app.use(json());
-// Use middleware that allows for access from other domains
+// Use middleware that allows for access from other dosmains
 app.use(cors());
 // for logging errors (print to terminal)
 app.use(morgan('dev'));
@@ -55,6 +55,15 @@ app.post('/v1/admin/auth/login', (req: Request, res: Response) => {
 
   if ('error' in response) {
     return res.status(400).json(response);
+  }
+  res.json(response);
+});
+
+app.get('/v1/admin/user/details', (req: Request, res: Response) => {
+  const token = parseInt(req.query.token as string);
+  const response = adminUserDetails(token);
+  if ('error' in response) {
+    return res.status(401).json(response);
   }
   res.json(response);
 });
