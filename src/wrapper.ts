@@ -116,10 +116,10 @@ export const requestClear = () => {
   return requestHelper('DELETE', '/v1/clear', {});
 };
 
-export const requestQuizViewTrash = (token: number) => {
+export const requestQuizViewTrash = (token: string) => {
   return requestHelper('GET', '/v1/admin/quiz/trash', { token });
 };
 
-export const requestQuizRestore = (token: number, quizId: number) => {
+export const requestQuizRestore = (token: string, quizId: number) => {
   return requestHelper('POST', `/v1/admin/quiz/${quizId}/restore`, { token });
 };
