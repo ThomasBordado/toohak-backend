@@ -88,7 +88,7 @@ export const checkQuestionValid = (quizQuestion: quizQuestionCreatInput, quizId:
 
   // Check the answer length
   if (quizQuestion.questionBody.answers.length > 6 || quizQuestion.questionBody.answers.length < 2) {
-    return { error : 'The question has more than 6 answers or less than 2 answers'};
+    return { error: 'The question has more than 6 answers or less than 2 answers' };
   }
 
   // Check the duration
@@ -110,28 +110,29 @@ export const checkQuestionValid = (quizQuestion: quizQuestionCreatInput, quizId:
 
   // Check the point award
   if (quizQuestion.questionBody.points < 1 || quizQuestion.questionBody.points > 10) {
-    return { error: 'The points awarded for the question are less than 1 or greater than 10'};
+    return { error: 'The points awarded for the question are less than 1 or greater than 10' };
   }
 
   // Check the answer length
-  for (let answer of quizQuestion.questionBody.answers) {
+  for (const answer of quizQuestion.questionBody.answers) {
     if (answer.answer.length < 1 || answer.answer.length > 30) {
       return { error: 'The length of any answer is shorter than 1 character long, or longer than 30 characters long' };
     }
   }
 
   // Check if there's duplicate answers
-  let uniqueAnswers : string[];
-  uniqueAnswers = [];
+  const uniqueAnswers : string[] = [];
   for (let i = 0; i < quizQuestion.questionBody.answers.length; i++) {
     const currentAnswer = quizQuestion.questionBody.answers[i].answer;
     if (!uniqueAnswers.includes(currentAnswer)) {
-      return { error: 'Any answer strings are duplicates of one another (within the same question)'};
+      uniqueAnswers.push(currentAnswer);
+    } else {
+      return { error: 'Any answer strings are duplicates of one another (within the same question)' };
     }
   }
-  
+
   // Check if there's correct answer
-  const answer = quizQuestion.questionBody.answers.find(quizs => quizs.correct === true)
+  const answer = quizQuestion.questionBody.answers.find(quizs => quizs.correct === true);
   if (!answer) {
     return { error: 'There are no correct answers' };
   }
@@ -162,13 +163,13 @@ export const isValidToken = (token: string): boolean => {
 };
 
 /**
- * 
+ *
  */
-export const isValidQuizId = (token: string, quizId: number): EmptyObject | ErrorReturn=> {
+export const isValidQuizId = (token: string, quizId: number): EmptyObject | ErrorReturn => {
   // Check if the quizId is invalid
   const data = getData();
   if (data.quizzes.length === 0) {
-    return { error: 'Invalid quizId'};
+    return { error: 'Invalid quizId' };
   }
 
   // Check if the user own the quiz
@@ -180,8 +181,8 @@ export const isValidQuizId = (token: string, quizId: number): EmptyObject | Erro
     if (findQuiz) {
       return {};
     }
-    return {error: 'user does not own the quiz'};
+    return { error: 'user does not own the quiz' };
   } else {
-    return {error: 'Invalid quizId'};
+    return { error: 'Invalid quizId' };
   }
-}
+};

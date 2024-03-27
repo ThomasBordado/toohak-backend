@@ -94,21 +94,20 @@ app.delete('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
   res.json(result);
 });
 
-
 app.post('/v1/admin/quiz/{quizid}/question', (req: Request, res: Response) => {
-  const quizId = parseInt(req.params.quizid);  
+  const quizId = parseInt(req.params.quizid);
   const { token, questionBody } = req.body;
-    const response = quizQuestionCreat(token, questionBody, quizId);
-    if ('error' in response) {
-      if (response.error === 'Token is empty or invalid') {
-        return res.status(401).json(response);
-      } else if (response.error === 'Invalid quizId' || response.error === 'user does not own the quiz') {
-        return res.status(403).json(response);
-      }
-        return res.status(400).json(response);
+  const response = quizQuestionCreat(token, questionBody, quizId);
+  if ('error' in response) {
+    if (response.error === 'Token is empty or invalid') {
+      return res.status(401).json(response);
+    } else if (response.error === 'Invalid quizId' || response.error === 'user does not own the quiz') {
+      return res.status(403).json(response);
     }
-    res.json(response);
-})
+    return res.status(400).json(response);
+  }
+  res.json(response);
+});
 
 app.delete('/v1/clear', (req: Request, res: Response) => {
   const response = clear();

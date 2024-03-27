@@ -1,12 +1,7 @@
-import { string } from "yaml/dist/schema/common/string";
-
-export interface quiz {
-  quizId: number;
-  name: string;
-  timeCreated: number;
-  timeLastEdited: number;
-  description: string;
-  quizQuestions: quizQuestion[];
+// import { string } from 'yaml/dist/schema/common/string';
+export interface answer {
+  answer: string;
+  correct: boolean;
 }
 
 export interface quizQuestion {
@@ -17,9 +12,13 @@ export interface quizQuestion {
   answers: answer[];
 }
 
-export interface answer {
-  answer: string;
-  correct: boolean;
+export interface quiz {
+  quizId: number;
+  name: string;
+  timeCreated: number;
+  timeLastEdited: number;
+  description: string;
+  quizQuestions: quizQuestion[];
 }
 
 export interface quizUser {
@@ -79,12 +78,7 @@ export interface quizQuestionCreatInput {
     question: string;
     duration: number;
     points: number;
-    answers: [
-      {
-        answer: string;
-        correct: boolean;
-      }
-    ]
+    answers: answer[];
   }
 }
 

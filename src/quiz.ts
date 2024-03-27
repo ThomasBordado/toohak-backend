@@ -185,17 +185,14 @@ export const adminQuizDescriptionUpdate = (authUserId: number, quizId: number, n
   return {};
 };
 
-
-
-
 /**
- * 
+ *
  * @param {string} token - unique identifier for logined user
  * @param {Array} questionBody - the question needed to be updated to the quiz
  * @param {number} quizId - a unique identifier of quiz
  * @returns questionId
  */
-export const quizQuestionCreat = (token: string, questionBody: quizQuestionCreatInput, quizId: number): quizQuestionCreatReturn | ErrorReturn=> {
+export const quizQuestionCreat = (token: string, questionBody: quizQuestionCreatInput, quizId: number): quizQuestionCreatReturn | ErrorReturn => {
   // Check if the errors in questionBody
   const question = checkQuestionValid(questionBody, quizId);
   if ('error' in question) {
@@ -211,17 +208,17 @@ export const quizQuestionCreat = (token: string, questionBody: quizQuestionCreat
   if ('error' in quiz) {
     return quiz as ErrorReturn;
   }
-  //Push new question into quiz
+  // Push new question into quiz
   const data = getData();
   const findQuiz = data.quizzes.find(quizs => quizs.quizId === quizId);
   const questionId = findQuiz.quizQuestions.length + 1;
   findQuiz.quizQuestions.push({
     questionId: questionId,
     question: questionBody.questionBody.question,
-    duration:questionBody.questionBody.duration,
+    duration: questionBody.questionBody.duration,
     points: questionBody.questionBody.points,
     answers: questionBody.questionBody.answers,
   });
   setData(data);
   return { questionId: questionId };
-}
+};
