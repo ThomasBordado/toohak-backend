@@ -151,7 +151,7 @@ export const isValidToken = (token: string): boolean => {
   if (data.users.length === 0) {
     return false;
   }
-  if (token === '') {
+  if (token.length === 0) {
     return false;
   }
   for (const users of data.users) {

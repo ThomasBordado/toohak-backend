@@ -193,11 +193,6 @@ export const adminQuizDescriptionUpdate = (authUserId: number, quizId: number, n
  * @returns questionId
  */
 export const quizQuestionCreat = (token: string, questionBody: quizQuestionCreatInput, quizId: number): quizQuestionCreatReturn | ErrorReturn => {
-  // Check if the errors in questionBody
-  const question = checkQuestionValid(questionBody, quizId);
-  if ('error' in question) {
-    return question as ErrorReturn;
-  }
   // Check token error
   const tokenResult = isValidToken(token);
   if (!tokenResult) {
@@ -207,6 +202,11 @@ export const quizQuestionCreat = (token: string, questionBody: quizQuestionCreat
   const quiz = isValidQuizId(token, quizId);
   if ('error' in quiz) {
     return quiz as ErrorReturn;
+  }
+    // Check if the errors in questionBody
+  const question = checkQuestionValid(questionBody, quizId);
+  if ('error' in question) {
+    return question as ErrorReturn;
   }
   // Push new question into quiz
   const data = getData();

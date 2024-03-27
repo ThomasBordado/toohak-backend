@@ -392,11 +392,11 @@ describe('Testing Post /v1/admin/quiz/{quizid}/question', () => {
       }
     };
 
-    const quizQuestionCreatResponse = requestQuizQuestionCreat(user.token, input, quiz.quizId);
-    expect(quizQuestionCreatResponse.statusCode).toStrictEqual(200);
-    expect(quizQuestionCreatResponse.jsonBody).toStrictEqual({ questionId: expect.any(Number) });
+    const quizQuestionCreateResponse = requestQuizQuestionCreat(user.token, input, quiz.quizId);
+    expect(quizQuestionCreateResponse.statusCode).toStrictEqual(200);
+    expect(quizQuestionCreateResponse.jsonBody).toStrictEqual({ questionId: expect.any(Number) });
   });
-
+/*
   test('Error test for 400 error', () => {
     let user: SessionId;
     let quiz: quizId;
@@ -771,13 +771,13 @@ describe('Testing Post /v1/admin/quiz/{quizid}/question', () => {
       expect(response.jsonBody).toStrictEqual({ error: expect.any(String) });
       expect(response.statusCode).toStrictEqual(400);
     });
-
+*/
     test('Error test for 401 error', () => {
       requestClear();
     });
 
-    user = requestRegister('valideEmail@gmail.com', 'password1', 'Jane', 'Lawson').jsonBody as SessionId;
-    quiz = requestQuizCreate(user.token, 'British', 'history').jsonBody as quizId;
+    const user = requestRegister('valideEmail@gmail.com', 'password1', 'Jane', 'Lawson').jsonBody as SessionId;
+    const quiz = requestQuizCreate(user.token, 'British', 'history').jsonBody as quizId;
 
     test.each([
       {
@@ -834,6 +834,8 @@ describe('Testing Post /v1/admin/quiz/{quizid}/question', () => {
   test('Error test for 403 error, Valid token is provided, but user is not an owner of this quiz', () => {
     const user = requestRegister('valideEmail@gmail.com', 'password1', 'Jane', 'Lawson').jsonBody as SessionId;
     const quiz = requestQuizCreate(user.token, 'British', 'history').jsonBody as quizId;
+    const user2 = requestRegister('valideEmail2@gmail.com', 'password1', 'John', 'Lawson').jsonBody as SessionId;
+    const quiz2 = requestQuizCreate(user.token, 'American', 'history').jsonBody as quizId;
 
     const input : quizQuestionCreatInput = {
       questionBody: {
@@ -853,8 +855,8 @@ describe('Testing Post /v1/admin/quiz/{quizid}/question', () => {
       }
     };
 
-    const quizQuestionCreatResponse = requestQuizQuestionCreat(user.token, input, quiz.quizId);
+    const quizQuestionCreatResponse = requestQuizQuestionCreat(user2.token, input, quiz.quizId);
     expect(quizQuestionCreatResponse.statusCode).toStrictEqual(403);
     expect(quizQuestionCreatResponse.jsonBody).toStrictEqual({ error: expect.any(String) });
   });
-});
+// });

@@ -94,7 +94,7 @@ app.delete('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
   res.json(result);
 });
 
-app.post('/v1/admin/quiz/{quizid}/question', (req: Request, res: Response) => {
+app.post('/v1/admin/quiz/:quizid/question', (req: Request, res: Response) => {
   const quizId = parseInt(req.params.quizid);
   const { token, questionBody } = req.body;
   const response = quizQuestionCreat(token, questionBody, quizId);
