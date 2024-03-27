@@ -1,4 +1,4 @@
-import { requestRegister, requestQuizList, requestQuizCreate, requestQuizTrash, requestClear, requestUpdateQuizDescription, requestQuizViewTrash, requestQuizRestore} from './wrapper';
+import { requestRegister, requestQuizList, requestQuizCreate, requestQuizTrash, requestClear, requestUpdateQuizDescription, requestQuizViewTrash, requestQuizRestore } from './wrapper';
 import { QuizListReturn, SessionId, quizId, quizUser } from './interfaces';
 
 beforeEach(() => {
@@ -362,7 +362,7 @@ describe('adminQuizDescriptionUpdate testing', () => {
     expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
     expect(result.statusCode).toStrictEqual(400);
   });
-});  
+});
 
 describe('/v1/admin/quiz/{quizid}/restore testing', () => {
   let user: SessionId;
