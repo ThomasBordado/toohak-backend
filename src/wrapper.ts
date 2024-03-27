@@ -1,0 +1,117 @@
+import request, { HttpVerb } from 'sync-request-curl';
+import { port, url } from './config.json';
+
+const SERVER_URL = `${url}:${port}`;
+
+interface RequestHelperReturnType {
+    statusCode: number;
+    jsonBody?: Record<string, any>;
+    error?: string;
+  }
+/**
+ * Sends a request to the given route and return its results
+ *
+ * Errors will be returned in the form:
+ *  { statusCode: number, error: string }
+ *
+ * Normal responses will be in the form
+ *  { statusCode: number, jsonBody: object }
+ *
+ * This helper function was taken from week5-server-example
+ * https://nw-syd-gitlab.cseunsw.tech/COMP1531/24T1/week5-server-example/-/blob/master/tests/wrapper.test.ts?ref_type=heads
+ */
+const requestHelper = (
+  method: HttpVerb,
+  path: string,
+  payload: object = {}
+): RequestHelperReturnType => {
+  let qs = {};
+  let json = {};
+  if (['GET', 'DELETE'].includes(method)) {
+    qs = payload;
+  } else {
+    // PUT/POST
+    json = payload;
+  }
+  const res = request(method, SERVER_URL + path, { qs, json, timeout: 20000 });
+  const bodyString = res.body.toString();
+  let bodyObject: RequestHelperReturnType;
+  try {
+    // Return if valid JSON, in our own custom format
+    bodyObject = {
+      jsonBody: JSON.parse(bodyString),
+      statusCode: res.statusCode,
+    };
+  } catch (error: any) {
+    bodyObject = {
+      error: `\
+Server responded with ${res.statusCode}, but body is not JSON!
+
+GIVEN:
+${bodyString}.
+
+REASON:
+${error.message}.
+
+HINT:
+Did you res.json(undefined)?`,
+      statusCode: res.statusCode,
+    };
+  }
+  if ('error' in bodyObject) {
+    // Return the error in a custom structure for testing later
+    return { statusCode: res.statusCode, error: bodyObject.error };
+  }
+  return bodyObject;
+};
+
+// ========================================================================= //
+
+// Wrapper functions
+export const requestRegister = (email: string, password: string, nameFirst: string, nameLast: string) => {
+  return requestHelper('POST', '/v1/admin/auth/register', { email, password, nameFirst, nameLast });
+};
+
+export const requestLogin = (email: string, password: string) => {
+  return requestHelper('POST', '/v1/admin/auth/login', { email, password });
+};
+
+export const requestGetUserDetails = (token: string) => {
+  return requestHelper('GET', '/v1/admin/user/details', { token });
+};
+
+export const requestUpdateUserDetails = (token: string, email: string, nameFirst: string, nameLast: string) => {
+  return requestHelper('PUT', '/v1/admin/user/details', { token, email, nameFirst, nameLast });
+};
+
+export const requestUpdatePassword = (token: string, oldPassword: string, newPassword: string) => {
+  return requestHelper('PUT', '/v1/admin/user/password', { token, oldPassword, newPassword });
+};
+
+export const requestQuizList = (token: string) => {
+  return requestHelper('GET', '/v1/admin/quiz/list', { token });
+};
+
+export const requestQuizCreate = (token: string, name: string, description: string) => {
+  return requestHelper('POST', '/v1/admin/quiz', { token, name, description });
+};
+
+export const requestQuizTrash = (token: string, quizId: number) => {
+  return requestHelper('DELETE', `/v1/admin/quiz/${quizId}`, { token });
+};
+
+export const requestQuizInfo = (token: string, quizId: number) => {
+  return requestHelper('GET', `/v1/admin/quiz/${quizId}`, { token, quizId });
+};
+
+export const requestUpdateQuizName = (token: string, name: string, quizId: number) => {
+  return requestHelper('PUT', `/v1/admin/quiz/${quizId}/name`, { token, name, quizId });
+};
+
+export const requestUpdateQuizDescription = (token: string, description: string, quizId: number) => {
+  return requestHelper('PUT', `/v1/admin/quiz/${quizId}/description`, { token, description, quizId });
+};
+
+export const requestClear = () => {
+  return requestHelper('DELETE', '/v1/clear', {});
+};
