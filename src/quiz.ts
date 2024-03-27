@@ -184,8 +184,8 @@ export const adminQuizDescriptionUpdate = (authUserId: number, quizId: number, n
 
   return {};
 };
-/*
-export const adminQuizQuestionDuplicate = (token: number, quizId: number, questionId: number): QuestionCreate | ErrorReturn => {
+
+export const adminQuizQuestionDuplicate = (token: number, quizId: number, questionId: number): /*QuestionCreate*/| ErrorReturn => {
   const data = getData();
   const findQuiz = data.quizzes.findIndex(quizzes => quizzes.quizId === quizId);
   const findQuestion = data.quizzes[findQuiz].quizQuestions.findIndex(quizQuestions => quizQuestions.questionId === questionId);
@@ -211,4 +211,4 @@ export const adminQuizQuestionDuplicate = (token: number, quizId: number, questi
   setData(data);
   return { newQuestionId: questionId.toString }
 }
-*/
+

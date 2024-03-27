@@ -1,4 +1,4 @@
-import express, { json, Request, Response } from 'express';
+import express, { json, Request, response, Response } from 'express';
 import { echo } from './newecho';
 import morgan from 'morgan';
 import config from './config.json';
@@ -10,8 +10,10 @@ import path from 'path';
 import process from 'process';
 import { clear } from './other';
 import { adminQuizList, adminQuizCreate, adminQuizRemove, adminQuizDescriptionUpdate } from './quiz';
+import { adminQuizQuestionDuplicate } from './quiz';
 import { adminAuthLogin, adminAuthRegister, adminUserDetailsUpdate, adminUserPasswordUpdate } from './auth';
 import { loadData, saveData } from './persistence';
+import { resourceLimits } from 'worker_threads';
 
 // Set up web app
 const app = express();
@@ -142,6 +144,22 @@ app.delete('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
 app.delete('/v1/clear', (req: Request, res: Response) => {
   const response = clear();
   res.json(response);
+});
+
+app.post('/v1/admin/quiz/:quizId/question/:questionId/duplicate', (req: Request, res: Response) => {
+  const token = parseInt(req.query.token as string);
+  const quizId = parseInt(req.params.quizid as string);
+  const questionId = parseInt(req.params.questionId as string);
+  const result = adminQuizQuestionDuplicate(token, quizId, questionId);
+  if ('error' in result) {
+    if (result.error.localeCompare('Token is empty or invalid') === 0) {
+      return res.status(401).json(result);
+    } else if (result.error.localeCompare('Invalid questionId') === 0) {
+      return res.status(400).json(result);
+    }
+    return res.status(403).json(result);
+  }
+  res.json(result);
 });
 
 // ====================================================================
