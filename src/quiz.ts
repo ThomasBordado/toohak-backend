@@ -191,5 +191,16 @@ export const adminQuizDescriptionUpdate = (authUserId: number, quizId: number, n
  * quizQuestionCreat
  */
 export const quizQuestionCreat = (token: number, questionBody: quizQuestionCreatInput, quizId: number): quizQuestionCreatReturn | ErrorReturn=> {
-    return {questionId: 5546};
+
+  return { error: 'Question string is less than 5 characters in length or greater than 50 characters in length' };
+  return { error : 'The question has more than 6 answers or less than 2 answers'};
+  return { error: 'The question duration is not a positive number' };
+  return { error: 'The sum of the question durations in the quiz exceeds 3 minutes' };
+  return { error: 'The points awarded for the question are less than 1 or greater than 10'};
+  return { error: 'The length of any answer is shorter than 1 character long, or longer than 30 characters long' };
+  return { error: 'Any answer strings are duplicates of one another (within the same question)'};
+  return { error: 'There are no correct answers' };
+  return { error: 'Token is empty or invalid'};
+  return { error: 'Valid token is provided, but either the quiz ID is invalid, or the user does not own the quiz' }
+  return { questionId: 5546 };
 }
