@@ -11,7 +11,7 @@ import process from 'process';
 import { clear } from './other';
 import { adminQuizList, adminQuizCreate, adminQuizRemove } from './quiz';
 import { adminAuthLogin, adminAuthRegister, adminUserDetailsUpdate } from './auth';
-import { loadData, saveData } from './persistence'
+import { loadData, saveData } from './persistence';
 
 // Set up web app
 const app = express();
