@@ -43,7 +43,7 @@ export const adminQuizCreate = (token: number, name: string, description: string
     timeCreated: Math.floor(Date.now() / 1000),
     timeLastEdited: Math.floor(Date.now() / 1000),
     description: description,
-  };
+  } as quiz;
 
   data.quizzes.push(newQuiz);
   user.quizzes.push({ quizId: data.quizIdStore, name: name });
@@ -183,3 +183,30 @@ export const adminQuizDescriptionUpdate = (authUserId: number, quizId: number, n
 
   return {};
 };
+
+export const adminQuizQuestionMove = (token: number, quizId: number, questionId: number, newPosition: number): EmptyObject | ErrorReturn => {
+  const data = getData();
+  const findQuiz = data.quizzes.findIndex(quizzes => quizzes.quizId === quizId);
+  const findQuestion = data.quizzes[findQuiz].quizQuestions.findIndex(quizQuestions => quizQuestions.questionId === questionId);
+  const questionToMove = data.quizzes[findQuiz].quizQuestions[findQuestion];
+  const user = validUserId(token, data.users);
+
+  if ('error' in user) {
+    return user;
+  }
+
+  if (findQuestion === -1 || findQuestion === newPosition || newPosition < 0 || newPosition > (data.quizzes[findQuiz].quizQuestions.length - 1)) {
+    return { error: 'Position or Question Id error' };
+  }
+
+  const userQuizIndex = user.quizzes.findIndex(quizzes => quizzes.quizId === quizId);
+  if (userQuizIndex === -1) {
+    return { error: 'User does not own this quiz' };
+  }
+
+  data.quizzes[findQuiz].quizQuestions.splice(newPosition, 0, questionToMove);
+
+  data.quizzes[findQuiz].timeLastEdited = Math.floor(Date.now() / 1000);
+  setData(data);
+  return {}
+}
