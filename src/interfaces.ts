@@ -4,6 +4,20 @@ export interface quiz {
   timeCreated: number;
   timeLastEdited: number;
   description: string;
+  quizQuestions: quizQuestion[];
+}
+
+export interface quizQuestion {
+  questionId: number;
+  question: string;
+  duration: number;
+  points: number;
+  answers: answer[];
+}
+
+export interface answer {
+  answer: string;
+  correct: boolean;
 }
 
 export interface quizUser {
