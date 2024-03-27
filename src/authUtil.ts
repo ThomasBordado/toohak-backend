@@ -187,4 +187,3 @@ export const getUserId = (token: string): UserId | ErrorReturn => {
   console.log('sending invalid token 2');
   return { error: 'invalid token' };
 };
-
