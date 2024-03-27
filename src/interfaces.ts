@@ -43,7 +43,7 @@ export interface UserId {
 }
 
 export interface SessionId {
-  sessionId: number;
+  token: string;
 }
 
 export interface UserDetailsReturn {
