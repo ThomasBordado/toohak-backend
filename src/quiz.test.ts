@@ -143,23 +143,14 @@ describe('adminQuizRemove testing', () => {
     });
     test('User does not own quiz with given quizId', () => {
       const user2 = requestRegister('chloet@gmail.com', 'password1', 'Chloe', 'Turner').jsonBody as SessionId;
-<<<<<<< src/quiz.test.ts
-      const result = requestQuizTrash(user2.sessionId, quiz.quizId);
-=======
       const result = requestQuizTrash(user2.token, quiz.quizId);
->>>>>>> src/quiz.test.ts
       expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
       expect(result.statusCode).toStrictEqual(403);
     });
     test('User owns quiz with same name as given quizId', () => {
       const user2 = requestRegister('chloet@gmail.com', 'password1', 'Chloe', 'Turner').jsonBody as SessionId;
-<<<<<<< src/quiz.test.ts
-      requestQuizCreate(user2.sessionId, 'My Quiz', 'My description.');
-      const result = requestQuizTrash(user2.sessionId, quiz.quizId);
-=======
       requestQuizCreate(user2.token, 'My Quiz', 'My description.');
       const result = requestQuizTrash(user2.token, quiz.quizId);
->>>>>>> src/quiz.test.ts
       expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
       expect(result.statusCode).toStrictEqual(403);
     });
