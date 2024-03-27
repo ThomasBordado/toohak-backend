@@ -378,10 +378,9 @@ describe('adminUserPasswordUpdate', () => {
     const id2 = requestRegister('validemail2@gmail.com', '1234567a', 'Jennifer', 'Smith').jsonBody as SessionId;
     requestUpdatePassword(id2.token, '1234567a', '1234567b');
     requestUpdatePassword(id2.token, '1234567b', '1234567c');
-    // loadData();
+    const result = usersList().sort((a, b) => a.userId - b.userId);
     const userId = getUserId(data.token) as UserId;
     const userId2 = getUserId(id2.token) as UserId;
-    const result = usersList().sort((a, b) => a.userId - b.userId);
     const users: user[] =
           [{
             userId: userId.authUserId,
