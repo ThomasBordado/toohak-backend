@@ -79,6 +79,9 @@ export const isValidToken = (token: string): boolean => {
   if (data.users.length === 0) {
     return false;
   }
+  if (token === '') {
+    return false;
+  }
   for (const users of data.users) {
     if (users.sessions.includes(parseInt(token))) {
       return true;
@@ -178,6 +181,9 @@ export const isEmailUsedByOther = (email: string, token: string): boolean => {
  */
 export const getUserId = (token: string): UserId | ErrorReturn => {
   const data = getData();
+  if (token === '') {
+    return { error: 'invalid token' };
+  }
   const user = data.users.find(users => users.sessions.includes(parseInt(token)));
   if (user) {
     return { authUserId: user.userId };
