@@ -369,32 +369,32 @@ describe('/v1/admin/quiz/trash testing', () => {
   let quiz: quizId;
   beforeEach(() => {
     user = requestRegister('chloe@gmail.com', 'password1', 'Chloe', 'Turner').jsonBody as SessionId;
-    quiz = requestQuizCreate(user.sessionId, 'My Quiz', 'My description.').jsonBody as quizId;
+    quiz = requestQuizCreate(user.token, 'My Quiz', 'My description.').jsonBody as quizId;
   });
 
   describe('Unsuccessful Cases', () => {
     test('Invalid SessionId', () => {
-      const result = requestQuizViewTrash(user.sessionId + 1);
+      const result = requestQuizViewTrash(user.token + 1);
       expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
       expect(result.statusCode).toStrictEqual(401);
     });
   });
   describe('Successful cases', () => {
     test('no quizes in trash', () => {
-      expect(requestQuizViewTrash(user.sessionId).jsonBody).toStrictEqual({ quizzes: [] });
+      expect(requestQuizViewTrash(user.token).jsonBody).toStrictEqual({ quizzes: [] });
     });
     test('single quiz in trash', () => {
-      requestQuizTrash(user.sessionId, quiz.quizId);
-      expect(requestQuizViewTrash(user.sessionId).jsonBody).toStrictEqual({ quizzes: [{ quizId: quiz.quizId, name: 'My Quiz' }] });
+      requestQuizTrash(user.token, quiz.quizId);
+      expect(requestQuizViewTrash(user.token).jsonBody).toStrictEqual({ quizzes: [{ quizId: quiz.quizId, name: 'My Quiz' }] });
     });
 
     test('Remove multiple quizzes', () => {
-      const quiz2 = requestQuizCreate(user.sessionId, 'My Second Quiz', 'My description.').jsonBody as quizId;
-      const quiz3 = requestQuizCreate(user.sessionId, 'My Third Quiz', 'My description.').jsonBody as quizId;
+      const quiz2 = requestQuizCreate(user.token, 'My Second Quiz', 'My description.').jsonBody as quizId;
+      const quiz3 = requestQuizCreate(user.token, 'My Third Quiz', 'My description.').jsonBody as quizId;
 
-      requestQuizTrash(user.sessionId, quiz.quizId);
-      requestQuizTrash(user.sessionId, quiz3.quizId);
-      let trashList = requestQuizViewTrash(user.sessionId).jsonBody as QuizListReturn;
+      requestQuizTrash(user.token, quiz.quizId);
+      requestQuizTrash(user.token, quiz3.quizId);
+      let trashList = requestQuizViewTrash(user.token).jsonBody as QuizListReturn;
       let expectedList = {
         quizzes: [
           {
@@ -411,8 +411,8 @@ describe('/v1/admin/quiz/trash testing', () => {
       expectedList.quizzes.sort((a: quizUser, b: quizUser) => a.quizId - b.quizId);
       expect(trashList).toStrictEqual(expectedList);
 
-      requestQuizTrash(user.sessionId, quiz2.quizId);
-      trashList = requestQuizViewTrash(user.sessionId).jsonBody as QuizListReturn;
+      requestQuizTrash(user.token, quiz2.quizId);
+      trashList = requestQuizViewTrash(user.token).jsonBody as QuizListReturn;
       expectedList = {
         quizzes: [
           {
