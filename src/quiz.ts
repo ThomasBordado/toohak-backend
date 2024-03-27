@@ -204,7 +204,7 @@ export const quizQuestionCreat = (token: string, questionBody: quizQuestionCreat
   if ('error' in quiz) {
     return quiz as ErrorReturn;
   }
-    // Check if the errors in questionBody
+  // Check if the errors in questionBody
   const question = checkQuestionValid(questionBody, quizId);
   if ('error' in question) {
     return question as ErrorReturn;

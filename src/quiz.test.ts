@@ -1,5 +1,6 @@
 import { requestRegister, requestQuizList, requestQuizCreate, requestQuizTrash, requestClear, requestUpdateQuizDescription, requestQuizQuestionCreat } from './wrapper';
 import { QuizListReturn, SessionId, quizId, quizUser, quizQuestionCreatInput } from './interfaces';
+import { usersList } from './authUtil';
 
 beforeEach(() => {
   requestClear();
@@ -366,23 +367,22 @@ describe('adminQuizDescriptionUpdate testing', () => {
     expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
     expect(result.statusCode).toStrictEqual(403);
   });
-    // 4. Quiz Id does not refer to a quiz this user owns
-    test('Test quizid does not refer to a quiz this user owns', () => {
-      const user2 = requestRegister('jared@gmail.com', 'password3', 'Jared', 'Simion').jsonBody as SessionId;
-      const notmyquiz = requestQuizCreate(user2.token, 'My Quiz2', 'My description.').jsonBody as quizId;
-      const result = requestUpdateQuizDescription(user.token, notmyquiz.quizId, 'My updated description.');
-      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-      expect(result.statusCode).toStrictEqual(403);
-    });
-  
-    // 5. Quiz description is more than 100 characters long
-    test('Test quiz description < 100 characters long', () => {
-      const result = requestUpdateQuizDescription(user.token, quiz.quizId, 'My very, very, very, very, very, very, very, very, very, very, very, very, very, very, long description.');
-      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-      expect(result.statusCode).toStrictEqual(400);
-    });
-});
+  // 4. Quiz Id does not refer to a quiz this user owns
+  test('Test quizid does not refer to a quiz this user owns', () => {
+    const user2 = requestRegister('jared@gmail.com', 'password3', 'Jared', 'Simion').jsonBody as SessionId;
+    const notmyquiz = requestQuizCreate(user2.token, 'My Quiz2', 'My description.').jsonBody as quizId;
+    const result = requestUpdateQuizDescription(user.token, notmyquiz.quizId, 'My updated description.');
+    expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
+    expect(result.statusCode).toStrictEqual(403);
+  });
 
+  // 5. Quiz description is more than 100 characters long
+  test('Test quiz description < 100 characters long', () => {
+    const result = requestUpdateQuizDescription(user.token, quiz.quizId, 'My very, very, very, very, very, very, very, very, very, very, very, very, very, very, long description.');
+    expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
+    expect(result.statusCode).toStrictEqual(400);
+  });
+});
 
 /**
  * test for quizQuestionCreat
@@ -415,387 +415,420 @@ describe('Testing Post /v1/admin/quiz/{quizid}/question', () => {
     expect(quizQuestionCreateResponse.jsonBody).toStrictEqual({ questionId: expect.any(Number) });
   });
 
-  test('Error test for 400 error', () => {
-    let user: SessionId;
-    let quiz: quizId;
-
-    user = requestRegister('valideEmail@gmail.com', 'password1', 'Jane', 'Lawson').jsonBody as SessionId;
-    quiz = requestQuizCreate(user.token, 'British', 'history').jsonBody as quizId;
+  describe('Error test for 400 error', () => {
+    requestClear();
+    const user = requestRegister('valideEmail@gmail.com', 'password1', 'Jane', 'Lawson').jsonBody as SessionId;
+    const quiz = requestQuizCreate(user.token, 'British', 'history').jsonBody as quizId;
 
     test.each([
       {
         test: 'Question string too short',
         token: user.token,
-        questionBody: {
-          question: 'Who?',
-          duration: 5,
-          points: 5,
-          answers: [
-            {
-              answer: 'Prince Charles',
-              correct: true,
-            },
-            {
-              answer: 'Louis XVI',
-              correct: false,
-            }
-          ]
+        quizQuestion: {
+          questionBody: {
+            question: 'Who?',
+            duration: 5,
+            points: 5,
+            answers: [
+              {
+                answer: 'Prince Charles',
+                correct: true,
+              },
+              {
+                answer: 'Louis XVI',
+                correct: false,
+              }
+            ]
+          }
         },
         quizId: quiz.quizId
       },
       {
         test: 'Question string too long',
         token: user.token,
-        questionBody: {
-          question: 'Who?',
-          duration: 5,
-          points: 5,
-          answers: [
-            {
-              answer: 'Prince Charles',
-              correct: true,
-            },
-            {
-              answer: 'Louis XVI',
-              correct: false,
-            }
-          ]
+        quizQuestion: {
+          questionBody: {
+            question: 'Who?',
+            duration: 5,
+            points: 5,
+            answers: [
+              {
+                answer: 'Prince Charles',
+                correct: true,
+              },
+              {
+                answer: 'Louis XVI',
+                correct: false,
+              }
+            ]
+          }
         },
         quizId: quiz.quizId
       },
       {
         test: 'Not enough answers',
         token: user.token,
-        questionBody: {
-          question: 'Who?',
-          duration: 5,
-          points: 5,
-          answers: [
-            {
-              answer: 'Prince Charles',
-              correct: true,
-            },
-            {
-              answer: 'Louis XVI',
-              correct: false,
-            }
-          ]
+        quizQuestion: {
+          questionBody: {
+            question: 'Who?',
+            duration: 5,
+            points: 5,
+            answers: [
+              {
+                answer: 'Prince Charles',
+                correct: true,
+              },
+              {
+                answer: 'Louis XVI',
+                correct: false,
+              }
+            ]
+          }
         },
         quizId: quiz.quizId
       },
       {
         test: 'Question string too long',
         token: user.token,
-        questionBody: {
-          question: 'Who?',
-          duration: 5,
-          points: 5,
-          answers: [
-            {
-              answer: 'Prince Charles',
-              correct: true,
-            },
-            {
-              answer: 'Louis XVI',
-              correct: false,
-            }
-          ]
+        quizQuestion: {
+          questionBody: {
+            question: 'Who?',
+            duration: 5,
+            points: 5,
+            answers: [
+              {
+                answer: 'Prince Charles',
+                correct: true,
+              },
+              {
+                answer: 'Louis XVI',
+                correct: false,
+              }
+            ]
+          }
         },
         quizId: quiz.quizId
       },
       {
         test: 'Too many answers',
         token: user.token,
-        questionBody: {
-          question: 'Who?',
-          duration: 5,
-          points: 5,
-          answers: [
-            {
-              answer: 'Prince Charles',
-              correct: true,
-            },
-            {
-              answer: 'Louis XVI',
-              correct: false,
-            }
-          ]
+        quizQuestion: {
+          questionBody: {
+            question: 'Who?',
+            duration: 5,
+            points: 5,
+            answers: [
+              {
+                answer: 'Prince Charles',
+                correct: true,
+              },
+              {
+                answer: 'Louis XVI',
+                correct: false,
+              }
+            ]
+          }
         },
         quizId: quiz.quizId
       },
       {
         test: 'Question string too long',
         token: user.token,
-        questionBody: {
-          question: 'Who?',
-          duration: 5,
-          points: 5,
-          answers: [
-            {
-              answer: 'Prince Charles',
-              correct: true,
-            },
-            {
-              answer: 'Louis XVI',
-              correct: false,
-            }
-          ]
+        quizQuestion: {
+          questionBody: {
+            question: 'Who?',
+            duration: 5,
+            points: 5,
+            answers: [
+              {
+                answer: 'Prince Charles',
+                correct: true,
+              },
+              {
+                answer: 'Louis XVI',
+                correct: false,
+              }
+            ]
+          }
         },
         quizId: quiz.quizId
       },
       {
         test: 'invalid duraion time(negative number)',
         token: user.token,
-        questionBody: {
-          question: 'Who?',
-          duration: 5,
-          points: 5,
-          answers: [
-            {
-              answer: 'Prince Charles',
-              correct: true,
-            },
-            {
-              answer: 'Louis XVI',
-              correct: false,
-            }
-          ]
+        quizQuestion: {
+          questionBody: {
+            question: 'Who?',
+            duration: 5,
+            points: 5,
+            answers: [
+              {
+                answer: 'Prince Charles',
+                correct: true,
+              },
+              {
+                answer: 'Louis XVI',
+                correct: false,
+              }
+            ]
+          }
         },
         quizId: quiz.quizId
       },
       {
         test: 'Question string too long',
         token: user.token,
-        questionBody: {
-          question: 'Who?',
-          duration: 5,
-          points: 5,
-          answers: [
-            {
-              answer: 'Prince Charles',
-              correct: true,
-            },
-            {
-              answer: 'Louis XVI',
-              correct: false,
-            }
-          ]
+        quizQuestion: {
+          questionBody: {
+            question: 'Who?',
+            duration: 5,
+            points: 5,
+            answers: [
+              {
+                answer: 'Prince Charles',
+                correct: true,
+              },
+              {
+                answer: 'Louis XVI',
+                correct: false,
+              }
+            ]
+          }
         },
         quizId: quiz.quizId
       },
       {
         test: 'invalid duration time(too long)',
         token: user.token,
-        questionBody: {
-          question: 'Who?',
-          duration: 5,
-          points: 5,
-          answers: [
-            {
-              answer: 'Prince Charles',
-              correct: true,
-            },
-            {
-              answer: 'Louis XVI',
-              correct: false,
-            }
-          ]
+        quizQuestion: {
+          questionBody: {
+            question: 'Who?',
+            duration: 5,
+            points: 5,
+            answers: [
+              {
+                answer: 'Prince Charles',
+                correct: true,
+              },
+              {
+                answer: 'Louis XVI',
+                correct: false,
+              }
+            ]
+          }
         },
         quizId: quiz.quizId
       },
       {
         test: 'Question string too long',
         token: user.token,
-        questionBody: {
-          question: 'Who?',
-          duration: 5,
-          points: 5,
-          answers: [
-            {
-              answer: 'Prince Charles',
-              correct: true,
-            },
-            {
-              answer: 'Louis XVI',
-              correct: false,
-            }
-          ]
+        quizQuestion: {
+          questionBody: {
+            question: 'Who?',
+            duration: 5,
+            points: 5,
+            answers: [
+              {
+                answer: 'Prince Charles',
+                correct: true,
+              },
+              {
+                answer: 'Louis XVI',
+                correct: false,
+              }
+            ]
+          }
         },
         quizId: quiz.quizId
       },
       {
         test: 'Points awarded invalid(too small)',
         token: user.token,
-        questionBody: {
-          question: 'Who?',
-          duration: 5,
-          points: 5,
-          answers: [
-            {
-              answer: 'Prince Charles',
-              correct: true,
-            },
-            {
-              answer: 'Louis XVI',
-              correct: false,
-            }
-          ]
+        quizQuestion: {
+          questionBody: {
+            question: 'Who?',
+            duration: 5,
+            points: 5,
+            answers: [
+              {
+                answer: 'Prince Charles',
+                correct: true,
+              },
+              {
+                answer: 'Louis XVI',
+                correct: false,
+              }
+            ]
+          }
         },
         quizId: quiz.quizId
       },
       {
         test: 'Question string too long',
         token: user.token,
-        questionBody: {
-          question: 'Who?',
-          duration: 5,
-          points: 5,
-          answers: [
-            {
-              answer: 'Prince Charles',
-              correct: true,
-            },
-            {
-              answer: 'Louis XVI',
-              correct: false,
-            }
-          ]
+        quizQuestion: {
+          questionBody: {
+            question: 'Who?',
+            duration: 5,
+            points: 5,
+            answers: [
+              {
+                answer: 'Prince Charles',
+                correct: true,
+              },
+              {
+                answer: 'Louis XVI',
+                correct: false,
+              }
+            ]
+          }
         },
         quizId: quiz.quizId
       },
       {
         test: 'Points awarded invalid(too large)',
         token: user.token,
-        questionBody: {
-          question: 'Who?',
-          duration: 5,
-          points: 5,
-          answers: [
-            {
-              answer: 'Prince Charles',
-              correct: true,
-            },
-            {
-              answer: 'Louis XVI',
-              correct: false,
-            }
-          ]
+        quizQuestion: {
+          questionBody: {
+            question: 'Who?',
+            duration: 5,
+            points: 5,
+            answers: [
+              {
+                answer: 'Prince Charles',
+                correct: true,
+              },
+              {
+                answer: 'Louis XVI',
+                correct: false,
+              }
+            ]
+          }
         },
         quizId: quiz.quizId
       },
       {
         test: 'Question string too long',
         token: user.token,
-        questionBody: {
-          question: 'Who?',
-          duration: 5,
-          points: 5,
-          answers: [
-            {
-              answer: 'Prince Charles',
-              correct: true,
-            },
-            {
-              answer: 'Louis XVI',
-              correct: false,
-            }
-          ]
+        quizQuestion: {
+          questionBody: {
+            question: 'Who?',
+            duration: 5,
+            points: 5,
+            answers: [
+              {
+                answer: 'Prince Charles',
+                correct: true,
+              },
+              {
+                answer: 'Louis XVI',
+                correct: false,
+              }
+            ]
+          }
         },
         quizId: quiz.quizId
       },
       {
         test: 'Duplicates answers in one question',
         token: user.token,
-        questionBody: {
-          question: 'Who?',
-          duration: 5,
-          points: 5,
-          answers: [
-            {
-              answer: 'Prince Charles',
-              correct: true,
-            },
-            {
-              answer: 'Louis XVI',
-              correct: false,
-            }
-          ]
+        quizQuestion: {
+          questionBody: {
+            question: 'Who?',
+            duration: 5,
+            points: 5,
+            answers: [
+              {
+                answer: 'Prince Charles',
+                correct: true,
+              },
+              {
+                answer: 'Louis XVI',
+                correct: false,
+              }
+            ]
+          }
         },
         quizId: quiz.quizId
       },
       {
         test: 'Question string too long',
         token: user.token,
-        questionBody: {
-          question: 'Who?',
-          duration: 5,
-          points: 5,
-          answers: [
-            {
-              answer: 'Prince Charles',
-              correct: true,
-            },
-            {
-              answer: 'Louis XVI',
-              correct: false,
-            }
-          ]
+        quizQuestion: {
+          questionBody: {
+            question: 'Who?',
+            duration: 5,
+            points: 5,
+            answers: [
+              {
+                answer: 'Prince Charles',
+                correct: true,
+              },
+              {
+                answer: 'Louis XVI',
+                correct: false,
+              }
+            ]
+          }
         },
         quizId: quiz.quizId
       },
       {
         test: 'No correct answers exist',
         token: user.token,
-        questionBody: {
-          question: 'Who?',
-          duration: 5,
-          points: 5,
-          answers: [
-            {
-              answer: 'Prince Charles',
-              correct: true,
-            },
-            {
-              answer: 'Louis XVI',
-              correct: false,
-            }
-          ]
+        quizQuestion: {
+          questionBody: {
+            question: 'Who?',
+            duration: 5,
+            points: 5,
+            answers: [
+              {
+                answer: 'Prince Charles',
+                correct: true,
+              },
+              {
+                answer: 'Louis XVI',
+                correct: false,
+              }
+            ]
+          }
         },
         quizId: quiz.quizId
       },
       {
         test: 'Question string too long',
         token: user.token,
-        questionBody: {
-          question: 'Who?',
-          duration: 5,
-          points: 5,
-          answers: [
-            {
-              answer: 'Prince Charles',
-              correct: true,
-            },
-            {
-              answer: 'Louis XVI',
-              correct: false,
-            }
-          ]
+        quizQuestion: {
+          questionBody: {
+            question: 'Who?',
+            duration: 5,
+            points: 5,
+            answers: [
+              {
+                answer: 'Prince Charles',
+                correct: true,
+              },
+              {
+                answer: 'Louis XVI',
+                correct: false,
+              }
+            ]
+          }
         },
         quizId: quiz.quizId
       },
-    ])("requestUpdateUserDetails error: '$test'", ({ token, questionBody, quizId }) => {
-      requestRegister('validemail1@gmail.com', 'password7', 'Jennifer', 'Lawson');
-      const response = requestQuizQuestionCreat(token, questionBody, quizId);
+    ])("requestUpdateUserDetails error: '$test'", ({ token, quizQuestion, quizId }) => {
+      const response = requestQuizQuestionCreat(token, quizQuestion, quizId);
       expect(response.jsonBody).toStrictEqual({ error: expect.any(String) });
       expect(response.statusCode).toStrictEqual(400);
     });
+  });
 
-    test('Error test for 401 error', () => {
-      requestClear();
-    });
+  describe('Error test for 401 error', () => {
+    requestClear();
 
-    user = requestRegister('valideEmail@gmail.com', 'password1', 'Jane', 'Lawson').jsonBody as SessionId;
-    quiz = requestQuizCreate(user.token, 'British', 'history').jsonBody as quizId;
+    const user = requestRegister('valideEmail@gmail.com', 'password1', 'Jane', 'Lawson').jsonBody as SessionId;
+    const quiz = requestQuizCreate(user.token, 'British', 'history').jsonBody as quizId;
 
     test.each([
       {
@@ -853,7 +886,7 @@ describe('Testing Post /v1/admin/quiz/{quizid}/question', () => {
     const user = requestRegister('valideEmail@gmail.com', 'password1', 'Jane', 'Lawson').jsonBody as SessionId;
     const quiz = requestQuizCreate(user.token, 'British', 'history').jsonBody as quizId;
     const user2 = requestRegister('valideEmail2@gmail.com', 'password1', 'John', 'Lawson').jsonBody as SessionId;
-    const quiz2 = requestQuizCreate(user.token, 'American', 'history').jsonBody as quizId;
+    requestQuizCreate(user.token, 'American', 'history').jsonBody as quizId;
 
     const input : quizQuestionCreatInput = {
       questionBody: {
