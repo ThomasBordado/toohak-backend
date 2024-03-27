@@ -11,7 +11,7 @@ import process from 'process';
 import { clear } from './other';
 import { adminQuizList, adminQuizCreate, adminQuizRemove } from './quiz';
 import { adminAuthLogin, adminAuthRegister, adminUserPasswordUpdate } from './auth';
-import { loadData, saveData } from './p';
+import { saveData } from './t';
 
 // Set up web app
 const app = express();
@@ -60,7 +60,6 @@ app.post('/v1/admin/auth/login', (req: Request, res: Response) => {
 });
 
 app.put('/v1/admin/user/password', (req: Request, res: Response) => {
-  loadData();
   const { token, oldPassword, newPassword } = req.body;
   const response = adminUserPasswordUpdate(token, oldPassword, newPassword);
   saveData();

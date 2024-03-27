@@ -1,7 +1,6 @@
 import isEmail from 'validator/lib/isEmail.js';
 import { getData } from './dataStore';
-import { SessionId, user, UserId, ErrorReturn } from './interfaces';
-import { Token } from 'yaml/dist/parse/cst';
+import { user, UserId, ErrorReturn } from './interfaces';
 import { loadData } from './t';
 /**
  * Check a given email. If valid return true and if the email
@@ -178,12 +177,12 @@ export const isEmailUsedByOther = (email: string, token: string): boolean => {
  * Given a token and check for the userId
  * @param {string} token - unique Id for logged in user
  * @returns {number} userId
- */ 
+ */
 export const getUserId = (token: string): UserId | ErrorReturn => {
-	const data = getData();
-	const user = data.users.find(users => users.sessions.includes(parseInt(token)));
-	if (user) {
-		return { authUserId: user.userId };
-	}
-	return {error: 'invalid token'}
+  const data = getData();
+  const user = data.users.find(users => users.sessions.includes(parseInt(token)));
+  if (user) {
+    return { authUserId: user.userId };
+  }
+  return { error: 'invalid token' };
 };
