@@ -1,5 +1,5 @@
 import { requestRegister, requestQuizList, requestQuizCreate, requestQuizTrash, requestQuizQuestionCreat, requestClear } from './wrapper';
-import { QuizListReturn, SessionId, quizId, quizUser } from './interfaces';
+import { QuizListReturn, SessionId, quiz, quizId, quizUser } from './interfaces';
 
 beforeEach(() => {
   requestClear();
@@ -395,7 +395,7 @@ describe('Testing Post /v1/admin/quiz/{quizid}/question', () => {
         ]
       },
       quiz.quizId
-    ).jsonBody;
+    );
       expect(quizQuestionCreatResponse.statusCode).toStrictEqual(200);
       expect(quizQuestionCreatResponse.jsonBody).toStrictEqual({ questionId: expect.any(Number) });
     });
@@ -707,17 +707,9 @@ describe('Testing Post /v1/admin/quiz/{quizid}/question', () => {
     test('Error test for 401 error', () => {
       requestClear();
     });
-  
-  
-    const adminAuthRegisterResponse = request('POST', `${SERVER_URL}/v1/admin/auth/register`, {
-      json: { email: '', password: '', nameFirst: '', nameLast: '' }
-    });
-    const adminAuthRegisterJson = JSON.parse(adminAuthRegisterResponse.body.toString());
-  
-    const adminQuizCreateResponse = request('POST', `${SERVER_URL}/v1/admin/quiz`, {
-      json: { token: '', name: '', description: '' }
-    });
-    const adminQuizCreateJson = JSON.parse(adminQuizCreateResponse.body.toString());
+
+    user = requestRegister('valideEmail@gmail.com', 'password1', 'Jane', 'Lawson').jsonBody as SessionId
+    quiz = requestQuizCreate(user.token, 'British', 'history').jsonBody as quizId;
   
     test.each([
       {
@@ -738,10 +730,11 @@ describe('Testing Post /v1/admin/quiz/{quizid}/question', () => {
               }
             ]
           }
-        }
+        },
+        quizId: quiz.quizId,
       },
       {
-        token: '',
+        token: user.token + 100,
         quizQuestion: {                                               // 	Token is invalid
           questionBody: {
             question: 'Who is the Monarch of England?',
@@ -758,56 +751,45 @@ describe('Testing Post /v1/admin/quiz/{quizid}/question', () => {
               }
             ]
           }
-        }
+        },
+        quizId: quiz.quizId,
       },
     ])(
       'Error with token="$token"',
-      ({ token, quizQuestion }) => {
-        const quizQuestionCreateResponse = request('POST', `${SERVER_URL}/v1/admin/quiz/${adminQuizCreateJson.quizid}/transfer`, {
-          json: { token, quizQuestion }
-        });
+      ({ token, quizQuestion, quizId }) => {
+        const quizQuestionCreateResponse = requestQuizQuestionCreat(token, quizQuestion, quizId);
         expect(quizQuestionCreateResponse.statusCode).toStrictEqual(401);
-        const quizQuestionCreateJson = JSON.parse(quizQuestionCreateResponse.body.toString());
-        expect(quizQuestionCreateJson).toStrictEqual({ error: expect.any(String) });
+        expect(quizQuestionCreateResponse.jsonBody).toStrictEqual({ error: expect.any(String) });
       });
     });
   
     test('Error test for 403 error, Valid token is provided, but user is not an owner of this quiz', () => {
-      const adminAuthRegisterResponse = request('POST', `${SERVER_URL}/v1/admin/auth/register`, {
-          json: { email: '', password: '', nameFirst: '', nameLast: '' }
-        });
-      const adminAuthRegisterJson = JSON.parse(adminAuthRegisterResponse.body.toString());
+      let user: SessionId;
+      let quiz: quizId;
+      
+      user = requestRegister('valideEmail@gmail.com', 'password1', 'Jane', 'Lawson').jsonBody as SessionId
+      quiz = requestQuizCreate(user.token, 'British', 'history').jsonBody as quizId;
   
-      const adminQuizCreateResponse = request('POST', `${SERVER_URL}/v1/admin/quiz`, {
-        json: { token: '', name: '', description: '' }
-      });
-      const adminQuizCreateJson = JSON.parse(adminQuizCreateResponse.body.toString());
-  
-      const quizQuestionCreatResponse = request('POST', `${SERVER_URL}/v1/admin/quiz/${adminQuizCreateJson.quizid}/transfer`, {
-        json: {
-          token: adminAuthRegisterJson.token + 1,
-          quizQuestion: {                                               // 	Token is invalid
-            questionBody: {
-              question: 'Who is the Monarch of England?',
-              duration: 4,
-              points: 5,
-              answers: [
-                {
-                  answer: 'Prince Charles',
-                  correct: true
-                },
-                {
-                  answer: 'Prince Charles.',
-                  correct: true
-                }
-              ]
+      const quizQuestionCreatResponse = requestQuizQuestionCreat(user.token,
+        {
+          question: 'Who is the Monarch of England?',
+          duration: 4,
+          points: 5,
+          answers: [
+            {
+            answer: 'Prince Charles',
+            correct: true
+            },
+            {
+              answer: 'Prince Charles.',
+              correct: true
             }
-          }
-        }
-      });
-      const quizQuestionCreatJson = JSON.parse(quizQuestionCreatResponse.body.toString());
+          ]
+        },
+        quiz.quizId
+      );
       expect(quizQuestionCreatResponse.statusCode).toStrictEqual(403);
-      expect(quizQuestionCreatJson).toStrictEqual({ error: expect.any(String) });
+      expect(quizQuestionCreatResponse.jsonBody).toStrictEqual({ error: expect.any(String) });
     });
 });
 
