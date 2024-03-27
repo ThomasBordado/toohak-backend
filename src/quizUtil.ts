@@ -1,4 +1,5 @@
-import { quizUser, user } from './interfaces';
+import { quizUser, user, quizQuestionCreatInput } from './interfaces';
+import { getData } from './dataStore';
 
 /**
  * Check if AuthUserId is valid.
@@ -77,4 +78,37 @@ export const checkQuizName = (name: string, quizzesOwned: quizUser[]) => {
   }
 
   return true;
+};
+
+export const checkQuestionValid = (quizQuestion: quizQuestionCreatInput, token: string) => {
+  if (quizQuestion.questionBody.question.length < 5 || quizQuestion.questionBody.question.length > 50) {
+    return { error: 'Question string is less than 5 characters in length or greater than 50 characters in length' };
+  }
+
+  if (quizQuestion.questionBody.answers.length > 6 || quizQuestion.questionBody.answers.length < 2) {
+    return { error : 'The question has more than 6 answers or less than 2 answers'};
+  }
+
+  if (quizQuestion.questionBody.duration <= 0) {
+    return { error: 'The question duration is not a positive number' };
+  }
+
+  const data = getData();
+  const user = data.users.find(users => users.sessions.includes(parseInt(token)));
+  let sum = 0;
+  for(let i = 0, i < user.question.length) {
+
+  }
+  
+  return { error: 'The sum of the question durations in the quiz exceeds 3 minutes' };
+
+  if (quizQuestion.questionBody.points < 1 || quizQuestion.questionBody.points > 10) {
+    return { error: 'The points awarded for the question are less than 1 or greater than 10'};
+  }
+
+  return { error: 'The length of any answer is shorter than 1 character long, or longer than 30 characters long' };
+
+  return { error: 'Any answer strings are duplicates of one another (within the same question)'};
+
+  return { error: 'There are no correct answers' };
 };
