@@ -342,7 +342,7 @@ describe('adminQuizDescriptionUpdate testing', () => {
   });
 });
 
-/*
+
 describe('Testing Post /v1/admin/quiz/{quizid}/transfer', () => {
   test('Correct status code and return value', () => {
     const adminAuthRegisterResponse1 = request('POST', `${SERVER_URL}/v1/admin/auth/register`, {
@@ -501,4 +501,4 @@ describe('Testing Post /v1/admin/quiz/{quizid}/transfer', () => {
     expect(quizTransferJson).toStrictEqual({ error: expect.any(String) });
   });
 });
-*/
+
