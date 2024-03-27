@@ -1,5 +1,5 @@
-import { requestRegister, requestQuizList, requestQuizCreate, requestQuizTrash, requestquizTransfer, requestClear } from './wrapper';
-import { QuizListReturn, SessionId, quizId, quizUser } from './interfaces';
+import { requestRegister, requestQuizList, requestQuizCreate, requestQuizTrash, requestQuizQuestionCreat, requestquizTransfer, requestClear } from './wrapper';
+import { QuizListReturn, SessionId, quizId, quizUser, quizQuestionCreatReturn } from './interfaces';
 
 beforeEach(() => {
   requestClear();
@@ -400,10 +400,6 @@ describe('Testing Post /v1/admin/quiz/{quizid}/transfer', () => {
         quizid: quiz3.quizId
 
       },
-      {
-        token: user2.token,
-        userEmaill: 'validemail@gmail.com'      // Any session for this quiz is not in END state
-      },
     ])(
       'Error with token="$token", userEmail=$userEmail"',
       ({ token, userEmaill, quizid }) => {
@@ -411,6 +407,30 @@ describe('Testing Post /v1/admin/quiz/{quizid}/transfer', () => {
         expect(quizTransferResponse.statusCode).toStrictEqual(400);
         expect(quizTransferResponse.jsonBody).toStrictEqual({ error: expect.any(String) });
       });
+  });
+
+  test('Not all quiz session are in end state', () => {
+    const user1 = requestRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith').jsonBody as SessionId;
+    requestLogout(user1.token);
+
+    const user2 = requestRegister('validemail2@gmail.com', '1234567a', 'Jennifer', 'Lawson').jsonBody as SessionId;
+    const quiz = requestQuizCreate(user2.token, 'My quiz Name', 'A description of my quiz').jsonBody as quizId;
+    const input = {
+      question: 'Who is the Monarch of England?',
+      duration: 4,
+      points: 5,
+      answers: [
+        {
+          answer: "Prince Charles",
+          correct: true
+        },
+        ]
+      };
+    const quizQuestionCreat = requestQuizQuestionCreat(user2.token, input, quiz.quizId).jsonBody as quizQuestionCreatReturn;
+
+    const quizTransferResponse = requestquizTransfer(user2.token, 'validemail2@gmail.com', quiz.quizId);
+    expect(quizTransferResponse.statusCode).toStrictEqual(400);
+    expect(quizTransferResponse.jsonBody).toStrictEqual({ error: expect.any(String) });
   });
 
   test('Error test for 401 error', () => {
