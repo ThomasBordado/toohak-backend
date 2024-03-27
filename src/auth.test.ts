@@ -178,8 +178,9 @@ describe('Test adminUserDetails', () => {
   test('Test succesful get user details', () => {
     const user1 = requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith').jsonBody as SessionId;
     const result = requestGetUserDetails(user1.token);
+    const userId = getUserId(user1.token) as UserId;
     const user = {
-      userId: user1.token,
+      userId: userId.authUserId,
       name: 'Hayden Smith',
       email: 'hayden.smith@unsw.edu.au',
       numSuccessfulLogins: 1,
