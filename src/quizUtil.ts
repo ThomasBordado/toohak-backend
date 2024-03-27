@@ -141,28 +141,6 @@ export const checkQuestionValid = (quizQuestion: quizQuestionCreatInput, quizId:
 };
 
 /**
- * Given an authUserId and check if it's exists in the user list
- * @param {string} token - unique identifier for an login academic
- *
- * @return {boolean} -if Id is valid reutrn true, else return false
- */
-export const isValidToken = (token: string): boolean => {
-  const data = getData();
-  if (data.users.length === 0) {
-    return false;
-  }
-  if (token.length === 0) {
-    return false;
-  }
-  for (const users of data.users) {
-    if (users.sessions.includes(parseInt(token))) {
-      return true;
-    }
-  }
-  return false;
-};
-
-/**
  *
  */
 export const isValidQuizId = (token: string, quizId: number): EmptyObject | ErrorReturn => {

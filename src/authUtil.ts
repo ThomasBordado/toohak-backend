@@ -68,18 +68,23 @@ export const checkName = (name: string, position: string) => {
 
 /**
  * Given an authUserId and check if it's exists in the user list
- * @param {number} authUserId - unique identifier for an academic
+ * @param {string} token - unique identifier for an login academic
  *
  * @return {boolean} -if Id is valid reutrn true, else return false
  */
-export const isValidUserId = (authUserId: number): boolean => {
+export const isValidToken = (token: string): boolean => {
   const data = getData();
+  if (token === '') {
+    return false;
+  }
   if (data.users.length === 0) {
     return false;
   }
-
+  if (token === '') {
+    return false;
+  }
   for (const users of data.users) {
-    if (users.userId === authUserId) {
+    if (users.sessions.includes(parseInt(token))) {
       return true;
     }
   }

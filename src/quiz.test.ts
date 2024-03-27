@@ -396,7 +396,7 @@ describe('Testing Post /v1/admin/quiz/{quizid}/question', () => {
     expect(quizQuestionCreateResponse.statusCode).toStrictEqual(200);
     expect(quizQuestionCreateResponse.jsonBody).toStrictEqual({ questionId: expect.any(Number) });
   });
-/*
+
   test('Error test for 400 error', () => {
     let user: SessionId;
     let quiz: quizId;
@@ -771,13 +771,13 @@ describe('Testing Post /v1/admin/quiz/{quizid}/question', () => {
       expect(response.jsonBody).toStrictEqual({ error: expect.any(String) });
       expect(response.statusCode).toStrictEqual(400);
     });
-*/
+
     test('Error test for 401 error', () => {
       requestClear();
     });
 
-    const user = requestRegister('valideEmail@gmail.com', 'password1', 'Jane', 'Lawson').jsonBody as SessionId;
-    const quiz = requestQuizCreate(user.token, 'British', 'history').jsonBody as quizId;
+    user = requestRegister('valideEmail@gmail.com', 'password1', 'Jane', 'Lawson').jsonBody as SessionId;
+    quiz = requestQuizCreate(user.token, 'British', 'history').jsonBody as quizId;
 
     test.each([
       {
@@ -859,4 +859,4 @@ describe('Testing Post /v1/admin/quiz/{quizid}/question', () => {
     expect(quizQuestionCreatResponse.statusCode).toStrictEqual(403);
     expect(quizQuestionCreatResponse.jsonBody).toStrictEqual({ error: expect.any(String) });
   });
-// });
+});
