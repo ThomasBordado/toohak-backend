@@ -9,7 +9,7 @@ import fs from 'fs';
 import path from 'path';
 import process from 'process';
 import { clear } from './other';
-import { adminQuizList, adminQuizCreate, adminQuizRemove } from './quiz';
+import { adminQuizList, adminQuizCreate, adminQuizRemove, adminQuizDescriptionUpdate } from './quiz';
 import { adminAuthLogin, adminAuthRegister, adminUserDetailsUpdate, adminUserPasswordUpdate } from './auth';
 import { loadData, saveData } from './persistence';
 
@@ -103,6 +103,23 @@ app.post('/v1/admin/quiz', (req: Request, res: Response) => {
   if ('error' in result) {
     if (result.error.localeCompare('Token is empty or invalid') === 0) {
       return res.status(401).json(result);
+    }
+    return res.status(400).json(result);
+  }
+  res.json(result);
+});
+
+app.put('/v1/admin/quiz/:quizid/description', (req: Request, res: Response) => {
+  // Everything in req.body will be of the correct type
+  const quizId = parseInt(req.params.quizid as string);
+  const token = parseInt(req.body.token as string);
+  const { description } = req.body;
+  const result = adminQuizDescriptionUpdate(token, quizId, description);
+  if ('error' in result) {
+    if (result.error.localeCompare('Token is empty or invalid') === 0) {
+      return res.status(401).json(result);
+    } else if (result.error.localeCompare('Invalid quizId') === 0 || result.error.localeCompare('User does not own this quiz') === 0) {
+      return res.status(403).json(result);
     }
     return res.status(400).json(result);
   }
