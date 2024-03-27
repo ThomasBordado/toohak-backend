@@ -9,7 +9,7 @@ import fs from 'fs';
 import path from 'path';
 import process from 'process';
 import { clear } from './other';
-import { adminQuizList, adminQuizCreate, adminQuizRemove } from './quiz';
+import { adminQuizList, adminQuizCreate, adminQuizRemove, adminQuizQuestionUpdate, adminQuizQuestionDelete } from './quiz';
 import { adminAuthLogin, adminAuthRegister } from './auth';
 
 // Set up web app
@@ -93,6 +93,39 @@ app.delete('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
   }
   res.json(result);
 });
+
+app.put('/v1/admin/quiz/:quizid/question/:questionid', (req: Request, res: Response) => {
+  const quizId = parseInt(req.params.quizid as string);
+  const questionId = parseInt(req.params.questionid as string);
+  const { token, questionBody } = req.body;
+    const response = adminQuizQuestionUpdate(token, questionBody, quizId, questionId);
+    if ('error' in response) {
+      if (response.error.localeCompare('Token is empty or invalid') === 0) {
+        return res.status(401).json(response);
+      } else if (response.error.localeCompare('Invalid quizId') === 0 || response.error.localeCompare('User does not own quiz') === 0) {
+        return res.status(403).json(response);
+      }
+        return res.status(400).json(response);
+    }
+    res.json(response);
+})
+
+app.delete('/v1/admin/quiz/:quizid/question/:questionid', (req: Request, res: Response) => {
+  const quizId = parseInt(req.params.quizid as string);
+  const questionId = parseInt(req.params.questionid as string);
+  const { token } = req.body;
+    const response = adminQuizQuestionDelete(token, quizId, questionId);
+    if ('error' in response) {
+      if (response.error.localeCompare('Token is empty or invalid') === 0) {
+        return res.status(401).json(response);
+      } else if (response.error.localeCompare('Invalid quizId') === 0 || response.error.localeCompare('User does not own quiz') === 0) {
+        return res.status(403).json(response);
+      }
+        return res.status(400).json(response);
+    }
+    res.json(response);
+})
+
 
 app.delete('/v1/clear', (req: Request, res: Response) => {
   const response = clear();

@@ -115,3 +115,13 @@ export const requestUpdateQuizDescription = (token: string, description: string,
 export const requestClear = () => {
   return requestHelper('DELETE', '/v1/clear', {});
 };
+
+export const requestUpdateQuizQuestion = (token: string, questionBody: quizQuestionCreatInput, quizId: number, questionId: number) => {
+  return requestHelper('PUT', '/v1/admin/quiz/{quizid}/question/{questionid}', { token, questionBody, quizId, questionId });
+};
+
+export const requestDeleteQuizQuestion = (token: string, quizId: number, questionId: number) => {
+  return requestHelper('DELETE', '/v1/admin/quiz/${quizid}/question/${questionid}', { token, quizId, questionId });
+};
+
+
