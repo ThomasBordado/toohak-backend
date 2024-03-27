@@ -9,7 +9,7 @@ import fs from 'fs';
 import path from 'path';
 import process from 'process';
 import { clear } from './other';
-import { adminQuizList, adminQuizCreate, adminQuizRemove } from './quiz';
+import { adminQuizList, adminQuizCreate, adminQuizRemove, adminQuizQuestionMove } from './quiz';
 import { adminAuthLogin, adminAuthRegister } from './auth';
 
 // Set up web app
@@ -90,6 +90,24 @@ app.delete('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
       return res.status(401).json(result);
     }
     return res.status(403).json(result);
+  }
+  res.json(result);
+});
+
+app.put('/v1/admin/quiz/:quizid/question/:questionid/move', (req: Request, res: Response) => {
+  const token = parseInt(req.query.token as string);
+  const quizId = parseInt(req.params.quizid as string);
+  const questionId = parseInt(req.params.questionId as string);
+  const newPosition = parseInt(req.params.newPosition as string);
+  const result = adminQuizQuestionMove(token, quizId, questionId, newPosition);
+  if ('error in result') {
+    if (result.error.localeCompare('Token is empty or invalid') === 0) {
+      return res.status(401).json(result);
+    } else if (result.error.localeCompare('Invalid quizId') === 0 ||
+      result.error.localeCompare('User does not own this quiz') === 0) {
+      return res.status(403).json(result);
+    }
+    return res.status(400).json(result);
   }
   res.json(result);
 });
