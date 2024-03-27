@@ -1,4 +1,4 @@
-import { requestRegister, requestQuizList, requestQuizCreate, requestQuizTrash, requestClear } from './wrapper';
+import { requestRegister, requestQuizList, requestQuizCreate, requestQuizTrash, requestClear, requestUpdateQuizQuestion, requestDeleteQuizQuestion } from './wrapper';
 import { QuizListReturn, SessionId, quizId, quizUser } from './interfaces';
 
 beforeEach(() => {
@@ -361,3 +361,187 @@ describe('adminQuizRemove testing', () => {
 //     expect(adminQuizDescriptionUpdate(user.sessionId, quiz.quizId, 'My very, very, very, very, very, very, very, very, very, very, very, very, very, very, long description.')).toStrictEqual({ error: expect.any(String) });
 //   });
 // });
+
+describe('Testing it2 function, adminQuizQuestionUpdate', () => {
+  
+  describe('Error test for 401 error', () => {
+    requestClear();
+
+    const user = requestRegister('valideEmail@gmail.com', 'password1', 'Jane', 'Lawson').jsonBody as SessionId;
+    const quiz = requestQuizCreate(user.token, 'British', 'history').jsonBody as quizId;
+
+    test.each([
+      {
+        token: '',
+        quizQuestion: { //  Token is empty
+          questionBody: {
+            question: 'Who is the Monarch of England?',
+            duration: 4,
+            points: 5,
+            answers: [
+              {
+                answer: 'Prince Charles',
+                correct: true
+              },
+              {
+                answer: 'Prince Charles.',
+                correct: true
+              }
+            ]
+          }
+        },
+        quizId: quiz.quizId,
+      },
+      {
+        token: user.token + 100,
+        quizQuestion: { //  Token is invalid
+          questionBody: {
+            question: 'Who is the Monarch of England?',
+            duration: 4,
+            points: 5,
+            answers: [
+              {
+                answer: 'Prince Charles',
+                correct: true
+              },
+              {
+                answer: 'Prince Charles.',
+                correct: true
+              }
+            ]
+          }
+        },
+        quizId: quiz.quizId,
+      },
+    ])(
+      'Error with token="$token"',
+      ({ token, quizQuestion, quizId }) => {
+        //questionid = requestQuizQuestionCreat(token, quizQuestion, quizId)
+        const quizQuestionCreateResponse = requestUpdateQuizQuestion(token, quizQuestion, quizId, questionId);
+        expect(quizQuestionCreateResponse.statusCode).toStrictEqual(401);
+        expect(quizQuestionCreateResponse.jsonBody).toStrictEqual({ error: expect.any(String) });
+      });
+  });
+
+  test('Error test for 403 error, Valid token is provided, but user is not an owner of this quiz', () => {
+    const user = requestRegister('valideEmail@gmail.com', 'password1', 'Jane', 'Lawson').jsonBody as SessionId;
+    const quiz = requestQuizCreate(user.token, 'British', 'history').jsonBody as quizId;
+    const user2 = requestRegister('valideEmail2@gmail.com', 'password1', 'John', 'Lawson').jsonBody as SessionId;
+    requestQuizCreate(user.token, 'American', 'history').jsonBody as quizId;
+
+    const input : quizQuestionCreatInput = {
+      questionBody: {
+        question: 'Who is the Monarch of England?',
+        duration: 4,
+        points: 5,
+        answers: [
+          {
+            answer: 'Prince Charles',
+            correct: true
+          },
+          {
+            answer: 'Prince Charles.',
+            correct: true
+          }
+        ]
+      }
+    };
+
+    const quizQuestionCreatResponse = requestUpdateQuizQuestion(user2.token, input, quiz.quizId);
+    expect(quizQuestionCreatResponse.statusCode).toStrictEqual(403);
+    expect(quizQuestionCreatResponse.jsonBody).toStrictEqual({ error: expect.any(String) });
+  });
+
+});
+
+describe('Testing it2 function, adminQuizQuestionDelete', () => {
+  
+  describe('Error test for 401 error', () => {
+    requestClear();
+
+    const user = requestRegister('valideEmail@gmail.com', 'password1', 'Jane', 'Lawson').jsonBody as SessionId;
+    const quiz = requestQuizCreate(user.token, 'British', 'history').jsonBody as quizId;
+
+    test.each([
+      {
+        token: '',
+        quizQuestion: { //  Token is empty
+          questionBody: {
+            question: 'Who is the Monarch of England?',
+            duration: 4,
+            points: 5,
+            answers: [
+              {
+                answer: 'Prince Charles',
+                correct: true
+              },
+              {
+                answer: 'Prince Charles.',
+                correct: true
+              }
+            ]
+          }
+        },
+        quizId: quiz.quizId,
+      },
+      {
+        token: user.token + 100,
+        quizQuestion: { //  Token is invalid
+          questionBody: {
+            question: 'Who is the Monarch of England?',
+            duration: 4,
+            points: 5,
+            answers: [
+              {
+                answer: 'Prince Charles',
+                correct: true
+              },
+              {
+                answer: 'Prince Charles.',
+                correct: true
+              }
+            ]
+          }
+        },
+        quizId: quiz.quizId,
+      },
+    ])(
+      'Error with token="$token"',
+      ({ token, quizQuestion, quizId }) => {
+        //questionid = requestQuizQuestionCreat(token, quizQuestion, quizId)
+        const quizQuestionCreateResponse = requestDeleteQuizQuestion(token, quizId, questionId);
+        expect(quizQuestionCreateResponse.statusCode).toStrictEqual(401);
+        expect(quizQuestionCreateResponse.jsonBody).toStrictEqual({ error: expect.any(String) });
+      });
+  });
+
+  test('Error test for 403 error, Valid token is provided, but user is not an owner of this quiz', () => {
+    const user = requestRegister('valideEmail@gmail.com', 'password1', 'Jane', 'Lawson').jsonBody as SessionId;
+    const quiz = requestQuizCreate(user.token, 'British', 'history').jsonBody as quizId;
+    const user2 = requestRegister('valideEmail2@gmail.com', 'password1', 'John', 'Lawson').jsonBody as SessionId;
+    requestQuizCreate(user.token, 'American', 'history').jsonBody as quizId;
+
+    const input : quizQuestionCreatInput = {
+      questionBody: {
+        question: 'Who is the Monarch of England?',
+        duration: 4,
+        points: 5,
+        answers: [
+          {
+            answer: 'Prince Charles',
+            correct: true
+          },
+          {
+            answer: 'Prince Charles.',
+            correct: true
+          }
+        ]
+      }
+    };
+
+    const quizQuestionCreatResponse = requestDeleteQuizQuestion(user2.token, quiz.quizId, quiz.questionId);
+    expect(quizQuestionCreatResponse.statusCode).toStrictEqual(403);
+    expect(quizQuestionCreatResponse.jsonBody).toStrictEqual({ error: expect.any(String) });
+  });
+
+});
