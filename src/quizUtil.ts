@@ -1,4 +1,4 @@
-import { quizUser, user, quizQuestionCreatInput } from './interfaces';
+import { quizUser, user, quizQuestionCreatInput, EmptyObject, ErrorReturn } from './interfaces';
 import { getData } from './dataStore';
 
 /**
@@ -120,11 +120,68 @@ export const checkQuestionValid = (quizQuestion: quizQuestionCreatInput, quizId:
     }
   }
 
-
   // Check if there's duplicate answers
-  return { error: 'Any answer strings are duplicates of one another (within the same question)'};
-
-  return { error: 'There are no correct answers' };
+  let uniqueAnswers : string[];
+  uniqueAnswers = [];
+  for (let i = 0; i < quizQuestion.questionBody.answers.length; i++) {
+    const currentAnswer = quizQuestion.questionBody.answers[i].answer;
+    if (!uniqueAnswers.includes(currentAnswer)) {
+      return { error: 'Any answer strings are duplicates of one another (within the same question)'};
+    }
+  }
+  
+  // Check if there's correct answer
+  const answer = quizQuestion.questionBody.answers.find(quizs => quizs.correct === true)
+  if (!answer) {
+    return { error: 'There are no correct answers' };
+  }
 
   return {};
 };
+
+/**
+ * Given an authUserId and check if it's exists in the user list
+ * @param {string} token - unique identifier for an login academic
+ *
+ * @return {boolean} -if Id is valid reutrn true, else return false
+ */
+export const isValidToken = (token: string): boolean => {
+  const data = getData();
+  if (data.users.length === 0) {
+    return false;
+  }
+  if (token === '') {
+    return false;
+  }
+  for (const users of data.users) {
+    if (users.sessions.includes(parseInt(token))) {
+      return true;
+    }
+  }
+  return false;
+};
+
+/**
+ * 
+ */
+export const isValidQuizId = (token: string, quizId: number): EmptyObject | ErrorReturn=> {
+  // Check if the quizId is invalid
+  const data = getData();
+  if (data.quizzes.length === 0) {
+    return { error: 'Invalid quizId'};
+  }
+
+  // Check if the user own the quiz
+  const quiz = data.quizzes.find(quizs => quizs.quizId === quizId);
+  if (quiz) {
+    const user = data.users.find(users => users.sessions.includes(parseInt(token)));
+    const findQuiz = user.quizzes.find(quizzes => quizzes.quizId === quizId);
+    // If the user owns this quiz
+    if (findQuiz) {
+      return {};
+    }
+    return {error: 'user does not own the quiz'};
+  } else {
+    return {error: 'Invalid quizId'};
+  }
+}

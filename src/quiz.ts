@@ -1,6 +1,6 @@
 import { getData, setData } from './dataStore';
 import { EmptyObject, ErrorReturn, QuizListReturn, quiz, quizId, quizQuestionCreatInput, quizQuestionCreatReturn } from './interfaces';
-import { validUserId, checkQuizName } from './quizUtil';
+import { validUserId, checkQuizName, checkQuestionValid, isValidToken, isValidQuizId } from './quizUtil';
 
 /**
  * Provides a list of all quizzes that are owned by the currently logged in user
@@ -189,13 +189,39 @@ export const adminQuizDescriptionUpdate = (authUserId: number, quizId: number, n
 
 
 /**
- * quizQuestionCreat
+ * 
+ * @param {string} token - unique identifier for logined user
+ * @param {Array} questionBody - the question needed to be updated to the quiz
+ * @param {number} quizId - a unique identifier of quiz
+ * @returns questionId
  */
-export const quizQuestionCreat = (token: number, questionBody: quizQuestionCreatInput, quizId: number): quizQuestionCreatReturn | ErrorReturn=> {
-
-
-  
-  return { error: 'Token is empty or invalid'};
-  return { error: 'Valid token is provided, but either the quiz ID is invalid, or the user does not own the quiz' }
-  return { questionId: 5546 };
+export const quizQuestionCreat = (token: string, questionBody: quizQuestionCreatInput, quizId: number): quizQuestionCreatReturn | ErrorReturn=> {
+  // Check if the errors in questionBody
+  const question = checkQuestionValid(questionBody, quizId);
+  if ('error' in question) {
+    return question as ErrorReturn;
+  }
+  // Check token error
+  const tokenResult = isValidToken(token);
+  if (!tokenResult) {
+    return { error: 'Token is empty or invalid' };
+  }
+  // Check if the user owns this quiz
+  const quiz = isValidQuizId(token, quizId);
+  if ('error' in quiz) {
+    return quiz as ErrorReturn;
+  }
+  //Push new question into quiz
+  const data = getData();
+  const findQuiz = data.quizzes.find(quizs => quizs.quizId === quizId);
+  const questionId = findQuiz.quizQuestions.length + 1;
+  findQuiz.quizQuestions.push({
+    questionId: questionId,
+    question: questionBody.questionBody.question,
+    duration:questionBody.questionBody.duration,
+    points: questionBody.questionBody.points,
+    answers: questionBody.questionBody.answers,
+  });
+  setData(data);
+  return { questionId: questionId };
 }
