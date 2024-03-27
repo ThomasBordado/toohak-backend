@@ -1,8 +1,7 @@
 import { requestRegister, requestLogin, requestClear, requestUpdatePassword } from './wrapper';
 import { usersList, getUserId } from './authUtil';
 import { SessionId, user, UserId } from './interfaces';
-import { Token } from 'yaml/dist/parse/cst';
-import { loadData } from './p';
+import { loadData } from './t';
 
 beforeEach(() => {
   requestClear();
@@ -327,7 +326,7 @@ describe('adminUserPasswordUpdate', () => {
   });
 
   test('adminUserPasswordUpdate error: invalid token', () => {
-    const response = requestUpdatePassword((parseInt(data.token) + 1).toString(), '1234567a', '1234567b')
+    const response = requestUpdatePassword((parseInt(data.token) + 1).toString(), '1234567a', '1234567b');
     expect(response.jsonBody).toStrictEqual({ error: expect.any(String) });
     expect(response.statusCode).toStrictEqual(401);
   });
@@ -380,6 +379,7 @@ describe('adminUserPasswordUpdate', () => {
     const id2 = requestRegister('validemail2@gmail.com', '1234567a', 'Jennifer', 'Smith').jsonBody as SessionId;
     requestUpdatePassword(id2.token, '1234567a', '1234567b');
     requestUpdatePassword(id2.token, '1234567b', '1234567c');
+    loadData();
     const userId = getUserId(data.token) as UserId;
     const userId2 = getUserId(id2.token) as UserId;
     const result = usersList().sort((a, b) => a.userId - b.userId);
