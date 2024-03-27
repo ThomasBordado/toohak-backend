@@ -70,9 +70,6 @@ export const checkName = (name: string, position: string) => {
 
 /**
  * Given an authUserId and check if it's exists in the user list
-<<<<<<< HEAD
- * @param {number} token - unique identifier for an academic
-=======
  * @param {string} token - unique identifier for an login academic
 >>>>>>> master
  *
@@ -184,13 +181,9 @@ export const isEmailUsedByOther = (email: string, token: string): boolean => {
 };
 
 /**
-<<<<<<< HEAD
  * Given a token and check for the userId
  * @param {string} token - unique Id for logged in user
  * @returns {number} userId
-=======
- *
->>>>>>> master
  */
 export const getUserId = (token: string): UserId | ErrorReturn => {
   loadData();
