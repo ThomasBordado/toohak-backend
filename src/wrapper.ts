@@ -115,3 +115,7 @@ export const requestUpdateQuizDescription = (token: string, quizId: number, desc
 export const requestClear = () => {
   return requestHelper('DELETE', '/v1/clear', {});
 };
+
+export const requestQuestionDuplicate = () => {
+  return requestHelper('POST', `/v1/admin/quiz/${quizId}/question/${questionId}/duplicate`, { token, quizId, questionId });
+}
