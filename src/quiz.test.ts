@@ -149,7 +149,7 @@ describe('adminQuizRemove testing', () => {
     });
     test('User owns quiz with same name as given quizId', () => {
       const user2 = requestRegister('chloet@gmail.com', 'password1', 'Chloe', 'Turner').jsonBody as SessionId;
-      const quz2 = requestQuizCreate(user2.token, 'My Quiz', 'My description.');
+      requestQuizCreate(user2.token, 'My Quiz', 'My description.');
       const result = requestQuizTrash(user2.token, quiz.quizId);
       expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
       expect(result.statusCode).toStrictEqual(403);
