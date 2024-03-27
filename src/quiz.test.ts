@@ -1,4 +1,4 @@
-import { requestRegister, requestQuizList, requestQuizCreate, requestQuizTrash, requestClear, requestQuizInfo, requestUpdateQuizName } from './wrapper';
+import { requestRegister, requestQuizList, requestQuizCreate, requestQuizTrash, requestClear, requestQuizInfo, requestUpdateQuizName, requestUpdateQuizDescription } from './wrapper';
 import { QuizListReturn, SessionId, quizId, quizUser } from './interfaces';
 
 beforeEach(() => {
@@ -66,7 +66,6 @@ describe('adminQuizCreate testing', () => {
     test('Invalid SessionId', () => {
       const result = requestQuizCreate(user.token + 1, 'My Quiz', 'My description.');
       expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-      console.log(result.jsonBody);
       expect(result.statusCode).toStrictEqual(401);
     });
     test('Invalid name: Contains non-alphanumeric characters', () => {
@@ -144,19 +143,14 @@ describe('adminQuizRemove testing', () => {
     });
     test('User does not own quiz with given quizId', () => {
       const user2 = requestRegister('chloet@gmail.com', 'password1', 'Chloe', 'Turner').jsonBody as SessionId;
-      console.log(user2);
       const result = requestQuizTrash(user2.token, quiz.quizId);
-      console.log(result.jsonBody);
       expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
       expect(result.statusCode).toStrictEqual(403);
     });
     test('User owns quiz with same name as given quizId', () => {
       const user2 = requestRegister('chloet@gmail.com', 'password1', 'Chloe', 'Turner').jsonBody as SessionId;
-      console.log(user2);
-      const quz2 = requestQuizCreate(user2.token, 'My Quiz', 'My description.');
-      console.log(quz2.jsonBody);
+      requestQuizCreate(user2.token, 'My Quiz', 'My description.');
       const result = requestQuizTrash(user2.token, quiz.quizId);
-      console.log(result.jsonBody);
       expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
       expect(result.statusCode).toStrictEqual(403);
     });
@@ -355,39 +349,47 @@ describe('adminQuizNameUpdate testing', () => {
   });
 });
 
-// describe('adminQuizDescriptionUpdate testing', () => {
-//   let user: SessionId;
-//   let quiz: quizId;
-//   beforeEach(() => {
-//     user = adminAuthRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith') as SessionId;
-//     quiz = adminQuizCreate(user.sessionId, 'My Quiz', 'My description.') as quizId;
-//   });
+describe('adminQuizDescriptionUpdate testing', () => {
+  let user: SessionId;
+  let quiz: quizId;
+  beforeEach(() => {
+    user = requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith').jsonBody as SessionId;
+    quiz = requestQuizCreate(user.token, 'My Quiz', 'My description.').jsonBody as quizId;
+  });
 
-//   // 1. Succesful quiz description update
-//   test('Test Succesful adminQuizDescriptionUpdate', () => {
-//     expect(adminQuizDescriptionUpdate(user.sessionId, quiz.quizId, 'My updated description.')).toStrictEqual({});
-//   });
+  // 1. Succesful quiz description update
+  test('Test Succesful adminQuizDescriptionUpdate', () => {
+    const result = requestUpdateQuizDescription(user.token, quiz.quizId, 'My updated description.');
+    expect(result.jsonBody).toStrictEqual({});
+  });
 
-//   // 2. authUserId is not a valid user
-//   test('Test authUserId is not valid', () => {
-//     expect(adminQuizDescriptionUpdate(user.sessionId + 1, quiz.quizId, 'My updated description.')).toStrictEqual({ error: expect.any(String) });
-//   });
+  // 2. Session token is not valid
+  test('Test user.token is not valid', () => {
+    const result = requestUpdateQuizDescription(user.token + 1, quiz.quizId, 'My updated description.');
+    expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
+    expect(result.statusCode).toStrictEqual(401);
+  });
 
-//   // 3. Quiz Id does not refer to a valid quiz
-//   test('Test quizid does not refer to valid quiz', () => {
-//     expect(adminQuizDescriptionUpdate(user.sessionId, quiz.quizId + 1, 'My updated description.')).toStrictEqual({ error: expect.any(String) });
-//   });
+  // 3. Quiz Id does not refer to a valid quiz
+  test('Test quizid does not refer to valid quiz', () => {
+    const result = requestUpdateQuizDescription(user.token, quiz.quizId + 1, 'My updated description.');
+    expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
+    expect(result.statusCode).toStrictEqual(403);
+  });
 
-//   // 4. Quiz Id does not refer to a quiz this user owns
-//   test('Test quizid does not refer to a quiz this user owns', () => {
-//     const user1 = adminAuthRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith') as SessionId;
-//     const user2 = adminAuthRegister('jared@gmail.com', 'password3', 'Jared', 'Simion') as SessionId;
-//     const notmyquiz = adminQuizCreate(user2.sessionId, 'My Quiz2', 'My description.') as quizId;
-//     expect(adminQuizDescriptionUpdate(user1.sessionId, notmyquiz.quizId, 'My updated description.')).toStrictEqual({ error: expect.any(String) });
-//   });
+  // 4. Quiz Id does not refer to a quiz this user owns
+  test('Test quizid does not refer to a quiz this user owns', () => {
+    const user2 = requestRegister('jared@gmail.com', 'password3', 'Jared', 'Simion').jsonBody as SessionId;
+    const notmyquiz = requestQuizCreate(user2.token, 'My Quiz2', 'My description.').jsonBody as quizId;
+    const result = requestUpdateQuizDescription(user.token, notmyquiz.quizId, 'My updated description.');
+    expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
+    expect(result.statusCode).toStrictEqual(403);
+  });
 
-//   // 5. Quiz description is more than 100 characters long
-//   test('Test quiz description < 100 characters long', () => {
-//     expect(adminQuizDescriptionUpdate(user.sessionId, quiz.quizId, 'My very, very, very, very, very, very, very, very, very, very, very, very, very, very, long description.')).toStrictEqual({ error: expect.any(String) });
-//   });
-// });
+  // 5. Quiz description is more than 100 characters long
+  test('Test quiz description < 100 characters long', () => {
+    const result = requestUpdateQuizDescription(user.token, quiz.quizId, 'My very, very, very, very, very, very, very, very, very, very, very, very, very, very, long description.');
+    expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
+    expect(result.statusCode).toStrictEqual(400);
+  });
+});
