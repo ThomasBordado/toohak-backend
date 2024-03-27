@@ -3,7 +3,7 @@ import isEmail from 'validator/lib/isEmail.js';
 import { getData, setData } from './dataStore';
 import { validUserId } from './quizUtil';
 import { EmptyObject, ErrorReturn, UserDetailsReturn, user, SessionId } from './interfaces';
-import { saveData } from './persistence.ts';
+import { saveData } from './persistence';
 
 /**
  * Register a user with an email, password, and names, then returns their authUserId.
