@@ -1,5 +1,8 @@
-import { requestRegister, requestQuizList, requestQuizCreate, requestQuizTrash, requestClear, requestUpdateQuizDescription } from './wrapper';
+import {
+  requestRegister, requestQuizList, requestQuizCreate, requestQuizTrash, requestClear, requestUpdateQuizDescription, /*requestQuestionDuplicate*/
+} from './wrapper';
 import { QuizListReturn, SessionId, quizId, quizUser } from './interfaces';
+import { adminQuizQuestionDuplicate } from './quiz';
 
 beforeEach(() => {
   requestClear();
@@ -363,3 +366,48 @@ describe('adminQuizDescriptionUpdate testing', () => {
     expect(result.statusCode).toStrictEqual(400);
   });
 });
+
+/*
+describe('adminQuizQuestionDuplicate testing', () => {
+  let user: SessionId;
+  let quiz: quizId;
+  beforeEach(() => {
+    user = requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith').jsonBody as SessionId;
+    quiz = requestQuizCreate(user.token, 'My Quiz', 'My description.').jsonBody as quizId.jsonBody as quizId;
+    //question1 = requestQuestionCreate
+    //question2 = requestQuestionCreate
+    //question3 = requestQuestionCreate
+  });
+
+  // 1. Succesfully duplicate question
+  test('Test succesful duplication of question', () => {
+    const result = requestQuestionDuplicate(user.token, quiz.quizId, question2.questionId);
+    expect(result.statusCode).toStrictEqual(200);
+  });
+
+  //2. Invalid Token
+  test('Test invalid Token', () => {
+    //const result = requestQuestionDuplicate(user.token + 1, quiz.quizId, question1.questionId);
+    //expect(result.jsonbody).toStrictEqual({ error: expect.any(String)});
+    //expect(result.statusCode).toStrictEqual(401);
+  });
+
+  //3. Valid token but quizId invalid
+  test('Test invalid quizId, Valid token', () => {
+    //const result = requestQuestionDuplicate(user.token, quiz.quizId + 1, question1.questionId);
+    //expect(result.jsonbody).toStrictEqual({ error: expect.any(String)});
+    //expect(result.statusCode).toStrictEqual(400);
+  });
+
+  //4. Valid token invalid quizId/user does not own this quiz
+  test('Test Empty quizId', () => {
+    user2 = requestRegister('jareds@gmail.com', 'password2', 'Jared', 'Simion').jsonBody as SessionId;
+    quiz2 = requestQuizCreate(user2.token, 'My Quiz', 'My description.').jsonBody as quizId;
+    //const result = requestQuestionDuplicate(user.token, quiz2.quizId, question1.questionId);
+    //expect(result.jsonbody).toStrictEqual({ error: expect.any(String)});
+    //expect(result.statusCode).toStrictEqual(403);
+  });
+
+
+});
+*/

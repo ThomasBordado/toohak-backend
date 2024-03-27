@@ -209,6 +209,6 @@ export const adminQuizQuestionDuplicate = (token: number, quizId: number, questi
   data.quizzes[findQuiz].quizQuestions.splice(duplicateLocation, 0, questionToDuplicate);
   data.quizzes[findQuiz].timeLastEdited = Math.floor(Date.now() / 1000);
   setData(data);
-  return { newQuestionId: questionId.toString }
+  //return { newQuestionId: questionId.toString }
 }
 
