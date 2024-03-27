@@ -1,37 +1,37 @@
 import * as fs from 'fs';
 import { getData, setData } from './dataStore';
-// ========================================================================= //
-// Functionality for persistence
+
+// This File hold the persistence functionality
+
 // Function to save data from dataStore to a JSON file
 export const saveData = (): void => {
   try {
     fs.writeFileSync('./database.json', JSON.stringify(getData()));
-    // console.log('Data saved successfully to ./database.json');
   } catch (error) {
-    // console.error('Error saving data to file: ./database.json', error);
+    console.log('Error saving data to database');
   }
 };
 
 // Function to update dataStore from a JSON file
 export const loadData = (): void => {
+  // If a database.json file does not exist, do not try to load anything.
   if (!fs.existsSync('./database.json')) {
     return;
   }
+
   try {
     const jsonData = fs.readFileSync('./database.json', 'utf8');
     const data = JSON.parse(jsonData);
     setData(data);
-    // console.log('DataStore updated from ./database.json');
   } catch (error) {
-    // console.error('Error updating dataStore from file: ./database.json');
+    console.log('Error updating data from database');
   }
 };
 
 export const clearDataFile = (): void => {
   try {
     fs.unlinkSync('./database.json');
-    // console.log(`JSON file deleted successfully.`);
   } catch (error) {
-    // console.error(`Error deleting JSON file`, error);
+    console.log('Error deleting JSON file');
   }
 };
