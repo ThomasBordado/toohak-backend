@@ -4,10 +4,10 @@ import { port, url } from './config.json';
 const SERVER_URL = `${url}:${port}`;
 
 interface RequestHelperReturnType {
-    statusCode: number;
-    jsonBody?: Record<string, any>;
-    error?: string;
-  }
+  statusCode: number;
+  jsonBody?: Record<string, any>;
+  error?: string;
+}
 /**
  * Sends a request to the given route and return its results
  *
@@ -115,3 +115,7 @@ export const requestUpdateQuizDescription = (token: string, description: string,
 export const requestClear = () => {
   return requestHelper('DELETE', '/v1/clear', {});
 };
+
+export const requestMoveQuestion = (token: string, quizId: number, questionId: number, newPosition: number) => {
+  return requestHelper('PUT', `/v1/admin/quiz/${quizId}/question/${questionId}/move`)
+}
