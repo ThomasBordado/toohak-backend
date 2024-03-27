@@ -6,6 +6,7 @@ export interface quiz {
   timeCreated: number;
   timeLastEdited: number;
   description: string;
+  quizQuestions: quizQuestionCreatInput[];
 }
 
 export interface quizUser {
