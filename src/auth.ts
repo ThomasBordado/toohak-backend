@@ -169,7 +169,7 @@ export const adminUserDetailsUpdate = (token: string, email: string, nameFirst: 
 export const adminUserPasswordUpdate = (token: string, oldPassword: string, newPassword: string): EmptyObject | ErrorReturn => {
   // 1. Check if AuthUserId is valid
   if (!isValidToken(token)) {
-    return { error: 'AuthUserId is not a valid user.' };
+    return { error: 'Token is empty or invalid' };
   }
 
   // 2. Check if the old password is correct

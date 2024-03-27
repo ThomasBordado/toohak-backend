@@ -2,6 +2,7 @@ import { requestRegister, requestLogin, requestClear, requestUpdatePassword } fr
 import { usersList, getUserId } from './authUtil';
 import { SessionId, user, UserId } from './interfaces';
 import { Token } from 'yaml/dist/parse/cst';
+import { loadData } from './p';
 
 beforeEach(() => {
   requestClear();
@@ -345,7 +346,9 @@ describe('adminUserPasswordUpdate', () => {
 
   // 2. Testing for return value
   test('adminUserPasswordUpdate return type', () => {
-    expect(requestUpdatePassword(data.token, '1234567a', '1234567b')).toStrictEqual({});
+    const response = requestUpdatePassword(data.token, '1234567a', '1234567b');
+    expect(response.jsonBody).toStrictEqual({});
+    expect(response.statusCode).toStrictEqual(200);
   });
 
   // 3. Testing for behaviors
@@ -404,7 +407,7 @@ describe('adminUserPasswordUpdate', () => {
             numSuccessfulLogins: 1,
             numFailedPasswordsSinceLastLogin: 0,
             quizzes: [],
-            sessions: [parseInt(data.token)],
+            sessions: [parseInt(id2.token)],
             trash: [],
           }];
     const expectedList = users.sort((a, b) => a.userId - b.userId);

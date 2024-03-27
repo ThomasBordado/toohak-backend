@@ -175,8 +175,10 @@ export const isEmailUsedByOther = (email: string, token: string): boolean => {
 };
 
 /**
- * 
- */
+ * Given a token and check for the userId
+ * @param {string} token - unique Id for logged in user
+ * @returns {number} userId
+ */ 
 export const getUserId = (token: string): UserId | ErrorReturn => {
 	const data = getData();
 	const user = data.users.find(users => users.sessions.includes(parseInt(token)));
@@ -184,4 +186,4 @@ export const getUserId = (token: string): UserId | ErrorReturn => {
 		return { authUserId: user.userId };
 	}
 	return {error: 'invalid token'}
-}
+};

@@ -41,7 +41,6 @@ app.get('/echo', (req: Request, res: Response) => {
 
 app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
   const { email, password, nameFirst, nameLast } = req.body;
-  loadData();
   const response = adminAuthRegister(email, password, nameFirst, nameLast);
   saveData();
   if ('error' in response) {
@@ -52,7 +51,6 @@ app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
 
 app.post('/v1/admin/auth/login', (req: Request, res: Response) => {
   const { email, password } = req.body;
-  loadData();
   const response = adminAuthLogin(email, password);
   saveData();
   if ('error' in response) {
@@ -62,8 +60,8 @@ app.post('/v1/admin/auth/login', (req: Request, res: Response) => {
 });
 
 app.put('/v1/admin/user/password', (req: Request, res: Response) => {
-  const { token, oldPassword, newPassword } = req.body;
   loadData();
+  const { token, oldPassword, newPassword } = req.body;
   const response = adminUserPasswordUpdate(token, oldPassword, newPassword);
   saveData();
   if ('error' in response) {
@@ -140,11 +138,9 @@ app.use((req: Request, res: Response) => {
 const server = app.listen(PORT, HOST, () => {
   // DO NOT CHANGE THIS LINE
   console.log(`⚡️ Server started on port ${PORT} at ${HOST}`);
-  loadData();
 });
 
 // For coverage, handle Ctrl+C gracefully
 process.on('SIGINT', () => {
   server.close(() => console.log('Shutting down server gracefully.'));
-  saveData();
 });
