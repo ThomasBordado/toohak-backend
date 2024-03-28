@@ -1,10 +1,14 @@
-export interface quiz {
-  quizId: number;
-  name: string;
-  timeCreated: number;
-  timeLastEdited: number;
-  description: string;
-  quizQuestions: quizQuestion[];
+// import { string } from 'yaml/dist/schema/common/string';
+export interface answer {
+  answerId: number;
+  answer: string;
+  colour: string;
+  correct: boolean;
+}
+
+export interface answerInput {
+  answer: string;
+  correct: boolean;
 }
 
 export interface quizQuestion {
@@ -14,9 +18,16 @@ export interface quizQuestion {
   points: number;
   answers: answer[];
 }
-export interface answer {
-  answer: string;
-  correct: boolean;
+
+export interface quiz {
+  quizId: number;
+  name: string;
+  timeCreated: number;
+  timeLastEdited: number;
+  description: string;
+  numQuestions: number;
+  questions: quizQuestion[];
+  duration: number;
 }
 
 export interface quizUser {
@@ -35,7 +46,7 @@ export interface user {
   numFailedPasswordsSinceLastLogin: number;
   quizzes: quizUser[];
   sessions: number[];
-  trash: quiz[];
+  trash: quizUser[];
 }
 export type EmptyObject = Record<string, never>;
 
@@ -71,10 +82,30 @@ export interface QuizListReturn {
   quizzes: quizUser[];
 }
 
+export interface quizQuestionCreateInput {
+  questionBody: {
+    question: string;
+    duration: number;
+    points: number;
+    answers: answerInput[];
+  }
+}
+
+export interface quizQuestionCreateReturn {
+  questionId: number;
+}
+
+export interface quizQuestionDuplicateReturn {
+  newQuestionId: number;
+}
+
 export interface DataStore {
   users: user[];
   quizzes: quiz[];
   userIdStore: number;
   quizIdStore: number;
   sessionIdStore: number;
+  questionIdStore: number;
+  answerIdStore: number;
+  trash: quiz[];
 }
