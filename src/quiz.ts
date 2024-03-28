@@ -15,7 +15,7 @@ export const adminQuizList = (token: number): QuizListReturn | ErrorReturn => {
   if ('error' in user) {
     return user;
   }
-
+  saveData();
   return { quizzes: user.quizzes };
 };
 
@@ -196,6 +196,107 @@ export const adminQuizViewTrash = (token: number): QuizListReturn | ErrorReturn 
   }
   saveData();
   return { quizzes: user.trash };
+};
+
+export const adminQuizQuestionUpdate = (token: string, questionBody: quizQuestionCreateInput, quizId: number, questionid: number): EmptyObject | ErrorReturn => {
+  const data = getData();
+  const user = validUserId(parseInt(token), data.users);
+  if ('error' in user) {
+    return user;
+  }
+
+  const quizzesIndex = data.quizzes.findIndex(quizzes => quizzes.quizId === quizId);
+  if (quizzesIndex === -1) {
+    return { error: 'Invalid quizId' };
+  }
+
+  const userQuizzesIndex = user.quizzes.findIndex(quizzes => quizzes.quizId === quizId);
+  if (userQuizzesIndex === -1) {
+    return { error: 'User does not own quiz' };
+  }
+
+  const result = checkQuestionValid(questionBody, quizId);
+  if ('error' in result) {
+    return result as ErrorReturn;
+  }
+
+  const findQuiz = data.quizzes.find(quizzes => quizzes.quizId === quizId);
+  const findQuestionIndex = findQuiz.questions.findIndex(questions => questions.questionId === questionid);
+  if (findQuestionIndex === -1) {
+    return { error: 'Invalid questionId' };
+  } else if (findQuestionIndex > -1) {
+    const findQuestion = findQuiz.questions.find(questions => questions.questionId === questionid);
+    findQuestion.question = questionBody.questionBody.question;
+    findQuestion.duration = questionBody.questionBody.duration;
+    findQuestion.points = questionBody.questionBody.points;
+
+    const answerOut = questionBody.questionBody.answers.map(answer => {
+      data.answerIdStore += 1;
+
+      return {
+        answerId: data.answerIdStore,
+        answer: answer.answer,
+        colour: randomColour(),
+        correct: answer.correct,
+      };
+    });
+    findQuestion.answers = answerOut;
+  }
+
+  // const questionsIndex = data.quizzes.quizQuestions.findIndex(questions => quizzesIndex.quizQuestions.answers) //need to finish index
+
+  // data.quizzes[quizzesIndex].quizQuestions[questionsIndex].question = question;
+  // data.quizzes[quizzesIndex].quizQuestions[questionsIndex].duration = duration;
+  // data.quizzes[quizzesIndex].quizQuestions[questionsIndex].points = points;
+  // data.quizzes[quizzesIndex].quizQuestions[questionsIndex].answers.answer = answer;
+  // data.quizzes[quizzesIndex].quizQuestions[questionsIndex].answers.correct = correct;
+  // // user.quizzes[userQuizzesIndex].name = name;
+  // data.quizzes[quizzesIndex].timeLastEdited = Math.floor(Date.now() / 1000);
+  saveData();
+  return {};
+};
+
+export const adminQuizQuestionDelete = (token: string, quizId: number, questionid: number): EmptyObject | ErrorReturn => {
+  const data = getData();
+  const user = validUserId(parseInt(token), data.users);
+  if ('error' in user) {
+    return user;
+  }
+
+  const quizzesIndex = data.quizzes.findIndex(quizzes => quizzes.quizId === quizId);
+  if (quizzesIndex === -1) {
+    return { error: 'Invalid quizId' };
+  }
+
+  const userQuizzesIndex = user.quizzes.findIndex(quizzes => quizzes.quizId === quizId);
+  if (userQuizzesIndex === -1) {
+    return { error: 'User does not own quiz' };
+  }
+
+  const findQuiz = data.quizzes.find(quizzes => quizzes.quizId === quizId);
+  const findQuestion = findQuiz.questions.findIndex(questions => questions.questionId === questionid);
+  if (findQuestion === -1) {
+    return { error: 'Invalid questionId' };
+  } else if (findQuestion > -1) {
+    findQuiz.questions.splice(findQuestion, 1);
+  }
+
+  // findQuiz.quizQuestions[findQuestion].question = '';
+  // findQuiz.quizQuestions[findQuestion].duration = '';
+  // findQuiz.quizQuestions[findQuestion].points = '';
+  // findQuiz.quizQuestions[findQuestion].answers = '';
+
+  // const questionsIndex = data.quizzes.quizQuestions.findIndex(questions => quizzesIndex.quizQuestions.answers) //need to finish index
+
+  // data.quizzes[quizzesIndex].quizQuestions[questionsIndex].question = question;
+  // data.quizzes[quizzesIndex].quizQuestions[questionsIndex].duration = duration;
+  // data.quizzes[quizzesIndex].quizQuestions[questionsIndex].points = points;
+  // data.quizzes[quizzesIndex].quizQuestions[questionsIndex].answers.answer = answer;
+  // data.quizzes[quizzesIndex].quizQuestions[questionsIndex].answers.correct = correct;
+  // // user.quizzes[userQuizzesIndex].name = name;
+  // data.quizzes[quizzesIndex].timeLastEdited = Math.floor(Date.now() / 1000);
+  saveData();
+  return {};
 };
 
 /**

@@ -1,5 +1,5 @@
-import { requestRegister, requestQuizList, requestQuizCreate, requestQuizTrash, requestQuizInfo, requestUpdateQuizName, requestUpdateQuizDescription, requestClear, requestQuizViewTrash, requestQuizRestore, requestQuizQuestionCreate, requestQuizTrashEmpty, requestquizTransfer, requestLogout, requestLogin } from './wrapper';
-import { QuizListReturn, SessionId, quizId, quizUser, quizQuestionCreateInput, quiz } from './interfaces';
+import { requestRegister, requestQuizList, requestQuizCreate, requestQuizTrash, requestQuizInfo, requestUpdateQuizName, requestUpdateQuizDescription, requestClear, requestQuizViewTrash, requestQuizRestore, requestQuizQuestionCreate, requestQuizTrashEmpty, requestquizTransfer, requestLogout, requestLogin, requestUpdateQuizQuestion, requestDeleteQuizQuestion } from './wrapper';
+import { QuizListReturn, SessionId, quizId, quizUser, quizQuestionCreateInput, quiz, quizQuestionCreateReturn } from './interfaces';
 
 beforeEach(() => {
   requestClear();
@@ -410,6 +410,223 @@ describe('requestUpdateQuizDescription testing', () => {
   });
 });
 
+describe('Testing it2 function, adminQuizQuestionUpdate', () => {
+  let user: SessionId;
+  let quiz: quizId;
+  let questionin: quizQuestionCreateInput;
+  let questionout: quizQuestionCreateReturn;
+  beforeEach(() => {
+    user = requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith').jsonBody as SessionId;
+    quiz = requestQuizCreate(user.token, 'My Quiz', 'My description.').jsonBody as quizId;
+
+    questionin = {
+      questionBody: {
+        question: 'Who is the Monarch of England?',
+        duration: 4,
+        points: 5,
+        answers: [
+          {
+            answer: 'Prince Charles',
+            correct: true
+          },
+          {
+            answer: 'Prince Charles.',
+            correct: true
+          }
+        ]
+      }
+    };
+    questionout = requestQuizQuestionCreate(user.token, questionin, quiz.quizId).jsonBody as quizQuestionCreateReturn;
+
+    // question1 = requestQuestionCreate
+    // question2 = requestQuestionCreate
+    // question3 = requestQuestionCreate
+  });
+
+  // 1. Succesfully update question
+  test('Test succesful update of question', () => {
+    const updated = {
+      questionBody: {
+        question: 'Who is the King of England?',
+        duration: 6,
+        points: 4,
+        answers: [
+          {
+            answer: 'King Charles',
+            correct: true
+          },
+          {
+            answer: 'King Charles.',
+            correct: true
+          }
+        ]
+      }
+    };
+    const result = requestUpdateQuizQuestion(user.token, updated, quiz.quizId, questionout.questionId);
+    expect(result.statusCode).toStrictEqual(200);
+    expect(result.jsonBody).toStrictEqual({});
+  });
+
+  // 2. Invalid Token/empty token
+  test('Test invalid Token', () => {
+    const updated = {
+      questionBody: {
+        question: 'Who is the King of England?',
+        duration: 6,
+        points: 4,
+        answers: [
+          {
+            answer: 'King Charles',
+            correct: true
+          },
+          {
+            answer: 'King Charles.',
+            correct: true
+          }
+        ]
+      }
+    };
+    const result = requestUpdateQuizQuestion(user.token + 1, updated, quiz.quizId, questionout.questionId);
+    expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
+    expect(result.statusCode).toStrictEqual(401);
+  });
+  test('Test empty Token', () => {
+    const updated = {
+      questionBody: {
+        question: 'Who is the King of England?',
+        duration: 6,
+        points: 4,
+        answers: [
+          {
+            answer: 'King Charles',
+            correct: true
+          },
+          {
+            answer: 'King Charles.',
+            correct: true
+          }
+        ]
+      }
+    };
+    const result = requestUpdateQuizQuestion('', updated, quiz.quizId, questionout.questionId);
+    expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
+    expect(result.statusCode).toStrictEqual(401);
+  });
+
+  // 3. Invalid quizid or user does not own quiz
+  test('Test invalid quizId, Valid token', () => {
+    const updated = {
+      questionBody: {
+        question: 'Who is the King of England?',
+        duration: 6,
+        points: 4,
+        answers: [
+          {
+            answer: 'King Charles',
+            correct: true
+          },
+          {
+            answer: 'King Charles.',
+            correct: true
+          }
+        ]
+      }
+    };
+    const result = requestUpdateQuizQuestion(user.token, updated, quiz.quizId + 1, questionout.questionId);
+    expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
+    expect(result.statusCode).toStrictEqual(403);
+  });
+  test('Test user doesn not own quiz', () => {
+    const updated = {
+      questionBody: {
+        question: 'Who is the King of England?',
+        duration: 6,
+        points: 4,
+        answers: [
+          {
+            answer: 'King Charles',
+            correct: true
+          },
+          {
+            answer: 'King Charles.',
+            correct: true
+          }
+        ]
+      }
+    };
+
+    const user2 = requestRegister('jareds@gmail.com', 'password2', 'Jared', 'Simion').jsonBody as SessionId;
+    const quiz2 = requestQuizCreate(user2.token, 'My Quiz', 'My description.').jsonBody as quizId;
+    const result = requestUpdateQuizQuestion(user.token, updated, quiz2.quizId, questionout.questionId);
+    expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
+    expect(result.statusCode).toStrictEqual(403);
+  });
+});
+
+describe('Testing it2 function, adminQuizQuestionDelete', () => {
+  let user: SessionId;
+  let quiz: quizId;
+  let questionin: quizQuestionCreateInput;
+  let questionout: quizQuestionCreateReturn;
+  beforeEach(() => {
+    user = requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith').jsonBody as SessionId;
+    quiz = requestQuizCreate(user.token, 'My Quiz', 'My description.').jsonBody as quizId;
+    questionin = {
+      questionBody: {
+        question: 'Who is the Monarch of England?',
+        duration: 4,
+        points: 5,
+        answers: [
+          {
+            answer: 'Prince Charles',
+            correct: true
+          },
+          {
+            answer: 'Prince Charles.',
+            correct: true
+          }
+        ]
+      }
+    };
+    questionout = requestQuizQuestionCreate(user.token, questionin, quiz.quizId).jsonBody as quizQuestionCreateReturn;
+    // question1 = requestQuestionCreate
+    // question2 = requestQuestionCreate
+    // question3 = requestQuestionCreate
+  });
+
+  // 2. Invalid Token/empty token
+  test('Test invalid Token', () => {
+    const result = requestDeleteQuizQuestion(user.token + 1, quiz.quizId, questionout.questionId);
+    expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
+    expect(result.statusCode).toStrictEqual(401);
+  });
+  test('Test empty Token', () => {
+    const result = requestDeleteQuizQuestion('', quiz.quizId, questionout.questionId);
+    expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
+    expect(result.statusCode).toStrictEqual(401);
+  });
+
+  // 3. Invalid quizid or user does not own quiz
+  test('Test invalid quizId, Valid token', () => {
+    const result = requestDeleteQuizQuestion(user.token, quiz.quizId + 1, questionout.questionId);
+    expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
+    expect(result.statusCode).toStrictEqual(403);
+  });
+  test('Test user doesn not own quiz', () => {
+    const user2 = requestRegister('jareds@gmail.com', 'password2', 'Jared', 'Simion').jsonBody as SessionId;
+    const quiz2 = requestQuizCreate(user2.token, 'My Quiz', 'My description.').jsonBody as quizId;
+    const result = requestDeleteQuizQuestion(user.token, quiz2.quizId, questionout.questionId);
+    expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
+    expect(result.statusCode).toStrictEqual(403);
+  });
+
+  // 4. questiondID does not refer to valid question withing quiz
+  test('invalid questionid', () => {
+    const result = requestDeleteQuizQuestion(user.token, quiz.quizId, questionout.questionId + 1);
+    expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
+    expect(result.statusCode).toStrictEqual(400);
+  });
+});
 /*
  * Testing for viewing quizzes in trash
  */
