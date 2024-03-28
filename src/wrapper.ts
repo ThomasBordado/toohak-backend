@@ -133,7 +133,6 @@ export const requestClear = () => {
   return requestHelper('DELETE', '/v1/clear', {});
 };
 
-
 export const requestMoveQuestion = (token: string, quizId: number, questionId: number, newPosition: number) => {
   return requestHelper('PUT', `/v1/admin/quiz/${quizId}/question/${questionId}/move`, { token, quizId, questionId, newPosition });
 };
