@@ -1,6 +1,6 @@
 import { requestRegister, requestLogin, requestClear, requestUpdateUserDetails, requestUpdatePassword, requestGetUserDetails } from './wrapper';
 import { usersList, getUserId } from './authUtil';
-import { SessionId, UserId, user } from './interfaces';
+import { SessionId, UserId, user, UserDetailsReturn } from './interfaces';
 
 beforeEach(() => {
   requestClear();
@@ -144,33 +144,34 @@ describe('Test adminAuthLogin', () => {
     expect(res1.jsonBody.token).not.toStrictEqual(res2.jsonBody.token);
   });
 
-  /* test('Test numSuccessfulLogins and numFailedPasswordsSinceLastLogin', () => {
+  test('Test numSuccessfulLogins and numFailedPasswordsSinceLastLogin', () => {
     // Register a user Hayden Smith
     const user = requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith').jsonBody;
     // Get details of Hayden
-    let details = requestGetUserDetails(user.sessionId).jsonBody;
+    let details = requestGetUserDetails(user.token).jsonBody;
+    console.log(details.user.numSuccessfulLogins);
     // Check that he has only logged in once and had no fails
     expect(details.user.numSuccessfulLogins).toStrictEqual(1);
     expect(details.user.numFailedPasswordsSinceLastLogin).toStrictEqual(0);
     // Login to hayden
     requestLogin('hayden.smith@unsw.edu.au', 'password1');
-    details = requestGetUserDetails(user.sessionId).jsonBody as UserDetailsReturn;
+    details = requestGetUserDetails(user.token).jsonBody as UserDetailsReturn;
     // Number of logins increase
     expect(details.user.numSuccessfulLogins).toStrictEqual(2);
     expect(details.user.numFailedPasswordsSinceLastLogin).toStrictEqual(0);
     // Fail a login
     requestLogin('hayden.smith@unsw.edu.au', 'password2');
-    details = requestGetUserDetails(user.sessionId).jsonBody as UserDetailsReturn;
+    details = requestGetUserDetails(user.token).jsonBody as UserDetailsReturn;
     // Number of failed logins increase
     expect(details.user.numSuccessfulLogins).toStrictEqual(2);
     expect(details.user.numFailedPasswordsSinceLastLogin).toStrictEqual(1);
     // Login correctly
     requestLogin('hayden.smith@unsw.edu.au', 'password1');
-    details = requestGetUserDetails(user.sessionId).jsonBody as UserDetailsReturn;
+    details = requestGetUserDetails(user.token).jsonBody as UserDetailsReturn;
     // Number of failed logins resets to 0
     expect(details.user.numSuccessfulLogins).toStrictEqual(3);
     expect(details.user.numFailedPasswordsSinceLastLogin).toStrictEqual(0);
-  }); */
+  });
 });
 
 describe('Test adminUserDetails', () => {
