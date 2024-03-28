@@ -100,8 +100,8 @@ export const checkQuestionValid = (quizQuestion: quizQuestionCreateInput, quizId
   const data = getData();
   const quiz = data.quizzes.find(quizs => quizs.quizId === quizId);
   let sum = 0;
-  for (let i = 0; i < quiz.quizQuestions.length; i++) {
-    sum = sum + quiz.quizQuestions[i].duration;
+  for (let i = 0; i < quiz.questions.length; i++) {
+    sum = sum + quiz.questions[i].duration;
   }
   sum = sum + quizQuestion.questionBody.duration;
   if (sum > 180) {
@@ -137,7 +137,7 @@ export const checkQuestionValid = (quizQuestion: quizQuestionCreateInput, quizId
     return { error: 'There are no correct answers' };
   }
 
-  return {};
+  return { duration: sum};
 };
 
 /**
@@ -165,4 +165,10 @@ export const isValidQuizId = (token: string, quizId: number): EmptyObject | Erro
   } else {
     return { error: 'Invalid quizId' };
   }
+};
+
+export const randomColour = (): string => {
+  const colours = ['red', 'green', 'yellow', 'blue'];
+  const index = Math.floor(Math.random() * colours.length);
+  return colours[index];
 };

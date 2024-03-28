@@ -13,6 +13,7 @@ export const clear = (): EmptyObject => {
   getData().quizIdStore = 0;
   getData().sessionIdStore = 0;
   getData().questionIdStore = 0;
+  getData().answerIdStore = 0;
   getData().trash = [];
   clearDataFile();
   return {};

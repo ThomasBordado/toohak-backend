@@ -1,5 +1,5 @@
 import { requestRegister, requestQuizList, requestQuizCreate, requestQuizTrash, requestQuizInfo, requestUpdateQuizName, requestUpdateQuizDescription, requestClear, requestQuizViewTrash, requestQuizRestore, requestQuizQuestionCreate, requestQuizTrashEmpty, requestquizTransfer, requestLogout, requestLogin } from './wrapper';
-import { QuizListReturn, SessionId, quizId, quizUser, quizQuestionCreateInput } from './interfaces';
+import { QuizListReturn, SessionId, quizId, quizUser, quizQuestionCreateInput, quiz } from './interfaces';
 
 beforeEach(() => {
   requestClear();
@@ -246,10 +246,12 @@ describe('requestQuizInfo testing', () => {
       expect(result.jsonBody).toStrictEqual({
         quizId: quiz.quizId,
         name: 'My Quiz',
-        quizQuestions: [],
+        questions: [],
         timeCreated: expect.any(Number),
         timeLastEdited: expect.any(Number),
         description: 'My description.',
+        numQuestions: 0,
+        duration: 0,
       });
       expect(result.statusCode).toStrictEqual(200);
     });
@@ -908,6 +910,38 @@ describe('Testing Post /v1/admin/quiz/{quizid}/question', () => {
     const quizQuestionCreateResponse = requestQuizQuestionCreate(user.token, input, quiz.quizId);
     expect(quizQuestionCreateResponse.statusCode).toStrictEqual(200);
     expect(quizQuestionCreateResponse.jsonBody).toStrictEqual({ questionId: expect.any(Number) });
+    const expectedInfo: quiz = {
+      quizId: quiz.quizId,
+      name: 'British',
+      timeCreated: expect.any(Number),
+      timeLastEdited: expect.any(Number),
+      description: 'history',
+      numQuestions: 1,
+      questions: [
+        { 
+          questionId: quizQuestionCreateResponse.jsonBody.questionId,
+          question: 'Who is the Monarch of England?',
+          duration: 4,
+          points: 5,
+          answers: [
+            {
+              answerId: 1,
+              answer: 'Prince Charles',
+              colour: expect.any(String),
+              correct: true,
+            },
+            {
+              answerId: 2,
+              answer: 'Prince Charles.',
+              colour: expect.any(String),
+              correct: true,
+            },
+          ]
+        }
+      ],
+      duration: 4
+    }
+    expect(requestQuizInfo(user.token, quiz.quizId).jsonBody).toStrictEqual(expectedInfo)
   });
 
   describe('Error test for 400 error', () => {

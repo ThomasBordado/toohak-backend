@@ -8,6 +8,7 @@ let data: DataStore = {
   quizIdStore: 0,
   sessionIdStore: 0,
   questionIdStore: 0,
+  answerIdStore: 0,
   trash: [],
 };
 

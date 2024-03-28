@@ -1,6 +1,6 @@
 import { getData, setData } from './dataStore';
 import { EmptyObject, ErrorReturn, QuizListReturn, quiz, quizId, quizQuestionCreateInput, quizQuestionCreateReturn } from './interfaces';
-import { validUserId, checkQuizName, checkQuestionValid, isValidQuizId } from './quizUtil';
+import { validUserId, checkQuizName, checkQuestionValid, isValidQuizId, randomColour } from './quizUtil';
 import { isValidToken } from './authUtil';
 import { saveData } from './persistence';
 
@@ -45,7 +45,9 @@ export const adminQuizCreate = (token: number, name: string, description: string
     timeCreated: Math.floor(Date.now() / 1000),
     timeLastEdited: Math.floor(Date.now() / 1000),
     description: description,
-    quizQuestions: [],
+    numQuestions: 0,
+    questions: [],
+    duration: 0,
   } as quiz;
 
   data.quizzes.push(newQuiz);
@@ -302,13 +304,24 @@ export const quizQuestionCreate = (token: string, questionBody: quizQuestionCrea
 
   const findQuiz = data.quizzes.find(quizs => quizs.quizId === quizId);
   findQuiz.timeLastEdited = Math.floor(Date.now() / 1000);
-  const questionId = data.questionIdStore + 1;
-  findQuiz.quizQuestions.push({
+  findQuiz.duration = question.duration;
+  findQuiz.numQuestions += 1;
+  data.questionIdStore += 1;
+  const questionId = data.questionIdStore;
+
+  const answerOut = questionBody.questionBody.answers.map(answer => ({
+    answerId: data.answerIdStore += 1,
+    answer: answer.answer,
+    colour: randomColour(),
+    correct: answer.correct,
+  }));
+
+  findQuiz.questions.push({
     questionId: questionId,
     question: questionBody.questionBody.question,
     duration: questionBody.questionBody.duration,
     points: questionBody.questionBody.points,
-    answers: questionBody.questionBody.answers,
+    answers: answerOut,
   });
   setData(data);
   saveData();
