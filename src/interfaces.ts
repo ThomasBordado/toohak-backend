@@ -110,5 +110,6 @@ export interface DataStore {
   userIdStore: number;
   quizIdStore: number;
   sessionIdStore: number;
+  questionIdStore: number;
   trash: quiz[];
 }

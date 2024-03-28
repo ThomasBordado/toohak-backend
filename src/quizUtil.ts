@@ -1,10 +1,5 @@
-<<<<<<< HEAD
-import { getData } from './dataStore';
-import { quizUser, user, EmptyObject, ErrorReturn } from './interfaces';
-=======
 import { quizUser, user, quizQuestionCreatInput, EmptyObject, ErrorReturn } from './interfaces';
 import { getData } from './dataStore';
->>>>>>> master
 
 /**
  * Check if AuthUserId is valid.
@@ -85,44 +80,6 @@ export const checkQuizName = (name: string, quizzesOwned: quizUser[]) => {
   return true;
 };
 
-<<<<<<< HEAD
-/**
- * Given an authUserId and check if it's exists in the user list
- * @param {string} token - unique identifier for an login academic
- *
- * @return {boolean} -if Id is valid reutrn true, else return false
- */
-export const isValidToken = (token: string): boolean => {
-  const data = getData();
-  if (token === '') {
-    return false;
-  }
-  if (data.users.length === 0) {
-    return false;
-  }
-  if (token === '') {
-    return false;
-  }
-  for (const users of data.users) {
-    if (users.sessions.includes(parseInt(token))) {
-      return true;
-    }
-  }
-  return false;
-};
-
-/**
- * Given a quizId and a token, check if the quizId is valid and if the user owns this quiz
- * @param {string} token - a unique identifier for logged in user
- * @param {number} quizId - a unique identifier for quiz
- * @returns 
- */
-export const isValidQuizId = (token: string, quizId: number): EmptyObject | ErrorReturn=> {
-  // Check if the quizId is invalid
-  const data = getData();
-  if (data.quizzes.length === 0) {
-    return { error: 'Invalid quizId'};
-=======
 export const checkQuestionValid = (quizQuestion: quizQuestionCreatInput, quizId: number) => {
   // Check the string length
   if (quizQuestion.questionBody.question.length < 5 || quizQuestion.questionBody.question.length > 50) {

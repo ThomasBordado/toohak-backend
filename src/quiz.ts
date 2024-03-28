@@ -1,13 +1,7 @@
 import { getData, setData } from './dataStore';
-<<<<<<< HEAD
-import { EmptyObject, ErrorReturn, QuizListReturn, quiz, quizId } from './interfaces';
-import { loadData } from './persistence';
-import { validUserId, checkQuizName, isValidToken, isValidQuizId } from './quizUtil';
-import { isEmailUsedByOther } from './authUtil';
-=======
 import { EmptyObject, ErrorReturn, QuizListReturn, quiz, quizId, quizQuestionCreatInput, quizQuestionCreatReturn } from './interfaces';
 import { validUserId, checkQuizName, checkQuestionValid, isValidQuizId } from './quizUtil';
->>>>>>> master
+import { isEmailUsedByOther ,isValidToken } from './authUtil';
 
 /**
  * Provides a list of all quizzes that are owned by the currently logged in user
@@ -231,7 +225,8 @@ export const quizQuestionCreat = (token: string, questionBody: quizQuestionCreat
   // Push new question into quiz
 
   const findQuiz = data.quizzes.find(quizs => quizs.quizId === quizId);
-  const questionId = findQuiz.quizQuestions.length + 1;
+  findQuiz.timeLastEdited = Math.floor(Date.now() / 1000);
+  const questionId = data.questionIdStore + 1;
   findQuiz.quizQuestions.push({
     questionId: questionId,
     question: questionBody.questionBody.question,
