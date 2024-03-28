@@ -18,8 +18,8 @@ describe('Test adminAuthRegister', () => {
     expect(user1).not.toStrictEqual(user2);
     expect(response1.statusCode).toStrictEqual(200);
     expect(response2.statusCode).toStrictEqual(200);
-    //adminAuthRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith');
-    //console.log(usersList());
+    // adminAuthRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith');
+    // console.log(usersList());
   });
 
   // 2. Add an email and then try add the same email.
