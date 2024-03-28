@@ -95,6 +95,10 @@ export interface quizQuestionCreateReturn {
   questionId: number;
 }
 
+export interface quizQuestionDuplicateReturn {
+  newQuestionId: number;
+}
+
 export interface DataStore {
   users: user[];
   quizzes: quiz[];

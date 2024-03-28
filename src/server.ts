@@ -9,7 +9,7 @@ import fs from 'fs';
 import path from 'path';
 import process from 'process';
 import { clear } from './other';
-import { adminQuizList, adminQuizCreate, adminQuizRemove, adminQuizInfo, adminQuizNameUpdate, adminQuizDescriptionUpdate, adminQuizViewTrash, adminQuizRestore, quizQuestionCreate, adminQuizTrashEmpty, quizTransfer, adminQuizQuestionUpdate, adminQuizQuestionDelete, adminQuizQuestionMove } from './quiz';
+import { adminQuizList, adminQuizCreate, adminQuizRemove, adminQuizInfo, adminQuizNameUpdate, adminQuizDescriptionUpdate, adminQuizViewTrash, adminQuizRestore, quizQuestionCreate, adminQuizTrashEmpty, quizTransfer, adminQuizQuestionUpdate, adminQuizQuestionDelete, adminQuizQuestionMove, adminQuizQuestionDuplicate } from './quiz';
 import { adminAuthLogin, adminAuthRegister, adminUserDetails, adminUserDetailsUpdate, adminUserPasswordUpdate, adminAuthLogout } from './auth';
 import { loadData, saveData } from './persistence';
 
@@ -318,6 +318,22 @@ app.post('/v1/admin/quiz/:quizid/transfer', (req: Request, res: Response) => {
 app.delete('/v1/clear', (req: Request, res: Response) => {
   const response = clear();
   res.json(response);
+});
+
+app.post('/v1/admin/quiz/:quizId/question/:questionId/duplicate', (req: Request, res: Response) => {
+  const token = parseInt(req.body.token as string);
+  const quizId = parseInt(req.params.quizId as string);
+  const questionId = parseInt(req.params.questionId as string);
+  const result = adminQuizQuestionDuplicate(token, quizId, questionId);
+  if ('error' in result) {
+    if (result.error.localeCompare('Token is empty or invalid') === 0) {
+      return res.status(401).json(result);
+    } else if (result.error.localeCompare('Invalid questionId') === 0) {
+      return res.status(400).json(result);
+    }
+    return res.status(403).json(result);
+  }
+  res.json(result);
 });
 
 // ====================================================================

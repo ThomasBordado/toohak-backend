@@ -1,5 +1,5 @@
 import { getData, setData } from './dataStore';
-import { EmptyObject, ErrorReturn, QuizListReturn, quiz, quizId, quizQuestionCreateInput, quizQuestionCreateReturn } from './interfaces';
+import { EmptyObject, ErrorReturn, QuizListReturn, quiz, quizId, quizQuestionCreateInput, quizQuestionCreateReturn, quizQuestionDuplicateReturn } from './interfaces';
 import { validUserId, checkQuizName, checkQuestionValid, isValidQuizId, randomColour } from './quizUtil';
 import { isValidToken } from './authUtil';
 import { saveData } from './persistence';
@@ -509,4 +509,54 @@ export const adminQuizQuestionMove = (token: number, quizId: number, questionId:
   setData(data);
   saveData();
   return {};
+};
+
+export const adminQuizQuestionDuplicate = (token: number, quizId: number, questionId: number): quizQuestionDuplicateReturn | ErrorReturn => {
+  const data = getData();
+  const user = validUserId(token, data.users);
+  if ('error' in user) {
+    return user;
+  }
+
+  const userQuizIndex = user.quizzes.findIndex(quizzes => quizzes.quizId === quizId);
+  if (userQuizIndex === -1) {
+    return { error: 'User does not own this quiz' };
+  }
+
+  const findQuiz = data.quizzes.findIndex(quizzes => quizzes.quizId === quizId);
+  if (findQuiz === -1) {
+    return { error: 'Invalid quiz ID' };
+  }
+
+  const findQuestion = data.quizzes[findQuiz].questions.findIndex(quizQuestions => quizQuestions.questionId === questionId);
+  if (findQuestion === -1) {
+    return { error: 'Does not refer to valid question' };
+  }
+
+  const questionToDuplicate = data.quizzes[findQuiz].questions[findQuestion];
+  const duplicateLocation = findQuestion + 1;
+
+  // Create a copy of the question to duplicate
+  const duplicatedQuestion = { ...questionToDuplicate };
+
+  // Make a new quiz question id
+  data.questionIdStore += 1;
+  const newQuestionId = data.questionIdStore;
+  duplicatedQuestion.questionId = newQuestionId;
+
+  // Add the duplicated question right after the original question
+  data.quizzes[findQuiz].questions.splice(duplicateLocation, 0, duplicatedQuestion);
+
+  // Update the timeLastEdited property of the quiz
+  data.quizzes[findQuiz].timeLastEdited = Math.floor(Date.now() / 1000);
+
+  data.quizzes[findQuiz].timeLastEdited = Math.floor(Date.now() / 1000);
+  data.quizzes[findQuiz].duration += duplicatedQuestion.duration;
+  data.quizzes[findQuiz].numQuestions += 1;
+
+  // Save the updated data
+  setData(data);
+
+  // Return the ID of the new question
+  return { newQuestionId: duplicatedQuestion.questionId };
 };
