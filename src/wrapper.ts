@@ -125,6 +125,10 @@ export const requestQuizQuestionCreate = (token: string, questionBody: quizQuest
   return requestHelper('POST', `/v1/admin/quiz/${quizid}/question`, { token, questionBody, quizid });
 };
 
+export const requestquizTransfer = (token: string, userEmail: string, quizid: number) => {
+  return requestHelper('POST', `/v1/admin/quiz/${quizid}/transfer`, { token, userEmail });
+};
+
 export const requestClear = () => {
   return requestHelper('DELETE', '/v1/clear', {});
 };
