@@ -10,7 +10,7 @@ import path from 'path';
 import process from 'process';
 import { clear } from './other';
 import { adminQuizList, adminQuizCreate, adminQuizRemove, adminQuizInfo, adminQuizNameUpdate, adminQuizDescriptionUpdate, adminQuizViewTrash, adminQuizRestore, quizQuestionCreat } from './quiz';
-import { adminAuthLogin, adminAuthRegister, adminUserDetails, adminUserDetailsUpdate, adminUserPasswordUpdate } from './auth';
+import { adminAuthLogin, adminAuthRegister, adminUserDetails, adminUserDetailsUpdate, adminUserPasswordUpdate, adminAuthLogout } from './auth';
 import { loadData, saveData } from './persistence';
 
 // Set up web app
@@ -89,10 +89,18 @@ app.put('/v1/admin/user/password', (req: Request, res: Response) => {
     if (response.error === 'Token is empty or invalid') {
       return res.status(401).json(response);
     }
-
     return res.status(400).json(response);
   }
   return res.json(response);
+});
+
+app.post('/v1/admin/auth/logout', (req: Request, res: Response) => {
+  const { token } = req.body;
+  const response = adminAuthLogout(token);
+  if ('error' in response) {
+    return res.status(401).json(response);
+  }
+  res.json(response);
 });
 
 app.get('/v1/admin/quiz/list', (req: Request, res: Response) => {
