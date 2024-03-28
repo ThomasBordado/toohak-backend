@@ -1,6 +1,7 @@
 import { getData, setData } from './dataStore';
 import { EmptyObject, ErrorReturn, QuizListReturn, quiz, quizId, quizQuestionCreateInput, quizQuestionCreateReturn } from './interfaces';
-import { validUserId, checkQuizName, checkQuestionValid, isValidQuizId } from './quizUtil';
+import { validUserId, checkQuizName, checkQuestionValid, isValidQuizId, randomColour } from './quizUtil';
+import { isValidToken } from './authUtil';
 import { saveData } from './persistence';
 
 /**
@@ -44,7 +45,9 @@ export const adminQuizCreate = (token: number, name: string, description: string
     timeCreated: Math.floor(Date.now() / 1000),
     timeLastEdited: Math.floor(Date.now() / 1000),
     description: description,
-    quizQuestions: [],
+    numQuestions: 0,
+    questions: [],
+    duration: 0,
   } as quiz;
 
   data.quizzes.push(newQuiz);
@@ -390,15 +393,73 @@ export const quizQuestionCreate = (token: string, questionBody: quizQuestionCrea
   // Push new question into quiz
 
   const findQuiz = data.quizzes.find(quizs => quizs.quizId === quizId);
-  const questionId = findQuiz.quizQuestions.length + 1;
-  findQuiz.quizQuestions.push({
+  findQuiz.timeLastEdited = Math.floor(Date.now() / 1000);
+  findQuiz.duration = question.duration;
+  findQuiz.numQuestions += 1;
+  data.questionIdStore += 1;
+  const questionId = data.questionIdStore;
+
+  const answerOut = questionBody.questionBody.answers.map(answer => {
+    data.answerIdStore += 1;
+
+    return {
+      answerId: data.answerIdStore,
+      answer: answer.answer,
+      colour: randomColour(),
+      correct: answer.correct,
+    };
+  });
+
+  findQuiz.questions.push({
     questionId: questionId,
     question: questionBody.questionBody.question,
     duration: questionBody.questionBody.duration,
     points: questionBody.questionBody.points,
-    answers: questionBody.questionBody.answers,
+    answers: answerOut,
   });
   setData(data);
   saveData();
   return { questionId: questionId };
+};
+
+export const quizTransfer = (token: string, userEmail: string, quizId: number): EmptyObject | ErrorReturn => {
+  const tokenCheck = isValidToken(token);
+  if (!tokenCheck) {
+    return { error: 'Token is empty or invalid' };
+  }
+  const quizIdCheck = isValidQuizId(token, quizId);
+  if ('error' in quizIdCheck) {
+    return quizIdCheck as ErrorReturn;
+  }
+
+  const data = getData();
+  const targetUser = data.users.find(users => users.email === userEmail);
+  if (targetUser === undefined) {
+    return { error: 'UserEmail is not a real user' };
+  }
+  if (targetUser.sessions.includes(parseInt(token))) {
+    return { error: 'UserEmail is the current logged in user' };
+  }
+
+  const findQuiz = data.quizzes.find(quizs => quizs.quizId === quizId);
+  const quiz = targetUser.quizzes.find(quizzes => quizzes.name === findQuiz.name);
+  if (quiz) {
+    return { error: 'Quiz ID refers to a quiz that has a name that is already used by the target user' };
+  }
+  /*
+  const findState = findQuiz.quizQuestions.find(questions => questions.state === true);
+  if (findState) {
+    return {error: 'Any session for this quiz is not in END state'}
+  }
+*/
+  // push the quiz to the target user
+  const currentUser = data.users.find(users => users.sessions.includes(parseInt(token)));
+  const userQuiz = currentUser.quizzes.find(quizs => quizs.quizId === quizId);
+  findQuiz.timeLastEdited = Math.floor(Date.now() / 1000);
+  targetUser.quizzes.push(userQuiz);
+  // delete the quiz in origin user
+  const userQuizzesIndex = currentUser.quizzes.findIndex(quizzes => quizzes.quizId === quizId);
+  currentUser.quizzes.splice(userQuizzesIndex, 1);
+  setData(data);
+  return {};
 };
