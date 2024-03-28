@@ -623,6 +623,18 @@ describe('adminQuizTrashEmpty testing', () => {
   describe('Successful cases', () => {
     test('Empty One Item in Trash', () => {
       requestQuizTrash(user.token, quiz.quizId);
+      let trashList = requestQuizViewTrash(user.token).jsonBody as QuizListReturn;
+      let expectedList = {
+        quizzes: [
+          {
+            quizId: quiz.quizId,
+            name: 'First Quiz',
+          }
+        ]
+      };
+      trashList.quizzes.sort((a: quizUser, b: quizUser) => a.quizId - b.quizId);
+      expectedList.quizzes.sort((a: quizUser, b: quizUser) => a.quizId - b.quizId);
+      expect(trashList).toStrictEqual(expectedList);
 
       const quizIds: number[] = [quiz.quizId];
       // Convert the list to a JSON string
@@ -631,6 +643,12 @@ describe('adminQuizTrashEmpty testing', () => {
       const response = requestQuizTrashEmpty(user.token, quizIdsString);
       expect(response.jsonBody).toStrictEqual({});
       expect(response.statusCode).toStrictEqual(200);
+
+      trashList = requestQuizViewTrash(user.token).jsonBody as QuizListReturn;
+      expectedList = { quizzes: [] };
+      trashList.quizzes.sort((a: quizUser, b: quizUser) => a.quizId - b.quizId);
+      expectedList.quizzes.sort((a: quizUser, b: quizUser) => a.quizId - b.quizId);
+      expect(trashList).toStrictEqual(expectedList);
     });
 
     test('Empty all items in Trash', () => {
@@ -642,6 +660,27 @@ describe('adminQuizTrashEmpty testing', () => {
       requestQuizTrash(user.token, quiz2.quizId);
       requestQuizTrash(user.token, quiz3.quizId);
 
+      let trashList = requestQuizViewTrash(user.token).jsonBody as QuizListReturn;
+      let expectedList = {
+        quizzes: [
+          {
+            quizId: quiz.quizId,
+            name: 'First Quiz',
+          },
+          {
+            quizId: quiz2.quizId,
+            name: 'Second Quiz',
+          },
+          {
+            quizId: quiz3.quizId,
+            name: 'Third Quiz',
+          }
+        ]
+      };
+      trashList.quizzes.sort((a: quizUser, b: quizUser) => a.quizId - b.quizId);
+      expectedList.quizzes.sort((a: quizUser, b: quizUser) => a.quizId - b.quizId);
+      expect(trashList).toStrictEqual(expectedList);
+
       const quizIds: number[] = [quiz.quizId, quiz2.quizId, quiz3.quizId];
       // Convert the list to a JSON string
       const quizIdsString: string = JSON.stringify(quizIds);
@@ -649,6 +688,12 @@ describe('adminQuizTrashEmpty testing', () => {
       const response = requestQuizTrashEmpty(user.token, quizIdsString);
       expect(response.jsonBody).toStrictEqual({});
       expect(response.statusCode).toStrictEqual(200);
+
+      trashList = requestQuizViewTrash(user.token).jsonBody as QuizListReturn;
+      expectedList = { quizzes: [] };
+      trashList.quizzes.sort((a: quizUser, b: quizUser) => a.quizId - b.quizId);
+      expectedList.quizzes.sort((a: quizUser, b: quizUser) => a.quizId - b.quizId);
+      expect(trashList).toStrictEqual(expectedList);
     });
 
     test('Empty last item in Trash', () => {
@@ -660,6 +705,27 @@ describe('adminQuizTrashEmpty testing', () => {
       requestQuizTrash(user.token, quiz2.quizId);
       requestQuizTrash(user.token, quiz3.quizId);
 
+      let trashList = requestQuizViewTrash(user.token).jsonBody as QuizListReturn;
+      let expectedList = {
+        quizzes: [
+          {
+            quizId: quiz.quizId,
+            name: 'First Quiz',
+          },
+          {
+            quizId: quiz2.quizId,
+            name: 'Second Quiz',
+          },
+          {
+            quizId: quiz3.quizId,
+            name: 'Third Quiz',
+          }
+        ]
+      };
+      trashList.quizzes.sort((a: quizUser, b: quizUser) => a.quizId - b.quizId);
+      expectedList.quizzes.sort((a: quizUser, b: quizUser) => a.quizId - b.quizId);
+      expect(trashList).toStrictEqual(expectedList);
+
       const quizIds: number[] = [quiz3.quizId];
       // Convert the list to a JSON string
       const quizIdsString: string = JSON.stringify(quizIds);
@@ -667,6 +733,23 @@ describe('adminQuizTrashEmpty testing', () => {
       const response = requestQuizTrashEmpty(user.token, quizIdsString);
       expect(response.jsonBody).toStrictEqual({});
       expect(response.statusCode).toStrictEqual(200);
+
+      trashList = requestQuizViewTrash(user.token).jsonBody as QuizListReturn;
+      expectedList = {
+        quizzes: [
+          {
+            quizId: quiz.quizId,
+            name: 'First Quiz',
+          },
+          {
+            quizId: quiz2.quizId,
+            name: 'Second Quiz',
+          }
+        ]
+      };
+      trashList.quizzes.sort((a: quizUser, b: quizUser) => a.quizId - b.quizId);
+      expectedList.quizzes.sort((a: quizUser, b: quizUser) => a.quizId - b.quizId);
+      expect(trashList).toStrictEqual(expectedList);
     });
 
     test('Empty first item in Trash', () => {
@@ -678,6 +761,27 @@ describe('adminQuizTrashEmpty testing', () => {
       requestQuizTrash(user.token, quiz2.quizId);
       requestQuizTrash(user.token, quiz3.quizId);
 
+      let trashList = requestQuizViewTrash(user.token).jsonBody as QuizListReturn;
+      let expectedList = {
+        quizzes: [
+          {
+            quizId: quiz.quizId,
+            name: 'First Quiz',
+          },
+          {
+            quizId: quiz2.quizId,
+            name: 'Second Quiz',
+          },
+          {
+            quizId: quiz3.quizId,
+            name: 'Third Quiz',
+          }
+        ]
+      };
+      trashList.quizzes.sort((a: quizUser, b: quizUser) => a.quizId - b.quizId);
+      expectedList.quizzes.sort((a: quizUser, b: quizUser) => a.quizId - b.quizId);
+      expect(trashList).toStrictEqual(expectedList);
+
       const quizIds: number[] = [quiz.quizId];
       // Convert the list to a JSON string
       const quizIdsString: string = JSON.stringify(quizIds);
@@ -685,6 +789,24 @@ describe('adminQuizTrashEmpty testing', () => {
       const response = requestQuizTrashEmpty(user.token, quizIdsString);
       expect(response.jsonBody).toStrictEqual({});
       expect(response.statusCode).toStrictEqual(200);
+
+      trashList = requestQuizViewTrash(user.token).jsonBody as QuizListReturn;
+      expectedList = {
+        quizzes: [
+          {
+            quizId: quiz2.quizId,
+            name: 'Second Quiz',
+          },
+          {
+            quizId: quiz3.quizId,
+            name: 'Third Quiz',
+          }
+
+        ]
+      };
+      trashList.quizzes.sort((a: quizUser, b: quizUser) => a.quizId - b.quizId);
+      expectedList.quizzes.sort((a: quizUser, b: quizUser) => a.quizId - b.quizId);
+      expect(trashList).toStrictEqual(expectedList);
     });
 
     test('Empty odd items in Trash', () => {
@@ -700,6 +822,35 @@ describe('adminQuizTrashEmpty testing', () => {
       requestQuizTrash(user.token, quiz4.quizId);
       requestQuizTrash(user.token, quiz5.quizId);
 
+      let trashList = requestQuizViewTrash(user.token).jsonBody as QuizListReturn;
+      let expectedList = {
+        quizzes: [
+          {
+            quizId: quiz.quizId,
+            name: 'First Quiz',
+          },
+          {
+            quizId: quiz2.quizId,
+            name: 'Second Quiz',
+          },
+          {
+            quizId: quiz3.quizId,
+            name: 'Third Quiz',
+          },
+          {
+            quizId: quiz4.quizId,
+            name: 'Fourth Quiz',
+          },
+          {
+            quizId: quiz5.quizId,
+            name: 'Fifth Quiz',
+          }
+        ]
+      };
+      trashList.quizzes.sort((a: quizUser, b: quizUser) => a.quizId - b.quizId);
+      expectedList.quizzes.sort((a: quizUser, b: quizUser) => a.quizId - b.quizId);
+      expect(trashList).toStrictEqual(expectedList);
+
       const quizIds: number[] = [quiz.quizId, quiz3.quizId, quiz5.quizId];
       // Convert the list to a JSON string
       const quizIdsString: string = JSON.stringify(quizIds);
@@ -707,6 +858,23 @@ describe('adminQuizTrashEmpty testing', () => {
       const response = requestQuizTrashEmpty(user.token, quizIdsString);
       expect(response.jsonBody).toStrictEqual({});
       expect(response.statusCode).toStrictEqual(200);
+
+      trashList = requestQuizViewTrash(user.token).jsonBody as QuizListReturn;
+      expectedList = {
+        quizzes: [
+          {
+            quizId: quiz2.quizId,
+            name: 'Second Quiz',
+          },
+          {
+            quizId: quiz4.quizId,
+            name: 'Fourth Quiz',
+          }
+        ]
+      };
+      trashList.quizzes.sort((a: quizUser, b: quizUser) => a.quizId - b.quizId);
+      expectedList.quizzes.sort((a: quizUser, b: quizUser) => a.quizId - b.quizId);
+      expect(trashList).toStrictEqual(expectedList);
     });
   });
 });
