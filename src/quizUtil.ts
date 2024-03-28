@@ -106,7 +106,10 @@ export const isValidToken = (token: string): boolean => {
 };
 
 /**
- * 
+ * Given a quizId and a token, check if the quizId is valid and if the user owns this quiz
+ * @param {string} token - a unique identifier for logged in user
+ * @param {number} quizId - a unique identifier for quiz
+ * @returns 
  */
 export const isValidQuizId = (token: string, quizId: number): EmptyObject | ErrorReturn=> {
   // Check if the quizId is invalid
