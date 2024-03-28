@@ -54,7 +54,7 @@ export const adminAuthRegister = (email: string, password: string, nameFirst: st
  * @param {string} email - User's email
  * @param {string} password - User's password
  *
- * @returns {sessionId: string} - unique identifier for a user session, given email and password
+ * @returns {token: string} - unique identifier for a user session, given email and password
  */
 export const adminAuthLogin = (email: string, password: string): SessionId | ErrorReturn => {
   const users = getData().users;
@@ -204,4 +204,30 @@ export const adminUserPasswordUpdate = (token: string, oldPassword: string, newP
   setData(data);
   saveData();
   return {};
+};
+
+/**
+ * Given a registered user's email and password returns their authUserId value.
+ * @param {string} token - Session ID as a string
+ *
+ * @returns {} - No return on successful logout,
+ * Error if the session doesnt exist.
+ */
+export const adminAuthLogout = (token: string): EmptyObject | ErrorReturn => {
+  const tokenInt = parseInt(token);
+  const users = getData().users;
+  for (const user of users) {
+    if (user.sessions.includes(tokenInt)) {
+      // If we find the session remove it from current sessions.
+      const index = user.sessions.indexOf(tokenInt);
+      if (index !== -1) {
+        user.sessions.splice(index, 1);
+      }
+      saveData();
+      return {};
+    }
+  }
+  return {
+    error: 'This is not a valid session.'
+  };
 };
