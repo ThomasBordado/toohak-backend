@@ -203,7 +203,7 @@ export const adminUserPasswordUpdate = (authUserId: number, oldPassword: string,
 
 /**
  * Given a registered user's email and password returns their authUserId value.
- * @param {string} sessionId - Session ID as a string
+ * @param {string} token - Session ID as a string
  *
  * @returns {} - No return on successful logout,
  * Error if the session doesnt exist.

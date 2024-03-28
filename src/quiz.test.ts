@@ -66,7 +66,6 @@ describe('adminQuizCreate testing', () => {
     test('Invalid SessionId', () => {
       const result = requestQuizCreate(user.token + 1, 'My Quiz', 'My description.');
       expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-      console.log(result.jsonBody);
       expect(result.statusCode).toStrictEqual(401);
     });
     test('Invalid name: Contains non-alphanumeric characters', () => {
@@ -144,19 +143,14 @@ describe('adminQuizRemove testing', () => {
     });
     test('User does not own quiz with given quizId', () => {
       const user2 = requestRegister('chloet@gmail.com', 'password1', 'Chloe', 'Turner').jsonBody as SessionId;
-      console.log(user2);
       const result = requestQuizTrash(user2.token, quiz.quizId);
-      console.log(result.jsonBody);
       expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
       expect(result.statusCode).toStrictEqual(403);
     });
     test('User owns quiz with same name as given quizId', () => {
       const user2 = requestRegister('chloet@gmail.com', 'password1', 'Chloe', 'Turner').jsonBody as SessionId;
-      console.log(user2);
       const quz2 = requestQuizCreate(user2.token, 'My Quiz', 'My description.');
-      console.log(quz2.jsonBody);
       const result = requestQuizTrash(user2.token, quiz.quizId);
-      console.log(result.jsonBody);
       expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
       expect(result.statusCode).toStrictEqual(403);
     });
