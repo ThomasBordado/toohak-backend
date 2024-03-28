@@ -472,6 +472,42 @@ export const quizTransfer = (token: string, userEmail: string, quizId: number): 
   const userQuizzesIndex = currentUser.quizzes.findIndex(quizzes => quizzes.quizId === quizId);
   currentUser.quizzes.splice(userQuizzesIndex, 1);
   setData(data);
+  saveData();
+  return {};
+};
+
+export const adminQuizQuestionMove = (token: number, quizId: number, questionId: number, newPosition: number): EmptyObject | ErrorReturn => {
+  const data = getData();
+  const user = validUserId(token, data.users);
+  if ('error' in user) {
+    return user;
+  }
+
+  const userQuizIndex = user.quizzes.findIndex(quizzes => quizzes.quizId === quizId);
+  if (userQuizIndex === -1) {
+    return { error: 'User does not own this quiz' };
+  }
+
+  const findQuiz = data.quizzes.findIndex(quizzes => quizzes.quizId === quizId);
+  if (findQuiz === -1) {
+    return { error: 'Invalid quiz ID' };
+  }
+
+  const findQuestion = data.quizzes[findQuiz].questions.findIndex(quizQuestions => quizQuestions.questionId === questionId);
+  if (findQuestion === -1) {
+    return { error: 'Does not refer to valid question' };
+  }
+
+  if (findQuestion === newPosition || newPosition < 0 || newPosition > (data.quizzes[findQuiz].questions.length - 1)) {
+    return { error: 'Position or Question Id error' };
+  }
+
+  const questionToMove = data.quizzes[findQuiz].questions.splice(findQuestion, 1)[0]; // Remove the question from its current position
+  data.quizzes[findQuiz].questions.splice(newPosition, 0, questionToMove); // Insert the question into the new position
+
+  data.quizzes[findQuiz].timeLastEdited = Math.floor(Date.now() / 1000);
+  setData(data);
+  saveData();
   return {};
 };
 
