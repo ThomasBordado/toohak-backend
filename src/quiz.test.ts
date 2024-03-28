@@ -444,6 +444,7 @@ describe('Testing it2 function, adminQuizQuestionUpdate', () => {
         ]
       }
     }
+    console.log(user.token);
     const result = requestUpdateQuizQuestion(user.token, updated, quiz.quizId, questionout.questionId);
     expect(result.statusCode).toStrictEqual(200);
     expect(result).toStrictEqual({});
@@ -549,10 +550,29 @@ describe('Testing it2 function, adminQuizQuestionUpdate', () => {
 describe('Testing it2 function, adminQuizQuestionDelete', () => {
   let user: SessionId;
   let quiz: quizId;
+  let questionin: quizQuestionCreatInput;
+  let questionout: quizQuestionCreatReturn;
   beforeEach(() => {
     user = requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith').jsonBody as SessionId;
     quiz = requestQuizCreate(user.token, 'My Quiz', 'My description.').jsonBody as quizId;
-    question = requestQuizQuestionCreat(token, quizQuestion, quizId);
+    questionin = {
+      questionBody: {
+        question: 'Who is the Monarch of England?',
+        duration: 4,
+        points: 5,
+        answers: [
+          {
+            answer: 'Prince Charles',
+            correct: true
+          },
+          {
+            answer: 'Prince Charles.',
+            correct: true
+          }
+        ]
+      }
+    };
+    questionout = requestQuizQuestionCreat(user.token, questionin, quiz.quizId).jsonBody as quizQuestionCreatReturn;
     // question1 = requestQuestionCreate
     // question2 = requestQuestionCreate
     // question3 = requestQuestionCreate
@@ -560,34 +580,36 @@ describe('Testing it2 function, adminQuizQuestionDelete', () => {
 
   // 2. Invalid Token/empty token
   test('Test invalid Token', () => {
-    const result = requestDeleteQuizQuestion(user.token + 1, quiz.quizId, question.questionId);
-    expect(result.jsonbody).toStrictEqual({ error: expect.any(String) });
+    const result = requestDeleteQuizQuestion(user.token + 1, quiz.quizId, questionout.questionId);
+    expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
     expect(result.statusCode).toStrictEqual(401);
   });
   test('Test empty Token', () => {
-    const result = requestDeleteQuizQuestion('', quiz.quizId, question.questionId);
-    expect(result.jsonbody).toStrictEqual({ error: expect.any(String) });
+    const result = requestDeleteQuizQuestion('', quiz.quizId, questionout.questionId);
+    expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
     expect(result.statusCode).toStrictEqual(401);
   });
 
   // 3. Invalid quizid or user does not own quiz
   test('Test invalid quizId, Valid token', () => {
-    const result = requestDeleteQuizQuestion(user.token, quiz.quizId + 1, question.questionId);
-    expect(result.jsonbody).toStrictEqual({ error: expect.any(String) });
+    const result = requestDeleteQuizQuestion(user.token, quiz.quizId + 1, questionout.questionId);
+    expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
     expect(result.statusCode).toStrictEqual(403);
   });
   test('Test user doesn not own quiz', () => {
+    let user2: SessionId;
+    let quiz2: quizId;
     user2 = requestRegister('jareds@gmail.com', 'password2', 'Jared', 'Simion').jsonBody as SessionId;
     quiz2 = requestQuizCreate(user2.token, 'My Quiz', 'My description.').jsonBody as quizId;
-    const result = requestDeleteQuizQuestion(user.token, quiz2.quizId, question.questionId);
-    expect(result.jsonbody).toStrictEqual({ error: expect.any(String) });
+    const result = requestDeleteQuizQuestion(user.token, quiz2.quizId, questionout.questionId);
+    expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
     expect(result.statusCode).toStrictEqual(403);
   });
 
   // 4. questiondID does not refer to valid question withing quiz
   test('invalid questionid', () => {
-    const result = requestDeleteQuizQuestion(user.token, quiz.quizId, question.questionId + 1);
-    expect(result).toStrictEqual({ error: expect.any(String) });
+    const result = requestDeleteQuizQuestion(user.token, quiz.quizId, questionout.questionId + 1);
+    expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
     expect(result.statusCode).toStrictEqual(400);
   });
 });
