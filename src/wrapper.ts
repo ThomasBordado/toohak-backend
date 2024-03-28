@@ -135,7 +135,7 @@ export const requestClear = () => {
 
 export const requestMoveQuestion = (token: string, quizId: number, questionId: number, newPosition: number) => {
   return requestHelper('PUT', `/v1/admin/quiz/${quizId}/question/${questionId}/move`, { token, quizId, questionId, newPosition });
-}
+};
 export const requestQuizViewTrash = (token: string) => {
   return requestHelper('GET', '/v1/admin/quiz/trash', { token });
 };

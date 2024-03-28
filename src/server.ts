@@ -181,7 +181,7 @@ app.put('/v1/admin/quiz/:quizid/question/:questionid/move', (req: Request, res: 
       return res.status(401).json(result);
     } else if (result.error.localeCompare('Invalid quiz ID') === 0 ||
       result.error.localeCompare('User does not own this quiz') === 0) {
-        return res.status(403).json(result);
+      return res.status(403).json(result);
     }
     return res.status(400).json(result);
   }

@@ -1699,33 +1699,30 @@ describe('adminQuizQuestionMove testing', () => {
     const result = requestMoveQuestion(user.token, quiz.quizId, question2.questionId, 0);
     expect(result.statusCode).toStrictEqual(200);
   });
-  //2. Invalid Token
+  // 2. Invalid Token
   test('Test invalid Token', () => {
     const result = requestMoveQuestion(user.token + 1, quiz.quizId, question1.questionId, 2);
-    expect(result.jsonBody).toStrictEqual({ error: expect.any(String)});
+    expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
     expect(result.statusCode).toStrictEqual(401);
-    
   });
 
-  //3. Valid token but quizId invalid
+  // 3. Valid token but quizId invalid
   test('Test invalid quizId, Valid token', () => {
     const result = requestMoveQuestion(user.token, quiz.quizId + 1, question1.questionId, 2);
-    expect(result.jsonBody).toStrictEqual({ error: expect.any(String)});
+    expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
     expect(result.statusCode).toStrictEqual(403);
   });
 
-  //4. New position is less than 0
+  // 4. New position is less than 0
   test('Test newPosition is less than 0', () => {
     const result = requestMoveQuestion(user.token, quiz.quizId, question1.questionId, -1);
-    expect(result.jsonBody).toStrictEqual({ error: expect.any(String)});
+    expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
     expect(result.statusCode).toStrictEqual(400);
-
   });
-  //5. New position is greater than (n-1)
+  // 5. New position is greater than (n-1)
   test('Test newPosition is greater than (n-1)', () => {
     const result = requestMoveQuestion(user.token, quiz.quizId, question1.questionId, 5);
-    expect(result.jsonBody).toStrictEqual({ error: expect.any(String)});
+    expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
     expect(result.statusCode).toStrictEqual(400);
-
   });
 });

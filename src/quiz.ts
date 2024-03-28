@@ -385,7 +385,7 @@ export const adminQuizQuestionMove = (token: number, quizId: number, questionId:
   if (userQuizIndex === -1) {
     return { error: 'User does not own this quiz' };
   }
-  
+
   const findQuiz = data.quizzes.findIndex(quizzes => quizzes.quizId === quizId);
   if (findQuiz === -1) {
     return { error: 'Invalid quiz ID' };
@@ -406,4 +406,4 @@ export const adminQuizQuestionMove = (token: number, quizId: number, questionId:
   data.quizzes[findQuiz].timeLastEdited = Math.floor(Date.now() / 1000);
   setData(data);
   return {};
-}
+};
