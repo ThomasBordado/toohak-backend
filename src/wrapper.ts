@@ -137,6 +137,14 @@ export const requestQuestionDuplicate = (token: string, quizId: number, question
   return requestHelper('POST', `/v1/admin/quiz/${quizId}/question/${questionId}/duplicate`, { token, quizId, questionId });
 };
 
+export const requestUpdateQuizQuestion = (token: string, questionBody: quizQuestionCreateInput, quizid: number, questionid: number) => {
+  return requestHelper('PUT', `/v1/admin/quiz/${quizid}/question/${questionid}`, { token, questionBody, quizid, questionid });
+};
+
+export const requestDeleteQuizQuestion = (token: string, quizid: number, questionid: number) => {
+  return requestHelper('DELETE', `/v1/admin/quiz/${quizid}/question/${questionid}`, { token, quizid, questionid });
+};
+
 export const requestQuizViewTrash = (token: string) => {
   return requestHelper('GET', '/v1/admin/quiz/trash', { token });
 };

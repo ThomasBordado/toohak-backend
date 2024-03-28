@@ -9,7 +9,7 @@ import fs from 'fs';
 import path from 'path';
 import process from 'process';
 import { clear } from './other';
-import { adminQuizList, adminQuizCreate, adminQuizRemove, adminQuizInfo, adminQuizNameUpdate, adminQuizDescriptionUpdate, adminQuizViewTrash, adminQuizRestore, quizQuestionCreate, adminQuizTrashEmpty, quizTransfer, adminQuizQuestionDuplicate } from './quiz';
+import { adminQuizList, adminQuizCreate, adminQuizRemove, adminQuizInfo, adminQuizNameUpdate, adminQuizDescriptionUpdate, adminQuizViewTrash, adminQuizRestore, quizQuestionCreate, adminQuizTrashEmpty, quizTransfer, adminQuizQuestionUpdate, adminQuizQuestionDelete, adminQuizQuestionDuplicate } from './quiz';
 import { adminAuthLogin, adminAuthRegister, adminUserDetails, adminUserDetailsUpdate, adminUserPasswordUpdate, adminAuthLogout } from './auth';
 import { loadData, saveData } from './persistence';
 
@@ -167,6 +167,38 @@ app.delete('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
     return res.status(403).json(result);
   }
   res.json(result);
+});
+
+app.put('/v1/admin/quiz/:quizid/question/:questionid', (req: Request, res: Response) => {
+  const quizId = parseInt(req.params.quizid as string);
+  const questionId = parseInt(req.params.questionid as string);
+  const { token, questionBody } = req.body;
+  const response = adminQuizQuestionUpdate(token, questionBody, quizId, questionId);
+  if ('error' in response) {
+    if (response.error.localeCompare('Token is empty or invalid') === 0) {
+      return res.status(401).json(response);
+    } else if (response.error.localeCompare('Invalid quizId') === 0 || response.error.localeCompare('User does not own quiz') === 0) {
+      return res.status(403).json(response);
+    }
+    return res.status(400).json(response);
+  }
+  res.json(response);
+});
+
+app.delete('/v1/admin/quiz/:quizid/question/:questionid', (req: Request, res: Response) => {
+  const quizId = parseInt(req.params.quizid as string);
+  const questionId = parseInt(req.params.questionid as string);
+  const token = req.query.token as string;
+  const response = adminQuizQuestionDelete(token, quizId, questionId);
+  if ('error' in response) {
+    if (response.error.localeCompare('Token is empty or invalid') === 0) {
+      return res.status(401).json(response);
+    } else if (response.error.localeCompare('Invalid quizId') === 0 || response.error.localeCompare('User does not own quiz') === 0) {
+      return res.status(403).json(response);
+    }
+    return res.status(400).json(response);
+  }
+  res.json(response);
 });
 
 app.post('/v1/admin/quiz/:quizid/restore', (req: Request, res: Response) => {
