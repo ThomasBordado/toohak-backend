@@ -1,7 +1,9 @@
 import { doesNotMatch } from 'assert';
 import { getData, setData } from './dataStore';
-import { EmptyObject, ErrorReturn, QuizListReturn, quiz, quizId } from './interfaces';
-import { validUserId, checkQuizName } from './quizUtil';
+import { EmptyObject, ErrorReturn, QuizListReturn, quiz, quizId, quizQuestionCreateInput, quizQuestionCreateReturn } from './interfaces';
+import { validUserId, checkQuizName, checkQuestionValid, isValidQuizId, randomColour } from './quizUtil';
+import { isValidToken } from './authUtil';
+import { saveData } from './persistence';
 
 /**
  * Provides a list of all quizzes that are owned by the currently logged in user
@@ -44,10 +46,14 @@ export const adminQuizCreate = (token: number, name: string, description: string
     timeCreated: Math.floor(Date.now() / 1000),
     timeLastEdited: Math.floor(Date.now() / 1000),
     description: description,
+    numQuestions: 0,
+    questions: [],
+    duration: 0,
   } as quiz;
 
   data.quizzes.push(newQuiz);
   user.quizzes.push({ quizId: data.quizIdStore, name: name });
+  saveData();
   return {
     quizId: data.quizIdStore
   };
@@ -77,21 +83,23 @@ export const adminQuizRemove = (token: number, quizId: number): EmptyObject | Er
   }
 
   const quiz = data.quizzes.find(quizzes => quizzes.quizId === quizId);
-  user.trash.push(quiz);
+  const quizUser = user.quizzes.find(quizzes => quizzes.quizId === quizId);
+  data.trash.push(quiz);
+  user.trash.push(quizUser);
   data.quizzes.splice(quizzesIndex, 1);
   user.quizzes.splice(userQuizzesIndex, 1);
-
+  saveData();
   return {};
 };
 
 /** Get all of the relevant information about the current quiz.
- * @param {number} authUserId - unique identifier for an academic
+ * @param {number} token - unique identifier for an academic
  * @param {number} quizId - unique identifier for a quiz
  * @returns {{quizId: number, name: string, timeCreated: number, timeLastEdited: number, description: string}} - for valid authUserId and quizId
  */
-export const adminQuizInfo = (authUserId: number, quizId: number): quiz | ErrorReturn => {
+export const adminQuizInfo = (token: number, quizId: number): quiz | ErrorReturn => {
   const data = getData();
-  const user = validUserId(authUserId, data.users);
+  const user = validUserId(token, data.users);
   if ('error' in user) {
     return user;
   }
@@ -105,16 +113,8 @@ export const adminQuizInfo = (authUserId: number, quizId: number): quiz | ErrorR
   if (userQuizzesIndex === -1) {
     return { error: 'User does not own quiz' };
   }
-
+  saveData();
   return data.quizzes[quizzesIndex];
-
-  // return {
-  //   quizId: 1,
-  //   name: 'My Quiz',
-  //   timeCreated: 1683125870,
-  //   timeLastEdited: 1683125871,
-  //   description: 'This is my quiz',
-  // };
 };
 
 /**
@@ -124,9 +124,9 @@ export const adminQuizInfo = (authUserId: number, quizId: number): quiz | ErrorR
  * @param {string} name - quiz name
  * @returns {} - for valid authUserId, quizId and description
  */
-export const adminQuizNameUpdate = (authUserId: number, quizId: number, name: string): EmptyObject | ErrorReturn => {
+export const adminQuizNameUpdate = (token: number, quizId: number, name: string): EmptyObject | ErrorReturn => {
   const data = getData();
-  const user = validUserId(authUserId, data.users);
+  const user = validUserId(token, data.users);
   if ('error' in user) {
     return user;
   } else if (checkQuizName(name, user.quizzes) !== true) {
@@ -146,7 +146,7 @@ export const adminQuizNameUpdate = (authUserId: number, quizId: number, name: st
   data.quizzes[quizzesIndex].name = name;
   user.quizzes[userQuizzesIndex].name = name;
   data.quizzes[quizzesIndex].timeLastEdited = Math.floor(Date.now() / 1000);
-
+  saveData();
   return {};
 };
 
@@ -181,7 +181,197 @@ export const adminQuizDescriptionUpdate = (authUserId: number, quizId: number, n
   data.quizzes[quizIndex].timeLastEdited = Math.floor(Date.now() / 1000);
 
   setData(data);
+  saveData();
+  return {};
+};
 
+/**
+ * @param {number} token - unique identifier for logined user
+ * @returns {QuizListReturn} - list of quizzes in the trash
+ */
+export const adminQuizViewTrash = (token: number): QuizListReturn | ErrorReturn => {
+  const data = getData();
+  const user = validUserId(token, data.users);
+  if ('error' in user) {
+    return user;
+  }
+  saveData();
+  return { quizzes: user.trash };
+};
+
+/**
+ * @param {number} token - unique identifier for logined user
+ * @param {number} quizId - quizId
+ * @returns empty object
+ */
+export const adminQuizRestore = (token: number, quizId: number): EmptyObject | ErrorReturn => {
+  const data = getData();
+  const user = validUserId(token, data.users);
+  if ('error' in user) {
+    return user;
+  }
+  const quizzesIndex = data.trash.findIndex(quizzes => quizzes.quizId === quizId);
+  const quiz = data.quizzes.find(quizzes => quizzes.quizId === quizId);
+  if (quizzesIndex === -1 && quiz === undefined) {
+    return { error: 'Invalid quizId' };
+  }
+  const userQuizIndex = user.trash.findIndex(quizzes => quizzes.quizId === quizId);
+  const quizUser = user.quizzes.find(quizzes => quizzes.quizId === quizId);
+  if (userQuizIndex === -1) {
+    if (quizUser === undefined) {
+      return { error: 'User does not own this quiz' };
+    } else {
+      return { error: 'Quiz is not currently in the trash' };
+    }
+  } else if (checkQuizName(user.trash[userQuizIndex].name, user.quizzes) !== true) {
+    return checkQuizName(user.trash[userQuizIndex].name, user.quizzes) as ErrorReturn;
+  }
+  data.trash[quizzesIndex].timeLastEdited = Math.floor(Date.now() / 1000);
+  data.quizzes.push(data.trash[quizzesIndex]);
+  user.quizzes.push(user.trash[userQuizIndex]);
+  data.trash.splice(quizzesIndex, 1);
+  user.trash.splice(userQuizIndex, 1);
+  saveData();
+  return {};
+};
+
+/**
+ * Empty the Trash with quizzes
+ * @param {number} token - unique identifier for a session
+ * @param {number[]} quizIds- array of quizIds to delete
+ * @returns {} - empties quizzes if they exist in the trash
+ */
+export const adminQuizTrashEmpty = (token: number, quizIds: number[]): EmptyObject | ErrorReturn => {
+  const data = getData();
+
+  // Check if the token is valid. error 401
+  const user = validUserId(token, data.users);
+  if ('error' in user) {
+    return user;
+  }
+
+  // Check if the current user owns the quizzes being removed. error 403
+  // If a user owns a quiz where is it stored
+  // if a quiz is in the trash from a user where?
+  for (const quizId of quizIds) {
+    const quizIndexTrash = user.trash.findIndex(quiz => quiz.quizId === quizId);
+    const quizIndexOwn = user.quizzes.findIndex(quiz => quiz.quizId === quizId);
+    if (quizIndexTrash === -1 && quizIndexOwn === -1) {
+      return { error: 'Valid token, but one or more of the Quiz IDs is not owned by current user' };
+    }
+  }
+
+  // Check if all quizzes are in the trash. error 400
+  for (const quizId of quizIds) {
+    const quizIndex = user.trash.findIndex(quiz => quiz.quizId === quizId);
+    if (quizIndex === -1) {
+      return { error: 'One or more of the Quiz IDs is not currently in the trash' };
+    }
+  }
+
+  for (const quizId of quizIds) {
+    const quizIndex = user.trash.findIndex(quiz => quiz.quizId === quizId);
+    user.trash.splice(quizIndex, 1);
+  }
+  saveData();
+  return {};
+};
+
+/**
+ *
+ * @param {string} token - unique identifier for logined user
+ * @param {Array} questionBody - the question needed to be updated to the quiz
+ * @param {number} quizId - a unique identifier of quiz
+ * @returns questionId
+ */
+export const quizQuestionCreate = (token: string, questionBody: quizQuestionCreateInput, quizId: number): quizQuestionCreateReturn | ErrorReturn => {
+  // Check token error
+  const data = getData();
+  const tokenResult = validUserId(parseInt(token), data.users);
+  if ('error' in tokenResult) {
+    return tokenResult;
+  }
+  // Check if the user owns this quiz
+  const quiz = isValidQuizId(token, quizId);
+  if ('error' in quiz) {
+    return quiz as ErrorReturn;
+  }
+  // Check if the errors in questionBody
+  const question = checkQuestionValid(questionBody, quizId);
+  if ('error' in question) {
+    return question as ErrorReturn;
+  }
+  // Push new question into quiz
+
+  const findQuiz = data.quizzes.find(quizs => quizs.quizId === quizId);
+  findQuiz.timeLastEdited = Math.floor(Date.now() / 1000);
+  findQuiz.duration = question.duration;
+  findQuiz.numQuestions += 1;
+  data.questionIdStore += 1;
+  const questionId = data.questionIdStore;
+
+  const answerOut = questionBody.questionBody.answers.map(answer => {
+    data.answerIdStore += 1;
+
+    return {
+      answerId: data.answerIdStore,
+      answer: answer.answer,
+      colour: randomColour(),
+      correct: answer.correct,
+    };
+  });
+
+  findQuiz.questions.push({
+    questionId: questionId,
+    question: questionBody.questionBody.question,
+    duration: questionBody.questionBody.duration,
+    points: questionBody.questionBody.points,
+    answers: answerOut,
+  });
+  setData(data);
+  saveData();
+  return { questionId: questionId };
+};
+
+export const quizTransfer = (token: string, userEmail: string, quizId: number): EmptyObject | ErrorReturn => {
+  const tokenCheck = isValidToken(token);
+  if (!tokenCheck) {
+    return { error: 'Token is empty or invalid' };
+  }
+  const quizIdCheck = isValidQuizId(token, quizId);
+  if ('error' in quizIdCheck) {
+    return quizIdCheck as ErrorReturn;
+  }
+
+  const data = getData();
+  const targetUser = data.users.find(users => users.email === userEmail);
+  if (targetUser === undefined) {
+    return { error: 'UserEmail is not a real user' };
+  }
+  if (targetUser.sessions.includes(parseInt(token))) {
+    return { error: 'UserEmail is the current logged in user' };
+  }
+
+  const findQuiz = data.quizzes.find(quizs => quizs.quizId === quizId);
+  const quiz = targetUser.quizzes.find(quizzes => quizzes.name === findQuiz.name);
+  if (quiz) {
+    return { error: 'Quiz ID refers to a quiz that has a name that is already used by the target user' };
+  }
+  /*
+  const findState = findQuiz.quizQuestions.find(questions => questions.state === true);
+  if (findState) {
+    return {error: 'Any session for this quiz is not in END state'}
+  }
+*/
+  // push the quiz to the target user
+  const currentUser = data.users.find(users => users.sessions.includes(parseInt(token)));
+  const userQuiz = currentUser.quizzes.find(quizs => quizs.quizId === quizId);
+  findQuiz.timeLastEdited = Math.floor(Date.now() / 1000);
+  targetUser.quizzes.push(userQuiz);
+  // delete the quiz in origin user
+  const userQuizzesIndex = currentUser.quizzes.findIndex(quizzes => quizzes.quizId === quizId);
+  currentUser.quizzes.splice(userQuizzesIndex, 1);
+  setData(data);
   return {};
 };
 

@@ -54,7 +54,7 @@ export const adminAuthRegister = (email: string, password: string, nameFirst: st
  * @param {string} email - User's email
  * @param {string} password - User's password
  *
- * @returns {sessionId: string} - unique identifier for a user session, given email and password
+ * @returns {token: string} - unique identifier for a user session, given email and password
  */
 export const adminAuthLogin = (email: string, password: string): SessionId | ErrorReturn => {
   const users = getData().users;
@@ -88,19 +88,20 @@ export const adminAuthLogin = (email: string, password: string): SessionId | Err
 /**
  * Given an admin user's authUserId, return details about the user.
  * "name" is the first and last name concatenated with a single space between them.
- * @param {number} authUserId - unique indentifier for an academic
+ * @param {number} token - unique indentifier for an academic session
  *
  * @returns {user: {userId: number, name: string, email: string, numSuccessfulLogins: number, numFailedPasswordsSinceLastLogin: number,}} -
  * Object containing user details
  *
  */
-export const adminUserDetails = (authUserId: number): UserDetailsReturn | ErrorReturn => {
+export const adminUserDetails = (token: number): UserDetailsReturn | ErrorReturn => {
   const data = getData();
-  const user = validUserId(authUserId, data.users);
+  const user = validUserId(token, data.users);
 
   if ('error' in user) {
     return user;
   }
+  saveData();
   return {
     user: {
       userId: user.userId,
@@ -203,4 +204,30 @@ export const adminUserPasswordUpdate = (token: string, oldPassword: string, newP
   setData(data);
   saveData();
   return {};
+};
+
+/**
+ * Given a registered user's email and password returns their authUserId value.
+ * @param {string} token - Session ID as a string
+ *
+ * @returns {} - No return on successful logout,
+ * Error if the session doesnt exist.
+ */
+export const adminAuthLogout = (token: string): EmptyObject | ErrorReturn => {
+  const tokenInt = parseInt(token);
+  const users = getData().users;
+  for (const user of users) {
+    if (user.sessions.includes(tokenInt)) {
+      // If we find the session remove it from current sessions.
+      const index = user.sessions.indexOf(tokenInt);
+      if (index !== -1) {
+        user.sessions.splice(index, 1);
+      }
+      saveData();
+      return {};
+    }
+  }
+  return {
+    error: 'This is not a valid session.'
+  };
 };

@@ -1,5 +1,6 @@
 import request, { HttpVerb } from 'sync-request-curl';
 import { port, url } from './config.json';
+import { quizQuestionCreateInput } from './interfaces';
 
 const SERVER_URL = `${url}:${port}`;
 
@@ -104,7 +105,7 @@ export const requestQuizInfo = (token: string, quizId: number) => {
   return requestHelper('GET', `/v1/admin/quiz/${quizId}`, { token, quizId });
 };
 
-export const requestUpdateQuizName = (token: string, name: string, quizId: number) => {
+export const requestUpdateQuizName = (token: string, quizId: number, name: string) => {
   return requestHelper('PUT', `/v1/admin/quiz/${quizId}/name`, { token, name, quizId });
 };
 
@@ -112,12 +113,34 @@ export const requestUpdateQuizDescription = (token: string, quizId: number, desc
   return requestHelper('PUT', `/v1/admin/quiz/${quizId}/description`, { token, quizId, description });
 };
 
+export const requestQuizTrashEmpty = (token: string, quizIds: string) => {
+  return requestHelper('DELETE', '/v1/admin/quiz/trash/empty', { token, quizIds });
+};
+
+export const requestLogout = (token: string) => {
+  return requestHelper('POST', '/v1/admin/auth/logout', { token });
+};
+
+export const requestQuizQuestionCreate = (token: string, questionBody: quizQuestionCreateInput, quizid: number) => {
+  return requestHelper('POST', `/v1/admin/quiz/${quizid}/question`, { token, questionBody, quizid });
+};
+
+export const requestquizTransfer = (token: string, userEmail: string, quizid: number) => {
+  return requestHelper('POST', `/v1/admin/quiz/${quizid}/transfer`, { token, userEmail });
+};
+
 export const requestClear = () => {
   return requestHelper('DELETE', '/v1/clear', {});
 };
 
-/*
 export const requestQuestionDuplicate = () => {
   return requestHelper('POST', `/v1/admin/quiz/${quizId}/question/${questionId}/duplicate`, { token, quizId, questionId });
-}
-*/
+};
+
+export const requestQuizViewTrash = (token: string) => {
+  return requestHelper('GET', '/v1/admin/quiz/trash', { token });
+};
+
+export const requestQuizRestore = (token: string, quizId: number) => {
+  return requestHelper('POST', `/v1/admin/quiz/${quizId}/restore`, { token });
+};
