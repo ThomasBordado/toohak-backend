@@ -1,3 +1,17 @@
+// import { string } from 'yaml/dist/schema/common/string';
+export interface answer {
+  answer: string;
+  correct: boolean;
+}
+
+export interface quizQuestion {
+  questionId: number;
+  question: string;
+  duration: number;
+  points: number;
+  answers: answer[];
+}
+
 export interface quiz {
   quizId: number;
   name: string;
@@ -13,14 +27,12 @@ export interface quizQuestion {
   duration: number;
   points: number;
   answers: answer[];
-  state: boolean;
 }
-  
+
 export interface answer {
   answer: string;
   correct: boolean;
 }
-  
 
 export interface quizUser {
   quizId: number;
@@ -38,7 +50,7 @@ export interface user {
   numFailedPasswordsSinceLastLogin: number;
   quizzes: quizUser[];
   sessions: number[];
-  trash: quiz[];
+  trash: quizUser[];
 }
 export type EmptyObject = Record<string, never>;
 
@@ -79,19 +91,18 @@ export interface quizQuestionCreatInput {
     question: string;
     duration: number;
     points: number;
-    answers: [
-      {
-        answer: string;
-        correct: boolean;
-      }
-    ]
+    answers: answer[];
   }
+}
+
+export interface answer {
+    answer: string;
+    correct: boolean;
 }
 
 export interface quizQuestionCreatReturn {
   questionId: number;
 }
-
 
 export interface DataStore {
   users: user[];
@@ -99,4 +110,5 @@ export interface DataStore {
   userIdStore: number;
   quizIdStore: number;
   sessionIdStore: number;
+  trash: quiz[];
 }

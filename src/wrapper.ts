@@ -1,6 +1,6 @@
 import request, { HttpVerb } from 'sync-request-curl';
 import { port, url } from './config.json';
-import { quizQuestionCreatInput } from './interfaces'
+import { quizQuestionCreatInput } from './interfaces';
 
 const SERVER_URL = `${url}:${port}`;
 
@@ -115,12 +115,16 @@ export const requestUpdateQuizDescription = (token: string, quizId: number, desc
 
 export const requestQuizQuestionCreat = (token: string, questionBody: quizQuestionCreatInput, quizid: number) => {
   return requestHelper('POST', `/v1/admin/quiz/${quizid}/question`, { token, questionBody, quizid });
-}
+};
 
 export const requestquizTransfer = (token: string, userEmail: string, quizid: number) => {
   return requestHelper('PUT', `/v1/admin/quiz/${quizid}/transfer`, { token, userEmail, quizid });
-}
+};
 
 export const requestClear = () => {
   return requestHelper('DELETE', '/v1/clear', {});
+};
+
+export const requestQuizViewTrash = (token: string) => {
+  return requestHelper('GET', '/v1/admin/quiz/trash', { token });
 };

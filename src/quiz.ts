@@ -1,8 +1,13 @@
 import { getData, setData } from './dataStore';
+<<<<<<< HEAD
 import { EmptyObject, ErrorReturn, QuizListReturn, quiz, quizId } from './interfaces';
 import { loadData } from './persistence';
 import { validUserId, checkQuizName, isValidToken, isValidQuizId } from './quizUtil';
 import { isEmailUsedByOther } from './authUtil';
+=======
+import { EmptyObject, ErrorReturn, QuizListReturn, quiz, quizId, quizQuestionCreatInput, quizQuestionCreatReturn } from './interfaces';
+import { validUserId, checkQuizName, checkQuestionValid, isValidQuizId } from './quizUtil';
+>>>>>>> master
 
 /**
  * Provides a list of all quizzes that are owned by the currently logged in user
@@ -79,7 +84,9 @@ export const adminQuizRemove = (token: number, quizId: number): EmptyObject | Er
   }
 
   const quiz = data.quizzes.find(quizzes => quizzes.quizId === quizId);
-  user.trash.push(quiz);
+  const quizUser = user.quizzes.find(quizzes => quizzes.quizId === quizId);
+  data.trash.push(quiz);
+  user.trash.push(quizUser);
   data.quizzes.splice(quizzesIndex, 1);
   user.quizzes.splice(userQuizzesIndex, 1);
 
@@ -185,6 +192,55 @@ export const adminQuizDescriptionUpdate = (authUserId: number, quizId: number, n
   setData(data);
 
   return {};
+};
+
+export const adminQuizViewTrash = (token: number): QuizListReturn | ErrorReturn => {
+  const data = getData();
+  const user = validUserId(token, data.users);
+  if ('error' in user) {
+    return user;
+  }
+
+  return { quizzes: user.trash };
+};
+
+/**
+ *
+ * @param {string} token - unique identifier for logined user
+ * @param {Array} questionBody - the question needed to be updated to the quiz
+ * @param {number} quizId - a unique identifier of quiz
+ * @returns questionId
+ */
+export const quizQuestionCreat = (token: string, questionBody: quizQuestionCreatInput, quizId: number): quizQuestionCreatReturn | ErrorReturn => {
+  // Check token error
+  const data = getData();
+  const tokenResult = validUserId(parseInt(token), data.users);
+  if ('error' in tokenResult) {
+    return tokenResult;
+  }
+  // Check if the user owns this quiz
+  const quiz = isValidQuizId(token, quizId);
+  if ('error' in quiz) {
+    return quiz as ErrorReturn;
+  }
+  // Check if the errors in questionBody
+  const question = checkQuestionValid(questionBody, quizId);
+  if ('error' in question) {
+    return question as ErrorReturn;
+  }
+  // Push new question into quiz
+
+  const findQuiz = data.quizzes.find(quizs => quizs.quizId === quizId);
+  const questionId = findQuiz.quizQuestions.length + 1;
+  findQuiz.quizQuestions.push({
+    questionId: questionId,
+    question: questionBody.questionBody.question,
+    duration: questionBody.questionBody.duration,
+    points: questionBody.questionBody.points,
+    answers: questionBody.questionBody.answers,
+  });
+  setData(data);
+  return { questionId: questionId };
 };
 
 export const quizTransfer = (token: string, userEmail: string, quizId: number): EmptyObject | ErrorReturn => {

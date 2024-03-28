@@ -9,7 +9,11 @@ import fs from 'fs';
 import path from 'path';
 import process from 'process';
 import { clear } from './other';
+<<<<<<< HEAD
 import { adminQuizList, adminQuizCreate, adminQuizRemove, adminQuizInfo, adminQuizNameUpdate, adminQuizDescriptionUpdate, quizTransfer } from './quiz';
+=======
+import { adminQuizList, adminQuizCreate, adminQuizRemove, adminQuizInfo, adminQuizNameUpdate, adminQuizDescriptionUpdate, adminQuizViewTrash, quizQuestionCreat } from './quiz';
+>>>>>>> master
 import { adminAuthLogin, adminAuthRegister, adminUserDetails, adminUserDetailsUpdate, adminUserPasswordUpdate } from './auth';
 import { loadData, saveData } from './persistence';
 
@@ -122,6 +126,15 @@ app.post('/v1/admin/quiz', (req: Request, res: Response) => {
   res.json(result);
 });
 
+app.get('/v1/admin/quiz/trash', (req: Request, res: Response) => {
+  const token = parseInt(req.query.token as string);
+  const result = adminQuizViewTrash(token);
+  if ('error' in result) {
+    return res.status(401).json(result);
+  }
+  res.json(result);
+});
+
 app.put('/v1/admin/quiz/:quizid/description', (req: Request, res: Response) => {
   // Everything in req.body will be of the correct type
   const quizId = parseInt(req.params.quizid as string);
@@ -181,6 +194,7 @@ app.put('/v1/admin/quiz/:quizid/name', (req: Request, res: Response) => {
   res.json(result);
 });
 
+<<<<<<< HEAD
 app.post('/v1/admin/quiz/{quizid}/transfer', (req: Request, res: Response) => {
   const quizId = parseInt(req.params.quizid);
   const { token, userEmail } = req.body;
@@ -194,6 +208,21 @@ app.post('/v1/admin/quiz/{quizid}/transfer', (req: Request, res: Response) => {
 		return res.status(400).json(response);
 	}
 	res.json(response);
+=======
+app.post('/v1/admin/quiz/:quizid/question', (req: Request, res: Response) => {
+  const quizId = parseInt(req.params.quizid);
+  const { token, questionBody } = req.body;
+  const response = quizQuestionCreat(token, questionBody, quizId);
+  if ('error' in response) {
+    if (response.error === 'Token is empty or invalid') {
+      return res.status(401).json(response);
+    } else if (response.error === 'Invalid quizId' || response.error === 'user does not own the quiz') {
+      return res.status(403).json(response);
+    }
+    return res.status(400).json(response);
+  }
+  res.json(response);
+>>>>>>> master
 });
 
 app.delete('/v1/clear', (req: Request, res: Response) => {
