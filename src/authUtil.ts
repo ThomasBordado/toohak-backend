@@ -1,7 +1,6 @@
 import isEmail from 'validator/lib/isEmail.js';
 import { getData } from './dataStore';
 import { ErrorReturn, UserId, user } from './interfaces';
-// import { ErrorToken } from 'yaml/dist/parse/cst';
 import { loadData } from './persistence';
 /**
  * Check a given email. If valid return true and if the email
@@ -71,7 +70,6 @@ export const checkName = (name: string, position: string) => {
 /**
  * Given an authUserId and check if it's exists in the user list
  * @param {string} token - unique identifier for an login academic
->>>>>>> master
  *
  * @return {boolean} -if Id is valid reutrn true, else return false
  */
