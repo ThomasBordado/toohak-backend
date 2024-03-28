@@ -124,3 +124,7 @@ export const requestClear = () => {
 export const requestQuizViewTrash = (token: string) => {
   return requestHelper('GET', '/v1/admin/quiz/trash', { token });
 };
+
+export const requestQuizRestore = (token: string, quizId: number) => {
+  return requestHelper('POST', `/v1/admin/quiz/${quizId}/restore`, { token });
+};

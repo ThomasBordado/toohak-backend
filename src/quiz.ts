@@ -87,7 +87,7 @@ export const adminQuizRemove = (token: number, quizId: number): EmptyObject | Er
 };
 
 /** Get all of the relevant information about the current quiz.
- * @param {number} authUserId - unique identifier for an academic
+ * @param {number} token - unique identifier for an academic
  * @param {number} quizId - unique identifier for a quiz
  * @returns {{quizId: number, name: string, timeCreated: number, timeLastEdited: number, description: string}} - for valid authUserId and quizId
  */
@@ -195,6 +195,37 @@ export const adminQuizViewTrash = (token: number): QuizListReturn | ErrorReturn 
   }
 
   return { quizzes: user.trash };
+};
+
+export const adminQuizRestore = (token: number, quizId: number): EmptyObject | ErrorReturn => {
+  const data = getData();
+  const user = validUserId(token, data.users);
+  if ('error' in user) {
+    return user;
+  }
+  const quizzesIndex = data.trash.findIndex(quizzes => quizzes.quizId === quizId);
+  const quiz = data.quizzes.find(quizzes => quizzes.quizId === quizId);
+  if (quizzesIndex === -1 && quiz === undefined) {
+    return { error: 'Invalid quizId' };
+  }
+  const userQuizIndex = user.trash.findIndex(quizzes => quizzes.quizId === quizId);
+  const quizUser = user.quizzes.find(quizzes => quizzes.quizId === quizId);
+  if (userQuizIndex === -1) {
+    if (quizUser === undefined) {
+      return { error: 'User does not own this quiz' };
+    } else {
+      return { error: 'Quiz is not currently in the trash' };
+    }
+  } else if (checkQuizName(user.trash[userQuizIndex].name, user.quizzes) !== true) {
+    return checkQuizName(user.trash[userQuizIndex].name, user.quizzes) as ErrorReturn;
+  }
+  data.trash[quizzesIndex].timeLastEdited = Math.floor(Date.now() / 1000);
+  data.quizzes.push(data.trash[quizzesIndex]);
+  user.quizzes.push(user.trash[userQuizIndex]);
+  data.trash.splice(quizzesIndex, 1);
+  user.trash.splice(userQuizIndex, 1);
+
+  return {};
 };
 
 /**
