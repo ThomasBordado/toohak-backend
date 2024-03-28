@@ -122,7 +122,7 @@ export const requestQuizQuestionCreat = (token: string, questionBody: quizQuesti
 };
 
 export const requestquizTransfer = (token: string, userEmail: string, quizid: number) => {
-  return requestHelper('PUT', `/v1/admin/quiz/${quizid}/transfer`, { token, userEmail, quizid });
+  return requestHelper('POST', `/v1/admin/quiz/${quizid}/transfer`, { token, userEmail });
 };
 
 export const requestClear = () => {

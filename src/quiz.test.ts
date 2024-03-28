@@ -1,4 +1,4 @@
-import { requestRegister, requestQuizList, requestQuizCreate, requestQuizTrash, requestClear, requestQuizInfo, requestUpdateQuizName, requestUpdateQuizDescription, requestQuizViewTrash, requestQuizRestore, requestQuizQuestionCreat, requestquizTransfer, requestLogout } from './wrapper';
+import { requestRegister, requestQuizList, requestQuizCreate, requestQuizTrash, requestClear, requestQuizInfo, requestUpdateQuizName, requestUpdateQuizDescription, requestQuizViewTrash, requestQuizRestore, requestQuizQuestionCreat, requestquizTransfer, requestLogout, requestLogin } from './wrapper';
 import { QuizListReturn, SessionId, quizId, quizUser, quizQuestionCreatInput } from './interfaces';
 
 beforeEach(() => {
@@ -381,12 +381,12 @@ describe('adminQuizDescriptionUpdate testing', () => {
   // 4. Quiz Id does not refer to a quiz this user owns
   test('Test quizid does not refer to a quiz this user owns', () => {
     const user2 = requestRegister('jared@gmail.com', 'password3', 'Jared', 'Simion').jsonBody as SessionId;
-      const notmyquiz = requestQuizCreate(user2.token, 'My Quiz2', 'My description.').jsonBody as quizId;
-      const result = requestUpdateQuizDescription(user.token, notmyquiz.quizId, 'My updated description.');
-      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-      expect(result.statusCode).toStrictEqual(403);
-    });
-  
+    const notmyquiz = requestQuizCreate(user2.token, 'My Quiz2', 'My description.').jsonBody as quizId;
+    const result = requestUpdateQuizDescription(user.token, notmyquiz.quizId, 'My updated description.');
+    expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
+    expect(result.statusCode).toStrictEqual(403);
+  });
+
   // 5. Quiz description is more than 100 characters long
   test('Test quiz description < 100 characters long', () => {
     const result = requestUpdateQuizDescription(user.token, quiz.quizId, 'My very, very, very, very, very, very, very, very, very, very, very, very, very, very, long description.');
@@ -394,7 +394,6 @@ describe('adminQuizDescriptionUpdate testing', () => {
     expect(result.statusCode).toStrictEqual(400);
   });
 });
-
 
 /**
  * test for quizQuestionCreat
@@ -821,61 +820,50 @@ describe('Testing Post /v1/admin/quiz/{quizid}/question', () => {
   });
 
   describe('Error test for 401 error', () => {
-    requestClear();
+    let user: SessionId;
+    let quiz: quizId;
+    let quizQuestion: quizQuestionCreatInput;
+    beforeEach(() => {
+      user = requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith').jsonBody as SessionId;
+      quiz = requestQuizCreate(user.token, 'My Quiz', 'My description.').jsonBody as quizId;
 
-    const user = requestRegister('valideEmail@gmail.com', 'password1', 'Jane', 'Lawson').jsonBody as SessionId;
-    const quiz = requestQuizCreate(user.token, 'British', 'history').jsonBody as quizId;
+      quizQuestion = {
+        questionBody: {
+          question: 'Who is the Monarch of England?',
+          duration: 4,
+          points: 5,
+          answers: [
+            {
+              answer: 'Prince Charles',
+              correct: true
+            },
+            {
+              answer: 'Prince Charles.',
+              correct: true
+            }
+          ]
+        }
+      };
+    });
 
-    test.each([
-      {
-        token: '',
-        quizQuestion: { //  Token is empty
-          questionBody: {
-            question: 'Who is the Monarch of England?',
-            duration: 4,
-            points: 5,
-            answers: [
-              {
-                answer: 'Prince Charles',
-                correct: true
-              },
-              {
-                answer: 'Prince Charles.',
-                correct: true
-              }
-            ]
-          }
-        },
-        quizId: quiz.quizId,
-      },
-      {
-        token: user.token + 100,
-        quizQuestion: { //  Token is invalid
-          questionBody: {
-            question: 'Who is the Monarch of England?',
-            duration: 4,
-            points: 5,
-            answers: [
-              {
-                answer: 'Prince Charles',
-                correct: true
-              },
-              {
-                answer: 'Prince Charles.',
-                correct: true
-              }
-            ]
-          }
-        },
-        quizId: quiz.quizId,
-      },
-    ])(
-      'Error with token="$token"',
-      ({ token, quizQuestion, quizId }) => {
-        const quizQuestionCreateResponse = requestQuizQuestionCreat(token, quizQuestion, quizId);
-        expect(quizQuestionCreateResponse.statusCode).toStrictEqual(401);
-        expect(quizQuestionCreateResponse.jsonBody).toStrictEqual({ error: expect.any(String) });
-      });
+    test('Token is empty', () => {
+      const quizQuestionCreateResponse = requestQuizQuestionCreat('', quizQuestion, quiz.quizId);
+      expect(quizQuestionCreateResponse.statusCode).toStrictEqual(401);
+      expect(quizQuestionCreateResponse.jsonBody).toStrictEqual({ error: expect.any(String) });
+    });
+
+    test('Token is empty', () => {
+      const quizQuestionCreateResponse = requestQuizQuestionCreat(user.token + 100, quizQuestion, quiz.quizId);
+      expect(quizQuestionCreateResponse.statusCode).toStrictEqual(401);
+      expect(quizQuestionCreateResponse.jsonBody).toStrictEqual({ error: expect.any(String) });
+    });
+
+    test('logged out user', () => {
+      requestLogout(user.token);
+      const quizQuestionCreateResponse = requestQuizQuestionCreat(user.token, quizQuestion, quiz.quizId);
+      expect(quizQuestionCreateResponse.statusCode).toStrictEqual(401);
+      expect(quizQuestionCreateResponse.jsonBody).toStrictEqual({ error: expect.any(String) });
+    });
   });
 
   test('Error test for 403 error, Valid token is provided, but user is not an owner of this quiz', () => {
@@ -1047,107 +1035,97 @@ describe('Testing Post /v1/admin/quiz/{quizid}/transfer', () => {
     const user2 = requestRegister('validemail2@gmail.com', '1234567a', 'Jennifer', 'Lawson').jsonBody as SessionId;
     const quiz = requestQuizCreate(user2.token, 'My quiz Name', 'A description of my quiz').jsonBody as quizId;
 
-    const quizTransferResponse = requestquizTransfer(user2.token, 'validemail2@gmail.com', quiz.quizId);
+    const quizTransferResponse = requestquizTransfer(user2.token, 'validemail@gmail.com', quiz.quizId);
+    expect(quizTransferResponse.jsonBody).toStrictEqual({});
     expect(quizTransferResponse.statusCode).toStrictEqual(200);
-    expect(quizTransferResponse.jsonBody).toStrictEqual({ });
   });
 
   describe('Error test for 400 error', () => {
-    const user1 = requestRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith').jsonBody as SessionId;
-    const quiz1 = requestQuizCreate(user1.token, 'My quiz Name1', 'A description of my quiz').jsonBody as quizId;
-    requestLogout(user1.token);
+    let user1: SessionId;
+    let user2: SessionId;
+    let quiz2: quizId;
+    let quiz3: quizId;
+    beforeEach(() => {
+      requestClear();
+      user1 = requestRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith').jsonBody as SessionId;
+      requestQuizCreate(user1.token, 'My quiz Name1', 'A description of my quiz').jsonBody as quizId;
+      requestLogout(user1.token);
 
-    const user2 = requestRegister('validemail2@gmail.com', '1234567a', 'Jennifer', 'Lawson').jsonBody as SessionId;
-    const quiz2 = requestQuizCreate(user2.token, 'My quiz Name2', 'A description of my quiz').jsonBody as quizId;
-    const quiz3 = requestQuizCreate(user2.token, 'My quiz Name1', 'A description of my quiz').jsonBody as quizId;
+      user2 = requestRegister('validemail2@gmail.com', '1234567a', 'Jennifer', 'Lawson').jsonBody as SessionId;
+      quiz2 = requestQuizCreate(user2.token, 'My quiz Name2', 'A description of my quiz').jsonBody as quizId;
+      quiz3 = requestQuizCreate(user2.token, 'My quiz Name1', 'A description of my quiz').jsonBody as quizId;
+    });
 
     test.each([
       {
-        token: user2.token,
-        userEmaill: '11111@qq.com',    // userEmail is not a real user
-        quizid: quiz2.quizId,
+        userEmaill: '11111@qq.com', // userEmail is not a real user
       },
       {
-        token: user2.token,
-        userEmaill: 'validemail2@gmail.com',   // userEmail is the current logged in user
-        quizid: quiz2.quizId
-      },
-      {
-        token: user2.token,
-        userEmaill: 'validemail@gmail.com',    // Quiz ID refers to a quiz that has a name that is already used by the target user
-        quizid: quiz3.quizId
-
+        userEmaill: 'validemail2@gmail.com', // userEmail is the current logged in user
       },
     ])(
       'Error with token="$token", userEmail=$userEmail"',
-      ({ token, userEmaill, quizid }) => {
-        const quizTransferResponse = requestquizTransfer(token, userEmaill, quizid);
-        expect(quizTransferResponse.statusCode).toStrictEqual(400);
+      ({ userEmaill }) => {
+        const quizTransferResponse = requestquizTransfer(user2.token, userEmaill, quiz2.quizId);
         expect(quizTransferResponse.jsonBody).toStrictEqual({ error: expect.any(String) });
+        expect(quizTransferResponse.statusCode).toStrictEqual(400);
       });
+    test('Quiz ID refers to a quiz that has a name that is already used by the target user', () => {
+      const quizTransferResponse = requestquizTransfer(user2.token, 'validemail@gmail.com', quiz3.quizId);
+      expect(quizTransferResponse.jsonBody).toStrictEqual({ error: expect.any(String) });
+      expect(quizTransferResponse.statusCode).toStrictEqual(400);
+    });
   });
-  
-/*
-  test('Not all quiz session are in end state', () => {
-    const user1 = requestRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith').jsonBody as SessionId;
-    requestLogout(user1.token);
-
-    const user2 = requestRegister('validemail2@gmail.com', '1234567a', 'Jennifer', 'Lawson').jsonBody as SessionId;
-    const quiz = requestQuizCreate(user2.token, 'My quiz Name', 'A description of my quiz').jsonBody as quizId;
-    const input = {
-      question: 'Who is the Monarch of England?',
-      duration: 4,
-      points: 5,
-      answers: [
-        {
-          answer: "Prince Charles",
-          correct: true
-        },
-        ]
-      };
-    const quizQuestionCreat = requestQuizQuestionCreat(user2.token, input, quiz.quizId).jsonBody as quizQuestionCreatReturn;
-
-    const quizTransferResponse = requestquizTransfer(user2.token, 'validemail2@gmail.com', quiz.quizId);
-    expect(quizTransferResponse.statusCode).toStrictEqual(400);
-    expect(quizTransferResponse.jsonBody).toStrictEqual({ error: expect.any(String) });
-  });
-*/
 
   describe('Error test for 401 error', () => {
-  requestClear();
-  const user1 = requestRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith').jsonBody as SessionId;
-    requestLogout(user1.token);
+    let quiz: quizId;
+    let user2: SessionId;
+    beforeEach(() => {
+      requestClear();
+      requestRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith').jsonBody as SessionId;
 
-    const user2 = requestRegister('validemail2@gmail.com', '1234567a', 'Jennifer', 'Lawson').jsonBody as SessionId;
-    const quiz = requestQuizCreate(user2.token, 'My quiz Name', 'A description of my quiz').jsonBody as quizId;
+      user2 = requestRegister('validemail2@gmail.com', '1234567a', 'Jennifer', 'Lawson').jsonBody as SessionId;
+      quiz = requestQuizCreate(user2.token, 'My quiz Name', 'A description of my quiz').jsonBody as quizId;
+    });
 
-  test.each([
-    {
-      token: '',
-      userEmaill: '11111@qq.com'     // Token is empty
-    },
-    {
-      token: user1.token,
-      userEmaill: 'validemail@gmail.com'    // Token is invalid (does not refer to valid logged in user session)
-    },
-  ])(
-    'Error with token="$token"',
-    ({ token, userEmaill }) => {
-      const quizTransferResponse = requestquizTransfer(token, userEmaill, quiz.quizId);
+    test('Token is empty', () => {
+      const quizTransferResponse = requestquizTransfer('', 'validemail@gmail.com', quiz.quizId);
+      expect(quizTransferResponse.statusCode).toStrictEqual(401);
+      expect(quizTransferResponse.jsonBody).toStrictEqual({ error: expect.any(String) });
+    });
+
+    test('Token is empty', () => {
+      const quizTransferResponse = requestquizTransfer(user2.token + 100, 'validemail@gmail.com', quiz.quizId);
       expect(quizTransferResponse.statusCode).toStrictEqual(401);
       expect(quizTransferResponse.jsonBody).toStrictEqual({ error: expect.any(String) });
     });
   });
-
   test('Error test for 403 error, Valid token is provided, but user is not an owner of this quiz', () => {
     const user1 = requestRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith').jsonBody as SessionId;
-    const quiz1 = requestQuizCreate(user1.token, 'My quiz Name1', 'A description of my quiz').jsonBody as quizId;
     requestLogout(user1.token);
+
+    const user3 = requestRegister('validemail3@gmail.com', '1234567a', 'Jane', 'Smith').jsonBody as SessionId;
+    const quiz3 = requestQuizCreate(user1.token, 'My quiz Name1', 'A description of my quiz').jsonBody as quizId;
+    requestLogout(user3.token);
 
     const user2 = requestRegister('validemail2@gmail.com', '1234567a', 'Jennifer', 'Lawson').jsonBody as SessionId;
 
-    const quizTransferResponse = requestquizTransfer(user2.token, 'validemail@gmail.com', quiz1.quizId);
+    const quizTransferResponse = requestquizTransfer(user2.token, 'validemail@gmail.com', quiz3.quizId);
     expect(quizTransferResponse.statusCode).toStrictEqual(403);
     expect(quizTransferResponse.jsonBody).toStrictEqual({ error: expect.any(String) });
+  });
+
+  test('Testing behavior for QuizTransfer', () => {
+    const user1 = requestRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith').jsonBody as SessionId;
+    requestLogout(user1.token);
+
+    const user2 = requestRegister('validemail2@gmail.com', '1234567a', 'Jennifer', 'Lawson').jsonBody as SessionId;
+    const quiz = requestQuizCreate(user2.token, 'My quiz Name', 'A description of my quiz').jsonBody as quizId;
+    requestquizTransfer(user2.token, 'validemail@gmail.com', quiz.quizId);
+    const user1Token = requestLogin('validemail@gmail.com', '1234567a').jsonBody;
+    const result1 = requestQuizList(user1Token.token).jsonBody as QuizListReturn;
+    const result2 = requestQuizList(user2.token).jsonBody as QuizListReturn;
+    expect(result1).toStrictEqual({ quizzes: [{ quizId: 1, name: 'My quiz Name' }] });
+    expect(result2).toStrictEqual({ quizzes: [] });
   });
 });

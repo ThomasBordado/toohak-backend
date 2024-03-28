@@ -40,17 +40,17 @@ app.get('/echo', (req: Request, res: Response) => {
 });
 
 app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
-    const { email, password, nameFirst, nameLast } = req.body;
-    const response = adminAuthRegister(email, password, nameFirst, nameLast);
-    if ('error' in response) {
-      if (response.error === 'Token is empty or invalid') {
-        return res.status(401).json(response);
-      } else if (response.error === 'Valid token is provided, but user is not an owner of this quiz') {
-        return res.status(403).json(response);
-      }
-      return res.status(400).json(response);
+  const { email, password, nameFirst, nameLast } = req.body;
+  const response = adminAuthRegister(email, password, nameFirst, nameLast);
+  if ('error' in response) {
+    if (response.error === 'Token is empty or invalid') {
+      return res.status(401).json(response);
+    } else if (response.error === 'Valid token is provided, but user is not an owner of this quiz') {
+      return res.status(403).json(response);
     }
-    res.json(response);
+    return res.status(400).json(response);
+  }
+  res.json(response);
 });
 
 app.post('/v1/admin/auth/login', (req: Request, res: Response) => {
@@ -232,19 +232,19 @@ app.post('/v1/admin/quiz/:quizid/question', (req: Request, res: Response) => {
   res.json(response);
 });
 
-app.post('/v1/admin/quiz/{quizid}/transfer', (req: Request, res: Response) => {
+app.post('/v1/admin/quiz/:quizid/transfer', (req: Request, res: Response) => {
   const quizId = parseInt(req.params.quizid);
   const { token, userEmail } = req.body;
   const response = quizTransfer(token, userEmail, quizId);
-	if ('error' in response) {
-		if (response.error.localeCompare('Token is empty or invalid') === 0) {
-			return res.status(401).json(response);
-		} else if (response.error.localeCompare('Invalid quizId') === 0 || response.error.localeCompare('user does not own the quiz')) {
-			return res.status(403).json(response);
-		}
-		return res.status(400).json(response);
-	}
-	res.json(response);
+  if ('error' in response) {
+    if (response.error.localeCompare('Token is empty or invalid') === 0) {
+      return res.status(401).json(response);
+    } else if (response.error.localeCompare('Invalid quizId') === 0 || response.error.localeCompare('user does not own the quiz') === 0) {
+      return res.status(403).json(response);
+    }
+    return res.status(400).json(response);
+  }
+  res.json(response);
 });
 
 app.delete('/v1/clear', (req: Request, res: Response) => {
