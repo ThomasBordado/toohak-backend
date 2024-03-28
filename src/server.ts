@@ -9,7 +9,7 @@ import fs from 'fs';
 import path from 'path';
 import process from 'process';
 import { clear } from './other';
-import { adminQuizList, adminQuizCreate, adminQuizRemove, adminQuizDescriptionUpdate, adminQuizViewTrash, adminQuizRestore } from './quiz';
+import { adminQuizList, adminQuizCreate, adminQuizRemove, adminQuizInfo, adminQuizNameUpdate, adminQuizDescriptionUpdate, adminQuizViewTrash, adminQuizRestore } from './quiz';
 import { adminAuthLogin, adminAuthRegister, adminUserDetails, adminUserDetailsUpdate, adminUserPasswordUpdate } from './auth';
 import { loadData, saveData } from './persistence';
 
@@ -157,10 +157,29 @@ app.delete('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
   res.json(result);
 });
 
+<<<<<<< src/server.ts
 app.post('/v1/admin/quiz/:quizid/restore', (req: Request, res: Response) => {
   const token = parseInt(req.body.token as string);
   const quizId = parseInt(req.params.quizid as string);
   const result = adminQuizRestore(token, quizId);
+    if ('error' in result) {
+      if (result.error.localeCompare('Token is empty or invalid') === 0) {
+        return res.status(401).json(result);
+      }
+          if (result.error.localeCompare('Invalid quizId') === 0) {
+        return res.status(403).json(result);
+      }
+      if (result.error.localeCompare('User does not own this quiz') === 0) {
+        return res.status(403).json(result);
+    }
+  }
+  res.json(result);
+});
+
+app.get('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
+  const token = parseInt(req.query.token as string);
+  const quizId = parseInt(req.params.quizid as string);
+  const result = adminQuizInfo(token, quizId);
   if ('error' in result) {
     if (result.error.localeCompare('Token is empty or invalid') === 0) {
       return res.status(401).json(result);
@@ -169,6 +188,20 @@ app.post('/v1/admin/quiz/:quizid/restore', (req: Request, res: Response) => {
       return res.status(403).json(result);
     }
     if (result.error.localeCompare('User does not own this quiz') === 0) {
+      return res.status(403).json(result);
+  }
+  res.json(result);
+});
+
+app.put('/v1/admin/quiz/:quizid/name', (req: Request, res: Response) => {
+  const quizId = parseInt(req.params.quizid as string);
+  const token = parseInt(req.body.token as string);
+  const { name } = req.body;
+  const result = adminQuizNameUpdate(token, quizId, name);
+  if ('error' in result) {
+    if (result.error.localeCompare('Token is empty or invalid') === 0) {
+      return res.status(401).json(result);
+    } else if (result.error.localeCompare('Invalid quizId') === 0 || result.error.localeCompare('User does not own quiz') === 0) {
       return res.status(403).json(result);
     }
     return res.status(400).json(result);
