@@ -1,4 +1,4 @@
-import { requestRegister, requestQuizList, requestQuizCreate, requestQuizTrash, requestQuizInfo, requestUpdateQuizName, requestUpdateQuizDescription, requestClear, requestQuizViewTrash, requestQuizRestore, requestQuizQuestionCreate, requestQuizTrashEmpty, requestquizTransfer, requestLogout, requestLogin, requestUpdateQuizQuestion, requestDeleteQuizQuestion } from './wrapper';
+import { requestRegister, requestQuizList, requestQuizCreate, requestQuizTrash, requestQuizInfo, requestUpdateQuizName, requestUpdateQuizDescription, requestClear, requestQuizViewTrash, requestQuizRestore, requestQuizQuestionCreate, requestQuizTrashEmpty, requestquizTransfer, requestLogout, requestLogin, requestUpdateQuizQuestion, requestDeleteQuizQuestion, requestMoveQuestion } from './wrapper';
 import { QuizListReturn, SessionId, quizId, quizUser, quizQuestionCreateInput, quiz, quizQuestionCreateReturn } from './interfaces';
 
 beforeEach(() => {
@@ -1866,5 +1866,80 @@ describe('Testing Post /v1/admin/quiz/{quizid}/transfer', () => {
     const result2 = requestQuizList(user2.token).jsonBody as QuizListReturn;
     expect(result1).toStrictEqual({ quizzes: [{ quizId: 1, name: 'My quiz Name' }] });
     expect(result2).toStrictEqual({ quizzes: [] });
+  });
+});
+
+describe('adminQuizQuestionMove testing', () => {
+  let user: SessionId;
+  let quiz: quizId;
+  let questionin: quizQuestionCreateInput;
+  let question1: quizQuestionCreateReturn;
+  let question2: quizQuestionCreateReturn;
+  let question3: quizQuestionCreateReturn;
+
+  beforeEach(() => {
+    user = requestRegister('jareds@gmail.com', 'password2024', 'Jared', 'Simion').jsonBody as SessionId;
+    quiz = requestQuizCreate(user.token, 'My Quiz', 'My Quiz Description').jsonBody as quizId;
+    questionin = {
+      questionBody: {
+        question: 'Who is the Monarch of England?',
+        duration: 4,
+        points: 5,
+        answers: [
+          {
+            answer: 'Prince Charles',
+            correct: true
+          },
+          {
+            answer: 'Prince Charles.',
+            correct: true
+          }
+        ]
+      }
+    };
+    question1 = requestQuizQuestionCreate(user.token, questionin, quiz.quizId).jsonBody as quizQuestionCreateReturn;
+    question2 = requestQuizQuestionCreate(user.token, questionin, quiz.quizId).jsonBody as quizQuestionCreateReturn;
+    question3 = requestQuizQuestionCreate(user.token, questionin, quiz.quizId).jsonBody as quizQuestionCreateReturn;
+  });
+  // 1. Succesfully move question 1 to last.
+  test('Test succesfully moving question to new position', () => {
+    const result = requestMoveQuestion(user.token, quiz.quizId, question1.questionId, 2);
+    expect(result.statusCode).toStrictEqual(200);
+  });
+  // 1. Succesfully move question last to 1.
+  test('Test succesfully moving question to new position', () => {
+    const result = requestMoveQuestion(user.token, quiz.quizId, question3.questionId, 0);
+    expect(result.statusCode).toStrictEqual(200);
+  });
+  // 1. Succesfully move question 2 to 1.
+  test('Test succesfully moving question to new position', () => {
+    const result = requestMoveQuestion(user.token, quiz.quizId, question2.questionId, 0);
+    expect(result.statusCode).toStrictEqual(200);
+  });
+  // 2. Invalid Token
+  test('Test invalid Token', () => {
+    const result = requestMoveQuestion(user.token + 1, quiz.quizId, question1.questionId, 2);
+    expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
+    expect(result.statusCode).toStrictEqual(401);
+  });
+
+  // 3. Valid token but quizId invalid
+  test('Test invalid quizId, Valid token', () => {
+    const result = requestMoveQuestion(user.token, quiz.quizId + 1, question1.questionId, 2);
+    expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
+    expect(result.statusCode).toStrictEqual(403);
+  });
+
+  // 4. New position is less than 0
+  test('Test newPosition is less than 0', () => {
+    const result = requestMoveQuestion(user.token, quiz.quizId, question1.questionId, -1);
+    expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
+    expect(result.statusCode).toStrictEqual(400);
+  });
+  // 5. New position is greater than (n-1)
+  test('Test newPosition is greater than (n-1)', () => {
+    const result = requestMoveQuestion(user.token, quiz.quizId, question1.questionId, 5);
+    expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
+    expect(result.statusCode).toStrictEqual(400);
   });
 });

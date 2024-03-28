@@ -9,7 +9,7 @@ import fs from 'fs';
 import path from 'path';
 import process from 'process';
 import { clear } from './other';
-import { adminQuizList, adminQuizCreate, adminQuizRemove, adminQuizInfo, adminQuizNameUpdate, adminQuizDescriptionUpdate, adminQuizViewTrash, adminQuizRestore, quizQuestionCreate, adminQuizTrashEmpty, quizTransfer, adminQuizQuestionUpdate, adminQuizQuestionDelete } from './quiz';
+import { adminQuizList, adminQuizCreate, adminQuizRemove, adminQuizInfo, adminQuizNameUpdate, adminQuizDescriptionUpdate, adminQuizViewTrash, adminQuizRestore, quizQuestionCreate, adminQuizTrashEmpty, quizTransfer, adminQuizQuestionUpdate, adminQuizQuestionDelete, adminQuizQuestionMove } from './quiz';
 import { adminAuthLogin, adminAuthRegister, adminUserDetails, adminUserDetailsUpdate, adminUserPasswordUpdate, adminAuthLogout } from './auth';
 import { loadData, saveData } from './persistence';
 
@@ -165,6 +165,25 @@ app.delete('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
       return res.status(401).json(result);
     }
     return res.status(403).json(result);
+  }
+  res.json(result);
+});
+
+app.put('/v1/admin/quiz/:quizid/question/:questionid/move', (req: Request, res: Response) => {
+  const token = parseInt(req.body.token as string);
+  const quizId = parseInt(req.params.quizid as string);
+  const questionId = parseInt(req.params.questionid as string);
+  const newPosition = req.body.newPosition as number;
+  const result = adminQuizQuestionMove(token, quizId, questionId, newPosition);
+
+  if ('error' in result) {
+    if (result.error.localeCompare('Token is empty or invalid') === 0) {
+      return res.status(401).json(result);
+    } else if (result.error.localeCompare('Invalid quiz ID') === 0 ||
+      result.error.localeCompare('User does not own this quiz') === 0) {
+      return res.status(403).json(result);
+    }
+    return res.status(400).json(result);
   }
   res.json(result);
 });
