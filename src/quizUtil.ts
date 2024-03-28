@@ -137,7 +137,7 @@ export const checkQuestionValid = (quizQuestion: quizQuestionCreateInput, quizId
     return { error: 'There are no correct answers' };
   }
 
-  return { duration: sum};
+  return { duration: sum };
 };
 
 /**

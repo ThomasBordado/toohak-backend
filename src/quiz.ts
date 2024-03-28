@@ -309,12 +309,16 @@ export const quizQuestionCreate = (token: string, questionBody: quizQuestionCrea
   data.questionIdStore += 1;
   const questionId = data.questionIdStore;
 
-  const answerOut = questionBody.questionBody.answers.map(answer => ({
-    answerId: data.answerIdStore += 1,
-    answer: answer.answer,
-    colour: randomColour(),
-    correct: answer.correct,
-  }));
+  const answerOut = questionBody.questionBody.answers.map(answer => {
+    data.answerIdStore += 1;
+
+    return {
+      answerId: data.answerIdStore,
+      answer: answer.answer,
+      colour: randomColour(),
+      correct: answer.correct,
+    };
+  });
 
   findQuiz.questions.push({
     questionId: questionId,

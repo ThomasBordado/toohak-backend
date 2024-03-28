@@ -918,7 +918,7 @@ describe('Testing Post /v1/admin/quiz/{quizid}/question', () => {
       description: 'history',
       numQuestions: 1,
       questions: [
-        { 
+        {
           questionId: quizQuestionCreateResponse.jsonBody.questionId,
           question: 'Who is the Monarch of England?',
           duration: 4,
@@ -940,8 +940,8 @@ describe('Testing Post /v1/admin/quiz/{quizid}/question', () => {
         }
       ],
       duration: 4
-    }
-    expect(requestQuizInfo(user.token, quiz.quizId).jsonBody).toStrictEqual(expectedInfo)
+    };
+    expect(requestQuizInfo(user.token, quiz.quizId).jsonBody).toStrictEqual(expectedInfo);
   });
 
   describe('Error test for 400 error', () => {
