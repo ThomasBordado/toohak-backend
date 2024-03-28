@@ -243,15 +243,8 @@ export const adminQuizQuestionUpdate = (token: string, questionBody: quizQuestio
     findQuestion.answers = answerOut;
   }
 
-  // const questionsIndex = data.quizzes.quizQuestions.findIndex(questions => quizzesIndex.quizQuestions.answers) //need to finish index
-
-  // data.quizzes[quizzesIndex].quizQuestions[questionsIndex].question = question;
-  // data.quizzes[quizzesIndex].quizQuestions[questionsIndex].duration = duration;
-  // data.quizzes[quizzesIndex].quizQuestions[questionsIndex].points = points;
-  // data.quizzes[quizzesIndex].quizQuestions[questionsIndex].answers.answer = answer;
-  // data.quizzes[quizzesIndex].quizQuestions[questionsIndex].answers.correct = correct;
-  // // user.quizzes[userQuizzesIndex].name = name;
-  // data.quizzes[quizzesIndex].timeLastEdited = Math.floor(Date.now() / 1000);
+  findQuiz.duration = result.duration;
+  findQuiz.timeLastEdited = Math.floor(Date.now() / 1000);
   saveData();
   return {};
 };
@@ -280,21 +273,9 @@ export const adminQuizQuestionDelete = (token: string, quizId: number, questioni
   } else if (findQuestion > -1) {
     findQuiz.questions.splice(findQuestion, 1);
   }
-
-  // findQuiz.quizQuestions[findQuestion].question = '';
-  // findQuiz.quizQuestions[findQuestion].duration = '';
-  // findQuiz.quizQuestions[findQuestion].points = '';
-  // findQuiz.quizQuestions[findQuestion].answers = '';
-
-  // const questionsIndex = data.quizzes.quizQuestions.findIndex(questions => quizzesIndex.quizQuestions.answers) //need to finish index
-
-  // data.quizzes[quizzesIndex].quizQuestions[questionsIndex].question = question;
-  // data.quizzes[quizzesIndex].quizQuestions[questionsIndex].duration = duration;
-  // data.quizzes[quizzesIndex].quizQuestions[questionsIndex].points = points;
-  // data.quizzes[quizzesIndex].quizQuestions[questionsIndex].answers.answer = answer;
-  // data.quizzes[quizzesIndex].quizQuestions[questionsIndex].answers.correct = correct;
-  // // user.quizzes[userQuizzesIndex].name = name;
-  // data.quizzes[quizzesIndex].timeLastEdited = Math.floor(Date.now() / 1000);
+  findQuiz.duration -= findQuiz.questions[findQuestion].duration;
+  findQuiz.numQuestions -= 1;
+  findQuiz.timeLastEdited = Math.floor(Date.now() / 1000);
   saveData();
   return {};
 };
