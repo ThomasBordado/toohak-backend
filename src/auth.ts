@@ -223,6 +223,7 @@ export const adminAuthLogout = (token: string): EmptyObject | ErrorReturn => {
       if (index !== -1) {
         user.sessions.splice(index, 1);
       }
+      saveData();
       return {};
     }
   }
