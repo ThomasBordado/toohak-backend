@@ -915,62 +915,6 @@ describe('/v1/admin/quiz/trash testing', () => {
   });
 
   describe('Unsuccessful Cases', () => {
-    test('Invalid AuthUserId', () => {
-      const result = requestQuizRestore(user.token + 1, quiz.quizId);
-      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-      expect(result.statusCode).toStrictEqual(401);
-    });
-    test('Invalid quizId', () => {
-      const result = requestQuizRestore(user.token, quiz.quizId + 1);
-      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-      expect(result.statusCode).toStrictEqual(403);
-    });
-    test('User does not own quiz with given quizId', () => {
-      const user2 = requestRegister('chloet@gmail.com', 'password1', 'Chloe', 'Turner').jsonBody as SessionId;
-      const result = requestQuizRestore(user2.token, quiz.quizId);
-      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-      expect(result.statusCode).toStrictEqual(403);
-    });
-    test('User owns quiz with same name as restored quiz', () => {
-      requestQuizTrash(user.token, quiz.quizId);
-      requestQuizCreate(user.token, 'My Quiz', 'My description.');
-      const result = requestQuizRestore(user.token, quiz.quizId);
-      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-      expect(result.statusCode).toStrictEqual(400);
-    });
-    test('quiz is not currently in trash', () => {
-      const result = requestQuizRestore(user.token, quiz.quizId);
-      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-      expect(result.statusCode).toStrictEqual(400);
-    });
-
-    test('Restore same quiz twice', () => {
-      requestQuizTrash(user.token, quiz.quizId);
-      requestQuizRestore(user.token, quiz.quizId);
-      const result = requestQuizRestore(user.token, quiz.quizId);
-      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-      expect(result.statusCode).toStrictEqual(400);
-    });
-  });
-  describe('Successful cases', () => {
-    test('restore quiz', () => {
-      requestQuizTrash(user.token, quiz.quizId);
-      expect(requestQuizRestore(user.token, quiz.quizId).jsonBody).toStrictEqual({});
-      expect(requestQuizList(user.token).jsonBody).toStrictEqual({ quizzes: [{ quizId: quiz.quizId, name: 'My Quiz' }] });
-      expect(requestQuizViewTrash(user.token).jsonBody).toStrictEqual({ quizzes: [] });
-    });
-  });
-});
-
-describe('/v1/admin/quiz/{quizid}/restore testing', () => {
-  let user: SessionId;
-  let quiz: quizId;
-  beforeEach(() => {
-    user = requestRegister('chloe@gmail.com', 'password1', 'Chloe', 'Turner').jsonBody as SessionId;
-    quiz = requestQuizCreate(user.token, 'My Quiz', 'My description.').jsonBody as quizId;
-  });
-
-  describe('Unsuccessful Cases', () => {
     test('Invalid SessionId', () => {
       const result = requestQuizViewTrash(user.token + 1);
       expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
@@ -1030,6 +974,62 @@ describe('/v1/admin/quiz/{quizid}/restore testing', () => {
       trashList.quizzes.sort((a: quizUser, b: quizUser) => a.quizId - b.quizId);
       expectedList.quizzes.sort((a: quizUser, b: quizUser) => a.quizId - b.quizId);
       expect(trashList).toStrictEqual(expectedList);
+    });
+  });
+});
+
+describe('/v1/admin/quiz/{quizid}/restore testing', () => {
+  let user: SessionId;
+  let quiz: quizId;
+  beforeEach(() => {
+    user = requestRegister('chloe@gmail.com', 'password1', 'Chloe', 'Turner').jsonBody as SessionId;
+    quiz = requestQuizCreate(user.token, 'My Quiz', 'My description.').jsonBody as quizId;
+  });
+
+  describe('Unsuccessful Cases', () => {
+    test('Invalid AuthUserId', () => {
+      const result = requestQuizRestore(user.token + 1, quiz.quizId);
+      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
+      expect(result.statusCode).toStrictEqual(401);
+    });
+    test('Invalid quizId', () => {
+      const result = requestQuizRestore(user.token, quiz.quizId + 1);
+      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
+      expect(result.statusCode).toStrictEqual(403);
+    });
+    test('User does not own quiz with given quizId', () => {
+      const user2 = requestRegister('chloet@gmail.com', 'password1', 'Chloe', 'Turner').jsonBody as SessionId;
+      const result = requestQuizRestore(user2.token, quiz.quizId);
+      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
+      expect(result.statusCode).toStrictEqual(403);
+    });
+    test('User owns quiz with same name as restored quiz', () => {
+      requestQuizTrash(user.token, quiz.quizId);
+      requestQuizCreate(user.token, 'My Quiz', 'My description.');
+      const result = requestQuizRestore(user.token, quiz.quizId);
+      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
+      expect(result.statusCode).toStrictEqual(400);
+    });
+    test('quiz is not currently in trash', () => {
+      const result = requestQuizRestore(user.token, quiz.quizId);
+      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
+      expect(result.statusCode).toStrictEqual(400);
+    });
+
+    test('Restore same quiz twice', () => {
+      requestQuizTrash(user.token, quiz.quizId);
+      requestQuizRestore(user.token, quiz.quizId);
+      const result = requestQuizRestore(user.token, quiz.quizId);
+      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
+      expect(result.statusCode).toStrictEqual(400);
+    });
+  });
+  describe('Successful cases', () => {
+    test('restore quiz', () => {
+      requestQuizTrash(user.token, quiz.quizId);
+      expect(requestQuizRestore(user.token, quiz.quizId).jsonBody).toStrictEqual({});
+      expect(requestQuizList(user.token).jsonBody).toStrictEqual({ quizzes: [{ quizId: quiz.quizId, name: 'My Quiz' }] });
+      expect(requestQuizViewTrash(user.token).jsonBody).toStrictEqual({ quizzes: [] });
     });
   });
 });

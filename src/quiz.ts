@@ -87,7 +87,7 @@ export const adminQuizRemove = (token: number, quizId: number): EmptyObject | Er
 };
 
 /** Get all of the relevant information about the current quiz.
- * @param {number} authUserId - unique identifier for an academic
+ * @param {number} token - unique identifier for an academic
  * @param {number} quizId - unique identifier for a quiz
  * @returns {{quizId: number, name: string, timeCreated: number, timeLastEdited: number, description: string}} - for valid authUserId and quizId
  */
