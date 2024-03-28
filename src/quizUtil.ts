@@ -155,8 +155,10 @@ export const isValidQuizId = (token: string, quizId: number): EmptyObject | Erro
   if (quiz) {
     const user = data.users.find(users => users.sessions.includes(parseInt(token)));
     const findQuiz = user.quizzes.find(quizzes => quizzes.quizId === quizId);
+    console.log(findQuiz);
+
     // If the user owns this quiz
-    if (findQuiz) {
+    if (findQuiz !== undefined) {
       return {};
     }
     return { error: 'user does not own the quiz' };

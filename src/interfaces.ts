@@ -21,19 +21,6 @@ export interface quiz {
   quizQuestions: quizQuestion[];
 }
 
-export interface quizQuestion {
-  questionId: number;
-  question: string;
-  duration: number;
-  points: number;
-  answers: answer[];
-}
-
-export interface answer {
-  answer: string;
-  correct: boolean;
-}
-
 export interface quizUser {
   quizId: number;
   name: string;
@@ -93,11 +80,6 @@ export interface quizQuestionCreatInput {
     points: number;
     answers: answer[];
   }
-}
-
-export interface answer {
-    answer: string;
-    correct: boolean;
 }
 
 export interface quizQuestionCreatReturn {
