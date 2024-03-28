@@ -195,7 +195,7 @@ export const adminQuizViewTrash = (token: number): QuizListReturn | ErrorReturn 
   return { quizzes: user.trash };
 };
 
-export const adminQuizQuestionUpdate = (token: string, questionBody: quizQuestionCreatInput, quizId: number, questionid: number): EmptyObject | ErrorReturn => {
+export const adminQuizQuestionUpdate = (token: string, questionBody: quizQuestionCreateInput, quizId: number, questionid: number): EmptyObject | ErrorReturn => {
   const data = getData();
   const user = validUserId(parseInt(token), data.users);
   if ('error' in user) {

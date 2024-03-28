@@ -1,5 +1,5 @@
 import { requestRegister, requestQuizList, requestQuizCreate, requestQuizTrash, requestQuizInfo, requestUpdateQuizName, requestUpdateQuizDescription, requestClear, requestQuizViewTrash, requestQuizRestore, requestQuizQuestionCreate, requestQuizTrashEmpty, requestUpdateQuizQuestion, requestDeleteQuizQuestion } from './wrapper';
-import { QuizListReturn, SessionId, quizId, quizUser, quizQuestionCreateInput } from './interfaces';
+import { QuizListReturn, SessionId, quizId, quizUser, quizQuestionCreateInput, quizQuestionCreateReturn } from './interfaces';
 
 beforeEach(() => {
   requestClear();
@@ -407,12 +407,11 @@ describe('requestUpdateQuizDescription testing', () => {
   });
 });
 
-<<<<<<< src/quiz.test.ts
 describe('Testing it2 function, adminQuizQuestionUpdate', () => {
   let user: SessionId;
   let quiz: quizId;
-  let questionin: quizQuestionCreatInput;
-  let questionout: quizQuestionCreatReturn;
+  let questionin: quizQuestionCreateInput;
+  let questionout: quizQuestionCreateReturn;
   beforeEach(() => {
     user = requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith').jsonBody as SessionId;
     quiz = requestQuizCreate(user.token, 'My Quiz', 'My description.').jsonBody as quizId;
@@ -434,7 +433,7 @@ describe('Testing it2 function, adminQuizQuestionUpdate', () => {
         ]
       }
     };
-    questionout = requestQuizQuestionCreat(user.token, questionin, quiz.quizId).jsonBody as quizQuestionCreatReturn;
+    questionout = requestQuizQuestionCreate(user.token, questionin, quiz.quizId).jsonBody as quizQuestionCreateReturn;
 
     // question1 = requestQuestionCreate
     // question2 = requestQuestionCreate
@@ -564,8 +563,8 @@ describe('Testing it2 function, adminQuizQuestionUpdate', () => {
 describe('Testing it2 function, adminQuizQuestionDelete', () => {
   let user: SessionId;
   let quiz: quizId;
-  let questionin: quizQuestionCreatInput;
-  let questionout: quizQuestionCreatReturn;
+  let questionin: quizQuestionCreateInput;
+  let questionout: quizQuestionCreateReturn;
   beforeEach(() => {
     user = requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith').jsonBody as SessionId;
     quiz = requestQuizCreate(user.token, 'My Quiz', 'My description.').jsonBody as quizId;
@@ -586,7 +585,7 @@ describe('Testing it2 function, adminQuizQuestionDelete', () => {
         ]
       }
     };
-    questionout = requestQuizQuestionCreat(user.token, questionin, quiz.quizId).jsonBody as quizQuestionCreatReturn;
+    questionout = requestQuizQuestionCreate(user.token, questionin, quiz.quizId).jsonBody as quizQuestionCreateReturn;
     // question1 = requestQuestionCreate
     // question2 = requestQuestionCreate
     // question3 = requestQuestionCreate
@@ -623,7 +622,8 @@ describe('Testing it2 function, adminQuizQuestionDelete', () => {
     const result = requestDeleteQuizQuestion(user.token, quiz.quizId, questionout.questionId + 1);
     expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
     expect(result.statusCode).toStrictEqual(400);
-=======
+  });
+});
 /*
  * Testing for viewing quizzes in trash
  */
@@ -1093,7 +1093,6 @@ describe('adminQuizTrashEmpty testing', () => {
       expectedList.quizzes.sort((a: quizUser, b: quizUser) => a.quizId - b.quizId);
       expect(trashList).toStrictEqual(expectedList);
     });
->>>>>>> src/quiz.test.ts
   });
 });
 
