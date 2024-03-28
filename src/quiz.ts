@@ -1,4 +1,3 @@
-import { token } from 'morgan';
 import { getData, setData } from './dataStore';
 import { EmptyObject, ErrorReturn, QuizListReturn, quiz, quizId, quizQuestionCreatInput, quizQuestionCreatReturn } from './interfaces';
 import { validUserId, checkQuizName, checkQuestionValid, isValidQuizId } from './quizUtil';
@@ -189,17 +188,22 @@ export const adminQuizDescriptionUpdate = (authUserId: number, quizId: number, n
 };
 
 export const adminQuizViewTrash = (token: number): QuizListReturn | ErrorReturn => {
-    const data = getData();
-    const user = validUserId(token, data.users);
-    if ('error' in user) {
-      return user;
-    }
+  const data = getData();
+  const user = validUserId(token, data.users);
+  if ('error' in user) {
+    return user;
+  }
 
-    return { quizzes: user.trash };
+  return { quizzes: user.trash };
 };
 
 export const adminQuizQuestionUpdate = (token: number, questionBody: quizQuestionCreatInput, quizId: number, questionid: number): EmptyObject | ErrorReturn => {
-  
+  const data = getData();
+  const user = validUserId(token, data.users);
+  if ('error' in user) {
+    return user;
+  }
+
   const quizzesIndex = data.quizzes.findIndex(quizzes => quizzes.quizId === quizId);
   if (quizzesIndex === -1) {
     return { error: 'Invalid quizId' };
@@ -215,8 +219,6 @@ export const adminQuizQuestionUpdate = (token: number, questionBody: quizQuestio
     return result as ErrorReturn;
   }
 
-  
-
   const findQuiz = data.quizzes.find(quizzes => quizzes.quizId === quizId);
   const findQuestionIndex = findQuiz.quizQuestions.findIndex(questions => questions.questionId);
   if (findQuestionIndex === -1) {
@@ -228,7 +230,6 @@ export const adminQuizQuestionUpdate = (token: number, questionBody: quizQuestio
     findQuiz.quizQuestions[findQuestion].points = questionBody.questionBody.points;
     findQuiz.quizQuestions[findQuestion].answers = questionBody.questionBody.answers;
   }
-  
 
   // const questionsIndex = data.quizzes.quizQuestions.findIndex(questions => quizzesIndex.quizQuestions.answers) //need to finish index
 
@@ -240,7 +241,7 @@ export const adminQuizQuestionUpdate = (token: number, questionBody: quizQuestio
   // // user.quizzes[userQuizzesIndex].name = name;
   // data.quizzes[quizzesIndex].timeLastEdited = Math.floor(Date.now() / 1000);
 
-  return{};
+  return {};
 };
 
 export const adminQuizQuestionDelete = (token: number, quizId: number, questionid: number): EmptyObject | ErrorReturn => {
@@ -249,7 +250,7 @@ export const adminQuizQuestionDelete = (token: number, quizId: number, questioni
   if ('error' in user) {
     return user;
   }
-  
+
   const quizzesIndex = data.quizzes.findIndex(quizzes => quizzes.quizId === quizId);
   if (quizzesIndex === -1) {
     return { error: 'Invalid quizId' };
@@ -267,7 +268,7 @@ export const adminQuizQuestionDelete = (token: number, quizId: number, questioni
   } else if (findQuestion > -1) {
     findQuiz.quizQuestions.splice(findQuestion, 1);
   }
-    
+
   // findQuiz.quizQuestions[findQuestion].question = '';
   // findQuiz.quizQuestions[findQuestion].duration = '';
   // findQuiz.quizQuestions[findQuestion].points = '';
@@ -283,7 +284,7 @@ export const adminQuizQuestionDelete = (token: number, quizId: number, questioni
   // // user.quizzes[userQuizzesIndex].name = name;
   // data.quizzes[quizzesIndex].timeLastEdited = Math.floor(Date.now() / 1000);
 
-  return{}; 
+  return {};
 };
 
 /**
@@ -323,5 +324,4 @@ export const quizQuestionCreat = (token: string, questionBody: quizQuestionCreat
   });
   setData(data);
   return { questionId: questionId };
->>>>>>> master
 };
