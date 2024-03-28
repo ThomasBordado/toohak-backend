@@ -88,9 +88,9 @@ export const adminQuizRemove = (token: number, quizId: number): EmptyObject | Er
  * @param {number} quizId - unique identifier for a quiz
  * @returns {{quizId: number, name: string, timeCreated: number, timeLastEdited: number, description: string}} - for valid authUserId and quizId
  */
-export const adminQuizInfo = (authUserId: number, quizId: number): quiz | ErrorReturn => {
+export const adminQuizInfo = (token: number, quizId: number): quiz | ErrorReturn => {
   const data = getData();
-  const user = validUserId(authUserId, data.users);
+  const user = validUserId(token, data.users);
   if ('error' in user) {
     return user;
   }
@@ -123,9 +123,9 @@ export const adminQuizInfo = (authUserId: number, quizId: number): quiz | ErrorR
  * @param {string} name - quiz name
  * @returns {} - for valid authUserId, quizId and description
  */
-export const adminQuizNameUpdate = (authUserId: number, quizId: number, name: string): EmptyObject | ErrorReturn => {
+export const adminQuizNameUpdate = (token: number, quizId: number, name: string): EmptyObject | ErrorReturn => {
   const data = getData();
-  const user = validUserId(authUserId, data.users);
+  const user = validUserId(token, data.users);
   if ('error' in user) {
     return user;
   } else if (checkQuizName(name, user.quizzes) !== true) {
