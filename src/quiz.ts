@@ -1,7 +1,6 @@
 import { getData, setData } from './dataStore';
 import { EmptyObject, ErrorReturn, QuizListReturn, quiz, quizId, quizQuestionCreatInput, quizQuestionCreatReturn } from './interfaces';
 import { validUserId, checkQuizName, checkQuestionValid, isValidQuizId } from './quizUtil';
-import { isValidToken } from './authUtil';
 
 /**
  * Provides a list of all quizzes that are owned by the currently logged in user
@@ -195,9 +194,10 @@ export const adminQuizDescriptionUpdate = (authUserId: number, quizId: number, n
  */
 export const quizQuestionCreat = (token: string, questionBody: quizQuestionCreatInput, quizId: number): quizQuestionCreatReturn | ErrorReturn => {
   // Check token error
-  const tokenResult = isValidToken(token);
-  if (!tokenResult) {
-    return { error: 'Token is empty or invalid' };
+  const data = getData();
+  const tokenResult = validUserId(parseInt(token), data.users);
+  if ('error' in tokenResult) {
+    return tokenResult;
   }
   // Check if the user owns this quiz
   const quiz = isValidQuizId(token, quizId);
@@ -210,7 +210,7 @@ export const quizQuestionCreat = (token: string, questionBody: quizQuestionCreat
     return question as ErrorReturn;
   }
   // Push new question into quiz
-  const data = getData();
+
   const findQuiz = data.quizzes.find(quizs => quizs.quizId === quizId);
   const questionId = findQuiz.quizQuestions.length + 1;
   findQuiz.quizQuestions.push({

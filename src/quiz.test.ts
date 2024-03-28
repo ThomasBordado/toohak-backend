@@ -391,7 +391,6 @@ describe('Testing Post /v1/admin/quiz/{quizid}/question', () => {
   test('Correct status code and return value', () => {
     const user = requestRegister('valideEmail@gmail.com', 'password1', 'Jane', 'Lawson').jsonBody as SessionId;
     const quiz = requestQuizCreate(user.token, 'British', 'history').jsonBody as quizId;
-
     const input : quizQuestionCreatInput = {
       questionBody: {
         question: 'Who is the Monarch of England?',
@@ -416,14 +415,17 @@ describe('Testing Post /v1/admin/quiz/{quizid}/question', () => {
   });
 
   describe('Error test for 400 error', () => {
-    requestClear();
-    const user = requestRegister('valideEmail@gmail.com', 'password1', 'Jane', 'Lawson').jsonBody as SessionId;
-    const quiz = requestQuizCreate(user.token, 'British', 'history').jsonBody as quizId;
+    let user: SessionId;
+    let quiz: quizId;
+    beforeEach(() => {
+      user = requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith').jsonBody as SessionId;
+      quiz = requestQuizCreate(user.token, 'My Quiz', 'My description.').jsonBody as quizId;
+    });
 
     test.each([
       {
         test: 'Question string too short',
-        token: user.token,
+
         quizQuestion: {
           questionBody: {
             question: 'Who?',
@@ -440,12 +442,11 @@ describe('Testing Post /v1/admin/quiz/{quizid}/question', () => {
               }
             ]
           }
-        },
-        quizId: quiz.quizId
+        }
       },
       {
         test: 'Question string too long',
-        token: user.token,
+
         quizQuestion: {
           questionBody: {
             question: 'Who?',
@@ -462,12 +463,11 @@ describe('Testing Post /v1/admin/quiz/{quizid}/question', () => {
               }
             ]
           }
-        },
-        quizId: quiz.quizId
+        }
       },
       {
         test: 'Not enough answers',
-        token: user.token,
+
         quizQuestion: {
           questionBody: {
             question: 'Who?',
@@ -484,12 +484,11 @@ describe('Testing Post /v1/admin/quiz/{quizid}/question', () => {
               }
             ]
           }
-        },
-        quizId: quiz.quizId
+        }
       },
       {
         test: 'Question string too long',
-        token: user.token,
+
         quizQuestion: {
           questionBody: {
             question: 'Who?',
@@ -506,12 +505,11 @@ describe('Testing Post /v1/admin/quiz/{quizid}/question', () => {
               }
             ]
           }
-        },
-        quizId: quiz.quizId
+        }
       },
       {
         test: 'Too many answers',
-        token: user.token,
+
         quizQuestion: {
           questionBody: {
             question: 'Who?',
@@ -528,12 +526,11 @@ describe('Testing Post /v1/admin/quiz/{quizid}/question', () => {
               }
             ]
           }
-        },
-        quizId: quiz.quizId
+        }
       },
       {
         test: 'Question string too long',
-        token: user.token,
+
         quizQuestion: {
           questionBody: {
             question: 'Who?',
@@ -550,12 +547,11 @@ describe('Testing Post /v1/admin/quiz/{quizid}/question', () => {
               }
             ]
           }
-        },
-        quizId: quiz.quizId
+        }
       },
       {
         test: 'invalid duraion time(negative number)',
-        token: user.token,
+
         quizQuestion: {
           questionBody: {
             question: 'Who?',
@@ -572,12 +568,11 @@ describe('Testing Post /v1/admin/quiz/{quizid}/question', () => {
               }
             ]
           }
-        },
-        quizId: quiz.quizId
+        }
       },
       {
         test: 'Question string too long',
-        token: user.token,
+
         quizQuestion: {
           questionBody: {
             question: 'Who?',
@@ -594,12 +589,11 @@ describe('Testing Post /v1/admin/quiz/{quizid}/question', () => {
               }
             ]
           }
-        },
-        quizId: quiz.quizId
+        }
       },
       {
         test: 'invalid duration time(too long)',
-        token: user.token,
+
         quizQuestion: {
           questionBody: {
             question: 'Who?',
@@ -616,12 +610,11 @@ describe('Testing Post /v1/admin/quiz/{quizid}/question', () => {
               }
             ]
           }
-        },
-        quizId: quiz.quizId
+        }
       },
       {
         test: 'Question string too long',
-        token: user.token,
+
         quizQuestion: {
           questionBody: {
             question: 'Who?',
@@ -638,12 +631,11 @@ describe('Testing Post /v1/admin/quiz/{quizid}/question', () => {
               }
             ]
           }
-        },
-        quizId: quiz.quizId
+        }
       },
       {
         test: 'Points awarded invalid(too small)',
-        token: user.token,
+
         quizQuestion: {
           questionBody: {
             question: 'Who?',
@@ -660,12 +652,11 @@ describe('Testing Post /v1/admin/quiz/{quizid}/question', () => {
               }
             ]
           }
-        },
-        quizId: quiz.quizId
+        }
       },
       {
         test: 'Question string too long',
-        token: user.token,
+
         quizQuestion: {
           questionBody: {
             question: 'Who?',
@@ -682,12 +673,11 @@ describe('Testing Post /v1/admin/quiz/{quizid}/question', () => {
               }
             ]
           }
-        },
-        quizId: quiz.quizId
+        }
       },
       {
         test: 'Points awarded invalid(too large)',
-        token: user.token,
+
         quizQuestion: {
           questionBody: {
             question: 'Who?',
@@ -704,12 +694,11 @@ describe('Testing Post /v1/admin/quiz/{quizid}/question', () => {
               }
             ]
           }
-        },
-        quizId: quiz.quizId
+        }
       },
       {
         test: 'Question string too long',
-        token: user.token,
+
         quizQuestion: {
           questionBody: {
             question: 'Who?',
@@ -726,12 +715,11 @@ describe('Testing Post /v1/admin/quiz/{quizid}/question', () => {
               }
             ]
           }
-        },
-        quizId: quiz.quizId
+        }
       },
       {
         test: 'Duplicates answers in one question',
-        token: user.token,
+
         quizQuestion: {
           questionBody: {
             question: 'Who?',
@@ -748,12 +736,11 @@ describe('Testing Post /v1/admin/quiz/{quizid}/question', () => {
               }
             ]
           }
-        },
-        quizId: quiz.quizId
+        }
       },
       {
         test: 'Question string too long',
-        token: user.token,
+
         quizQuestion: {
           questionBody: {
             question: 'Who?',
@@ -770,12 +757,11 @@ describe('Testing Post /v1/admin/quiz/{quizid}/question', () => {
               }
             ]
           }
-        },
-        quizId: quiz.quizId
+        }
       },
       {
         test: 'No correct answers exist',
-        token: user.token,
+
         quizQuestion: {
           questionBody: {
             question: 'Who?',
@@ -792,12 +778,11 @@ describe('Testing Post /v1/admin/quiz/{quizid}/question', () => {
               }
             ]
           }
-        },
-        quizId: quiz.quizId
+        }
       },
       {
         test: 'Question string too long',
-        token: user.token,
+
         quizQuestion: {
           questionBody: {
             question: 'Who?',
@@ -814,11 +799,10 @@ describe('Testing Post /v1/admin/quiz/{quizid}/question', () => {
               }
             ]
           }
-        },
-        quizId: quiz.quizId
+        }
       },
-    ])("requestUpdateUserDetails error: '$test'", ({ token, quizQuestion, quizId }) => {
-      const response = requestQuizQuestionCreat(token, quizQuestion, quizId);
+    ])("requestUpdateUserDetails error: '$test'", ({ quizQuestion }) => {
+      const response = requestQuizQuestionCreat(user.token, quizQuestion, quiz.quizId);
       expect(response.jsonBody).toStrictEqual({ error: expect.any(String) });
       expect(response.statusCode).toStrictEqual(400);
     });
