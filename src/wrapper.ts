@@ -121,12 +121,12 @@ export const requestClear = () => {
   return requestHelper('DELETE', '/v1/clear', {});
 };
 
-export const requestUpdateQuizQuestion = (token: string, questionBody: quizQuestionCreatInput, quizId: number, questionId: number) => {
-  return requestHelper('PUT', '/v1/admin/quiz/{quizid}/question/{questionid}', { token, questionBody, quizId, questionId });
+export const requestUpdateQuizQuestion = (token: string, questionBody: quizQuestionCreatInput, quizid: number, questionid: number) => {
+  return requestHelper('PUT', `/v1/admin/quiz/${quizid}/question/${questionid}`, { token, questionBody, quizid, questionid });
 };
 
-export const requestDeleteQuizQuestion = (token: string, quizId: number, questionId: number) => {
-  return requestHelper('DELETE', '/v1/admin/quiz/${quizid}/question/${questionid}', { token, quizId, questionId });
+export const requestDeleteQuizQuestion = (token: string, quizid: number, questionid: number) => {
+  return requestHelper('DELETE', `/v1/admin/quiz/${quizid}/question/${questionid}`, { token, quizid, questionid });
 };
 
 export const requestQuizViewTrash = (token: string) => {

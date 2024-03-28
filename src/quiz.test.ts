@@ -402,6 +402,7 @@ describe('Testing it2 function, adminQuizQuestionUpdate', () => {
   beforeEach(() => {
     user = requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith').jsonBody as SessionId;
     quiz = requestQuizCreate(user.token, 'My Quiz', 'My description.').jsonBody as quizId;
+    
     questionin = {
       questionBody: {
         question: 'Who is the Monarch of England?',
@@ -420,6 +421,7 @@ describe('Testing it2 function, adminQuizQuestionUpdate', () => {
       }
     };
     questionout = requestQuizQuestionCreat(user.token, questionin, quiz.quizId).jsonBody as quizQuestionCreatReturn;
+    
     // question1 = requestQuestionCreate
     // question2 = requestQuestionCreate
     // question3 = requestQuestionCreate
@@ -444,10 +446,9 @@ describe('Testing it2 function, adminQuizQuestionUpdate', () => {
         ]
       }
     }
-    console.log(user.token);
     const result = requestUpdateQuizQuestion(user.token, updated, quiz.quizId, questionout.questionId);
     expect(result.statusCode).toStrictEqual(200);
-    expect(result).toStrictEqual({});
+    expect(result.jsonBody).toStrictEqual({});
   });
 
   // 2. Invalid Token/empty token

@@ -1,6 +1,7 @@
 import { getData, setData } from './dataStore';
 import { EmptyObject, ErrorReturn, QuizListReturn, quiz, quizId, quizQuestionCreatInput, quizQuestionCreatReturn } from './interfaces';
 import { validUserId, checkQuizName, checkQuestionValid, isValidQuizId } from './quizUtil';
+import { saveData, loadData } from './persistence';
 
 /**
  * Provides a list of all quizzes that are owned by the currently logged in user
@@ -13,7 +14,7 @@ export const adminQuizList = (token: number): QuizListReturn | ErrorReturn => {
   if ('error' in user) {
     return user;
   }
-
+  saveData();
   return { quizzes: user.quizzes };
 };
 
@@ -48,6 +49,7 @@ export const adminQuizCreate = (token: number, name: string, description: string
 
   data.quizzes.push(newQuiz);
   user.quizzes.push({ quizId: data.quizIdStore, name: name });
+  saveData();
   return {
     quizId: data.quizIdStore
   };
@@ -82,7 +84,7 @@ export const adminQuizRemove = (token: number, quizId: number): EmptyObject | Er
   user.trash.push(quizUser);
   data.quizzes.splice(quizzesIndex, 1);
   user.quizzes.splice(userQuizzesIndex, 1);
-
+  saveData();
   return {};
 };
 
@@ -107,16 +109,8 @@ export const adminQuizInfo = (token: number, quizId: number): quiz | ErrorReturn
   if (userQuizzesIndex === -1) {
     return { error: 'User does not own quiz' };
   }
-
+  saveData();
   return data.quizzes[quizzesIndex];
-
-  // return {
-  //   quizId: 1,
-  //   name: 'My Quiz',
-  //   timeCreated: 1683125870,
-  //   timeLastEdited: 1683125871,
-  //   description: 'This is my quiz',
-  // };
 };
 
 /**
@@ -148,7 +142,7 @@ export const adminQuizNameUpdate = (token: number, quizId: number, name: string)
   data.quizzes[quizzesIndex].name = name;
   user.quizzes[userQuizzesIndex].name = name;
   data.quizzes[quizzesIndex].timeLastEdited = Math.floor(Date.now() / 1000);
-
+  saveData();
   return {};
 };
 
@@ -183,7 +177,7 @@ export const adminQuizDescriptionUpdate = (authUserId: number, quizId: number, n
   data.quizzes[quizIndex].timeLastEdited = Math.floor(Date.now() / 1000);
 
   setData(data);
-
+  saveData();
   return {};
 };
 
@@ -193,13 +187,13 @@ export const adminQuizViewTrash = (token: number): QuizListReturn | ErrorReturn 
   if ('error' in user) {
     return user;
   }
-
+  saveData();
   return { quizzes: user.trash };
 };
 
-export const adminQuizQuestionUpdate = (token: number, questionBody: quizQuestionCreatInput, quizId: number, questionid: number): EmptyObject | ErrorReturn => {
+export const adminQuizQuestionUpdate = (token: string, questionBody: quizQuestionCreatInput, quizId: number, questionid: number): EmptyObject | ErrorReturn => {
   const data = getData();
-  const user = validUserId(token, data.users);
+  const user = validUserId(parseInt(token), data.users);
   if ('error' in user) {
     return user;
   }
@@ -220,11 +214,11 @@ export const adminQuizQuestionUpdate = (token: number, questionBody: quizQuestio
   }
 
   const findQuiz = data.quizzes.find(quizzes => quizzes.quizId === quizId);
-  const findQuestionIndex = findQuiz.quizQuestions.findIndex(questions => questions.questionId);
+  const findQuestionIndex = findQuiz.quizQuestions.findIndex(questions => questions.questionId === questionid);
   if (findQuestionIndex === -1) {
     return { error: 'Invalid questionId' };
   } else if (findQuestionIndex > -1) {
-    const findQuestion = findQuiz.quizQuestions.find(questions => questions.questionId);
+    const findQuestion = findQuiz.quizQuestions.find(questions => questions.questionId === questionid);
     findQuestion.question = questionBody.questionBody.question;
     findQuestion.duration = questionBody.questionBody.duration;
     findQuestion.points = questionBody.questionBody.points;
@@ -240,13 +234,13 @@ export const adminQuizQuestionUpdate = (token: number, questionBody: quizQuestio
   // data.quizzes[quizzesIndex].quizQuestions[questionsIndex].answers.correct = correct;
   // // user.quizzes[userQuizzesIndex].name = name;
   // data.quizzes[quizzesIndex].timeLastEdited = Math.floor(Date.now() / 1000);
-
+  saveData();
   return {};
 };
 
-export const adminQuizQuestionDelete = (token: number, quizId: number, questionid: number): EmptyObject | ErrorReturn => {
+export const adminQuizQuestionDelete = (token: string, quizId: number, questionid: number): EmptyObject | ErrorReturn => {
   const data = getData();
-  const user = validUserId(token, data.users);
+  const user = validUserId(parseInt(token), data.users);
   if ('error' in user) {
     return user;
   }
@@ -262,7 +256,7 @@ export const adminQuizQuestionDelete = (token: number, quizId: number, questioni
   }
 
   const findQuiz = data.quizzes.find(quizzes => quizzes.quizId === quizId);
-  const findQuestion = findQuiz.quizQuestions.findIndex(questions => questions.questionId);
+  const findQuestion = findQuiz.quizQuestions.findIndex(questions => questions.questionId === questionid);
   if (findQuestion === -1) {
     return { error: 'Invalid questionId' };
   } else if (findQuestion > -1) {
@@ -283,7 +277,7 @@ export const adminQuizQuestionDelete = (token: number, quizId: number, questioni
   // data.quizzes[quizzesIndex].quizQuestions[questionsIndex].answers.correct = correct;
   // // user.quizzes[userQuizzesIndex].name = name;
   // data.quizzes[quizzesIndex].timeLastEdited = Math.floor(Date.now() / 1000);
-
+  saveData();
   return {};
 };
 
@@ -323,5 +317,6 @@ export const quizQuestionCreat = (token: string, questionBody: quizQuestionCreat
     answers: questionBody.questionBody.answers,
   });
   setData(data);
+  saveData();
   return { questionId: questionId };
 };
