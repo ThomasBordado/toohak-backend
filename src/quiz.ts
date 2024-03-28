@@ -221,15 +221,26 @@ export const adminQuizQuestionUpdate = (token: string, questionBody: quizQuestio
   }
 
   const findQuiz = data.quizzes.find(quizzes => quizzes.quizId === quizId);
-  const findQuestionIndex = findQuiz.quizQuestions.findIndex(questions => questions.questionId === questionid);
+  const findQuestionIndex = findQuiz.questions.findIndex(questions => questions.questionId === questionid);
   if (findQuestionIndex === -1) {
     return { error: 'Invalid questionId' };
   } else if (findQuestionIndex > -1) {
-    const findQuestion = findQuiz.quizQuestions.find(questions => questions.questionId === questionid);
+    const findQuestion = findQuiz.questions.find(questions => questions.questionId === questionid);
     findQuestion.question = questionBody.questionBody.question;
     findQuestion.duration = questionBody.questionBody.duration;
     findQuestion.points = questionBody.questionBody.points;
-    findQuestion.answers = questionBody.questionBody.answers;
+
+    const answerOut = questionBody.questionBody.answers.map(answer => {
+      data.answerIdStore += 1;
+
+      return {
+        answerId: data.answerIdStore,
+        answer: answer.answer,
+        colour: randomColour(),
+        correct: answer.correct,
+      };
+    });
+    findQuestion.answers = answerOut;
   }
 
   // const questionsIndex = data.quizzes.quizQuestions.findIndex(questions => quizzesIndex.quizQuestions.answers) //need to finish index
@@ -263,11 +274,11 @@ export const adminQuizQuestionDelete = (token: string, quizId: number, questioni
   }
 
   const findQuiz = data.quizzes.find(quizzes => quizzes.quizId === quizId);
-  const findQuestion = findQuiz.quizQuestions.findIndex(questions => questions.questionId === questionid);
+  const findQuestion = findQuiz.questions.findIndex(questions => questions.questionId === questionid);
   if (findQuestion === -1) {
     return { error: 'Invalid questionId' };
   } else if (findQuestion > -1) {
-    findQuiz.quizQuestions.splice(findQuestion, 1);
+    findQuiz.questions.splice(findQuestion, 1);
   }
 
   // findQuiz.quizQuestions[findQuestion].question = '';
