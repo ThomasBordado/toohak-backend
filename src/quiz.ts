@@ -1,6 +1,7 @@
 import { getData, setData } from './dataStore';
-import { EmptyObject, ErrorReturn, QuizListReturn, quiz, quizId, quizQuestionCreatInput, quizQuestionCreatReturn } from './interfaces';
+import { EmptyObject, ErrorReturn, QuizListReturn, quiz, quizId, quizQuestionCreateInput, quizQuestionCreateReturn } from './interfaces';
 import { validUserId, checkQuizName, checkQuestionValid, isValidQuizId } from './quizUtil';
+import { saveData } from './persistence';
 
 /**
  * Provides a list of all quizzes that are owned by the currently logged in user
@@ -48,6 +49,7 @@ export const adminQuizCreate = (token: number, name: string, description: string
 
   data.quizzes.push(newQuiz);
   user.quizzes.push({ quizId: data.quizIdStore, name: name });
+  saveData();
   return {
     quizId: data.quizIdStore
   };
@@ -82,7 +84,7 @@ export const adminQuizRemove = (token: number, quizId: number): EmptyObject | Er
   user.trash.push(quizUser);
   data.quizzes.splice(quizzesIndex, 1);
   user.quizzes.splice(userQuizzesIndex, 1);
-
+  saveData();
   return {};
 };
 
@@ -107,16 +109,8 @@ export const adminQuizInfo = (token: number, quizId: number): quiz | ErrorReturn
   if (userQuizzesIndex === -1) {
     return { error: 'User does not own quiz' };
   }
-
+  saveData();
   return data.quizzes[quizzesIndex];
-
-  // return {
-  //   quizId: 1,
-  //   name: 'My Quiz',
-  //   timeCreated: 1683125870,
-  //   timeLastEdited: 1683125871,
-  //   description: 'This is my quiz',
-  // };
 };
 
 /**
@@ -148,7 +142,7 @@ export const adminQuizNameUpdate = (token: number, quizId: number, name: string)
   data.quizzes[quizzesIndex].name = name;
   user.quizzes[userQuizzesIndex].name = name;
   data.quizzes[quizzesIndex].timeLastEdited = Math.floor(Date.now() / 1000);
-
+  saveData();
   return {};
 };
 
@@ -183,17 +177,58 @@ export const adminQuizDescriptionUpdate = (authUserId: number, quizId: number, n
   data.quizzes[quizIndex].timeLastEdited = Math.floor(Date.now() / 1000);
 
   setData(data);
-
+  saveData();
   return {};
 };
 
+/**
+ * @param {number} token - unique identifier for logined user
+ * @returns {QuizListReturn} - list of quizzes in the trash
+ */
 export const adminQuizViewTrash = (token: number): QuizListReturn | ErrorReturn => {
   const data = getData();
   const user = validUserId(token, data.users);
   if ('error' in user) {
     return user;
   }
+  saveData();
   return { quizzes: user.trash };
+};
+
+/**
+ * @param {number} token - unique identifier for logined user
+ * @param {number} quizId - quizId
+ * @returns empty object
+ */
+export const adminQuizRestore = (token: number, quizId: number): EmptyObject | ErrorReturn => {
+  const data = getData();
+  const user = validUserId(token, data.users);
+  if ('error' in user) {
+    return user;
+  }
+  const quizzesIndex = data.trash.findIndex(quizzes => quizzes.quizId === quizId);
+  const quiz = data.quizzes.find(quizzes => quizzes.quizId === quizId);
+  if (quizzesIndex === -1 && quiz === undefined) {
+    return { error: 'Invalid quizId' };
+  }
+  const userQuizIndex = user.trash.findIndex(quizzes => quizzes.quizId === quizId);
+  const quizUser = user.quizzes.find(quizzes => quizzes.quizId === quizId);
+  if (userQuizIndex === -1) {
+    if (quizUser === undefined) {
+      return { error: 'User does not own this quiz' };
+    } else {
+      return { error: 'Quiz is not currently in the trash' };
+    }
+  } else if (checkQuizName(user.trash[userQuizIndex].name, user.quizzes) !== true) {
+    return checkQuizName(user.trash[userQuizIndex].name, user.quizzes) as ErrorReturn;
+  }
+  data.trash[quizzesIndex].timeLastEdited = Math.floor(Date.now() / 1000);
+  data.quizzes.push(data.trash[quizzesIndex]);
+  user.quizzes.push(user.trash[userQuizIndex]);
+  data.trash.splice(quizzesIndex, 1);
+  user.trash.splice(userQuizIndex, 1);
+  saveData();
+  return {};
 };
 
 /**
@@ -234,37 +269,7 @@ export const adminQuizTrashEmpty = (token: number, quizIds: number[]): EmptyObje
     const quizIndex = user.trash.findIndex(quiz => quiz.quizId === quizId);
     user.trash.splice(quizIndex, 1);
   }
-  return {};
-};
-
-export const adminQuizRestore = (token: number, quizId: number): EmptyObject | ErrorReturn => {
-  const data = getData();
-  const user = validUserId(token, data.users);
-  if ('error' in user) {
-    return user;
-  }
-  const quizzesIndex = data.trash.findIndex(quizzes => quizzes.quizId === quizId);
-  const quiz = data.quizzes.find(quizzes => quizzes.quizId === quizId);
-  if (quizzesIndex === -1 && quiz === undefined) {
-    return { error: 'Invalid quizId' };
-  }
-  const userQuizIndex = user.trash.findIndex(quizzes => quizzes.quizId === quizId);
-  const quizUser = user.quizzes.find(quizzes => quizzes.quizId === quizId);
-  if (userQuizIndex === -1) {
-    if (quizUser === undefined) {
-      return { error: 'User does not own this quiz' };
-    } else {
-      return { error: 'Quiz is not currently in the trash' };
-    }
-  } else if (checkQuizName(user.trash[userQuizIndex].name, user.quizzes) !== true) {
-    return checkQuizName(user.trash[userQuizIndex].name, user.quizzes) as ErrorReturn;
-  }
-  data.trash[quizzesIndex].timeLastEdited = Math.floor(Date.now() / 1000);
-  data.quizzes.push(data.trash[quizzesIndex]);
-  user.quizzes.push(user.trash[userQuizIndex]);
-  data.trash.splice(quizzesIndex, 1);
-  user.trash.splice(userQuizIndex, 1);
-
+  saveData();
   return {};
 };
 
@@ -275,7 +280,7 @@ export const adminQuizRestore = (token: number, quizId: number): EmptyObject | E
  * @param {number} quizId - a unique identifier of quiz
  * @returns questionId
  */
-export const quizQuestionCreat = (token: string, questionBody: quizQuestionCreatInput, quizId: number): quizQuestionCreatReturn | ErrorReturn => {
+export const quizQuestionCreate = (token: string, questionBody: quizQuestionCreateInput, quizId: number): quizQuestionCreateReturn | ErrorReturn => {
   // Check token error
   const data = getData();
   const tokenResult = validUserId(parseInt(token), data.users);
@@ -304,6 +309,6 @@ export const quizQuestionCreat = (token: string, questionBody: quizQuestionCreat
     answers: questionBody.questionBody.answers,
   });
   setData(data);
+  saveData();
   return { questionId: questionId };
 };
-

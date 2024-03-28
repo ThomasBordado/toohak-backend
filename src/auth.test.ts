@@ -1,4 +1,4 @@
-import { requestRegister, requestLogin, requestClear, requestUpdateUserDetails, requestUpdatePassword, requestGetUserDetails, requestLogout } from './wrapper';
+import { requestRegister, requestLogin, requestGetUserDetails, requestUpdateUserDetails, requestUpdatePassword, requestLogout, requestClear } from './wrapper';
 import { usersList, getUserId } from './authUtil';
 import { SessionId, UserId, user, UserDetailsReturn } from './interfaces';
 
@@ -6,7 +6,10 @@ beforeEach(() => {
   requestClear();
 });
 
-describe('Test adminAuthRegister', () => {
+/*
+ * Testing for registering a user
+ */
+describe('Test requestRegister', () => {
   // 1. Successful Register of two users
   test('Test registering two users', () => {
     const response1 = requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith');
@@ -18,8 +21,6 @@ describe('Test adminAuthRegister', () => {
     expect(user1).not.toStrictEqual(user2);
     expect(response1.statusCode).toStrictEqual(200);
     expect(response2.statusCode).toStrictEqual(200);
-    // adminAuthRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith');
-    // console.log(usersList());
   });
 
   // 2. Add an email and then try add the same email.
@@ -106,7 +107,10 @@ describe('Test adminAuthRegister', () => {
   });
 });
 
-describe('Test adminAuthLogin', () => {
+/*
+ * Testing for logging into a user account.
+ */
+describe('Test requestLogin', () => {
   // 1. Successful login to an existing account.
   test('Test successful login', () => {
     requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith');
@@ -175,7 +179,10 @@ describe('Test adminAuthLogin', () => {
   });
 });
 
-describe('Test adminUserDetails', () => {
+/*
+ * Testing for getting user details
+ */
+describe('Test requestGetUserDetials', () => {
   // 1. Succesful return of account details
   test('Test succesful get user details', () => {
     const user1 = requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith').jsonBody as SessionId;
@@ -202,10 +209,9 @@ describe('Test adminUserDetails', () => {
   });
 });
 
-/**
- * Test for requestUpdateUserDetails
+/*
+ * Testing for updating user details
  */
-
 describe('requestUpdateUserDetails', () => {
   let data: SessionId;
   beforeEach(() => {
@@ -337,11 +343,10 @@ describe('requestUpdateUserDetails', () => {
   });
 });
 
-/**
- * Test for user password update
+/*
+ * Testing for updating user password
  */
-
-describe('adminUserPasswordUpdate', () => {
+describe('requestUpdatePassword', () => {
   let data: SessionId;
   beforeEach(() => {
     data = requestRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith').jsonBody as SessionId;
@@ -436,7 +441,10 @@ describe('adminUserPasswordUpdate', () => {
   });
 });
 
-describe('Test adminAuthLogout', () => {
+/*
+ * Testing for logging out of a session
+ */
+describe('Test requestLogout', () => {
   // 1. Successful logout after registering account.
   test('Test successful logout', () => {
     const sessionId = requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith').jsonBody as SessionId;

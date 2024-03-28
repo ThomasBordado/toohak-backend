@@ -1,6 +1,6 @@
 import request, { HttpVerb } from 'sync-request-curl';
 import { port, url } from './config.json';
-import { quizQuestionCreatInput } from './interfaces';
+import { quizQuestionCreateInput } from './interfaces';
 
 const SERVER_URL = `${url}:${port}`;
 
@@ -121,7 +121,7 @@ export const requestLogout = (token: string) => {
   return requestHelper('POST', '/v1/admin/auth/logout', { token });
 };
 
-export const requestQuizQuestionCreat = (token: string, questionBody: quizQuestionCreatInput, quizid: number) => {
+export const requestQuizQuestionCreate = (token: string, questionBody: quizQuestionCreateInput, quizid: number) => {
   return requestHelper('POST', `/v1/admin/quiz/${quizid}/question`, { token, questionBody, quizid });
 };
 

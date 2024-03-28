@@ -9,7 +9,7 @@ import fs from 'fs';
 import path from 'path';
 import process from 'process';
 import { clear } from './other';
-import { adminQuizList, adminQuizCreate, adminQuizRemove, adminQuizInfo, adminQuizNameUpdate, adminQuizDescriptionUpdate, adminQuizViewTrash, adminQuizRestore, quizQuestionCreat, adminQuizTrashEmpty  } from './quiz';
+import { adminQuizList, adminQuizCreate, adminQuizRemove, adminQuizInfo, adminQuizNameUpdate, adminQuizDescriptionUpdate, adminQuizViewTrash, adminQuizRestore, quizQuestionCreate, adminQuizTrashEmpty } from './quiz';
 import { adminAuthLogin, adminAuthRegister, adminUserDetails, adminUserDetailsUpdate, adminUserPasswordUpdate, adminAuthLogout } from './auth';
 import { loadData, saveData } from './persistence';
 
@@ -233,7 +233,7 @@ app.delete('/v1/admin/quiz/trash/empty', (req: Request, res: Response) => {
 app.post('/v1/admin/quiz/:quizid/question', (req: Request, res: Response) => {
   const quizId = parseInt(req.params.quizid);
   const { token, questionBody } = req.body;
-  const response = quizQuestionCreat(token, questionBody, quizId);
+  const response = quizQuestionCreate(token, questionBody, quizId);
   if ('error' in response) {
     if (response.error === 'Token is empty or invalid') {
       return res.status(401).json(response);

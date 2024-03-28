@@ -54,7 +54,7 @@ export const adminAuthRegister = (email: string, password: string, nameFirst: st
  * @param {string} email - User's email
  * @param {string} password - User's password
  *
- * @returns {sessionId: string} - unique identifier for a user session, given email and password
+ * @returns {token: string} - unique identifier for a user session, given email and password
  */
 export const adminAuthLogin = (email: string, password: string): SessionId | ErrorReturn => {
   const users = getData().users;
