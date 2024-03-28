@@ -189,7 +189,6 @@ app.get('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
   res.json(result);
 });
 
-
 app.put('/v1/admin/quiz/:quizid/name', (req: Request, res: Response) => {
   const quizId = parseInt(req.params.quizid as string);
   const token = parseInt(req.body.token as string);
