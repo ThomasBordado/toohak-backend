@@ -120,3 +120,7 @@ export const requestQuizQuestionCreat = (token: string, questionBody: quizQuesti
 export const requestClear = () => {
   return requestHelper('DELETE', '/v1/clear', {});
 };
+
+export const requestQuizViewTrash = (token: string) => {
+  return requestHelper('GET', '/v1/admin/quiz/trash', { token });
+};

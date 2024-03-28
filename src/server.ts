@@ -9,7 +9,7 @@ import fs from 'fs';
 import path from 'path';
 import process from 'process';
 import { clear } from './other';
-import { adminQuizList, adminQuizCreate, adminQuizRemove, adminQuizInfo, adminQuizNameUpdate, adminQuizDescriptionUpdate, quizQuestionCreat } from './quiz';
+import { adminQuizList, adminQuizCreate, adminQuizRemove, adminQuizInfo, adminQuizNameUpdate, adminQuizDescriptionUpdate, adminQuizViewTrash, quizQuestionCreat } from './quiz';
 import { adminAuthLogin, adminAuthRegister, adminUserDetails, adminUserDetailsUpdate, adminUserPasswordUpdate } from './auth';
 import { loadData, saveData } from './persistence';
 
@@ -114,6 +114,15 @@ app.post('/v1/admin/quiz', (req: Request, res: Response) => {
       return res.status(401).json(result);
     }
     return res.status(400).json(result);
+  }
+  res.json(result);
+});
+
+app.get('/v1/admin/quiz/trash', (req: Request, res: Response) => {
+  const token = parseInt(req.query.token as string);
+  const result = adminQuizViewTrash(token);
+  if ('error' in result) {
+    return res.status(401).json(result);
   }
   res.json(result);
 });
