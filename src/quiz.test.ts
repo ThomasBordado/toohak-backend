@@ -1,5 +1,5 @@
 import { requestRegister, requestQuizList, requestQuizCreate, requestQuizTrash, requestQuizInfo, requestUpdateQuizName, requestUpdateQuizDescription, requestClear, requestQuizViewTrash, requestQuizRestore, requestQuizQuestionCreate, requestQuizTrashEmpty, requestquizTransfer, requestLogout, requestLogin, requestUpdateQuizQuestion, requestDeleteQuizQuestion } from './wrapper';
-import { QuizListReturn, SessionId, quizId, quizUser, quizQuestionCreateInput, quiz } from './interfaces';
+import { QuizListReturn, SessionId, quizId, quizUser, quizQuestionCreateInput, quiz, quizQuestionCreateReturn } from './interfaces';
 
 beforeEach(() => {
   requestClear();
