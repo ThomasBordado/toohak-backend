@@ -1,4 +1,5 @@
-import { quizUser, user } from './interfaces';
+import { quizUser, user, quizQuestionCreatInput, EmptyObject, ErrorReturn } from './interfaces';
+import { getData } from './dataStore';
 
 /**
  * Check if AuthUserId is valid.
@@ -77,4 +78,89 @@ export const checkQuizName = (name: string, quizzesOwned: quizUser[]) => {
   }
 
   return true;
+};
+
+export const checkQuestionValid = (quizQuestion: quizQuestionCreatInput, quizId: number) => {
+  // Check the string length
+  if (quizQuestion.questionBody.question.length < 5 || quizQuestion.questionBody.question.length > 50) {
+    return { error: 'Question string is less than 5 characters in length or greater than 50 characters in length' };
+  }
+
+  // Check the answer length
+  if (quizQuestion.questionBody.answers.length > 6 || quizQuestion.questionBody.answers.length < 2) {
+    return { error: 'The question has more than 6 answers or less than 2 answers' };
+  }
+
+  // Check the duration
+  if (quizQuestion.questionBody.duration <= 0) {
+    return { error: 'The question duration is not a positive number' };
+  }
+
+  // Calculate the sum of duration
+  const data = getData();
+  const quiz = data.quizzes.find(quizs => quizs.quizId === quizId);
+  let sum = 0;
+  for (let i = 0; i < quiz.quizQuestions.length; i++) {
+    sum = sum + quiz.quizQuestions[i].duration;
+  }
+  sum = sum + quizQuestion.questionBody.duration;
+  if (sum > 180) {
+    return { error: 'The sum of the question durations in the quiz exceeds 3 minutes' };
+  }
+
+  // Check the point award
+  if (quizQuestion.questionBody.points < 1 || quizQuestion.questionBody.points > 10) {
+    return { error: 'The points awarded for the question are less than 1 or greater than 10' };
+  }
+
+  // Check the answer length
+  for (const answer of quizQuestion.questionBody.answers) {
+    if (answer.answer.length < 1 || answer.answer.length > 30) {
+      return { error: 'The length of any answer is shorter than 1 character long, or longer than 30 characters long' };
+    }
+  }
+
+  // Check if there's duplicate answers
+  const uniqueAnswers : string[] = [];
+  for (let i = 0; i < quizQuestion.questionBody.answers.length; i++) {
+    const currentAnswer = quizQuestion.questionBody.answers[i].answer;
+    if (!uniqueAnswers.includes(currentAnswer)) {
+      uniqueAnswers.push(currentAnswer);
+    } else {
+      return { error: 'Any answer strings are duplicates of one another (within the same question)' };
+    }
+  }
+
+  // Check if there's correct answer
+  const answer = quizQuestion.questionBody.answers.find(quizs => quizs.correct === true);
+  if (!answer) {
+    return { error: 'There are no correct answers' };
+  }
+
+  return {};
+};
+
+/**
+ *
+ */
+export const isValidQuizId = (token: string, quizId: number): EmptyObject | ErrorReturn => {
+  // Check if the quizId is invalid
+  const data = getData();
+  if (data.quizzes.length === 0) {
+    return { error: 'Invalid quizId' };
+  }
+
+  // Check if the user own the quiz
+  const quiz = data.quizzes.find(quizs => quizs.quizId === quizId);
+  if (quiz) {
+    const user = data.users.find(users => users.sessions.includes(parseInt(token)));
+    const findQuiz = user.quizzes.find(quizzes => quizzes.quizId === quizId);
+    // If the user owns this quiz
+    if (findQuiz) {
+      return {};
+    }
+    return { error: 'user does not own the quiz' };
+  } else {
+    return { error: 'Invalid quizId' };
+  }
 };
