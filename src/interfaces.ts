@@ -73,7 +73,7 @@ export interface QuizListReturn {
   quizzes: quizUser[];
 }
 
-export interface quizQuestionCreatInput {
+export interface quizQuestionCreateInput {
   questionBody: {
     question: string;
     duration: number;
@@ -82,7 +82,7 @@ export interface quizQuestionCreatInput {
   }
 }
 
-export interface quizQuestionCreatReturn {
+export interface quizQuestionCreateReturn {
   questionId: number;
 }
 

@@ -1,4 +1,4 @@
-import { quizUser, user, quizQuestionCreatInput, EmptyObject, ErrorReturn } from './interfaces';
+import { quizUser, user, quizQuestionCreateInput, EmptyObject, ErrorReturn } from './interfaces';
 import { getData } from './dataStore';
 
 /**
@@ -80,7 +80,7 @@ export const checkQuizName = (name: string, quizzesOwned: quizUser[]) => {
   return true;
 };
 
-export const checkQuestionValid = (quizQuestion: quizQuestionCreatInput, quizId: number) => {
+export const checkQuestionValid = (quizQuestion: quizQuestionCreateInput, quizId: number) => {
   // Check the string length
   if (quizQuestion.questionBody.question.length < 5 || quizQuestion.questionBody.question.length > 50) {
     return { error: 'Question string is less than 5 characters in length or greater than 50 characters in length' };
