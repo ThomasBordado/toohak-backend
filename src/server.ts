@@ -9,11 +9,7 @@ import fs from 'fs';
 import path from 'path';
 import process from 'process';
 import { clear } from './other';
-<<<<<<< HEAD
-import { adminQuizList, adminQuizCreate, adminQuizRemove, adminQuizInfo, adminQuizNameUpdate, adminQuizDescriptionUpdate, quizTransfer } from './quiz';
-=======
-import { adminQuizList, adminQuizCreate, adminQuizRemove, adminQuizInfo, adminQuizNameUpdate, adminQuizDescriptionUpdate, adminQuizViewTrash, quizQuestionCreat } from './quiz';
->>>>>>> master
+import { adminQuizList, adminQuizCreate, adminQuizRemove, adminQuizInfo, adminQuizNameUpdate, adminQuizDescriptionUpdate, adminQuizViewTrash, quizQuestionCreat, quizTransfer } from './quiz';
 import { adminAuthLogin, adminAuthRegister, adminUserDetails, adminUserDetailsUpdate, adminUserPasswordUpdate } from './auth';
 import { loadData, saveData } from './persistence';
 
@@ -194,21 +190,6 @@ app.put('/v1/admin/quiz/:quizid/name', (req: Request, res: Response) => {
   res.json(result);
 });
 
-<<<<<<< HEAD
-app.post('/v1/admin/quiz/{quizid}/transfer', (req: Request, res: Response) => {
-  const quizId = parseInt(req.params.quizid);
-  const { token, userEmail } = req.body;
-  const response = quizTransfer(token, userEmail, quizId);
-	if ('error' in response) {
-		if (response.error.localeCompare('Token is empty or invalid') === 0) {
-			return res.status(401).json(response);
-		} else if (response.error.localeCompare('Invalid quizId') === 0 || response.error.localeCompare('user does not own the quiz')) {
-			return res.status(403).json(response);
-		}
-		return res.status(400).json(response);
-	}
-	res.json(response);
-=======
 app.post('/v1/admin/quiz/:quizid/question', (req: Request, res: Response) => {
   const quizId = parseInt(req.params.quizid);
   const { token, questionBody } = req.body;
@@ -222,7 +203,21 @@ app.post('/v1/admin/quiz/:quizid/question', (req: Request, res: Response) => {
     return res.status(400).json(response);
   }
   res.json(response);
->>>>>>> master
+});
+
+app.post('/v1/admin/quiz/{quizid}/transfer', (req: Request, res: Response) => {
+  const quizId = parseInt(req.params.quizid);
+  const { token, userEmail } = req.body;
+  const response = quizTransfer(token, userEmail, quizId);
+	if ('error' in response) {
+		if (response.error.localeCompare('Token is empty or invalid') === 0) {
+			return res.status(401).json(response);
+		} else if (response.error.localeCompare('Invalid quizId') === 0 || response.error.localeCompare('user does not own the quiz')) {
+			return res.status(403).json(response);
+		}
+		return res.status(400).json(response);
+	}
+	res.json(response);
 });
 
 app.delete('/v1/clear', (req: Request, res: Response) => {
