@@ -1,13 +1,14 @@
 import request, { HttpVerb } from 'sync-request-curl';
 import { port, url } from './config.json';
+import { quizQuestionCreatInput } from './interfaces';
 
 const SERVER_URL = `${url}:${port}`;
 
 interface RequestHelperReturnType {
-    statusCode: number;
-    jsonBody?: Record<string, any>;
-    error?: string;
-  }
+  statusCode: number;
+  jsonBody?: Record<string, any>;
+  error?: string;
+}
 /**
  * Sends a request to the given route and return its results
  *
@@ -104,12 +105,16 @@ export const requestQuizInfo = (token: string, quizId: number) => {
   return requestHelper('GET', `/v1/admin/quiz/${quizId}`, { token, quizId });
 };
 
-export const requestUpdateQuizName = (token: string, name: string, quizId: number) => {
+export const requestUpdateQuizName = (token: string, quizId: number, name: string) => {
   return requestHelper('PUT', `/v1/admin/quiz/${quizId}/name`, { token, name, quizId });
 };
 
-export const requestUpdateQuizDescription = (token: string, description: string, quizId: number) => {
-  return requestHelper('PUT', `/v1/admin/quiz/${quizId}/description`, { token, description, quizId });
+export const requestUpdateQuizDescription = (token: string, quizId: number, description: string) => {
+  return requestHelper('PUT', `/v1/admin/quiz/${quizId}/description`, { token, quizId, description });
+};
+
+export const requestQuizQuestionCreat = (token: string, questionBody: quizQuestionCreatInput, quizid: number) => {
+  return requestHelper('POST', `/v1/admin/quiz/${quizid}/question`, { token, questionBody, quizid });
 };
 
 export const requestClear = () => {
@@ -124,4 +129,6 @@ export const requestDeleteQuizQuestion = (token: string, quizId: number, questio
   return requestHelper('DELETE', '/v1/admin/quiz/${quizid}/question/${questionid}', { token, quizId, questionId });
 };
 
-
+export const requestQuizViewTrash = (token: string) => {
+  return requestHelper('GET', '/v1/admin/quiz/trash', { token });
+};
