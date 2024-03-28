@@ -225,10 +225,10 @@ export const adminQuizQuestionUpdate = (token: number, questionBody: quizQuestio
     return { error: 'Invalid questionId' };
   } else if (findQuestionIndex > -1) {
     const findQuestion = findQuiz.quizQuestions.find(questions => questions.questionId);
-    findQuiz.quizQuestions[findQuestion].question = questionBody.questionBody.question;
-    findQuiz.quizQuestions[findQuestion].duration = questionBody.questionBody.duration;
-    findQuiz.quizQuestions[findQuestion].points = questionBody.questionBody.points;
-    findQuiz.quizQuestions[findQuestion].answers = questionBody.questionBody.answers;
+    findQuestion.question = questionBody.questionBody.question;
+    findQuestion.duration = questionBody.questionBody.duration;
+    findQuestion.points = questionBody.questionBody.points;
+    findQuestion.answers = questionBody.questionBody.answers;
   }
 
   // const questionsIndex = data.quizzes.quizQuestions.findIndex(questions => quizzesIndex.quizQuestions.answers) //need to finish index

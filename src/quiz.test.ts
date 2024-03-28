@@ -397,11 +397,29 @@ describe('adminQuizDescriptionUpdate testing', () => {
 describe('Testing it2 function, adminQuizQuestionUpdate', () => {
   let user: SessionId;
   let quiz: quizId;
-  let question: quizQuestionCreatReturn;
+  let questionin: quizQuestionCreatInput;
+  let questionout: quizQuestionCreatReturn;
   beforeEach(() => {
     user = requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith').jsonBody as SessionId;
     quiz = requestQuizCreate(user.token, 'My Quiz', 'My description.').jsonBody as quizId;
-    question = requestQuizQuestionCreat(user.token, quizQuestion, quiz.quizId);
+    questionin = {
+      questionBody: {
+        question: 'Who is the Monarch of England?',
+        duration: 4,
+        points: 5,
+        answers: [
+          {
+            answer: 'Prince Charles',
+            correct: true
+          },
+          {
+            answer: 'Prince Charles.',
+            correct: true
+          }
+        ]
+      }
+    };
+    questionout = requestQuizQuestionCreat(user.token, questionin, quiz.quizId).jsonBody as quizQuestionCreatReturn;
     // question1 = requestQuestionCreate
     // question2 = requestQuestionCreate
     // question3 = requestQuestionCreate
@@ -409,34 +427,121 @@ describe('Testing it2 function, adminQuizQuestionUpdate', () => {
 
   // 1. Succesfully update question
   test('Test succesful update of question', () => {
-    const result = requestUpdateQuizQuestion(user.token, question.questionBody, quiz.quizId, question.questionId);
+    const updated = {
+      questionBody: {
+        question: 'Who is the King of England?',
+        duration: 6,
+        points: 4,
+        answers: [
+          {
+            answer: 'King Charles',
+            correct: true
+          },
+          {
+            answer: 'King Charles.',
+            correct: true
+          }
+        ]
+      }
+    }
+    const result = requestUpdateQuizQuestion(user.token, updated, quiz.quizId, questionout.questionId);
     expect(result.statusCode).toStrictEqual(200);
     expect(result).toStrictEqual({});
   });
 
   // 2. Invalid Token/empty token
   test('Test invalid Token', () => {
-    const result = requestUpdateQuizQuestion(user.token + 1, question.questionBody, quiz.quizId, question.questionId);
-    expect(result.jsonbody).toStrictEqual({ error: expect.any(String) });
+    const updated = {
+      questionBody: {
+        question: 'Who is the King of England?',
+        duration: 6,
+        points: 4,
+        answers: [
+          {
+            answer: 'King Charles',
+            correct: true
+          },
+          {
+            answer: 'King Charles.',
+            correct: true
+          }
+        ]
+      }
+    }
+    const result = requestUpdateQuizQuestion(user.token + 1, updated, quiz.quizId, questionout.questionId);
+    expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
     expect(result.statusCode).toStrictEqual(401);
   });
   test('Test empty Token', () => {
-    const result = requestUpdateQuizQuestion('', question.questionBody, quiz.quizId, question.questionId);
-    expect(result.jsonbody).toStrictEqual({ error: expect.any(String) });
+    const updated = {
+      questionBody: {
+        question: 'Who is the King of England?',
+        duration: 6,
+        points: 4,
+        answers: [
+          {
+            answer: 'King Charles',
+            correct: true
+          },
+          {
+            answer: 'King Charles.',
+            correct: true
+          }
+        ]
+      }
+    }
+    const result = requestUpdateQuizQuestion('', updated, quiz.quizId, questionout.questionId);
+    expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
     expect(result.statusCode).toStrictEqual(401);
   });
 
   // 3. Invalid quizid or user does not own quiz
   test('Test invalid quizId, Valid token', () => {
-    const result = requestUpdateQuizQuestion(user.token, question.questionBody, quiz.quizId + 1, question.questionId);
-    expect(result.jsonbody).toStrictEqual({ error: expect.any(String) });
+    const updated = {
+      questionBody: {
+        question: 'Who is the King of England?',
+        duration: 6,
+        points: 4,
+        answers: [
+          {
+            answer: 'King Charles',
+            correct: true
+          },
+          {
+            answer: 'King Charles.',
+            correct: true
+          }
+        ]
+      }
+    }
+    const result = requestUpdateQuizQuestion(user.token, updated, quiz.quizId + 1, questionout.questionId);
+    expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
     expect(result.statusCode).toStrictEqual(403);
   });
   test('Test user doesn not own quiz', () => {
+    const updated = {
+      questionBody: {
+        question: 'Who is the King of England?',
+        duration: 6,
+        points: 4,
+        answers: [
+          {
+            answer: 'King Charles',
+            correct: true
+          },
+          {
+            answer: 'King Charles.',
+            correct: true
+          }
+        ]
+      }
+    }
+    let user2: SessionId;
+    let quiz2: quizId;
     user2 = requestRegister('jareds@gmail.com', 'password2', 'Jared', 'Simion').jsonBody as SessionId;
     quiz2 = requestQuizCreate(user2.token, 'My Quiz', 'My description.').jsonBody as quizId;
-    const result = requestUpdateQuizQuestion(user.token, question.questionBody, quiz2.quizId, question.questionId);
-    expect(result.jsonbody).toStrictEqual({ error: expect.any(String) });
+    const result = requestUpdateQuizQuestion(user.token, updated, quiz2.quizId, questionout.questionId);
+    expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
     expect(result.statusCode).toStrictEqual(403);
   });
 });
