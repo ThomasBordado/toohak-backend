@@ -472,6 +472,7 @@ export const quizTransfer = (token: string, userEmail: string, quizId: number): 
   const userQuizzesIndex = currentUser.quizzes.findIndex(quizzes => quizzes.quizId === quizId);
   currentUser.quizzes.splice(userQuizzesIndex, 1);
   setData(data);
+  saveData();
   return {};
 };
 
@@ -506,5 +507,6 @@ export const adminQuizQuestionMove = (token: number, quizId: number, questionId:
 
   data.quizzes[findQuiz].timeLastEdited = Math.floor(Date.now() / 1000);
   setData(data);
+  saveData();
   return {};
 };
