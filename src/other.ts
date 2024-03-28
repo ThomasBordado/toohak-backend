@@ -12,6 +12,7 @@ export const clear = (): EmptyObject => {
   getData().quizzes = [];
   getData().quizIdStore = 0;
   getData().sessionIdStore = 0;
+  getData().trash = [];
   clearDataFile();
   return {};
 };

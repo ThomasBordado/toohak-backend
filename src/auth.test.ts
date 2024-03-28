@@ -1,4 +1,4 @@
-import { requestRegister, requestLogin, requestClear, requestUpdateUserDetails, requestUpdatePassword, requestGetUserDetails } from './wrapper';
+import { requestRegister, requestLogin, requestClear, requestUpdateUserDetails, requestUpdatePassword, requestGetUserDetails, requestLogout } from './wrapper';
 import { usersList, getUserId } from './authUtil';
 import { SessionId, UserId, user, UserDetailsReturn } from './interfaces';
 
@@ -433,5 +433,73 @@ describe('adminUserPasswordUpdate', () => {
           }];
     const expectedList = users.sort((a, b) => a.userId - b.userId);
     expect(result).toStrictEqual(expectedList);
+  });
+});
+
+describe('Test adminAuthLogout', () => {
+  // 1. Successful logout after registering account.
+  test('Test successful logout', () => {
+    const sessionId = requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith').jsonBody as SessionId;
+    const res = requestLogout(sessionId.token);
+    expect(res.jsonBody).toStrictEqual({ });
+    expect(res.statusCode).toStrictEqual(200);
+  });
+
+  // 2. Successful logout after logging into an account.
+  test('Test logout after logging in', () => {
+    const sessionId1 = requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith').jsonBody as SessionId;
+    const sessionId2 = requestLogin('hayden.smith@unsw.edu.au', 'password1').jsonBody as SessionId;
+    const res1 = requestLogout(sessionId1.token);
+    expect(res1.jsonBody).toStrictEqual({ });
+    expect(res1.statusCode).toStrictEqual(200);
+    const res2 = requestLogout(sessionId2.token);
+    expect(res2.jsonBody).toStrictEqual({ });
+    expect(res2.statusCode).toStrictEqual(200);
+  });
+
+  // 3. Logging out of session that has been loggedout.
+  test('Test logging out of session twice', () => {
+    const sessionId1 = requestRegister('thomas@gmail.com', 'password1', 'Thomas', 'Bordado').jsonBody as SessionId;
+    const res1 = requestLogout(sessionId1.token);
+    expect(res1.jsonBody).toStrictEqual({ });
+    expect(res1.statusCode).toStrictEqual(200);
+    const res2 = requestLogout(sessionId1.token);
+    expect(res2.jsonBody).toStrictEqual({ error: expect.any(String) });
+    expect(res2.statusCode).toStrictEqual(401);
+  });
+
+  // 4. Logging out of non-existing session
+  test('Test logout of invalid session', () => {
+    const sessionId = requestRegister('thomas@gmail.com', 'password1', 'Thomas', 'Bordado').jsonBody as SessionId;
+    expect(sessionId).toStrictEqual({ token: expect.any(String) });
+    let newToken = parseInt(sessionId.token);
+    newToken += 1;
+    const res = requestLogout(newToken.toString());
+    expect(res.jsonBody).toStrictEqual({ error: expect.any(String) });
+    expect(res.statusCode).toStrictEqual(401);
+  });
+
+  // 4. Logging out of multiple sessions of different users
+  test('Test logout of invalid session', () => {
+    const sessionId1 = requestRegister('thomas@gmail.com', 'password1', 'Thomas', 'Bordado').jsonBody as SessionId;
+    const sessionId2 = requestRegister('john@gmail.com', 'password2', 'John', 'Jonno').jsonBody as SessionId;
+    const sessionId3 = requestRegister('phil@gmail.com', 'password3', 'phil', 'jacob').jsonBody as SessionId;
+    const sessionId4 = requestLogin('phil@gmail.com', 'password3').jsonBody as SessionId;
+    const sessionId5 = requestLogin('thomas@gmail.com', 'password1').jsonBody as SessionId;
+    const res1 = requestLogout(sessionId1.token);
+    const res2 = requestLogout(sessionId2.token);
+    const res3 = requestLogout(sessionId3.token);
+    const res4 = requestLogout(sessionId4.token);
+    const res5 = requestLogout(sessionId5.token);
+    expect(res1.jsonBody).toStrictEqual({ });
+    expect(res1.statusCode).toStrictEqual(200);
+    expect(res2.jsonBody).toStrictEqual({ });
+    expect(res2.statusCode).toStrictEqual(200);
+    expect(res3.jsonBody).toStrictEqual({ });
+    expect(res3.statusCode).toStrictEqual(200);
+    expect(res4.jsonBody).toStrictEqual({ });
+    expect(res4.statusCode).toStrictEqual(200);
+    expect(res5.jsonBody).toStrictEqual({ });
+    expect(res5.statusCode).toStrictEqual(200);
   });
 });

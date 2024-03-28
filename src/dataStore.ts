@@ -7,6 +7,7 @@ let data: DataStore = {
   userIdStore: 0,
   quizIdStore: 0,
   sessionIdStore: 0,
+  trash: [],
 };
 
 // YOU SHOULD MODIFY THIS OBJECT ABOVE ONLY

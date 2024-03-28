@@ -81,9 +81,6 @@ export const isValidToken = (token: string): boolean => {
   if (data.users.length === 0) {
     return false;
   }
-  if (token === '') {
-    return false;
-  }
   for (const users of data.users) {
     if (users.sessions.includes(parseInt(token))) {
       return true;
