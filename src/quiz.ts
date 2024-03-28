@@ -1,7 +1,7 @@
 import { getData, setData } from './dataStore';
 import { EmptyObject, ErrorReturn, QuizListReturn, quiz, quizId, quizQuestionCreatInput, quizQuestionCreatReturn } from './interfaces';
 import { validUserId, checkQuizName, checkQuestionValid, isValidQuizId } from './quizUtil';
-import { saveData, loadData } from './persistence';
+import { saveData } from './persistence';
 
 /**
  * Provides a list of all quizzes that are owned by the currently logged in user

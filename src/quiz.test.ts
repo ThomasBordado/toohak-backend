@@ -402,7 +402,7 @@ describe('Testing it2 function, adminQuizQuestionUpdate', () => {
   beforeEach(() => {
     user = requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith').jsonBody as SessionId;
     quiz = requestQuizCreate(user.token, 'My Quiz', 'My description.').jsonBody as quizId;
-    
+
     questionin = {
       questionBody: {
         question: 'Who is the Monarch of England?',
@@ -421,7 +421,7 @@ describe('Testing it2 function, adminQuizQuestionUpdate', () => {
       }
     };
     questionout = requestQuizQuestionCreat(user.token, questionin, quiz.quizId).jsonBody as quizQuestionCreatReturn;
-    
+
     // question1 = requestQuestionCreate
     // question2 = requestQuestionCreate
     // question3 = requestQuestionCreate
@@ -445,7 +445,7 @@ describe('Testing it2 function, adminQuizQuestionUpdate', () => {
           }
         ]
       }
-    }
+    };
     const result = requestUpdateQuizQuestion(user.token, updated, quiz.quizId, questionout.questionId);
     expect(result.statusCode).toStrictEqual(200);
     expect(result.jsonBody).toStrictEqual({});
@@ -469,7 +469,7 @@ describe('Testing it2 function, adminQuizQuestionUpdate', () => {
           }
         ]
       }
-    }
+    };
     const result = requestUpdateQuizQuestion(user.token + 1, updated, quiz.quizId, questionout.questionId);
     expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
     expect(result.statusCode).toStrictEqual(401);
@@ -491,7 +491,7 @@ describe('Testing it2 function, adminQuizQuestionUpdate', () => {
           }
         ]
       }
-    }
+    };
     const result = requestUpdateQuizQuestion('', updated, quiz.quizId, questionout.questionId);
     expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
     expect(result.statusCode).toStrictEqual(401);
@@ -515,7 +515,7 @@ describe('Testing it2 function, adminQuizQuestionUpdate', () => {
           }
         ]
       }
-    }
+    };
     const result = requestUpdateQuizQuestion(user.token, updated, quiz.quizId + 1, questionout.questionId);
     expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
     expect(result.statusCode).toStrictEqual(403);
@@ -537,11 +537,10 @@ describe('Testing it2 function, adminQuizQuestionUpdate', () => {
           }
         ]
       }
-    }
-    let user2: SessionId;
-    let quiz2: quizId;
-    user2 = requestRegister('jareds@gmail.com', 'password2', 'Jared', 'Simion').jsonBody as SessionId;
-    quiz2 = requestQuizCreate(user2.token, 'My Quiz', 'My description.').jsonBody as quizId;
+    };
+
+    const user2 = requestRegister('jareds@gmail.com', 'password2', 'Jared', 'Simion').jsonBody as SessionId;
+    const quiz2 = requestQuizCreate(user2.token, 'My Quiz', 'My description.').jsonBody as quizId;
     const result = requestUpdateQuizQuestion(user.token, updated, quiz2.quizId, questionout.questionId);
     expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
     expect(result.statusCode).toStrictEqual(403);
@@ -598,10 +597,8 @@ describe('Testing it2 function, adminQuizQuestionDelete', () => {
     expect(result.statusCode).toStrictEqual(403);
   });
   test('Test user doesn not own quiz', () => {
-    let user2: SessionId;
-    let quiz2: quizId;
-    user2 = requestRegister('jareds@gmail.com', 'password2', 'Jared', 'Simion').jsonBody as SessionId;
-    quiz2 = requestQuizCreate(user2.token, 'My Quiz', 'My description.').jsonBody as quizId;
+    const user2 = requestRegister('jareds@gmail.com', 'password2', 'Jared', 'Simion').jsonBody as SessionId;
+    const quiz2 = requestQuizCreate(user2.token, 'My Quiz', 'My description.').jsonBody as quizId;
     const result = requestDeleteQuizQuestion(user.token, quiz2.quizId, questionout.questionId);
     expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
     expect(result.statusCode).toStrictEqual(403);
