@@ -2,6 +2,7 @@ import isEmail from 'validator/lib/isEmail.js';
 import { getData } from './dataStore';
 import { ErrorReturn, UserId, user } from './interfaces';
 import { loadData } from './persistence';
+import crypto from 'crypto';
 /**
  * Check a given email. If valid return true and if the email
  * is in use or is invalid determined by validator return error object
@@ -123,7 +124,7 @@ export const isSame = (a: string, b: string): boolean => {
 export const isPasswordCorrect = (token: string, enterdPassword: string): boolean => {
   const data = getData();
   const user = data.users.find(users => users.sessions.includes(parseInt(token)));
-  if (user.password === enterdPassword) {
+  if (user.password === getHashOf(enterdPassword)) {
     return true;
   } else {
     return false;
@@ -146,7 +147,7 @@ export const isNewPasswordUsed = (token: string, newPassword: string): boolean =
     return false;
   }
 
-  const found = user.prevpassword.find(prevpassword => prevpassword === newPassword);
+  const found = user.prevpassword.find(prevpassword => prevpassword === getHashOf(newPassword));
   if (found !== undefined) {
     return true;
   }
@@ -191,4 +192,13 @@ export const getUserId = (token: string): UserId | ErrorReturn => {
     return { authUserId: user.userId };
   }
   return { error: 'invalid token' };
+};
+
+/**
+ * Given a token and check for the userId
+ * @param {string} input - some input string in plaintext
+ * @returns {string} hashed version of input
+ */
+export const getHashOf = (input: string): string => {
+  return crypto.createHash('sha256').update(input).digest('hex');
 };

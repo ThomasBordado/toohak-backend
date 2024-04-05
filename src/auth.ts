@@ -1,4 +1,4 @@
-import { checkEmail, checkPassword, checkName, isValidToken, isSame, isPasswordCorrect, isNewPasswordUsed, isEmailUsedByOther } from './authUtil';
+import { checkEmail, checkPassword, checkName, isValidToken, isSame, isPasswordCorrect, isNewPasswordUsed, isEmailUsedByOther, getHashOf } from './authUtil';
 import isEmail from 'validator/lib/isEmail.js';
 import { getData, setData } from './dataStore';
 import { validUserId } from './quizUtil';
@@ -33,7 +33,7 @@ export const adminAuthRegister = (email: string, password: string, nameFirst: st
     nameFirst: nameFirst,
     nameLast: nameLast,
     email: email,
-    password: password,
+    password: getHashOf(password),
     prevpassword: [],
     numSuccessfulLogins: 1,
     numFailedPasswordsSinceLastLogin: 0,
@@ -64,7 +64,7 @@ export const adminAuthLogin = (email: string, password: string): SessionId | Err
     };
   }
   const user = users.find(users => users.email === email);
-  if (user && user.password === password) {
+  if (user && user.password === getHashOf(password)) {
     user.numSuccessfulLogins++;
     user.numFailedPasswordsSinceLastLogin = 0;
 
@@ -74,7 +74,7 @@ export const adminAuthLogin = (email: string, password: string): SessionId | Err
     return {
       token: sessionId.toString()
     };
-  } else if (user && user.password !== password) {
+  } else if (user && user.password !== getHashOf(password)) {
     user.numFailedPasswordsSinceLastLogin++;
     return {
       error: 'Password is not correct for the given email.'
@@ -199,8 +199,8 @@ export const adminUserPasswordUpdate = (token: string, oldPassword: string, newP
 
   const data = getData();
   const user = data.users.find(users => users.sessions.includes(parseInt(token)));
-  user.password = newPassword;
-  user.prevpassword.push(oldPassword);
+  user.password = getHashOf(newPassword);
+  user.prevpassword.push(getHashOf(oldPassword));
   setData(data);
   saveData();
   return {};
