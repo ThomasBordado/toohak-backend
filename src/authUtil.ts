@@ -83,7 +83,7 @@ export const isValidToken = (token: string): boolean => {
     return false;
   }
   for (const users of data.users) {
-    if (users.sessions.includes(parseInt(token))) {
+    if (users.sessions.includes(token)) {
       return true;
     }
   }
@@ -123,7 +123,7 @@ export const isSame = (a: string, b: string): boolean => {
  */
 export const isPasswordCorrect = (token: string, enterdPassword: string): boolean => {
   const data = getData();
-  const user = data.users.find(users => users.sessions.includes(parseInt(token)));
+  const user = data.users.find(users => users.sessions.includes(token));
   if (user.password === getHashOf(enterdPassword)) {
     return true;
   } else {
@@ -140,7 +140,7 @@ export const isPasswordCorrect = (token: string, enterdPassword: string): boolea
  */
 export const isNewPasswordUsed = (token: string, newPassword: string): boolean => {
   const data = getData();
-  const user = data.users.find(users => users.sessions.includes(parseInt(token)));
+  const user = data.users.find(users => users.sessions.includes(token));
 
   // If prevpassword is empty
   if (user.prevpassword.length === 0) {
@@ -168,7 +168,7 @@ export const isEmailUsedByOther = (email: string, token: string): boolean => {
     return false;
   }
 
-  const userWithSameEmail = data.users.find(users => users.email === email && !users.sessions.includes(parseInt(token)));
+  const userWithSameEmail = data.users.find(users => users.email === email && !users.sessions.includes(token));
   if (userWithSameEmail) {
     return true;
   }
@@ -187,7 +187,7 @@ export const getUserId = (token: string): UserId | ErrorReturn => {
   if (token === '') {
     return { error: 'invalid token' };
   }
-  const user = data.users.find(users => users.sessions.includes(parseInt(token)));
+  const user = data.users.find(users => users.sessions.includes(token));
   if (user) {
     return { authUserId: user.userId };
   }

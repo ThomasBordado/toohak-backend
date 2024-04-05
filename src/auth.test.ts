@@ -260,7 +260,7 @@ describe('requestUpdateUserDetails', () => {
         numSuccessfulLogins: 1,
         numFailedPasswordsSinceLastLogin: 0,
         quizzes: [],
-        sessions: [parseInt(data.token)],
+        sessions: [data.token],
         trash: [],
       }
     ];
@@ -286,7 +286,7 @@ describe('requestUpdateUserDetails', () => {
             numSuccessfulLogins: 1,
             numFailedPasswordsSinceLastLogin: 0,
             quizzes: [],
-            sessions: [parseInt(data.token)],
+            sessions: [data.token],
             trash: [],
           }, {
             userId: userId2.authUserId,
@@ -298,7 +298,7 @@ describe('requestUpdateUserDetails', () => {
             numSuccessfulLogins: 1,
             numFailedPasswordsSinceLastLogin: 0,
             quizzes: [],
-            sessions: [parseInt(id2.token)],
+            sessions: [id2.token],
             trash: [],
           }];
     const expectedList = users.sort((a, b) => a.userId - b.userId);
@@ -323,7 +323,7 @@ describe('requestUpdateUserDetails', () => {
             numSuccessfulLogins: 1,
             numFailedPasswordsSinceLastLogin: 0,
             quizzes: [],
-            sessions: [parseInt(data.token)],
+            sessions: [data.token],
             trash: [],
           }, {
             userId: userId2.authUserId,
@@ -335,7 +335,7 @@ describe('requestUpdateUserDetails', () => {
             numSuccessfulLogins: 1,
             numFailedPasswordsSinceLastLogin: 0,
             quizzes: [],
-            sessions: [parseInt(id2.token)],
+            sessions: [id2.token],
             trash: [],
           }];
     const expectedList = users.sort((a, b) => a.userId - b.userId);
@@ -394,7 +394,7 @@ describe('requestUpdatePassword', () => {
             numSuccessfulLogins: 1,
             numFailedPasswordsSinceLastLogin: 0,
             quizzes: [],
-            sessions: [parseInt(data.token)],
+            sessions: [data.token],
             trash: [],
           }];
     const expectedList = users1.sort((a, b) => a.userId - b.userId);
@@ -420,7 +420,7 @@ describe('requestUpdatePassword', () => {
             numSuccessfulLogins: 1,
             numFailedPasswordsSinceLastLogin: 0,
             quizzes: [],
-            sessions: [parseInt(data.token)],
+            sessions: [data.token],
             trash: [],
           },
           {
@@ -433,7 +433,7 @@ describe('requestUpdatePassword', () => {
             numSuccessfulLogins: 1,
             numFailedPasswordsSinceLastLogin: 0,
             quizzes: [],
-            sessions: [parseInt(id2.token)],
+            sessions: [id2.token],
             trash: [],
           }];
     const expectedList = users.sort((a, b) => a.userId - b.userId);

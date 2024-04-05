@@ -34,7 +34,7 @@ import { getData } from './dataStore';
  * } - for valid sessionId
   * @returns {error: string}} - for invalid sessionId
   */
-export const validUserId = (token: number, userData: user[]) => {
+export const validUserId = (token: string, userData: user[]) => {
   // searches for sessionId and returns user if found
   for (const user of userData) {
     if (user.sessions.includes(token)) {
@@ -153,9 +153,8 @@ export const isValidQuizId = (token: string, quizId: number): EmptyObject | Erro
   // Check if the user own the quiz
   const quiz = data.quizzes.find(quizs => quizs.quizId === quizId);
   if (quiz) {
-    const user = data.users.find(users => users.sessions.includes(parseInt(token)));
+    const user = data.users.find(users => users.sessions.includes(token));
     const findQuiz = user.quizzes.find(quizzes => quizzes.quizId === quizId);
-    console.log(findQuiz);
 
     // If the user owns this quiz
     if (findQuiz !== undefined) {
