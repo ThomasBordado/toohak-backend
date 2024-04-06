@@ -1,4 +1,4 @@
-import { checkEmail, checkPassword, checkName, isValidToken, isSame, isPasswordCorrect, isNewPasswordUsed, isEmailUsedByOther, getHashOf } from './authUtil';
+import { checkEmail, checkPassword, checkName, isValidToken, isSame, isPasswordCorrect, isNewPasswordUsed, isEmailUsedByOther, getHashOf, usersList } from './authUtil';
 import isEmail from 'validator/lib/isEmail.js';
 import { getData, setData } from './dataStore';
 import { validUserId } from './quizUtil';
@@ -125,10 +125,10 @@ export const adminUserDetails = (token: string): UserDetailsReturn | ErrorReturn
  * @returns {} - For updated user details
  */
 export const adminUserDetailsUpdate = (token: string, email: string, nameFirst: string, nameLast: string): EmptyObject | ErrorReturn => {
+  console.log(token, email, nameFirst, nameLast);
+  console.log(usersList());
   // 1. Check if AuthUserId is a valid user
-  if (!isValidToken(token)) {
-    throw HTTPError(401, 'questionString is an empty string');
-  }
+  isValidToken(token);
 
   // 2. Check if the new email is invalid
   if (!isEmail(email)) {

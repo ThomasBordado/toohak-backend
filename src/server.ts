@@ -73,31 +73,17 @@ app.get('/v1/admin/user/details', (req: Request, res: Response) => {
   res.json(response);
 });
 
-app.put('/v1/admin/user/details', (req: Request, res: Response) => {
+app.put('/v2/admin/user/details', (req: Request, res: Response) => {
   const token = req.headers.token as string;
   const { email, nameFirst, nameLast } = req.body;
   const response = adminUserDetailsUpdate(token, email, nameFirst, nameLast);
-
-  if ('error' in response) {
-    if (response.error === 'Token is empty or invalid') {
-      return res.status(401).json(response);
-    }
-    return res.status(400).json(response);
-  }
   return res.json(response);
 });
 
-app.put('/v1/admin/user/password', (req: Request, res: Response) => {
+app.put('/v2/admin/user/password', (req: Request, res: Response) => {
   const token = req.headers.token as string;
   const { oldPassword, newPassword } = req.body;
   const response = adminUserPasswordUpdate(token, oldPassword, newPassword);
-
-  if ('error' in response) {
-    if (response.error === 'Token is empty or invalid') {
-      return res.status(401).json(response);
-    }
-    return res.status(400).json(response);
-  }
   return res.json(response);
 });
 

@@ -84,11 +84,11 @@ export const requestGetUserDetails = (token: string) => {
 };
 
 export const requestUpdateUserDetails = (token: string, email: string, nameFirst: string, nameLast: string) => {
-  return requestHelper('PUT', '/v1/admin/user/details', { email, nameFirst, nameLast }, { token });
+  return requestHelper('PUT', '/v2/admin/user/details', { email, nameFirst, nameLast }, { token });
 };
 
 export const requestUpdatePassword = (token: string, oldPassword: string, newPassword: string) => {
-  return requestHelper('PUT', '/v1/admin/user/password', { oldPassword, newPassword }, { token });
+  return requestHelper('PUT', '/v2/admin/user/password', { oldPassword, newPassword }, { token });
 };
 
 export const requestQuizList = (token: string) => {
