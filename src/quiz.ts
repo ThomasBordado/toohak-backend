@@ -224,26 +224,25 @@ export const adminQuizQuestionUpdate = (token: string, questionBody: quizQuestio
   const findQuestionIndex = findQuiz.questions.findIndex(questions => questions.questionId === questionid);
   if (findQuestionIndex === -1) {
     return { error: 'Invalid questionId' };
-  } else if (findQuestionIndex > -1) {
-    const findQuestion = findQuiz.questions.find(questions => questions.questionId === questionid);
-    findQuestion.question = questionBody.question;
-    findQuestion.duration = questionBody.duration;
-    findQuestion.points = questionBody.points;
-
-    const answerOut = questionBody.answers.map(answer => {
-      data.answerIdStore += 1;
-
-      return {
-        answerId: data.answerIdStore,
-        answer: answer.answer,
-        colour: randomColour(),
-        correct: answer.correct,
-      };
-    });
-    findQuestion.answers = answerOut;
   }
+  const findQuestion = findQuiz.questions.find(questions => questions.questionId === questionid);
+  findQuestion.question = questionBody.question;
+  const oldDuration = findQuestion.duration;
+  findQuestion.duration = questionBody.duration;
+  findQuestion.points = questionBody.points;
 
-  findQuiz.duration = result.duration;
+  const answerOut = questionBody.answers.map(answer => {
+    data.answerIdStore += 1;
+    return {
+      answerId: data.answerIdStore,
+      answer: answer.answer,
+      colour: randomColour(),
+      correct: answer.correct,
+    };
+  });
+  findQuestion.answers = answerOut;
+
+  findQuiz.duration = result.duration - oldDuration;
   findQuiz.timeLastEdited = Math.floor(Date.now() / 1000);
   saveData();
   return {};
@@ -271,12 +270,11 @@ export const adminQuizQuestionDelete = (token: string, quizId: number, questioni
   if (findQuestion === -1) {
     return { error: 'Invalid questionId' };
   }
-  console.log("From adminQuizQuestionDelete:");
-  console.log(findQuiz);
-  findQuiz.questions.splice(findQuestion, 1);
+
   findQuiz.duration -= findQuiz.questions[findQuestion].duration;
   findQuiz.numQuestions -= 1;
   findQuiz.timeLastEdited = Math.floor(Date.now() / 1000);
+  findQuiz.questions.splice(findQuestion, 1);
   saveData();
   return {};
 };
@@ -367,9 +365,6 @@ export const adminQuizTrashEmpty = (token: string, quizIds: number[]): EmptyObje
  * @returns questionId
  */
 export const quizQuestionCreate = (token: string, questionBody: quizQuestionCreateInput, quizId: number): quizQuestionCreateReturn | ErrorReturn => {
-  console.log('From quizQuestionCreate: ');
-  console.log(questionBody);
-
   // Check token error
   const data = getData();
   const tokenResult = validUserId(token, data.users);

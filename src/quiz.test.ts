@@ -458,8 +458,6 @@ describe('Testing it2 function, adminQuizQuestionUpdate', () => {
         }
       ]
     };
-    console.log('From test: ');
-    console.log(updated);
     const result = requestUpdateQuizQuestion(user.token, updated, quiz.quizId, questionout.questionId);
     expect(result.statusCode).toStrictEqual(200);
     expect(result.jsonBody).toStrictEqual({});
