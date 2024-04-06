@@ -4,6 +4,7 @@ import { getData, setData } from './dataStore';
 import { validUserId } from './quizUtil';
 import { EmptyObject, ErrorReturn, UserDetailsReturn, user, SessionId } from './interfaces';
 import { saveData } from './persistence';
+import HTTPError from 'http-errors';
 
 /**
  * Register a user with an email, password, and names, then returns their authUserId.
@@ -18,11 +19,11 @@ export const adminAuthRegister = (email: string, password: string, nameFirst: st
   if (checkEmail(email) !== true) {
     return checkEmail(email) as ErrorReturn;
   } else if (checkPassword(password) !== true) {
-    return checkPassword(password) as ErrorReturn;
+
   } else if (checkName(nameFirst, 'First') !== true) {
-    return checkName(nameFirst, 'First') as ErrorReturn;
+
   } else if (checkName(nameLast, 'Last') !== true) {
-    return checkName(nameLast, 'Last') as ErrorReturn;
+
   }
 
   const data = getData();
@@ -126,28 +127,26 @@ export const adminUserDetails = (token: string): UserDetailsReturn | ErrorReturn
 export const adminUserDetailsUpdate = (token: string, email: string, nameFirst: string, nameLast: string): EmptyObject | ErrorReturn => {
   // 1. Check if AuthUserId is a valid user
   if (!isValidToken(token)) {
-    return { error: 'Token is empty or invalid' };
+    throw HTTPError(401, 'questionString is an empty string');
   }
 
   // 2. Check if the new email is invalid
   if (!isEmail(email)) {
-    return { error: 'This is not a valid email.' };
+    throw HTTPError(400, 'This is not a valid email.');
   }
 
   // 3. Check if the email is used by another user(excluding the current authorised user)
   if (isEmailUsedByOther(email, token)) {
-    return { error: 'Email is used by other user.' };
+    throw HTTPError(400, 'Email is used by other user.');
   }
 
   // 4. Check if NameFirst contains characters other than lowercase letters,
   // uppercase letters, spaces, hyphens, or apostrophes
   if (checkName(nameFirst, 'First') !== true) {
-    return checkName(nameFirst, 'First') as ErrorReturn;
   }
 
   // 5. Check the length of NameLast
   if (checkName(nameLast, 'Last') !== true) {
-    return checkName(nameLast, 'Last') as ErrorReturn;
   }
 
   // 6. Update the data
@@ -175,27 +174,27 @@ export const adminUserDetailsUpdate = (token: string, email: string, nameFirst: 
 export const adminUserPasswordUpdate = (token: string, oldPassword: string, newPassword: string): EmptyObject | ErrorReturn => {
   // 1. Check if AuthUserId is valid
   if (!isValidToken(token)) {
-    return { error: 'Token is empty or invalid' };
+    throw HTTPError(401, 'Token is empty or invalid');
   }
 
   // 2. Check if the old password is correct
   if (!isPasswordCorrect(token, oldPassword)) {
-    return { error: 'Old Password is not the correct old password.' };
+    throw HTTPError(400, 'Old Password is not the correct old password.');
   }
 
   // 3. Check if the old and new passwords are exactly the same
   if (isSame(oldPassword, newPassword)) {
-    return { error: 'Old Password and New Password match exactly.' };
+    throw HTTPError(400, 'Old Password and New Password match exactly.');
   }
 
   // 4. Check if the password is used by this user
   if (isNewPasswordUsed(token, newPassword)) {
-    return { error: 'New Password has already been used before by this user.' };
+    throw HTTPError(400, 'New Password has already been used before by this user.');
   }
 
   // 5. Check is the new password valid
   if (checkPassword(newPassword) !== true) {
-    return checkPassword(newPassword) as ErrorReturn;
+
   }
 
   const data = getData();
