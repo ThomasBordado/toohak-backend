@@ -113,9 +113,6 @@ app.post('/v1/admin/auth/logout', (req: Request, res: Response) => {
 app.get('/v1/admin/quiz/list', (req: Request, res: Response) => {
   const token = req.headers.token as string;
   const result = adminQuizList(token);
-  if ('error' in result) {
-    return res.status(401).json(result);
-  }
   res.json(result);
 });
 
@@ -124,21 +121,12 @@ app.post('/v1/admin/quiz', (req: Request, res: Response) => {
   const token = req.headers.token as string;
   const { name, description } = req.body;
   const result = adminQuizCreate(token, name, description);
-  if ('error' in result) {
-    if (result.error.localeCompare('Token is empty or invalid') === 0) {
-      return res.status(401).json(result);
-    }
-    return res.status(400).json(result);
-  }
   res.json(result);
 });
 
 app.get('/v1/admin/quiz/trash', (req: Request, res: Response) => {
   const token = req.headers.token as string;
   const result = adminQuizViewTrash(token);
-  if ('error' in result) {
-    return res.status(401).json(result);
-  }
   res.json(result);
 });
 
@@ -163,12 +151,6 @@ app.delete('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
   const token = req.headers.token as string;
   const quizId = parseInt(req.params.quizid as string);
   const result = adminQuizRemove(token, quizId);
-  if ('error' in result) {
-    if (result.error.localeCompare('Token is empty or invalid') === 0) {
-      return res.status(401).json(result);
-    }
-    return res.status(403).json(result);
-  }
   res.json(result);
 });
 
@@ -228,18 +210,6 @@ app.post('/v1/admin/quiz/:quizid/restore', (req: Request, res: Response) => {
   const token = req.headers.token as string;
   const quizId = parseInt(req.params.quizid as string);
   const result = adminQuizRestore(token, quizId);
-  if ('error' in result) {
-    if (result.error.localeCompare('Token is empty or invalid') === 0) {
-      return res.status(401).json(result);
-    }
-    if (result.error.localeCompare('Invalid quizId') === 0) {
-      return res.status(403).json(result);
-    }
-    if (result.error.localeCompare('User does not own this quiz') === 0) {
-      return res.status(403).json(result);
-    }
-    return res.status(400).json(result);
-  }
   res.json(result);
 });
 
