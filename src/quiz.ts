@@ -6,10 +6,10 @@ import { saveData } from './persistence';
 
 /**
  * Provides a list of all quizzes that are owned by the currently logged in user
- * @param {number} token - unique identifier for an academic
+ * @param {string} token - unique identifier for an academic
  * @returns {{quizzes: [{quizId: number, name: string,}]}} - for valid authUserID
  */
-export const adminQuizList = (token: number): QuizListReturn | ErrorReturn => {
+export const adminQuizList = (token: string): QuizListReturn | ErrorReturn => {
   const data = getData();
   const user = validUserId(token, data.users);
   if ('error' in user) {
@@ -21,13 +21,13 @@ export const adminQuizList = (token: number): QuizListReturn | ErrorReturn => {
 
 /**
  * Given basic details about a new quiz, create one for the logged in user.
- * @param {number} token - unique identifier for an academic
+ * @param {string} token - unique identifier for an academic
  * @param {string} name - quiz name
  * @param {string} description - quiz description
  * @returns {{quizId: number}} - for valid authUserID, name and discription
  */
 
-export const adminQuizCreate = (token: number, name: string, description: string): quizId | ErrorReturn => {
+export const adminQuizCreate = (token: string, name: string, description: string): quizId | ErrorReturn => {
   const data = getData();
   const user = validUserId(token, data.users);
   if ('error' in user) {
@@ -60,11 +60,11 @@ export const adminQuizCreate = (token: number, name: string, description: string
 
 /**
  * Given a particular quiz, permanently remove the quiz
- * @param {number} token - unique identifier for a session
+ * @param {string} token - unique identifier for a session
  * @param {number} quizId - unique identifier for a quiz
  * @returns {} - for valid authUserId and quizId
  */
-export const adminQuizRemove = (token: number, quizId: number): EmptyObject | ErrorReturn => {
+export const adminQuizRemove = (token: string, quizId: number): EmptyObject | ErrorReturn => {
   const data = getData();
   const user = validUserId(token, data.users);
   if ('error' in user) {
@@ -92,11 +92,11 @@ export const adminQuizRemove = (token: number, quizId: number): EmptyObject | Er
 };
 
 /** Get all of the relevant information about the current quiz.
- * @param {number} token - unique identifier for an academic
+ * @param {string} token - unique identifier for an academic
  * @param {number} quizId - unique identifier for a quiz
  * @returns {{quizId: number, name: string, timeCreated: number, timeLastEdited: number, description: string}} - for valid authUserId and quizId
  */
-export const adminQuizInfo = (token: number, quizId: number): quiz | ErrorReturn => {
+export const adminQuizInfo = (token: string, quizId: number): quiz | ErrorReturn => {
   const data = getData();
   const user = validUserId(token, data.users);
   if ('error' in user) {
@@ -118,12 +118,12 @@ export const adminQuizInfo = (token: number, quizId: number): quiz | ErrorReturn
 
 /**
  * Update the name of the relevant quiz.
- * @param {number} authUserId - unique identifier for an academic
+ * @param {string} token - unique identifier for an academic
  * @param {number} quizId - unique identifier for a quiz
  * @param {string} name - quiz name
  * @returns {} - for valid authUserId, quizId and description
  */
-export const adminQuizNameUpdate = (token: number, quizId: number, name: string): EmptyObject | ErrorReturn => {
+export const adminQuizNameUpdate = (token: string, quizId: number, name: string): EmptyObject | ErrorReturn => {
   const data = getData();
   const user = validUserId(token, data.users);
   if ('error' in user) {
@@ -151,14 +151,14 @@ export const adminQuizNameUpdate = (token: number, quizId: number, name: string)
 
 /**
  * Update the description of the relevant quiz.
- * @param {number} authUserId - unique identifier for an academic
+ * @param {string} token - unique identifier for an academic
  * @param {number} quizId - unique identifier for a quiz
  * @param {string} desciption - description of quiz
  * @returns {} - Updates quiz desciption
  */
-export const adminQuizDescriptionUpdate = (authUserId: number, quizId: number, newDescription: string): EmptyObject | ErrorReturn => {
+export const adminQuizDescriptionUpdate = (token: string, quizId: number, newDescription: string): EmptyObject | ErrorReturn => {
   const data = getData();
-  const user = validUserId(authUserId, data.users);
+  const user = validUserId(token, data.users);
   if ('error' in user) {
     return user;
   }
@@ -185,10 +185,10 @@ export const adminQuizDescriptionUpdate = (authUserId: number, quizId: number, n
 };
 
 /**
- * @param {number} token - unique identifier for logined user
+ * @param {string} token - unique identifier for logined user
  * @returns {QuizListReturn} - list of quizzes in the trash
  */
-export const adminQuizViewTrash = (token: number): QuizListReturn | ErrorReturn => {
+export const adminQuizViewTrash = (token: string): QuizListReturn | ErrorReturn => {
   const data = getData();
   const user = validUserId(token, data.users);
   if ('error' in user) {
@@ -200,7 +200,7 @@ export const adminQuizViewTrash = (token: number): QuizListReturn | ErrorReturn 
 
 export const adminQuizQuestionUpdate = (token: string, questionBody: quizQuestionCreateInput, quizId: number, questionid: number): EmptyObject | ErrorReturn => {
   const data = getData();
-  const user = validUserId(parseInt(token), data.users);
+  const user = validUserId(token, data.users);
   if ('error' in user) {
     return user;
   }
@@ -251,7 +251,7 @@ export const adminQuizQuestionUpdate = (token: string, questionBody: quizQuestio
 
 export const adminQuizQuestionDelete = (token: string, quizId: number, questionid: number): EmptyObject | ErrorReturn => {
   const data = getData();
-  const user = validUserId(parseInt(token), data.users);
+  const user = validUserId(token, data.users);
   if ('error' in user) {
     return user;
   }
@@ -281,11 +281,11 @@ export const adminQuizQuestionDelete = (token: string, quizId: number, questioni
 };
 
 /**
- * @param {number} token - unique identifier for logined user
+ * @param {string} token - unique identifier for logined user
  * @param {number} quizId - quizId
  * @returns empty object
  */
-export const adminQuizRestore = (token: number, quizId: number): EmptyObject | ErrorReturn => {
+export const adminQuizRestore = (token: string, quizId: number): EmptyObject | ErrorReturn => {
   const data = getData();
   const user = validUserId(token, data.users);
   if ('error' in user) {
@@ -318,11 +318,11 @@ export const adminQuizRestore = (token: number, quizId: number): EmptyObject | E
 
 /**
  * Empty the Trash with quizzes
- * @param {number} token - unique identifier for a session
+ * @param {string} token - unique identifier for a session
  * @param {number[]} quizIds- array of quizIds to delete
  * @returns {} - empties quizzes if they exist in the trash
  */
-export const adminQuizTrashEmpty = (token: number, quizIds: number[]): EmptyObject | ErrorReturn => {
+export const adminQuizTrashEmpty = (token: string, quizIds: number[]): EmptyObject | ErrorReturn => {
   const data = getData();
 
   // Check if the token is valid. error 401
@@ -368,7 +368,7 @@ export const adminQuizTrashEmpty = (token: number, quizIds: number[]): EmptyObje
 export const quizQuestionCreate = (token: string, questionBody: quizQuestionCreateInput, quizId: number): quizQuestionCreateReturn | ErrorReturn => {
   // Check token error
   const data = getData();
-  const tokenResult = validUserId(parseInt(token), data.users);
+  const tokenResult = validUserId(token, data.users);
   if ('error' in tokenResult) {
     return tokenResult;
   }
@@ -429,7 +429,7 @@ export const quizTransfer = (token: string, userEmail: string, quizId: number): 
   if (targetUser === undefined) {
     return { error: 'UserEmail is not a real user' };
   }
-  if (targetUser.sessions.includes(parseInt(token))) {
+  if (targetUser.sessions.includes(token)) {
     return { error: 'UserEmail is the current logged in user' };
   }
 
@@ -445,7 +445,7 @@ export const quizTransfer = (token: string, userEmail: string, quizId: number): 
   }
 */
   // push the quiz to the target user
-  const currentUser = data.users.find(users => users.sessions.includes(parseInt(token)));
+  const currentUser = data.users.find(users => users.sessions.includes(token));
   const userQuiz = currentUser.quizzes.find(quizs => quizs.quizId === quizId);
   findQuiz.timeLastEdited = Math.floor(Date.now() / 1000);
   targetUser.quizzes.push(userQuiz);
@@ -457,7 +457,7 @@ export const quizTransfer = (token: string, userEmail: string, quizId: number): 
   return {};
 };
 
-export const adminQuizQuestionMove = (token: number, quizId: number, questionId: number, newPosition: number): EmptyObject | ErrorReturn => {
+export const adminQuizQuestionMove = (token: string, quizId: number, questionId: number, newPosition: number): EmptyObject | ErrorReturn => {
   const data = getData();
   const user = validUserId(token, data.users);
   if ('error' in user) {
@@ -492,7 +492,7 @@ export const adminQuizQuestionMove = (token: number, quizId: number, questionId:
   return {};
 };
 
-export const adminQuizQuestionDuplicate = (token: number, quizId: number, questionId: number): quizQuestionDuplicateReturn | ErrorReturn => {
+export const adminQuizQuestionDuplicate = (token: string, quizId: number, questionId: number): quizQuestionDuplicateReturn | ErrorReturn => {
   const data = getData();
   const user = validUserId(token, data.users);
   if ('error' in user) {

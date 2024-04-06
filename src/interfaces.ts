@@ -45,7 +45,7 @@ export interface user {
   numSuccessfulLogins: number;
   numFailedPasswordsSinceLastLogin: number;
   quizzes: quizUser[];
-  sessions: number[];
+  sessions: string[];
   trash: quizUser[];
 }
 export type EmptyObject = Record<string, never>;
