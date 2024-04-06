@@ -110,13 +110,13 @@ app.post('/v1/admin/auth/logout', (req: Request, res: Response) => {
   res.json(response);
 });
 
-app.get('/v1/admin/quiz/list', (req: Request, res: Response) => {
+app.get('/v2/admin/quiz/list', (req: Request, res: Response) => {
   const token = req.headers.token as string;
   const result = adminQuizList(token);
   res.json(result);
 });
 
-app.post('/v1/admin/quiz', (req: Request, res: Response) => {
+app.post('/v2/admin/quiz', (req: Request, res: Response) => {
   // Everything in req.body will be of the correct type
   const token = req.headers.token as string;
   const { name, description } = req.body;
@@ -124,7 +124,7 @@ app.post('/v1/admin/quiz', (req: Request, res: Response) => {
   res.json(result);
 });
 
-app.get('/v1/admin/quiz/trash', (req: Request, res: Response) => {
+app.get('/v2/admin/quiz/trash', (req: Request, res: Response) => {
   const token = req.headers.token as string;
   const result = adminQuizViewTrash(token);
   res.json(result);
@@ -147,7 +147,7 @@ app.put('/v1/admin/quiz/:quizid/description', (req: Request, res: Response) => {
   res.json(result);
 });
 
-app.delete('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
+app.delete('/v2/admin/quiz/:quizid', (req: Request, res: Response) => {
   const token = req.headers.token as string;
   const quizId = parseInt(req.params.quizid as string);
   const result = adminQuizRemove(token, quizId);
@@ -206,7 +206,7 @@ app.delete('/v1/admin/quiz/:quizid/question/:questionid', (req: Request, res: Re
   res.json(response);
 });
 
-app.post('/v1/admin/quiz/:quizid/restore', (req: Request, res: Response) => {
+app.post('/v2/admin/quiz/:quizid/restore', (req: Request, res: Response) => {
   const token = req.headers.token as string;
   const quizId = parseInt(req.params.quizid as string);
   const result = adminQuizRestore(token, quizId);

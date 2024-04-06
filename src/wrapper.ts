@@ -92,15 +92,15 @@ export const requestUpdatePassword = (token: string, oldPassword: string, newPas
 };
 
 export const requestQuizList = (token: string) => {
-  return requestHelper('GET', '/v1/admin/quiz/list', {}, { token });
+  return requestHelper('GET', '/v2/admin/quiz/list', {}, { token });
 };
 
 export const requestQuizCreate = (token: string, name: string, description: string) => {
-  return requestHelper('POST', '/v1/admin/quiz', { name, description }, { token });
+  return requestHelper('POST', '/v2/admin/quiz', { name, description }, { token });
 };
 
 export const requestQuizTrash = (token: string, quizId: number) => {
-  return requestHelper('DELETE', `/v1/admin/quiz/${quizId}`, {}, { token });
+  return requestHelper('DELETE', `/v2/admin/quiz/${quizId}`, {}, { token });
 };
 
 export const requestQuizInfo = (token: string, quizId: number) => {
@@ -152,9 +152,9 @@ export const requestDeleteQuizQuestion = (token: string, quizid: number, questio
 };
 
 export const requestQuizViewTrash = (token: string) => {
-  return requestHelper('GET', '/v1/admin/quiz/trash', {}, { token });
+  return requestHelper('GET', '/v2/admin/quiz/trash', {}, { token });
 };
 
 export const requestQuizRestore = (token: string, quizId: number) => {
-  return requestHelper('POST', `/v1/admin/quiz/${quizId}/restore`, {}, { token });
+  return requestHelper('POST', `/v2/admin/quiz/${quizId}/restore`, {}, { token });
 };
