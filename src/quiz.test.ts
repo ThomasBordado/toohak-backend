@@ -1,6 +1,6 @@
 import { requestRegister, requestQuizList, requestQuizCreate, requestQuizTrash, requestQuizInfo, requestUpdateQuizName, requestUpdateQuizDescription, requestClear, requestQuizViewTrash, requestQuizRestore, requestQuizQuestionCreate, requestQuizTrashEmpty, requestquizTransfer, requestLogout, requestLogin, requestUpdateQuizQuestion, requestDeleteQuizQuestion, requestMoveQuestion, requestQuestionDuplicate } from './wrapper';
 import { QuizListReturn, SessionId, quizId, quizUser, quizQuestionCreateInput, quiz, quizQuestionCreateReturn } from './interfaces';
-import HTTPError from 'http-errors'
+import HTTPError from 'http-errors';
 
 beforeEach(() => {
   requestClear();
@@ -78,17 +78,17 @@ describe('requestQuizCreate testing', () => {
       expect(() => requestQuizCreate(user.token, '', 'My description.')).toThrow(HTTPError[400]);
     });
     test('Invalid name: < 3 characters', () => {
-      expect(()=> requestQuizCreate(user.token, 'My', 'My description.')).toThrow(HTTPError[400]);
+      expect(() => requestQuizCreate(user.token, 'My', 'My description.')).toThrow(HTTPError[400]);
     });
     test('Invalid name: > 30 characters', () => {
-      expect(()=> requestQuizCreate(user.token, 'My very very very very long Quiz', 'My description.')).toThrow(HTTPError[400]);
+      expect(() => requestQuizCreate(user.token, 'My very very very very long Quiz', 'My description.')).toThrow(HTTPError[400]);
     });
     test('Invalid name: name already used', () => {
       requestQuizCreate(user.token, 'My Quiz', 'My description');
-      expect(()=> requestQuizCreate(user.token, 'My Quiz', 'My description.')).toThrow(HTTPError[400]);
+      expect(() => requestQuizCreate(user.token, 'My Quiz', 'My description.')).toThrow(HTTPError[400]);
     });
     test('Invalid description: > 100 characters', () => {
-      expect(()=> requestQuizCreate(user.token, 'My very very very very long Quiz', 'My very, very, very, very, very, very, very, very, very, very, very, very, very, very, long description.')).toThrow(HTTPError[400]);
+      expect(() => requestQuizCreate(user.token, 'My very very very very long Quiz', 'My very, very, very, very, very, very, very, very, very, very, very, very, very, very, long description.')).toThrow(HTTPError[400]);
     });
   });
   describe('Successful cases', () => {
@@ -126,23 +126,23 @@ describe('requestQuizTrash testing', () => {
 
   describe('Unsuccessful Cases', () => {
     test('Invalid AuthUserId', () => {
-      expect(()=> requestQuizTrash(user.token + 1, quiz.quizId)).toThrow(HTTPError[401]);
+      expect(() => requestQuizTrash(user.token + 1, quiz.quizId)).toThrow(HTTPError[401]);
     });
     test('Invalid quizId', () => {
-      expect(()=> requestQuizTrash(user.token, quiz.quizId + 1)).toThrow(HTTPError[403]);
+      expect(() => requestQuizTrash(user.token, quiz.quizId + 1)).toThrow(HTTPError[403]);
     });
     test('User does not own quiz with given quizId', () => {
       const user2 = requestRegister('chloet@gmail.com', 'password1', 'Chloe', 'Turner').jsonBody as SessionId;
-      expect(()=> requestQuizTrash(user2.token, quiz.quizId)).toThrow(HTTPError[403]);
+      expect(() => requestQuizTrash(user2.token, quiz.quizId)).toThrow(HTTPError[403]);
     });
     test('User owns quiz with same name as given quizId', () => {
       const user2 = requestRegister('chloet@gmail.com', 'password1', 'Chloe', 'Turner').jsonBody as SessionId;
       requestQuizCreate(user2.token, 'My Quiz', 'My description.');
-      expect(()=> requestQuizTrash(user2.token, quiz.quizId)).toThrow(HTTPError[403]);
+      expect(() => requestQuizTrash(user2.token, quiz.quizId)).toThrow(HTTPError[403]);
     });
     test('Remove same quiz twice', () => {
       requestQuizTrash(user.token, quiz.quizId);
-      expect(()=> requestQuizTrash(user.token, quiz.quizId)).toThrow(HTTPError[403]);
+      expect(() => requestQuizTrash(user.token, quiz.quizId)).toThrow(HTTPError[403]);
     });
   });
   describe('Successful cases', () => {
@@ -688,28 +688,28 @@ describe('requestQuizRestore testing', () => {
 
   describe('Unsuccessful Cases', () => {
     test('Invalid AuthUserId', () => {
-      expect(()=> requestQuizRestore(user.token + 1, quiz.quizId)).toThrow(HTTPError[401]);
+      expect(() => requestQuizRestore(user.token + 1, quiz.quizId)).toThrow(HTTPError[401]);
     });
     test('Invalid quizId', () => {
-      expect(()=> requestQuizRestore(user.token, quiz.quizId + 1)).toThrow(HTTPError[403]);
+      expect(() => requestQuizRestore(user.token, quiz.quizId + 1)).toThrow(HTTPError[403]);
     });
     test('User does not own quiz with given quizId', () => {
       const user2 = requestRegister('chloet@gmail.com', 'password1', 'Chloe', 'Turner').jsonBody as SessionId;
-      expect(()=> requestQuizRestore(user2.token, quiz.quizId)).toThrow(HTTPError[403]);
+      expect(() => requestQuizRestore(user2.token, quiz.quizId)).toThrow(HTTPError[403]);
     });
     test('User owns quiz with same name as restored quiz', () => {
       requestQuizTrash(user.token, quiz.quizId);
       requestQuizCreate(user.token, 'My Quiz', 'My description.');
-      expect(()=> requestQuizRestore(user.token, quiz.quizId)).toThrow(HTTPError[400]);
+      expect(() => requestQuizRestore(user.token, quiz.quizId)).toThrow(HTTPError[400]);
     });
     test('quiz is not currently in trash', () => {
-      expect(()=> requestQuizRestore(user.token, quiz.quizId)).toThrow(HTTPError[400]);
+      expect(() => requestQuizRestore(user.token, quiz.quizId)).toThrow(HTTPError[400]);
     });
 
     test('Restore same quiz twice', () => {
       requestQuizTrash(user.token, quiz.quizId);
       requestQuizRestore(user.token, quiz.quizId);
-      expect(()=> requestQuizRestore(user.token, quiz.quizId)).toThrow(HTTPError[400]);
+      expect(() => requestQuizRestore(user.token, quiz.quizId)).toThrow(HTTPError[400]);
     });
   });
   describe('Successful cases', () => {

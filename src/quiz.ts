@@ -325,7 +325,7 @@ export const quizQuestionCreate = (token: string, questionBody: quizQuestionCrea
   // Check token error
   const data = getData();
   validToken(token, data.users);
-  
+
   // Check if the user owns this quiz
   const quiz = isValidQuizId(token, quizId);
   if ('error' in quiz) {
