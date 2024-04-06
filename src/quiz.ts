@@ -226,11 +226,11 @@ export const adminQuizQuestionUpdate = (token: string, questionBody: quizQuestio
     return { error: 'Invalid questionId' };
   } else if (findQuestionIndex > -1) {
     const findQuestion = findQuiz.questions.find(questions => questions.questionId === questionid);
-    findQuestion.question = questionBody.questionBody.question;
-    findQuestion.duration = questionBody.questionBody.duration;
-    findQuestion.points = questionBody.questionBody.points;
+    findQuestion.question = questionBody.question;
+    findQuestion.duration = questionBody.duration;
+    findQuestion.points = questionBody.points;
 
-    const answerOut = questionBody.questionBody.answers.map(answer => {
+    const answerOut = questionBody.answers.map(answer => {
       data.answerIdStore += 1;
 
       return {
@@ -270,9 +270,10 @@ export const adminQuizQuestionDelete = (token: string, quizId: number, questioni
   const findQuestion = findQuiz.questions.findIndex(questions => questions.questionId === questionid);
   if (findQuestion === -1) {
     return { error: 'Invalid questionId' };
-  } else if (findQuestion > -1) {
-    findQuiz.questions.splice(findQuestion, 1);
   }
+  console.log("From adminQuizQuestionDelete:");
+  console.log(findQuiz);
+  findQuiz.questions.splice(findQuestion, 1);
   findQuiz.duration -= findQuiz.questions[findQuestion].duration;
   findQuiz.numQuestions -= 1;
   findQuiz.timeLastEdited = Math.floor(Date.now() / 1000);
@@ -366,6 +367,9 @@ export const adminQuizTrashEmpty = (token: string, quizIds: number[]): EmptyObje
  * @returns questionId
  */
 export const quizQuestionCreate = (token: string, questionBody: quizQuestionCreateInput, quizId: number): quizQuestionCreateReturn | ErrorReturn => {
+  console.log('From quizQuestionCreate: ');
+  console.log(questionBody);
+
   // Check token error
   const data = getData();
   const tokenResult = validUserId(token, data.users);
@@ -391,7 +395,7 @@ export const quizQuestionCreate = (token: string, questionBody: quizQuestionCrea
   data.questionIdStore += 1;
   const questionId = data.questionIdStore;
 
-  const answerOut = questionBody.questionBody.answers.map(answer => {
+  const answerOut = questionBody.answers.map(answer => {
     data.answerIdStore += 1;
 
     return {
@@ -404,9 +408,9 @@ export const quizQuestionCreate = (token: string, questionBody: quizQuestionCrea
 
   findQuiz.questions.push({
     questionId: questionId,
-    question: questionBody.questionBody.question,
-    duration: questionBody.questionBody.duration,
-    points: questionBody.questionBody.points,
+    question: questionBody.question,
+    duration: questionBody.duration,
+    points: questionBody.points,
     answers: answerOut,
   });
   setData(data);
