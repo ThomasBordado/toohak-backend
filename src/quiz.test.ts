@@ -1117,7 +1117,8 @@ describe.skip('Testing Post /v1/admin/quiz/{quizid}/question', () => {
           ]
         }
       ],
-      duration: 4
+      duration: 4,
+      thumbnailUrl: '',
     };
     expect(requestQuizInfo(user.token, quiz.quizId).jsonBody).toStrictEqual(expectedInfo);
   });
