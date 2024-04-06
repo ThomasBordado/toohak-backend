@@ -1,5 +1,5 @@
 import { requestRegister, requestLogin, requestGetUserDetails, requestUpdateUserDetails, requestUpdatePassword, requestLogout, requestClear } from './wrapper';
-import { usersList, getUserId } from './authUtil';
+import { usersList, getUserId, getHashOf } from './authUtil';
 import { SessionId, UserId, user, UserDetailsReturn } from './interfaces';
 
 beforeEach(() => {
@@ -255,12 +255,12 @@ describe('requestUpdateUserDetails', () => {
         nameFirst: 'Jennifer',
         nameLast: 'Lawson',
         email: 'validemail1@gmail.com',
-        password: '1234567a',
+        password: getHashOf('1234567a'),
         prevpassword: [],
         numSuccessfulLogins: 1,
         numFailedPasswordsSinceLastLogin: 0,
         quizzes: [],
-        sessions: [parseInt(data.token)],
+        sessions: [data.token],
         trash: [],
       }
     ];
@@ -281,24 +281,24 @@ describe('requestUpdateUserDetails', () => {
             nameFirst: 'Jane',
             nameLast: 'Smith',
             email: 'validemail@gmail.com',
-            password: '1234567a',
+            password: getHashOf('1234567a'),
             prevpassword: [],
             numSuccessfulLogins: 1,
             numFailedPasswordsSinceLastLogin: 0,
             quizzes: [],
-            sessions: [parseInt(data.token)],
+            sessions: [data.token],
             trash: [],
           }, {
             userId: userId2.authUserId,
             nameFirst: 'Jennifer',
             nameLast: 'Lawson',
             email: 'validemail1@gmail.com',
-            password: '1234567a',
+            password: getHashOf('1234567a'),
             prevpassword: [],
             numSuccessfulLogins: 1,
             numFailedPasswordsSinceLastLogin: 0,
             quizzes: [],
-            sessions: [parseInt(id2.token)],
+            sessions: [id2.token],
             trash: [],
           }];
     const expectedList = users.sort((a, b) => a.userId - b.userId);
@@ -318,24 +318,24 @@ describe('requestUpdateUserDetails', () => {
             nameFirst: 'Jane',
             nameLast: 'Smith',
             email: 'validemail@gmail.com',
-            password: '1234567a',
+            password: getHashOf('1234567a'),
             prevpassword: [],
             numSuccessfulLogins: 1,
             numFailedPasswordsSinceLastLogin: 0,
             quizzes: [],
-            sessions: [parseInt(data.token)],
+            sessions: [data.token],
             trash: [],
           }, {
             userId: userId2.authUserId,
             nameFirst: 'Jennifer',
             nameLast: 'Lawson',
             email: 'validemail2@gmail.com',
-            password: '1234567a',
+            password: getHashOf('1234567a'),
             prevpassword: [],
             numSuccessfulLogins: 1,
             numFailedPasswordsSinceLastLogin: 0,
             quizzes: [],
-            sessions: [parseInt(id2.token)],
+            sessions: [id2.token],
             trash: [],
           }];
     const expectedList = users.sort((a, b) => a.userId - b.userId);
@@ -389,12 +389,12 @@ describe('requestUpdatePassword', () => {
             nameFirst: 'Jane',
             nameLast: 'Smith',
             email: 'validemail@gmail.com',
-            password: '1234567b',
-            prevpassword: ['1234567a'],
+            password: getHashOf('1234567b'),
+            prevpassword: [getHashOf('1234567a')],
             numSuccessfulLogins: 1,
             numFailedPasswordsSinceLastLogin: 0,
             quizzes: [],
-            sessions: [parseInt(data.token)],
+            sessions: [data.token],
             trash: [],
           }];
     const expectedList = users1.sort((a, b) => a.userId - b.userId);
@@ -415,12 +415,12 @@ describe('requestUpdatePassword', () => {
             nameFirst: 'Jane',
             nameLast: 'Smith',
             email: 'validemail@gmail.com',
-            password: '1234567a',
+            password: getHashOf('1234567a'),
             prevpassword: [],
             numSuccessfulLogins: 1,
             numFailedPasswordsSinceLastLogin: 0,
             quizzes: [],
-            sessions: [parseInt(data.token)],
+            sessions: [data.token],
             trash: [],
           },
           {
@@ -428,12 +428,12 @@ describe('requestUpdatePassword', () => {
             nameFirst: 'Jennifer',
             nameLast: 'Smith',
             email: 'validemail2@gmail.com',
-            password: '1234567c',
-            prevpassword: ['1234567a', '1234567b'],
+            password: getHashOf('1234567c'),
+            prevpassword: [getHashOf('1234567a'), getHashOf('1234567b')],
             numSuccessfulLogins: 1,
             numFailedPasswordsSinceLastLogin: 0,
             quizzes: [],
-            sessions: [parseInt(id2.token)],
+            sessions: [id2.token],
             trash: [],
           }];
     const expectedList = users.sort((a, b) => a.userId - b.userId);

@@ -7,6 +7,7 @@ import { clearDataFile } from './persistence';
  * @returns {} - clears the state of the application back to the start
  */
 export const clear = (): EmptyObject => {
+  console.log(getData().users);
   getData().users = [];
   getData().userIdStore = 0;
   getData().quizzes = [];

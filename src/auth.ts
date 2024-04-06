@@ -1,4 +1,4 @@
-import { checkEmail, checkPassword, checkName, isValidToken, isSame, isPasswordCorrect, isNewPasswordUsed, isEmailUsedByOther } from './authUtil';
+import { checkEmail, checkPassword, checkName, isValidToken, isSame, isPasswordCorrect, isNewPasswordUsed, isEmailUsedByOther, getHashOf } from './authUtil';
 import isEmail from 'validator/lib/isEmail.js';
 import { getData, setData } from './dataStore';
 import { validUserId } from './quizUtil';
@@ -27,13 +27,14 @@ export const adminAuthRegister = (email: string, password: string, nameFirst: st
 
   const data = getData();
   data.userIdStore += 1;
-  const sessionId = data.sessionIdStore += 1;
+  data.sessionIdStore += 1;
+  const sessionId = getHashOf(data.sessionIdStore.toString());
   const newUser: user = {
     userId: data.userIdStore,
     nameFirst: nameFirst,
     nameLast: nameLast,
     email: email,
-    password: password,
+    password: getHashOf(password),
     prevpassword: [],
     numSuccessfulLogins: 1,
     numFailedPasswordsSinceLastLogin: 0,
@@ -45,7 +46,7 @@ export const adminAuthRegister = (email: string, password: string, nameFirst: st
   data.users.push(newUser);
   saveData();
   return {
-    token: sessionId.toString()
+    token: sessionId
   };
 };
 
@@ -64,17 +65,17 @@ export const adminAuthLogin = (email: string, password: string): SessionId | Err
     };
   }
   const user = users.find(users => users.email === email);
-  if (user && user.password === password) {
+  if (user && user.password === getHashOf(password)) {
     user.numSuccessfulLogins++;
     user.numFailedPasswordsSinceLastLogin = 0;
-
-    const sessionId = getData().sessionIdStore += 1;
+    getData().sessionIdStore += 1;
+    const sessionId = getHashOf(getData().sessionIdStore.toString());
     user.sessions.push(sessionId);
     saveData();
     return {
-      token: sessionId.toString()
+      token: sessionId
     };
-  } else if (user && user.password !== password) {
+  } else if (user && user.password !== getHashOf(password)) {
     user.numFailedPasswordsSinceLastLogin++;
     return {
       error: 'Password is not correct for the given email.'
@@ -88,13 +89,13 @@ export const adminAuthLogin = (email: string, password: string): SessionId | Err
 /**
  * Given an admin user's authUserId, return details about the user.
  * "name" is the first and last name concatenated with a single space between them.
- * @param {number} token - unique indentifier for an academic session
+ * @param {string} token - unique indentifier for an academic session
  *
  * @returns {user: {userId: number, name: string, email: string, numSuccessfulLogins: number, numFailedPasswordsSinceLastLogin: number,}} -
  * Object containing user details
  *
  */
-export const adminUserDetails = (token: number): UserDetailsReturn | ErrorReturn => {
+export const adminUserDetails = (token: string): UserDetailsReturn | ErrorReturn => {
   const data = getData();
   const user = validUserId(token, data.users);
 
@@ -152,7 +153,7 @@ export const adminUserDetailsUpdate = (token: string, email: string, nameFirst: 
   // 6. Update the data
   const data = getData();
   for (const users of data.users) {
-    if (users.sessions.includes(parseInt(token))) {
+    if (users.sessions.includes(token)) {
       users.email = email;
       users.nameFirst = nameFirst;
       users.nameLast = nameLast;
@@ -166,7 +167,7 @@ export const adminUserDetailsUpdate = (token: string, email: string, nameFirst: 
 
 /**
 *Given details relating to a password change, update the password of a logged in user.
-* @param {number} token - unique Id for logged in user
+* @param {string} token - unique Id for logged in user
 * @param {string} oldPassword - the password user willing to change
 * @param {string} newPassword - the new password
 * @return {} - the password been updated
@@ -198,9 +199,9 @@ export const adminUserPasswordUpdate = (token: string, oldPassword: string, newP
   }
 
   const data = getData();
-  const user = data.users.find(users => users.sessions.includes(parseInt(token)));
-  user.password = newPassword;
-  user.prevpassword.push(oldPassword);
+  const user = data.users.find(users => users.sessions.includes(token));
+  user.password = getHashOf(newPassword);
+  user.prevpassword.push(getHashOf(oldPassword));
   setData(data);
   saveData();
   return {};
@@ -214,12 +215,11 @@ export const adminUserPasswordUpdate = (token: string, oldPassword: string, newP
  * Error if the session doesnt exist.
  */
 export const adminAuthLogout = (token: string): EmptyObject | ErrorReturn => {
-  const tokenInt = parseInt(token);
   const users = getData().users;
   for (const user of users) {
-    if (user.sessions.includes(tokenInt)) {
+    if (user.sessions.includes(token)) {
       // If we find the session remove it from current sessions.
-      const index = user.sessions.indexOf(tokenInt);
+      const index = user.sessions.indexOf(token);
       if (index !== -1) {
         user.sessions.splice(index, 1);
       }

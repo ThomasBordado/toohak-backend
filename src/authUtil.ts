@@ -2,6 +2,7 @@ import isEmail from 'validator/lib/isEmail.js';
 import { getData } from './dataStore';
 import { ErrorReturn, UserId, user } from './interfaces';
 import { loadData } from './persistence';
+import crypto from 'crypto';
 /**
  * Check a given email. If valid return true and if the email
  * is in use or is invalid determined by validator return error object
@@ -82,7 +83,7 @@ export const isValidToken = (token: string): boolean => {
     return false;
   }
   for (const users of data.users) {
-    if (users.sessions.includes(parseInt(token))) {
+    if (users.sessions.includes(token)) {
       return true;
     }
   }
@@ -122,8 +123,8 @@ export const isSame = (a: string, b: string): boolean => {
  */
 export const isPasswordCorrect = (token: string, enterdPassword: string): boolean => {
   const data = getData();
-  const user = data.users.find(users => users.sessions.includes(parseInt(token)));
-  if (user.password === enterdPassword) {
+  const user = data.users.find(users => users.sessions.includes(token));
+  if (user.password === getHashOf(enterdPassword)) {
     return true;
   } else {
     return false;
@@ -139,14 +140,14 @@ export const isPasswordCorrect = (token: string, enterdPassword: string): boolea
  */
 export const isNewPasswordUsed = (token: string, newPassword: string): boolean => {
   const data = getData();
-  const user = data.users.find(users => users.sessions.includes(parseInt(token)));
+  const user = data.users.find(users => users.sessions.includes(token));
 
   // If prevpassword is empty
   if (user.prevpassword.length === 0) {
     return false;
   }
 
-  const found = user.prevpassword.find(prevpassword => prevpassword === newPassword);
+  const found = user.prevpassword.find(prevpassword => prevpassword === getHashOf(newPassword));
   if (found !== undefined) {
     return true;
   }
@@ -167,7 +168,7 @@ export const isEmailUsedByOther = (email: string, token: string): boolean => {
     return false;
   }
 
-  const userWithSameEmail = data.users.find(users => users.email === email && !users.sessions.includes(parseInt(token)));
+  const userWithSameEmail = data.users.find(users => users.email === email && !users.sessions.includes(token));
   if (userWithSameEmail) {
     return true;
   }
@@ -186,9 +187,18 @@ export const getUserId = (token: string): UserId | ErrorReturn => {
   if (token === '') {
     return { error: 'invalid token' };
   }
-  const user = data.users.find(users => users.sessions.includes(parseInt(token)));
+  const user = data.users.find(users => users.sessions.includes(token));
   if (user) {
     return { authUserId: user.userId };
   }
   return { error: 'invalid token' };
+};
+
+/**
+ * Given a token and check for the userId
+ * @param {string} input - some input string in plaintext
+ * @returns {string} hashed version of input
+ */
+export const getHashOf = (input: string): string => {
+  return crypto.createHash('sha256').update(input).digest('hex');
 };
