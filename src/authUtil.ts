@@ -1,6 +1,6 @@
 import isEmail from 'validator/lib/isEmail.js';
 import { getData } from './dataStore';
-import { EmptyObject, ErrorReturn, UserId, user } from './interfaces';
+import { ErrorReturn, UserId, user } from './interfaces';
 import { loadData } from './persistence';
 import crypto from 'crypto';
 import HTTPError from 'http-errors';
@@ -78,10 +78,10 @@ export const checkName = (name: string, position: string) => {
 export const isValidToken = (token: string): boolean => {
   const data = getData();
   if (token === '') {
-    throw HTTPError(401, "Token is invalid");
+    throw HTTPError(401, 'Token is invalid');
   }
   if (data.users.length === 0) {
-    throw HTTPError(401, "Token is invalid");
+    throw HTTPError(401, 'Token is invalid');
   }
 
   for (const users of data.users) {
@@ -89,7 +89,7 @@ export const isValidToken = (token: string): boolean => {
       return true;
     }
   }
-  throw HTTPError(401, "Token is invalid");
+  throw HTTPError(401, 'Token is invalid');
 };
 
 /**

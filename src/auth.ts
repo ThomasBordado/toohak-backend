@@ -1,4 +1,4 @@
-import { checkEmail, checkPassword, checkName, isValidToken, isSame, isPasswordCorrect, isNewPasswordUsed, isEmailUsedByOther, getHashOf, usersList } from './authUtil';
+import { checkEmail, checkPassword, checkName, isValidToken, isSame, isPasswordCorrect, isNewPasswordUsed, isEmailUsedByOther, getHashOf } from './authUtil';
 import isEmail from 'validator/lib/isEmail.js';
 import { getData, setData } from './dataStore';
 import { validUserId } from './quizUtil';
@@ -18,13 +18,10 @@ import HTTPError from 'http-errors';
 export const adminAuthRegister = (email: string, password: string, nameFirst: string, nameLast: string): SessionId | ErrorReturn => {
   if (checkEmail(email) !== true) {
     return checkEmail(email) as ErrorReturn;
-  } else if (checkPassword(password) !== true) {
-
-  } else if (checkName(nameFirst, 'First') !== true) {
-
-  } else if (checkName(nameLast, 'Last') !== true) {
-
   }
+  checkPassword(password);
+  checkName(nameFirst, 'First');
+  checkName(nameLast, 'Last');
 
   const data = getData();
   data.userIdStore += 1;
@@ -125,8 +122,6 @@ export const adminUserDetails = (token: string): UserDetailsReturn | ErrorReturn
  * @returns {} - For updated user details
  */
 export const adminUserDetailsUpdate = (token: string, email: string, nameFirst: string, nameLast: string): EmptyObject | ErrorReturn => {
-  console.log(token, email, nameFirst, nameLast);
-  console.log(usersList());
   // 1. Check if AuthUserId is a valid user
   isValidToken(token);
 
@@ -142,12 +137,10 @@ export const adminUserDetailsUpdate = (token: string, email: string, nameFirst: 
 
   // 4. Check if NameFirst contains characters other than lowercase letters,
   // uppercase letters, spaces, hyphens, or apostrophes
-  if (checkName(nameFirst, 'First') !== true) {
-  }
+  checkName(nameFirst, 'First');
 
   // 5. Check the length of NameLast
-  if (checkName(nameLast, 'Last') !== true) {
-  }
+  checkName(nameLast, 'Last');
 
   // 6. Update the data
   const data = getData();
@@ -193,9 +186,7 @@ export const adminUserPasswordUpdate = (token: string, oldPassword: string, newP
   }
 
   // 5. Check is the new password valid
-  if (checkPassword(newPassword) !== true) {
-
-  }
+  checkPassword(newPassword);
 
   const data = getData();
   const user = data.users.find(users => users.sessions.includes(token));
