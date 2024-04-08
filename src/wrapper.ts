@@ -133,8 +133,8 @@ export const requestClear = () => {
   return requestHelper('DELETE', '/v1/clear', {});
 };
 
-export const requestQuestionDuplicate = (token: string, quizId: number, questionId: number) => {
-  return requestHelper('POST', `/v1/admin/quiz/${quizId}/question/${questionId}/duplicate`, { token, quizId, questionId });
+export const requestQuestionDuplicate = (token: string, quizid: number, questionid: number) => {
+  return requestHelper('POST', `/v1/admin/quiz/${quizid}/question/${questionid}/duplicate`, { token, quizid, questionid });
 };
 
 export const requestMoveQuestion = (token: string, quizId: number, questionId: number, newPosition: number) => {

@@ -2014,4 +2014,10 @@ describe('adminQuizQuestionDuplicate testing', () => {
     expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
     expect(result.statusCode).toStrictEqual(403);
   });
+  
+  test('Test invalid questionId, Valid token', () => {
+    const result = requestQuestionDuplicate(user.token, quiz.quizId, -100);
+    expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
+    expect(result.statusCode).toStrictEqual(400);
+  });
 });
