@@ -130,11 +130,11 @@ export const requestLogout = (token: string) => {
 };
 
 export const requestQuizQuestionCreate = (token: string, questionBody: quizQuestionCreateInput, quizid: number) => {
-  return requestHelper('POST', `/v1/admin/quiz/${quizid}/question`, { questionBody }, { token });
+  return requestHelper('POST', `/v2/admin/quiz/${quizid}/question`, { questionBody }, { token });
 };
 
 export const requestquizTransfer = (token: string, userEmail: string, quizid: number) => {
-  return requestHelper('POST', `/v1/admin/quiz/${quizid}/transfer`, { userEmail }, { token });
+  return requestHelper('POST', `/v2/admin/quiz/${quizid}/transfer`, { userEmail }, { token });
 };
 
 export const requestClear = () => {

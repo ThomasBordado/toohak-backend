@@ -1,5 +1,6 @@
 import { quizUser, user, quizQuestionCreateInput, EmptyObject, ErrorReturn } from './interfaces';
 import { getData } from './dataStore';
+import HTTPError from 'http-errors';
 
 /**
  * Check if AuthUserId is valid.
@@ -35,6 +36,9 @@ import { getData } from './dataStore';
   * @returns {error: string}} - for invalid sessionId
   */
 export const validUserId = (token: string, userData: user[]) => {
+  if (token === '') {
+    throw HTTPError(401, 'Token is empty');
+  }
   // searches for sessionId and returns user if found
   for (const user of userData) {
     if (user.sessions.includes(token)) {
@@ -42,7 +46,7 @@ export const validUserId = (token: string, userData: user[]) => {
     }
   }
   // returns error if not found
-  return { error: 'Token is empty or invalid' };
+  throw HTTPError(401, 'Token is invalid');
 };
 
 /**
@@ -83,17 +87,17 @@ export const checkQuizName = (name: string, quizzesOwned: quizUser[]) => {
 export const checkQuestionValid = (quizQuestion: quizQuestionCreateInput, quizId: number) => {
   // Check the string length
   if (quizQuestion.questionBody.question.length < 5 || quizQuestion.questionBody.question.length > 50) {
-    return { error: 'Question string is less than 5 characters in length or greater than 50 characters in length' };
+    throw HTTPError(400, 'Question string is less than 5 characters in length or greater than 50 characters in length');
   }
 
   // Check the answer length
   if (quizQuestion.questionBody.answers.length > 6 || quizQuestion.questionBody.answers.length < 2) {
-    return { error: 'The question has more than 6 answers or less than 2 answers' };
+    throw HTTPError(400, 'The question has more than 6 answers or less than 2 answers')
   }
 
   // Check the duration
   if (quizQuestion.questionBody.duration <= 0) {
-    return { error: 'The question duration is not a positive number' };
+    throw HTTPError(400, 'The question duration is not a positive number')
   }
 
   // Calculate the sum of duration
@@ -105,18 +109,18 @@ export const checkQuestionValid = (quizQuestion: quizQuestionCreateInput, quizId
   }
   sum = sum + quizQuestion.questionBody.duration;
   if (sum > 180) {
-    return { error: 'The sum of the question durations in the quiz exceeds 3 minutes' };
+    throw HTTPError(400, 'The sum of the question durations in the quiz exceeds 3 minutes')
   }
 
   // Check the point award
   if (quizQuestion.questionBody.points < 1 || quizQuestion.questionBody.points > 10) {
-    return { error: 'The points awarded for the question are less than 1 or greater than 10' };
+    throw HTTPError(400, 'The points awarded for the question are less than 1 or greater than 10')
   }
 
   // Check the answer length
   for (const answer of quizQuestion.questionBody.answers) {
     if (answer.answer.length < 1 || answer.answer.length > 30) {
-      return { error: 'The length of any answer is shorter than 1 character long, or longer than 30 characters long' };
+      throw HTTPError(400, 'The length of any answer is shorter than 1 character long, or longer than 30 characters long')
     }
   }
 
@@ -127,14 +131,14 @@ export const checkQuestionValid = (quizQuestion: quizQuestionCreateInput, quizId
     if (!uniqueAnswers.includes(currentAnswer)) {
       uniqueAnswers.push(currentAnswer);
     } else {
-      return { error: 'Any answer strings are duplicates of one another (within the same question)' };
+      throw HTTPError(400, 'Any answer strings are duplicates of one another (within the same question)');
     }
   }
 
   // Check if there's correct answer
   const answer = quizQuestion.questionBody.answers.find(quizs => quizs.correct === true);
   if (!answer) {
-    return { error: 'There are no correct answers' };
+    throw HTTPError(400, 'There are no correct answers')
   }
 
   return { duration: sum };
@@ -147,7 +151,7 @@ export const isValidQuizId = (token: string, quizId: number): EmptyObject | Erro
   // Check if the quizId is invalid
   const data = getData();
   if (data.quizzes.length === 0) {
-    return { error: 'Invalid quizId' };
+    throw HTTPError(403, 'Invalid quizId');
   }
 
   // Check if the user own the quiz
@@ -160,9 +164,9 @@ export const isValidQuizId = (token: string, quizId: number): EmptyObject | Erro
     if (findQuiz !== undefined) {
       return {};
     }
-    return { error: 'user does not own the quiz' };
+    throw HTTPError(403, 'user does not own the quiz');
   } else {
-    return { error: 'Invalid quizId' };
+    throw HTTPError(403, 'Invalid quizId');
   }
 };
 

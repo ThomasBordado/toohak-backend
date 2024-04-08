@@ -97,9 +97,9 @@ export const adminUserDetails = (token: string): UserDetailsReturn | ErrorReturn
   const data = getData();
   const user = validUserId(token, data.users);
 
-  if ('error' in user) {
-    return user;
-  }
+  // if ('error' in user) {
+  //   return user;
+  // }
   saveData();
   return {
     user: {

@@ -77,14 +77,14 @@ app.put('/v2/admin/user/details', (req: Request, res: Response) => {
   const token = req.headers.token as string;
   const { email, nameFirst, nameLast } = req.body;
   const response = adminUserDetailsUpdate(token, email, nameFirst, nameLast);
-  return res.json(response);
+  res.json(response);
 });
 
 app.put('/v2/admin/user/password', (req: Request, res: Response) => {
   const token = req.headers.token as string;
   const { oldPassword, newPassword } = req.body;
   const response = adminUserPasswordUpdate(token, oldPassword, newPassword);
-  return res.json(response);
+  res.json(response);
 });
 
 app.post('/v1/admin/auth/logout', (req: Request, res: Response) => {
@@ -275,35 +275,19 @@ app.delete('/v1/admin/quiz/trash/empty', (req: Request, res: Response) => {
   res.json(result);
 });
 
-app.post('/v1/admin/quiz/:quizid/question', (req: Request, res: Response) => {
+app.post('/v2/admin/quiz/:quizid/question', (req: Request, res: Response) => {
   const quizId = parseInt(req.params.quizid);
   const token = req.headers.token as string;
   const { questionBody } = req.body;
   const response = quizQuestionCreate(token, questionBody, quizId);
-  if ('error' in response) {
-    if (response.error === 'Token is empty or invalid') {
-      return res.status(401).json(response);
-    } else if (response.error === 'Invalid quizId' || response.error === 'user does not own the quiz') {
-      return res.status(403).json(response);
-    }
-    return res.status(400).json(response);
-  }
   res.json(response);
 });
 
-app.post('/v1/admin/quiz/:quizid/transfer', (req: Request, res: Response) => {
+app.post('/v2/admin/quiz/:quizid/transfer', (req: Request, res: Response) => {
   const quizId = parseInt(req.params.quizid);
   const token = req.headers.token as string;
   const { userEmail } = req.body;
   const response = quizTransfer(token, userEmail, quizId);
-  if ('error' in response) {
-    if (response.error.localeCompare('Token is empty or invalid') === 0) {
-      return res.status(401).json(response);
-    } else if (response.error.localeCompare('Invalid quizId') === 0 || response.error.localeCompare('user does not own the quiz') === 0) {
-      return res.status(403).json(response);
-    }
-    return res.status(400).json(response);
-  }
   res.json(response);
 });
 
