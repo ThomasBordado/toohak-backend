@@ -501,17 +501,17 @@ export const adminQuizQuestionDuplicate = (token: string, quizId: number, questi
   if (userQuizIndex === -1) {
     return { error: 'User does not own this quiz' };
   }
- 
+
   const findQuiz = data.quizzes.findIndex(quizzes => quizzes.quizId === quizId);
   if (findQuiz === -1) {
     return { error: 'Invalid quiz ID' };
   }
-  
+
   const findQuestion = data.quizzes[findQuiz].questions.findIndex(quizQuestions => quizQuestions.questionId === questionId);
   if (findQuestion === -1) {
     return { error: 'Invalid questionId' };
   }
-  
+
   const questionToDuplicate = data.quizzes[findQuiz].questions[findQuestion];
   const duplicateLocation = findQuestion + 1;
 
