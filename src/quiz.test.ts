@@ -1,6 +1,7 @@
 import { requestRegister, requestQuizList, requestQuizCreate, requestQuizTrash, requestQuizInfo, requestUpdateQuizName, requestUpdateQuizDescription, requestClear, requestQuizViewTrash, requestQuizRestore, requestQuizQuestionCreate, requestQuizTrashEmpty, requestquizTransfer, requestLogout, requestLogin, requestUpdateQuizQuestion, requestDeleteQuizQuestion, requestMoveQuestion, requestQuestionDuplicate } from './wrapper';
 import { QuizListReturn, SessionId, quizId, quizUser, quizQuestionCreateInput, quiz, quizQuestionCreateReturn } from './interfaces';
 import HTTPError from 'http-errors';
+import { usersList } from './authUtil';
 beforeEach(() => {
   requestClear();
 });
@@ -1819,16 +1820,16 @@ describe('Testing Post /v1/admin/quiz/{quizid}/transfer', () => {
     });
   });
   test('Error test for 403 error, Valid token is provided, but user is not an owner of this quiz', () => {
-    const user1 = requestRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith') as SessionId;
+    const user1 = requestRegister('validemail1@gmail.com', '1234567a', 'Jane', 'Smith') as SessionId;
     requestLogout(user1.token);
 
     const user3 = requestRegister('validemail3@gmail.com', '1234567a', 'Jane', 'Smith') as SessionId;
-    const quiz3 = requestQuizCreate(user1.token, 'My quiz Name1', 'A description of my quiz') as quizId;
+    const quiz3 = requestQuizCreate(user3.token, 'My quiz Name1', 'A description of my quiz') as quizId;
     requestLogout(user3.token);
 
     const user2 = requestRegister('validemail2@gmail.com', '1234567a', 'Jennifer', 'Lawson') as SessionId;
-    console.log(user2.token);
-    expect(() => requestquizTransfer(user2.token, 'validemail@gmail.com', quiz3.quizId)).toThrow(HTTPError[403]);
+
+    expect(() => requestquizTransfer(user2.token, 'validemail1@gmail.com', quiz3.quizId)).toThrow(HTTPError[403]);
   });
 
   test('Testing behavior for QuizTransfer', () => {
