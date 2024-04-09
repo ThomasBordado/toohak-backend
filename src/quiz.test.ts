@@ -1,7 +1,6 @@
 import { requestRegister, requestQuizList, requestQuizCreate, requestQuizTrash, requestQuizInfo, requestUpdateQuizName, requestUpdateQuizDescription, requestClear, requestQuizViewTrash, requestQuizRestore, requestQuizQuestionCreate, requestQuizTrashEmpty, requestquizTransfer, requestLogout, requestLogin, requestUpdateQuizQuestion, requestDeleteQuizQuestion, requestMoveQuestion, requestQuestionDuplicate } from './wrapper';
 import { QuizListReturn, SessionId, quizId, quizUser, quizQuestionCreateInput, quiz, quizQuestionCreateReturn } from './interfaces';
 import HTTPError from 'http-errors';
-import { usersList } from './authUtil';
 beforeEach(() => {
   requestClear();
 });

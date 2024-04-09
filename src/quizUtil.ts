@@ -92,12 +92,12 @@ export const checkQuestionValid = (quizQuestion: quizQuestionCreateInput, quizId
 
   // Check the answer length
   if (quizQuestion.questionBody.answers.length > 6 || quizQuestion.questionBody.answers.length < 2) {
-    throw HTTPError(400, 'The question has more than 6 answers or less than 2 answers')
+    throw HTTPError(400, 'The question has more than 6 answers or less than 2 answers');
   }
 
   // Check the duration
   if (quizQuestion.questionBody.duration <= 0) {
-    throw HTTPError(400, 'The question duration is not a positive number')
+    throw HTTPError(400, 'The question duration is not a positive number');
   }
 
   // Calculate the sum of duration
@@ -109,18 +109,18 @@ export const checkQuestionValid = (quizQuestion: quizQuestionCreateInput, quizId
   }
   sum = sum + quizQuestion.questionBody.duration;
   if (sum > 180) {
-    throw HTTPError(400, 'The sum of the question durations in the quiz exceeds 3 minutes')
+    throw HTTPError(400, 'The sum of the question durations in the quiz exceeds 3 minutes');
   }
 
   // Check the point award
   if (quizQuestion.questionBody.points < 1 || quizQuestion.questionBody.points > 10) {
-    throw HTTPError(400, 'The points awarded for the question are less than 1 or greater than 10')
+    throw HTTPError(400, 'The points awarded for the question are less than 1 or greater than 10');
   }
 
   // Check the answer length
   for (const answer of quizQuestion.questionBody.answers) {
     if (answer.answer.length < 1 || answer.answer.length > 30) {
-      throw HTTPError(400, 'The length of any answer is shorter than 1 character long, or longer than 30 characters long')
+      throw HTTPError(400, 'The length of any answer is shorter than 1 character long, or longer than 30 characters long');
     }
   }
 
@@ -138,7 +138,7 @@ export const checkQuestionValid = (quizQuestion: quizQuestionCreateInput, quizId
   // Check if there's correct answer
   const answer = quizQuestion.questionBody.answers.find(quizs => quizs.correct === true);
   if (!answer) {
-    throw HTTPError(400, 'There are no correct answers')
+    throw HTTPError(400, 'There are no correct answers');
   }
 
   return { duration: sum };

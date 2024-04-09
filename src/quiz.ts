@@ -2,7 +2,7 @@ import { getData, setData } from './dataStore';
 import { EmptyObject, ErrorReturn, QuizListReturn, quiz, quizId, quizQuestionCreateInput, quizQuestionCreateReturn, quizQuestionDuplicateReturn } from './interfaces';
 import { validUserId, checkQuizName, checkQuestionValid, isValidQuizId, randomColour } from './quizUtil';
 import HTTPError from 'http-errors';
-import { loadData, saveData } from './persistence';
+import { saveData } from './persistence';
 
 /**
  * Provides a list of all quizzes that are owned by the currently logged in user
@@ -32,7 +32,7 @@ export const adminQuizCreate = (token: string, name: string, description: string
   const user = validUserId(token, data.users);
   // if ('error' in user) {
   //   return user;
-  // } else 
+  // } else
   if (checkQuizName(name, user.quizzes) !== true) {
     return checkQuizName(name, user.quizzes) as ErrorReturn;
   } else if (description.length > 100) {
@@ -129,7 +129,7 @@ export const adminQuizNameUpdate = (token: string, quizId: number, name: string)
   const user = validUserId(token, data.users);
   // if ('error' in user) {
   //   return user;
-  // } else 
+  // } else
   if (checkQuizName(name, user.quizzes) !== true) {
     return checkQuizName(name, user.quizzes) as ErrorReturn;
   }
@@ -375,7 +375,7 @@ export const quizQuestionCreate = (token: string, questionBody: quizQuestionCrea
   isValidQuizId(token, quizId);
   // Return the duration sum of the questions
   const question = checkQuestionValid(questionBody, quizId);
-  
+
   // Push new question into quiz
   const findQuiz = data.quizzes.find(quizs => quizs.quizId === quizId);
   findQuiz.timeLastEdited = Math.floor(Date.now() / 1000);
@@ -402,7 +402,7 @@ export const quizQuestionCreate = (token: string, questionBody: quizQuestionCrea
     points: questionBody.questionBody.points,
     answers: answerOut,
   });
-  
+
   setData(data);
   saveData();
   return { questionId: questionId };
