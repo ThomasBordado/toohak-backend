@@ -105,12 +105,12 @@ export const adminQuizInfo = (token: string, quizId: number): quiz | ErrorReturn
 
   const quizzesIndex = data.quizzes.findIndex(quizzes => quizzes.quizId === quizId);
   if (quizzesIndex === -1) {
-    return { error: 'Invalid quizId' };
+    throw HTTPError(403, 'Invalid quizId');
   }
 
   const userQuizzesIndex = user.quizzes.findIndex(quizzes => quizzes.quizId === quizId);
   if (userQuizzesIndex === -1) {
-    return { error: 'User does not own quiz' };
+    throw HTTPError(403, 'User does not own quiz');
   }
   saveData();
   return data.quizzes[quizzesIndex];
@@ -134,12 +134,12 @@ export const adminQuizNameUpdate = (token: string, quizId: number, name: string)
 
   const quizzesIndex = data.quizzes.findIndex(quizzes => quizzes.quizId === quizId);
   if (quizzesIndex === -1) {
-    return { error: 'Invalid quizId' };
+    throw HTTPError(403, 'Invalid quizId');
   }
 
   const userQuizzesIndex = user.quizzes.findIndex(quizzes => quizzes.quizId === quizId);
   if (userQuizzesIndex === -1) {
-    return { error: 'User does not own quiz' };
+    throw HTTPError(403, 'User does not own quiz');
   }
 
   data.quizzes[quizzesIndex].name = name;
@@ -207,23 +207,20 @@ export const adminQuizQuestionUpdate = (token: string, questionBody: quizQuestio
 
   const quizzesIndex = data.quizzes.findIndex(quizzes => quizzes.quizId === quizId);
   if (quizzesIndex === -1) {
-    return { error: 'Invalid quizId' };
+    throw HTTPError(403, 'Invalid quizId');
   }
 
   const userQuizzesIndex = user.quizzes.findIndex(quizzes => quizzes.quizId === quizId);
   if (userQuizzesIndex === -1) {
-    return { error: 'User does not own quiz' };
+    throw HTTPError(403, 'User does not own quiz');
   }
 
   const result = checkQuestionValid(questionBody, quizId);
-  if ('error' in result) {
-    return result as ErrorReturn;
-  }
 
   const findQuiz = data.quizzes.find(quizzes => quizzes.quizId === quizId);
   const findQuestionIndex = findQuiz.questions.findIndex(questions => questions.questionId === questionid);
   if (findQuestionIndex === -1) {
-    return { error: 'Invalid questionId' };
+    throw HTTPError(403, 'Invalid questionId');
   } else if (findQuestionIndex > -1) {
     const findQuestion = findQuiz.questions.find(questions => questions.questionId === questionid);
     findQuestion.question = questionBody.questionBody.question;
@@ -258,18 +255,18 @@ export const adminQuizQuestionDelete = (token: string, quizId: number, questioni
 
   const quizzesIndex = data.quizzes.findIndex(quizzes => quizzes.quizId === quizId);
   if (quizzesIndex === -1) {
-    return { error: 'Invalid quizId' };
+    throw HTTPError(403, 'Invalid quizId');
   }
 
   const userQuizzesIndex = user.quizzes.findIndex(quizzes => quizzes.quizId === quizId);
   if (userQuizzesIndex === -1) {
-    return { error: 'User does not own quiz' };
+    throw HTTPError(403, 'User does not own quiz');
   }
 
   const findQuiz = data.quizzes.find(quizzes => quizzes.quizId === quizId);
   const findQuestion = findQuiz.questions.findIndex(questions => questions.questionId === questionid);
   if (findQuestion === -1) {
-    return { error: 'Invalid questionId' };
+    throw HTTPError(403, 'Invalid questionId');
   } else if (findQuestion > -1) {
     findQuiz.questions.splice(findQuestion, 1);
   }
