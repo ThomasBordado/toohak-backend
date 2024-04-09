@@ -219,25 +219,19 @@ describe('requestQuizInfo testing', () => {
 
   describe('Unsuccessful Cases', () => {
     test('Invalid AuthUserId', () => {
-      const result = requestQuizInfo(user.token + 1, quiz.quizId);
-      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-      expect(result.statusCode).toStrictEqual(401);
+      expect(() => requestQuizInfo(user.token + 1, quiz.quizId)).toThrow(HTTPError[401]);
     });
     test('Invalid quizId', () => {
-      expect(requestQuizInfo(user.token, quiz.quizId + 1).jsonBody).toStrictEqual({ error: expect.any(String) });
+      expect(() => requestQuizInfo(user.token, quiz.quizId + 1)).toThrow(HTTPError[403]);
     });
     test('User does not own quiz with given quizId', () => {
       const user2 = requestRegister('ethanm@gmail.com', 'password12', 'Ethanm', 'EMcGregor').jsonBody as SessionId;
-      const result = requestQuizInfo(user2.token, quiz.quizId);
-      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-      expect(result.statusCode).toStrictEqual(403);
+      expect(() => requestQuizInfo(user2.token, quiz.quizId)).toThrow(HTTPError[403]);
     });
     test('User owns quiz with same name as given quizId', () => {
       const user2 = requestRegister('ethanm@gmail.com', 'password12', 'Ethanm', 'EMcGregor').jsonBody as SessionId;
       requestQuizCreate(user2.token, 'My Quiz', 'My description.');
-      const result = requestQuizInfo(user2.token, quiz.quizId);
-      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-      expect(result.statusCode).toStrictEqual(403);
+      expect(() => requestQuizInfo(user2.token, quiz.quizId)).toThrow(HTTPError[403]);
     });
   });
   describe('Successful cases', () => {
@@ -271,53 +265,35 @@ describe('requestUpdateQuizName testing', () => {
 
   describe('Unsuccessful Cases', () => {
     test('Invalid AuthUserId', () => {
-      const result = requestUpdateQuizName(user.token + 1, quiz.quizId, 'Ethans quiz');
-      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-      expect(result.statusCode).toStrictEqual(401);
+      expect(() => requestUpdateQuizName(user.token + 1, quiz.quizId, 'Ethans quiz')).toThrow(HTTPError[401]);
     });
     test('Invalid quizId', () => {
-      const result = requestUpdateQuizName(user.token, quiz.quizId + 1, 'Ethans quiz');
-      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-      expect(result.statusCode).toStrictEqual(403);
+      expect(() => requestUpdateQuizName(user.token, quiz.quizId + 1, 'Ethans quiz')).toThrow(HTTPError[403]);
     });
     test('User does not own quiz with given quizId', () => {
       const user2 = requestRegister('ethanm@gmail.com', 'password12', 'Ethanm', 'EMcGregor').jsonBody as SessionId;
-      const result = requestUpdateQuizName(user2.token, quiz.quizId, 'Ethans quiz');
-      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-      expect(result.statusCode).toStrictEqual(403);
+      expect(() => requestUpdateQuizName(user2.token, quiz.quizId, 'Ethans quiz')).toThrow(HTTPError[403]);
     });
     test('User owns quiz with same name as given quizId', () => {
       const user2 = requestRegister('ethanm@gmail.com', 'password12', 'Ethanm', 'EMcGregor').jsonBody as SessionId;
       requestQuizCreate(user2.token, 'My Quiz', 'My description.');
-      const result = requestUpdateQuizName(user2.token, quiz.quizId, 'Ethans quiz');
-      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-      expect(result.statusCode).toStrictEqual(403);
+      expect(() => requestUpdateQuizName(user2.token, quiz.quizId, 'Ethans quiz')).toThrow(HTTPError[403]);
     });
     test('Invalid name: Contains non-alphanumeric characters', () => {
-      const result = requestUpdateQuizName(user.token, quiz.quizId, 'My Quiz!');
-      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-      expect(result.statusCode).toStrictEqual(400);
+      expect(() => requestUpdateQuizName(user.token, quiz.quizId, 'My Quiz!')).toThrow(HTTPError[400]);
     });
     test('Invalid name: blank name', () => {
-      const result = requestUpdateQuizName(user.token, quiz.quizId, '');
-      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-      expect(result.statusCode).toStrictEqual(400);
+      expect(() => requestUpdateQuizName(user.token, quiz.quizId, '')).toThrow(HTTPError[400]);
     });
     test('Invalid name: < 3 characters', () => {
-      const result = requestUpdateQuizName(user.token, quiz.quizId, 'My');
-      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-      expect(result.statusCode).toStrictEqual(400);
+      expect(() => requestUpdateQuizName(user.token, quiz.quizId, 'My')).toThrow(HTTPError[400]);
     });
     test('Invalid name: > 30 characters', () => {
-      const result = requestUpdateQuizName(user.token, quiz.quizId, 'My very very very very long Quiz');
-      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-      expect(result.statusCode).toStrictEqual(400);
+      expect(() => requestUpdateQuizName(user.token, quiz.quizId, 'My very very very very long Quiz')).toThrow(HTTPError[400]);
     });
     test('Invalid name: name already used', () => {
       requestQuizCreate(user.token, 'My Quiz', 'My description');
-      const result = requestUpdateQuizName(user.token, quiz.quizId, 'My Quiz');
-      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-      expect(result.statusCode).toStrictEqual(400);
+      expect(() => requestUpdateQuizName(user.token, quiz.quizId, 'My Quiz')).toThrow(HTTPError[400]);
     });
   });
 
@@ -438,9 +414,6 @@ describe('Testing it2 function, adminQuizQuestionUpdate', () => {
     };
     questionout = requestQuizQuestionCreate(user.token, questionin, quiz.quizId).jsonBody as quizQuestionCreateReturn;
 
-    // question1 = requestQuestionCreate
-    // question2 = requestQuestionCreate
-    // question3 = requestQuestionCreate
   });
 
   // 1. Succesfully update question
@@ -486,10 +459,9 @@ describe('Testing it2 function, adminQuizQuestionUpdate', () => {
         ]
       }
     };
-    const result = requestUpdateQuizQuestion(user.token + 1, updated, quiz.quizId, questionout.questionId);
-    expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-    expect(result.statusCode).toStrictEqual(401);
+    expect(() => requestUpdateQuizQuestion(user.token + 1, updated, quiz.quizId, questionout.questionId)).toThrow(HTTPError[401]);
   });
+
   test('Test empty Token', () => {
     const updated = {
       questionBody: {
@@ -508,9 +480,7 @@ describe('Testing it2 function, adminQuizQuestionUpdate', () => {
         ]
       }
     };
-    const result = requestUpdateQuizQuestion('', updated, quiz.quizId, questionout.questionId);
-    expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-    expect(result.statusCode).toStrictEqual(401);
+    expect(() => requestUpdateQuizQuestion('', updated, quiz.quizId, questionout.questionId)).toThrow(HTTPError[401]);
   });
 
   // 3. Invalid quizid or user does not own quiz
@@ -532,9 +502,7 @@ describe('Testing it2 function, adminQuizQuestionUpdate', () => {
         ]
       }
     };
-    const result = requestUpdateQuizQuestion(user.token, updated, quiz.quizId + 1, questionout.questionId);
-    expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-    expect(result.statusCode).toStrictEqual(403);
+    expect(() => requestUpdateQuizQuestion(user.token, updated, quiz.quizId + 1, questionout.questionId)).toThrow(HTTPError[403]);
   });
   test('Test user doesn not own quiz', () => {
     const updated = {
@@ -557,9 +525,7 @@ describe('Testing it2 function, adminQuizQuestionUpdate', () => {
 
     const user2 = requestRegister('jareds@gmail.com', 'password2', 'Jared', 'Simion').jsonBody as SessionId;
     const quiz2 = requestQuizCreate(user2.token, 'My Quiz', 'My description.').jsonBody as quizId;
-    const result = requestUpdateQuizQuestion(user.token, updated, quiz2.quizId, questionout.questionId);
-    expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-    expect(result.statusCode).toStrictEqual(403);
+    expect(() => requestUpdateQuizQuestion(user.token, updated, quiz2.quizId, questionout.questionId)).toThrow(HTTPError[403]);
   });
 });
 
@@ -589,42 +555,29 @@ describe('Testing it2 function, adminQuizQuestionDelete', () => {
       }
     };
     questionout = requestQuizQuestionCreate(user.token, questionin, quiz.quizId).jsonBody as quizQuestionCreateReturn;
-    // question1 = requestQuestionCreate
-    // question2 = requestQuestionCreate
-    // question3 = requestQuestionCreate
   });
 
   // 2. Invalid Token/empty token
   test('Test invalid Token', () => {
-    const result = requestDeleteQuizQuestion(user.token + 1, quiz.quizId, questionout.questionId);
-    expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-    expect(result.statusCode).toStrictEqual(401);
+    expect(() => requestDeleteQuizQuestion(user.token + 1, quiz.quizId, questionout.questionId)).toThrow(HTTPError[401]);
   });
   test('Test empty Token', () => {
-    const result = requestDeleteQuizQuestion('', quiz.quizId, questionout.questionId);
-    expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-    expect(result.statusCode).toStrictEqual(401);
+    expect(() => requestDeleteQuizQuestion('', quiz.quizId, questionout.questionId)).toThrow(HTTPError[401]);
   });
 
   // 3. Invalid quizid or user does not own quiz
   test('Test invalid quizId, Valid token', () => {
-    const result = requestDeleteQuizQuestion(user.token, quiz.quizId + 1, questionout.questionId);
-    expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-    expect(result.statusCode).toStrictEqual(403);
+    expect(() => requestDeleteQuizQuestion(user.token, quiz.quizId + 1, questionout.questionId)).toThrow(HTTPError[403]);
   });
   test('Test user doesn not own quiz', () => {
     const user2 = requestRegister('jareds@gmail.com', 'password2', 'Jared', 'Simion').jsonBody as SessionId;
     const quiz2 = requestQuizCreate(user2.token, 'My Quiz', 'My description.').jsonBody as quizId;
-    const result = requestDeleteQuizQuestion(user.token, quiz2.quizId, questionout.questionId);
-    expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-    expect(result.statusCode).toStrictEqual(403);
+    expect(() => requestDeleteQuizQuestion(user.token, quiz2.quizId, questionout.questionId)).toThrow(HTTPError[403]);
   });
 
   // 4. questiondID does not refer to valid question withing quiz
   test('invalid questionid', () => {
-    const result = requestDeleteQuizQuestion(user.token, quiz.quizId, questionout.questionId + 1);
-    expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-    expect(result.statusCode).toStrictEqual(400);
+    expect(() => requestDeleteQuizQuestion(user.token, quiz.quizId, questionout.questionId + 1)).toThrow(HTTPError[400]);
   });
 });
 /*
