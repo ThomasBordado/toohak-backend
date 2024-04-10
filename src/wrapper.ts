@@ -41,10 +41,7 @@ const requestHelper = (
   let bodyObject;
   try {
     // Return if valid JSON, in our own custom format
-    bodyObject = {
-      jsonBody: JSON.parse(bodyString),
-      statusCode: res.statusCode,
-    };
+    bodyObject = JSON.parse(bodyString);
   } catch (error) {
     if (res.statusCode === 200) {
       throw HTTPError(500,
@@ -126,11 +123,11 @@ export const requestUpdateQuizDescription = (token: string, quizId: number, desc
 };
 
 export const requestQuizTrashEmpty = (token: string, quizIds: string) => {
-  return requestHelper('DELETE', '/v1/admin/quiz/trash/empty', { quizIds }, { token });
+  return requestHelper('DELETE', '/v2/admin/quiz/trash/empty', { quizIds }, { token });
 };
 
 export const requestLogout = (token: string) => {
-  return requestHelper('POST', '/v1/admin/auth/logout', {}, { token });
+  return requestHelper('POST', '/v2/admin/auth/logout', {}, { token });
 };
 
 export const requestQuizQuestionCreate = (token: string, questionBody: quizQuestionCreateInput, quizid: number) => {

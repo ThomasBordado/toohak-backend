@@ -289,12 +289,11 @@ export const adminQuizTrashEmpty = (token: string, quizIds: number[]): EmptyObje
 
   // Check if the current user owns the quizzes being removed. error 403
   // If a user owns a quiz where is it stored
-  // if a quiz is in the trash from a user where?
   for (const quizId of quizIds) {
     const quizIndexTrash = user.trash.findIndex(quiz => quiz.quizId === quizId);
     const quizIndexOwn = user.quizzes.findIndex(quiz => quiz.quizId === quizId);
     if (quizIndexTrash === -1 && quizIndexOwn === -1) {
-      return { error: 'Valid token, but one or more of the Quiz IDs is not owned by current user' };
+      throw HTTPError(403, 'Valid token, but one or more of the Quiz IDs is not owned by current user');
     }
   }
 
@@ -302,7 +301,7 @@ export const adminQuizTrashEmpty = (token: string, quizIds: number[]): EmptyObje
   for (const quizId of quizIds) {
     const quizIndex = user.trash.findIndex(quiz => quiz.quizId === quizId);
     if (quizIndex === -1) {
-      return { error: 'One or more of the Quiz IDs is not currently in the trash' };
+      throw HTTPError(400, 'One or more of the Quiz IDs is not currently in the trash');
     }
   }
 
