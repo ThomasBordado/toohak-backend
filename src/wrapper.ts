@@ -25,33 +25,33 @@ const SERVER_URL = `${url}:${port}`;
 const requestHelper = (
   method: HttpVerb,
   path: string,
-  payload: unknown,
+  payload: object = {},
   headers: IncomingHttpHeaders = {}
 ) => {
   let qs = {};
   let json = {};
-  if (['GET', 'DELETE'].includes(method.toUpperCase())) {
+  if (['GET', 'DELETE'].includes(method)) {
     qs = payload;
   } else {
     // PUT/POST
     json = payload;
   }
-  const url = SERVER_URL + path;
-  const res = request(method, url, { qs, json, headers });
-
-  let responseBody: any;
+  const res = request(method, SERVER_URL + path, { qs, json, headers, timeout: 20000 });
+  const bodyString = res.body.toString();
+  let bodyObject;
   try {
-    responseBody = JSON.parse(res.body.toString());
-  } catch (err: any) {
+    // Return if valid JSON, in our own custom format
+    bodyObject = JSON.parse(bodyString);
+  } catch (error) {
     if (res.statusCode === 200) {
       throw HTTPError(500,
         `Non-jsonifiable body despite code 200: '${res.body}'.\nCheck that you are not doing res.json(undefined) instead of res.json({}), e.g. in '/clear'`
       );
     }
-    responseBody = { error: `Failed to parse JSON: '${err.message}'` };
+    bodyObject = { error: `Failed to parse JSON: '${error.message}'` };
   }
 
-  const errorMessage = `[${res.statusCode}] ` + responseBody?.error || responseBody || 'No message specified!';
+  const errorMessage = `[${res.statusCode}] ` + bodyObject?.error || bodyObject || 'No message specified!';
 
   // NOTE: the error is rethrown in the test below. This is useful becasuse the
   // test suite will halt (stop) if there's an error, rather than carry on and
@@ -72,7 +72,7 @@ const requestHelper = (
         throw HTTPError(res.statusCode, errorMessage + `\n\nSorry, no idea! Look up the status code ${res.statusCode} online!\n`);
       }
   }
-  return responseBody;
+  return bodyObject;
 };
 
 // ========================================================================= //

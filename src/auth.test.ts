@@ -213,7 +213,7 @@ describe.skip('Test requestGetUserDetials', () => {
 /*
  * Testing for updating user details
  */
-describe.skip('requestUpdateUserDetails', () => {
+describe('requestUpdateUserDetails', () => {
   let data: SessionId;
   beforeEach(() => {
     requestClear();
@@ -346,7 +346,7 @@ describe.skip('requestUpdateUserDetails', () => {
 /*
  * Testing for updating user password
  */
-describe.skip('requestUpdatePassword', () => {
+describe('requestUpdatePassword', () => {
   let data: SessionId;
   beforeEach(() => {
     data = requestRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith') as SessionId;
