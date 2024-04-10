@@ -145,7 +145,7 @@ export const checkQuestionValid = (quizQuestion: quizQuestionCreateInput, quizId
 };
 
 /**
- *
+ *  It can only be used after checking the token
  */
 export const isValidQuizId = (token: string, quizId: number): EmptyObject | ErrorReturn => {
   // Check if the quizId is invalid
