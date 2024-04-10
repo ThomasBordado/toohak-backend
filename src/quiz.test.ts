@@ -1141,7 +1141,8 @@ describe('Testing Post /v2/admin/quiz/{quizid}/question', () => {
       duration: 4
     };
     expect(() => (requestQuizQuestionCreate(user.token, input, quiz.quizId)).not.toThrow(HTTPError));
-    // expect(requestQuizInfo(user.token, quiz.quizId)).toStrictEqual(expectedInfo);
+    requestQuizQuestionCreate(user.token, input, quiz.quizId);
+    expect(requestQuizInfo(user.token, quiz.quizId)).toStrictEqual(expectedInfo);
   });
 
   describe('Error test for 400 error', () => {

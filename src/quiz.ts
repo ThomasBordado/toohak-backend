@@ -3,7 +3,6 @@ import { EmptyObject, ErrorReturn, QuizListReturn, quiz, quizId, quizQuestionCre
 import { validUserId, checkQuizName, checkQuestionValid, isValidQuizId, randomColour } from './quizUtil';
 import HTTPError from 'http-errors';
 import { saveData } from './persistence';
-import { usersList } from './authUtil';
 
 /**
  * Provides a list of all quizzes that are owned by the currently logged in user
@@ -401,7 +400,6 @@ export const quizQuestionCreate = (token: string, questionBody: quizQuestionCrea
     points: questionBody.points,
     answers: answerOut,
   });
-
 
   setData(data);
   saveData();
