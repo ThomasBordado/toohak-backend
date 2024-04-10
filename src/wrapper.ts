@@ -41,10 +41,7 @@ const requestHelper = (
   let bodyObject;
   try {
     // Return if valid JSON, in our own custom format
-    bodyObject = {
-      jsonBody: JSON.parse(bodyString),
-      statusCode: res.statusCode,
-    };
+    bodyObject = JSON.parse(bodyString);
   } catch (error) {
     if (res.statusCode === 200) {
       throw HTTPError(500,
