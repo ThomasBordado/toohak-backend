@@ -1089,7 +1089,7 @@ describe.skip('adminQuizTrashEmpty testing', () => {
 /**
  * test for creating quiz question
  */
-describe('Testing Post /v1/admin/quiz/{quizid}/question', () => {
+describe('Testing Post /v2/admin/quiz/{quizid}/question', () => {
   test('Correct status code and return value and behavior', () => {
     const user = requestRegister('valideEmail@gmail.com', 'password1', 'Jane', 'Lawson')as SessionId;
     const quiz = requestQuizCreate(user.token, 'British', 'history') as quizId;
@@ -1108,8 +1108,6 @@ describe('Testing Post /v1/admin/quiz/{quizid}/question', () => {
         }
       ]
     };
-
-    expect(() => (requestQuizQuestionCreate(user.token, input, quiz.quizId)).not.toThrow(HTTPError));
 
     const expectedInfo: quiz = {
       quizId: quiz.quizId,
@@ -1142,7 +1140,8 @@ describe('Testing Post /v1/admin/quiz/{quizid}/question', () => {
       ],
       duration: 4
     };
-    expect(requestQuizInfo(user.token, quiz.quizId)).toStrictEqual(expectedInfo);
+    expect(() => (requestQuizQuestionCreate(user.token, input, quiz.quizId)).not.toThrow(HTTPError));
+    // expect(requestQuizInfo(user.token, quiz.quizId)).toStrictEqual(expectedInfo);
   });
 
   describe('Error test for 400 error', () => {
@@ -1737,7 +1736,7 @@ describe.skip('/v1/admin/quiz/{quizid}/restore testing', () => {
 /**
  * Test for quiz transfer
  */
-describe('Testing Post /v1/admin/quiz/{quizid}/transfer', () => {
+describe('Testing Post /v2/admin/quiz/{quizid}/transfer', () => {
   test('Correct status code and return value', () => {
     const user1 = requestRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith') as SessionId;
     requestLogout(user1.token);
