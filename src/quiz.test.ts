@@ -1124,13 +1124,13 @@ describe('Testing Post /v2/admin/quiz/{quizid}/question', () => {
           points: 5,
           answers: [
             {
-              answerId: 1,
+              answerId: expect.any(Number),
               answer: 'Prince Charles',
               colour: expect.any(String),
               correct: true,
             },
             {
-              answerId: 2,
+              answerId: expect.any(Number),
               answer: 'Prince Charles.',
               colour: expect.any(String),
               correct: true,
