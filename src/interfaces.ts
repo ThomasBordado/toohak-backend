@@ -28,6 +28,7 @@ export interface quiz {
   numQuestions: number;
   questions: quizQuestion[];
   duration: number;
+  thumbnailUrl: string;
 }
 
 export interface quizUser {
