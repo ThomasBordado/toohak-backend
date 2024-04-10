@@ -12,7 +12,7 @@ beforeEach(() => {
  */
 describe.skip('Test requestRegister', () => {
   // 1. Successful Register of two users
-  test.skip('Test registering two users', () => {
+  test('Test registering two users', () => {
     const response1 = requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith');
     const response2 = requestRegister('thomas.bordado@unsw.edu.au', 'password2', 'Thomas', 'Bordado');
     const user1 = (response1.jsonBody as SessionId);
@@ -25,7 +25,7 @@ describe.skip('Test requestRegister', () => {
   });
 
   // 2. Add an email and then try add the same email.
-  test.skip('Test email in use adminAuthRegister', () => {
+  test('Test email in use adminAuthRegister', () => {
     let response = requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith');
     const user = (response.jsonBody as SessionId);
     expect(user).toStrictEqual({ token: expect.any(String) });
@@ -37,14 +37,14 @@ describe.skip('Test requestRegister', () => {
   });
 
   // 3. Provide an invlaid email.
-  test.skip('Test invalid email adminAuthRegister', () => {
+  test('Test invalid email adminAuthRegister', () => {
     const response = requestRegister('hayden.smithson', 'password3', 'Hayden', 'Smith');
     expect(response.jsonBody).toStrictEqual({ error: expect.any(String) });
     expect(response.statusCode).toStrictEqual(400);
   });
 
   // 4. Invalid Characters in First name.
-  test.skip('Test first name invalid characters adminAuthRegister', () => {
+  test('Test first name invalid characters adminAuthRegister', () => {
     const res1 = requestRegister('hayden.smith@unsw.edu.au', 'password3', 'Hayden!', 'Smithson');
     const res2 = requestRegister('hayden.smith@unsw.edu.au', 'password3', 'Hayden1', 'Smithson');
     const res3 = requestRegister('hayden.smith@unsw.edu.au', 'password3', 'Hay?den', 'Smithson');
@@ -58,7 +58,7 @@ describe.skip('Test requestRegister', () => {
   });
 
   // 5. Invalid length of First name.
-  test.skip('Test first name invalid length adminAuthRegister', () => {
+  test('Test first name invalid length adminAuthRegister', () => {
     const res1 = requestRegister('hayden.smith@unsw.edu.au', 'password3', 'H', 'Smithson');
     const res2 = requestRegister('hayden.smith@unsw.edu.au', 'password3', 'haydenhaydenhaydenhayden', 'Smithson');
     expect(res1.jsonBody).toStrictEqual({ error: expect.any(String) });
@@ -68,7 +68,7 @@ describe.skip('Test requestRegister', () => {
   });
 
   // 6. Invalid Character in Last name.
-  test.skip('Test last name invalid characters adminAuthRegister', () => {
+  test('Test last name invalid characters adminAuthRegister', () => {
     const res1 = requestRegister('hayden.smith@unsw.edu.au', 'password3', 'Hayden', 'Smithson!');
     const res2 = requestRegister('hayden.smith@unsw.edu.au', 'password3', 'Hayden', 'Smithson1');
     const res3 = requestRegister('hayden.smith@unsw.edu.au', 'password3', 'Hayden', '{Smith}');
@@ -81,7 +81,7 @@ describe.skip('Test requestRegister', () => {
   });
 
   // 7. Invalid length of Last name.
-  test.skip('Test last name invalid length adminAuthRegister', () => {
+  test('Test last name invalid length adminAuthRegister', () => {
     const res1 = requestRegister('hayden.smith@unsw.edu.au', 'password3', 'Hayden', 'S');
     const res2 = requestRegister('hayden.smith@unsw.edu.au', 'password3', 'Hayden', 'SmithSmithSmithSmithSmith');
     expect(res1.jsonBody).toStrictEqual({ error: expect.any(String) });
@@ -91,14 +91,14 @@ describe.skip('Test requestRegister', () => {
   });
 
   // 8. Invalid password length.
-  test.skip('Test password invalid length adminAuthRegister', () => {
+  test('Test password invalid length adminAuthRegister', () => {
     const res = requestRegister('hayden.smith@unsw.edu.au', 'pass', 'Hayden', 'Smithson!');
     expect(res.jsonBody).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toStrictEqual(400);
   });
 
   // 9. Invalid password conditions.
-  test.skip('Test password invalid adminAuthRegister', () => {
+  test('Test password invalid adminAuthRegister', () => {
     const res1 = requestRegister('hayden.smith@unsw.edu.au', 'password', 'Hayden', 'Smithson!');
     const res2 = requestRegister('hayden.smith@unsw.edu.au', '12345678', 'Hayden', 'Smithson!');
     expect(res1.jsonBody).toStrictEqual({ error: expect.any(String) });
@@ -113,7 +113,7 @@ describe.skip('Test requestRegister', () => {
  */
 describe.skip('Test requestLogin', () => {
   // 1. Successful login to an existing account.
-  test.skip('Test successful login', () => {
+  test('Test successful login', () => {
     requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith');
     const res = requestLogin('hayden.smith@unsw.edu.au', 'password1');
     expect(res.jsonBody).toStrictEqual({ token: expect.any(String) });
@@ -121,7 +121,7 @@ describe.skip('Test requestLogin', () => {
   });
 
   // 2. Logging into an non-existing email then registering the email and logging in.
-  test.skip('Test email address does not exist', () => {
+  test('Test email address does not exist', () => {
     let res = requestLogin('thomas@gmail.com', 'password1');
     expect(res.jsonBody).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toStrictEqual(400);
@@ -132,7 +132,7 @@ describe.skip('Test requestLogin', () => {
   });
 
   // 3. Incorrect Password for given email.
-  test.skip('Test incorrect password', () => {
+  test('Test incorrect password', () => {
     requestRegister('thomas@gmail.com', 'password1', 'Thomas', 'Bordado');
     const res = requestLogin('thomas@gmail.com', 'password2');
     expect(res.jsonBody).toStrictEqual({ error: expect.any(String) });
@@ -140,7 +140,7 @@ describe.skip('Test requestLogin', () => {
   });
 
   // 4. Incorrect Password for given email.
-  test.skip('Test login to two different sessions', () => {
+  test('Test login to two different sessions', () => {
     expect(requestRegister('thomas@gmail.com', 'password1', 'Thomas', 'Bordado').jsonBody).toStrictEqual({ token: expect.any(String) });
     const res1 = requestLogin('thomas@gmail.com', 'password1');
     const res2 = requestLogin('thomas@gmail.com', 'password1');
@@ -151,7 +151,7 @@ describe.skip('Test requestLogin', () => {
     expect(res1.jsonBody.token).not.toStrictEqual(res2.jsonBody.token);
   });
 
-  test.skip('Test numSuccessfulLogins and numFailedPasswordsSinceLastLogin', () => {
+  test('Test numSuccessfulLogins and numFailedPasswordsSinceLastLogin', () => {
     // Register a user Hayden Smith
     const user = requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith').jsonBody;
     // Get details of Hayden
@@ -185,7 +185,7 @@ describe.skip('Test requestLogin', () => {
  */
 describe.skip('Test requestGetUserDetials', () => {
   // 1. Succesful return of account details
-  test.skip('Test succesful get user details', () => {
+  test('Test succesful get user details', () => {
     const user1 = requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith').jsonBody as SessionId;
     const result = requestGetUserDetails(user1.token);
     const userId = getUserId(user1.token) as UserId;
@@ -202,7 +202,7 @@ describe.skip('Test requestGetUserDetials', () => {
   });
 
   // 2. Invalid authUserId
-  test.skip('Test Invalid User ID', () => {
+  test('Test Invalid User ID', () => {
     const user1 = requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith').jsonBody as SessionId;
     const result = requestGetUserDetails(user1.token + 1);
     expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
@@ -440,7 +440,7 @@ describe('requestUpdatePassword', () => {
  */
 describe.skip('Test requestLogout', () => {
   // 1. Successful logout after registering account.
-  test.skip('Test successful logout', () => {
+  test('Test successful logout', () => {
     const sessionId = requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith').jsonBody as SessionId;
     const res = requestLogout(sessionId.token);
     expect(res.jsonBody).toStrictEqual({ });
@@ -448,7 +448,7 @@ describe.skip('Test requestLogout', () => {
   });
 
   // 2. Successful logout after logging into an account.
-  test.skip('Test logout after logging in', () => {
+  test('Test logout after logging in', () => {
     const sessionId1 = requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith').jsonBody as SessionId;
     const sessionId2 = requestLogin('hayden.smith@unsw.edu.au', 'password1').jsonBody as SessionId;
     const res1 = requestLogout(sessionId1.token);
@@ -460,7 +460,7 @@ describe.skip('Test requestLogout', () => {
   });
 
   // 3. Logging out of session that has been loggedout.
-  test.skip('Test logging out of session twice', () => {
+  test('Test logging out of session twice', () => {
     const sessionId1 = requestRegister('thomas@gmail.com', 'password1', 'Thomas', 'Bordado').jsonBody as SessionId;
     const res1 = requestLogout(sessionId1.token);
     expect(res1.jsonBody).toStrictEqual({ });
@@ -471,7 +471,7 @@ describe.skip('Test requestLogout', () => {
   });
 
   // 4. Logging out of non-existing session
-  test.skip('Test logout of invalid session', () => {
+  test('Test logout of invalid session', () => {
     const sessionId = requestRegister('thomas@gmail.com', 'password1', 'Thomas', 'Bordado').jsonBody as SessionId;
     expect(sessionId).toStrictEqual({ token: expect.any(String) });
     let newToken = parseInt(sessionId.token);
@@ -482,7 +482,7 @@ describe.skip('Test requestLogout', () => {
   });
 
   // 4. Logging out of multiple sessions of different users
-  test.skip('Test logout of invalid session', () => {
+  test('Test logout of invalid session', () => {
     const sessionId1 = requestRegister('thomas@gmail.com', 'password1', 'Thomas', 'Bordado').jsonBody as SessionId;
     const sessionId2 = requestRegister('john@gmail.com', 'password2', 'John', 'Jonno').jsonBody as SessionId;
     const sessionId3 = requestRegister('phil@gmail.com', 'password3', 'phil', 'jacob').jsonBody as SessionId;
