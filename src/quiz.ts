@@ -3,6 +3,7 @@ import { EmptyObject, ErrorReturn, QuizListReturn, quiz, quizId, quizQuestionCre
 import { validUserId, checkQuizName, checkQuestionValid, isValidQuizId, randomColour } from './quizUtil';
 import HTTPError from 'http-errors';
 import { saveData } from './persistence';
+import { usersList } from './authUtil';
 
 /**
  * Provides a list of all quizzes that are owned by the currently logged in user
@@ -385,7 +386,6 @@ export const quizQuestionCreate = (token: string, questionBody: quizQuestionCrea
 
   const answerOut = questionBody.answers.map(answer => {
     data.answerIdStore += 1;
-
     return {
       answerId: data.answerIdStore,
       answer: answer.answer,
@@ -401,6 +401,7 @@ export const quizQuestionCreate = (token: string, questionBody: quizQuestionCrea
     points: questionBody.points,
     answers: answerOut,
   });
+
 
   setData(data);
   saveData();
@@ -425,13 +426,6 @@ export const quizTransfer = (token: string, userEmail: string, quizId: number): 
   if (quiz) {
     throw HTTPError(400, 'Quiz ID refers to a quiz that has a name that is already used by the target user');
   }
-
-  /*
-  const findState = findQuiz.quizQuestions.find(questions => questions.state === true);
-  if (findState) {
-    return {error: 'Any session for this quiz is not in END state'}
-  }
-*/
 
   // push the quiz to the target user
   const currentUser = data.users.find(users => users.sessions.includes(token));
