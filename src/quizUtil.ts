@@ -86,17 +86,17 @@ export const checkQuizName = (name: string, quizzesOwned: quizUser[]) => {
 
 export const checkQuestionValid = (quizQuestion: quizQuestionCreateInput, quizId: number) => {
   // Check the string length
-  if (quizQuestion.questionBody.question.length < 5 || quizQuestion.questionBody.question.length > 50) {
+  if (quizQuestion.question.length < 5 || quizQuestion.question.length > 50) {
     throw HTTPError(400, 'Question string is less than 5 characters in length or greater than 50 characters in length');
   }
 
   // Check the answer length
-  if (quizQuestion.questionBody.answers.length > 6 || quizQuestion.questionBody.answers.length < 2) {
+  if (quizQuestion.answers.length > 6 || quizQuestion.answers.length < 2) {
     throw HTTPError(400, 'The question has more than 6 answers or less than 2 answers');
   }
 
   // Check the duration
-  if (quizQuestion.questionBody.duration <= 0) {
+  if (quizQuestion.duration <= 0) {
     throw HTTPError(400, 'The question duration is not a positive number');
   }
 
@@ -107,18 +107,18 @@ export const checkQuestionValid = (quizQuestion: quizQuestionCreateInput, quizId
   for (let i = 0; i < quiz.questions.length; i++) {
     sum = sum + quiz.questions[i].duration;
   }
-  sum = sum + quizQuestion.questionBody.duration;
+  sum = sum + quizQuestion.duration;
   if (sum > 180) {
     throw HTTPError(400, 'The sum of the question durations in the quiz exceeds 3 minutes');
   }
 
   // Check the point award
-  if (quizQuestion.questionBody.points < 1 || quizQuestion.questionBody.points > 10) {
+  if (quizQuestion.points < 1 || quizQuestion.points > 10) {
     throw HTTPError(400, 'The points awarded for the question are less than 1 or greater than 10');
   }
 
   // Check the answer length
-  for (const answer of quizQuestion.questionBody.answers) {
+  for (const answer of quizQuestion.answers) {
     if (answer.answer.length < 1 || answer.answer.length > 30) {
       throw HTTPError(400, 'The length of any answer is shorter than 1 character long, or longer than 30 characters long');
     }
@@ -126,8 +126,8 @@ export const checkQuestionValid = (quizQuestion: quizQuestionCreateInput, quizId
 
   // Check if there's duplicate answers
   const uniqueAnswers : string[] = [];
-  for (let i = 0; i < quizQuestion.questionBody.answers.length; i++) {
-    const currentAnswer = quizQuestion.questionBody.answers[i].answer;
+  for (let i = 0; i < quizQuestion.answers.length; i++) {
+    const currentAnswer = quizQuestion.answers[i].answer;
     if (!uniqueAnswers.includes(currentAnswer)) {
       uniqueAnswers.push(currentAnswer);
     } else {
@@ -136,7 +136,7 @@ export const checkQuestionValid = (quizQuestion: quizQuestionCreateInput, quizId
   }
 
   // Check if there's correct answer
-  const answer = quizQuestion.questionBody.answers.find(quizs => quizs.correct === true);
+  const answer = quizQuestion.answers.find(quizs => quizs.correct === true);
   if (!answer) {
     throw HTTPError(400, 'There are no correct answers');
   }

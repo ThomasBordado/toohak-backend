@@ -226,26 +226,25 @@ export const adminQuizQuestionUpdate = (token: string, questionBody: quizQuestio
   const findQuestionIndex = findQuiz.questions.findIndex(questions => questions.questionId === questionid);
   if (findQuestionIndex === -1) {
     return { error: 'Invalid questionId' };
-  } else if (findQuestionIndex > -1) {
-    const findQuestion = findQuiz.questions.find(questions => questions.questionId === questionid);
-    findQuestion.question = questionBody.questionBody.question;
-    findQuestion.duration = questionBody.questionBody.duration;
-    findQuestion.points = questionBody.questionBody.points;
-
-    const answerOut = questionBody.questionBody.answers.map(answer => {
-      data.answerIdStore += 1;
-
-      return {
-        answerId: data.answerIdStore,
-        answer: answer.answer,
-        colour: randomColour(),
-        correct: answer.correct,
-      };
-    });
-    findQuestion.answers = answerOut;
   }
+  const findQuestion = findQuiz.questions.find(questions => questions.questionId === questionid);
+  findQuestion.question = questionBody.question;
+  const oldDuration = findQuestion.duration;
+  findQuestion.duration = questionBody.duration;
+  findQuestion.points = questionBody.points;
 
-  findQuiz.duration = result.duration;
+  const answerOut = questionBody.answers.map(answer => {
+    data.answerIdStore += 1;
+    return {
+      answerId: data.answerIdStore,
+      answer: answer.answer,
+      colour: randomColour(),
+      correct: answer.correct,
+    };
+  });
+  findQuestion.answers = answerOut;
+
+  findQuiz.duration = result.duration - oldDuration;
   findQuiz.timeLastEdited = Math.floor(Date.now() / 1000);
   saveData();
   return {};
@@ -272,12 +271,12 @@ export const adminQuizQuestionDelete = (token: string, quizId: number, questioni
   const findQuestion = findQuiz.questions.findIndex(questions => questions.questionId === questionid);
   if (findQuestion === -1) {
     return { error: 'Invalid questionId' };
-  } else if (findQuestion > -1) {
-    findQuiz.questions.splice(findQuestion, 1);
   }
+
   findQuiz.duration -= findQuiz.questions[findQuestion].duration;
   findQuiz.numQuestions -= 1;
   findQuiz.timeLastEdited = Math.floor(Date.now() / 1000);
+  findQuiz.questions.splice(findQuestion, 1);
   saveData();
   return {};
 };
@@ -384,7 +383,7 @@ export const quizQuestionCreate = (token: string, questionBody: quizQuestionCrea
   data.questionIdStore += 1;
   const questionId = data.questionIdStore;
 
-  const answerOut = questionBody.questionBody.answers.map(answer => {
+  const answerOut = questionBody.answers.map(answer => {
     data.answerIdStore += 1;
 
     return {
@@ -397,9 +396,9 @@ export const quizQuestionCreate = (token: string, questionBody: quizQuestionCrea
 
   findQuiz.questions.push({
     questionId: questionId,
-    question: questionBody.questionBody.question,
-    duration: questionBody.questionBody.duration,
-    points: questionBody.questionBody.points,
+    question: questionBody.question,
+    duration: questionBody.duration,
+    points: questionBody.points,
     answers: answerOut,
   });
 
@@ -501,7 +500,7 @@ export const adminQuizQuestionDuplicate = (token: string, quizId: number, questi
 
   const findQuestion = data.quizzes[findQuiz].questions.findIndex(quizQuestions => quizQuestions.questionId === questionId);
   if (findQuestion === -1) {
-    return { error: 'Does not refer to valid question' };
+    return { error: 'Invalid questionId' };
   }
 
   const questionToDuplicate = data.quizzes[findQuiz].questions[findQuestion];
