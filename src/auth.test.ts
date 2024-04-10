@@ -22,7 +22,7 @@ describe('Test requestRegister', () => {
 
   // 2. Add an email and then try add the same email.
   test('Test email in use adminAuthRegister', () => {
-    let user = requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith');
+    const user = requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith');
     expect(user).toStrictEqual({ token: expect.any(String) });
     expect(() => requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith')).toThrow(HTTPError[400]);
   });

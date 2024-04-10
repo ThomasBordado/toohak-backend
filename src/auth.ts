@@ -20,7 +20,7 @@ export const adminAuthRegister = (email: string, password: string, nameFirst: st
   checkPassword(password);
   checkName(nameFirst, 'First');
   checkName(nameLast, 'Last');
-  
+
   const data = getData();
   data.userIdStore += 1;
   data.sessionIdStore += 1;
