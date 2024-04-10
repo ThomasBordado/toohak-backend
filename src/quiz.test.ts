@@ -1103,7 +1103,8 @@ describe('Testing Post /v2/admin/quiz/{quizid}/question (requestQuizQuestionCrea
     };
     const thumbnailUrl = 'http://google.com/some/image/path.jpg';
     expect(() => (requestQuizQuestionCreate(user.token, input, quiz.quizId, thumbnailUrl)).not.toThrow(HTTPError));
-    requestQuizQuestionCreate(user.token, input, quiz.quizId, thumbnailUrl);
+    const returnType = requestQuizQuestionCreate(user.token, input, quiz.quizId, thumbnailUrl);
+    expect(returnType).toStrictEqual({ questionId: expect.any(Number) });
     expect(requestQuizInfo(user.token, quiz.quizId)).toStrictEqual(expectedInfo);
   });
 
@@ -1621,6 +1622,8 @@ describe('Testing Post /v2/admin/quiz/{quizid}/transfer (requestquizTransfer)', 
     const quiz = requestQuizCreate(user2.token, 'My quiz Name', 'A description of my quiz') as quizId;
 
     expect(() => requestquizTransfer(user2.token, 'validemail@gmail.com', quiz.quizId).not.toThrow(HTTPError));
+    const returntype = requestquizTransfer(user2.token, 'validemail@gmail.com', quiz.quizId);
+    expect(returntype).toStrictEqual({});
   });
 
   describe('Error test for 400 error', () => {
