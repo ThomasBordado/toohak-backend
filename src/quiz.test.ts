@@ -8,7 +8,7 @@ beforeEach(() => {
 /*
  * Testing for listing quiz
  */
-describe.skip('requestQuizList testing', () => {
+describe('requestQuizList testing', () => {
   let user: SessionId;
   beforeEach(() => {
     user = requestRegister('chloe@gmail.com', 'password1', 'Chloe', 'Turner').jsonBody as SessionId;
@@ -17,9 +17,7 @@ describe.skip('requestQuizList testing', () => {
   describe('Unsuccessful Cases', () => {
     test('Invalid AuthUserId', () => {
       requestQuizCreate(user.token, 'My Quiz', 'My description.');
-      const result = requestQuizList(user.token + 1);
-      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-      expect(result.statusCode).toStrictEqual(401);
+      expect(() => requestQuizList(user.token + 1)).toThrow(HTTPError[401]);
     });
   });
   describe('Successful Cases', () => {
@@ -62,7 +60,7 @@ describe.skip('requestQuizList testing', () => {
 /*
  * Testing for creating quiz
  */
-describe.skip('requestQuizCreate testing', () => {
+describe('requestQuizCreate testing', () => {
   let user: SessionId;
   beforeEach(() => {
     user = requestRegister('chloe@gmail.com', 'password1', 'Chloe', 'Turner').jsonBody as SessionId;
@@ -70,40 +68,26 @@ describe.skip('requestQuizCreate testing', () => {
 
   describe('Unsuccessful Cases', () => {
     test('Invalid SessionId', () => {
-      const result = requestQuizCreate(user.token + 1, 'My Quiz', 'My description.');
-      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-      expect(result.statusCode).toStrictEqual(401);
+      expect(() => requestQuizCreate(user.token + 1, 'My Quiz', 'My description.')).toThrow(HTTPError[401]);
     });
     test('Invalid name: Contains non-alphanumeric characters', () => {
-      const result = requestQuizCreate(user.token, 'My Quiz!', 'My description.');
-      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-      expect(result.statusCode).toStrictEqual(400);
+      expect(() => requestQuizCreate(user.token, 'My Quiz!', 'My description.')).toThrow(HTTPError[400]);
     });
     test('Invalid name: blank name', () => {
-      const result = requestQuizCreate(user.token, '', 'My description.');
-      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-      expect(result.statusCode).toStrictEqual(400);
+      expect(() => requestQuizCreate(user.token, '', 'My description.')).toThrow(HTTPError[400]);
     });
     test('Invalid name: < 3 characters', () => {
-      const result = requestQuizCreate(user.token, 'My', 'My description.');
-      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-      expect(result.statusCode).toStrictEqual(400);
+      expect(() => requestQuizCreate(user.token, 'My', 'My description.')).toThrow(HTTPError[400]);
     });
     test('Invalid name: > 30 characters', () => {
-      const result = requestQuizCreate(user.token, 'My very very very very long Quiz', 'My description.');
-      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-      expect(result.statusCode).toStrictEqual(400);
+      expect(() => requestQuizCreate(user.token, 'My very very very very long Quiz', 'My description.')).toThrow(HTTPError[400]);
     });
     test('Invalid name: name already used', () => {
       requestQuizCreate(user.token, 'My Quiz', 'My description');
-      const result = requestQuizCreate(user.token, 'My Quiz', 'My description.');
-      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-      expect(result.statusCode).toStrictEqual(400);
+      expect(() => requestQuizCreate(user.token, 'My Quiz', 'My description.')).toThrow(HTTPError[400]);
     });
     test('Invalid description: > 100 characters', () => {
-      const result = requestQuizCreate(user.token, 'My Quiz', 'My very, very, very, very, very, very, very, very, very, very, very, very, very, very, long description.');
-      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-      expect(result.statusCode).toStrictEqual(400);
+      expect(() => requestQuizCreate(user.token, 'My very very very very long Quiz', 'My very, very, very, very, very, very, very, very, very, very, very, very, very, very, long description.')).toThrow(HTTPError[400]);
     });
   });
   describe('Successful cases', () => {
@@ -131,7 +115,7 @@ describe.skip('requestQuizCreate testing', () => {
 /*
  * Testing for sending a quiz to trash
  */
-describe.skip('requestQuizTrash testing', () => {
+describe('requestQuizTrash testing', () => {
   let user: SessionId;
   let quiz: quizId;
   beforeEach(() => {
@@ -141,33 +125,23 @@ describe.skip('requestQuizTrash testing', () => {
 
   describe('Unsuccessful Cases', () => {
     test('Invalid AuthUserId', () => {
-      const result = requestQuizTrash(user.token + 1, quiz.quizId);
-      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-      expect(result.statusCode).toStrictEqual(401);
+      expect(() => requestQuizTrash(user.token + 1, quiz.quizId)).toThrow(HTTPError[401]);
     });
     test('Invalid quizId', () => {
-      const result = requestQuizTrash(user.token, quiz.quizId + 1);
-      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-      expect(result.statusCode).toStrictEqual(403);
+      expect(() => requestQuizTrash(user.token, quiz.quizId + 1)).toThrow(HTTPError[403]);
     });
     test('User does not own quiz with given quizId', () => {
       const user2 = requestRegister('chloet@gmail.com', 'password1', 'Chloe', 'Turner').jsonBody as SessionId;
-      const result = requestQuizTrash(user2.token, quiz.quizId);
-      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-      expect(result.statusCode).toStrictEqual(403);
+      expect(() => requestQuizTrash(user2.token, quiz.quizId)).toThrow(HTTPError[403]);
     });
     test('User owns quiz with same name as given quizId', () => {
       const user2 = requestRegister('chloet@gmail.com', 'password1', 'Chloe', 'Turner').jsonBody as SessionId;
       requestQuizCreate(user2.token, 'My Quiz', 'My description.');
-      const result = requestQuizTrash(user2.token, quiz.quizId);
-      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-      expect(result.statusCode).toStrictEqual(403);
+      expect(() => requestQuizTrash(user2.token, quiz.quizId)).toThrow(HTTPError[403]);
     });
     test('Remove same quiz twice', () => {
       requestQuizTrash(user.token, quiz.quizId);
-      const result = requestQuizTrash(user.token, quiz.quizId);
-      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-      expect(result.statusCode).toStrictEqual(403);
+      expect(() => requestQuizTrash(user.token, quiz.quizId)).toThrow(HTTPError[403]);
     });
   });
   describe('Successful cases', () => {
@@ -617,7 +591,7 @@ describe.skip('Testing it2 function, adminQuizQuestionDelete', () => {
 /*
  * Testing for viewing quizzes in trash
  */
-describe.skip('requestQuizViewTrash testing', () => {
+describe('requestQuizViewTrash testing', () => {
   let user: SessionId;
   let quiz: quizId;
   beforeEach(() => {
@@ -627,9 +601,7 @@ describe.skip('requestQuizViewTrash testing', () => {
 
   describe('Unsuccessful Cases', () => {
     test('Invalid SessionId', () => {
-      const result = requestQuizViewTrash(user.token + 1);
-      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-      expect(result.statusCode).toStrictEqual(401);
+      expect(() => requestQuizViewTrash(user.token + 1)).toThrow(HTTPError[401]);
     });
   });
   describe('Successful cases', () => {
@@ -692,7 +664,7 @@ describe.skip('requestQuizViewTrash testing', () => {
 /*
  * Testing for restoring quizzes from trash
  */
-describe.skip('requestQuizRestore testing', () => {
+describe('requestQuizRestore testing', () => {
   let user: SessionId;
   let quiz: quizId;
   beforeEach(() => {
@@ -702,40 +674,28 @@ describe.skip('requestQuizRestore testing', () => {
 
   describe('Unsuccessful Cases', () => {
     test('Invalid AuthUserId', () => {
-      const result = requestQuizRestore(user.token + 1, quiz.quizId);
-      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-      expect(result.statusCode).toStrictEqual(401);
+      expect(() => requestQuizRestore(user.token + 1, quiz.quizId)).toThrow(HTTPError[401]);
     });
     test('Invalid quizId', () => {
-      const result = requestQuizRestore(user.token, quiz.quizId + 1);
-      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-      expect(result.statusCode).toStrictEqual(403);
+      expect(() => requestQuizRestore(user.token, quiz.quizId + 1)).toThrow(HTTPError[403]);
     });
     test('User does not own quiz with given quizId', () => {
       const user2 = requestRegister('chloet@gmail.com', 'password1', 'Chloe', 'Turner').jsonBody as SessionId;
-      const result = requestQuizRestore(user2.token, quiz.quizId);
-      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-      expect(result.statusCode).toStrictEqual(403);
+      expect(() => requestQuizRestore(user2.token, quiz.quizId)).toThrow(HTTPError[403]);
     });
     test('User owns quiz with same name as restored quiz', () => {
       requestQuizTrash(user.token, quiz.quizId);
       requestQuizCreate(user.token, 'My Quiz', 'My description.');
-      const result = requestQuizRestore(user.token, quiz.quizId);
-      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-      expect(result.statusCode).toStrictEqual(400);
+      expect(() => requestQuizRestore(user.token, quiz.quizId)).toThrow(HTTPError[400]);
     });
     test('quiz is not currently in trash', () => {
-      const result = requestQuizRestore(user.token, quiz.quizId);
-      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-      expect(result.statusCode).toStrictEqual(400);
+      expect(() => requestQuizRestore(user.token, quiz.quizId)).toThrow(HTTPError[400]);
     });
 
     test('Restore same quiz twice', () => {
       requestQuizTrash(user.token, quiz.quizId);
       requestQuizRestore(user.token, quiz.quizId);
-      const result = requestQuizRestore(user.token, quiz.quizId);
-      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-      expect(result.statusCode).toStrictEqual(400);
+      expect(() => requestQuizRestore(user.token, quiz.quizId)).toThrow(HTTPError[400]);
     });
   });
   describe('Successful cases', () => {
@@ -751,7 +711,7 @@ describe.skip('requestQuizRestore testing', () => {
 /*
  * Testing for trash empty
  */
-describe.skip('adminQuizTrashEmpty testing', () => {
+describe('adminQuizTrashEmpty testing', () => {
   let user: SessionId;
   let quiz: quizId;
   beforeEach(() => {
@@ -1138,19 +1098,23 @@ describe('Testing Post /v2/admin/quiz/{quizid}/question', () => {
           ]
         }
       ],
-      duration: 4
+      duration: 4,
+      thumbnailUrl: 'http://google.com/some/image/path.jpg',
     };
-    expect(() => (requestQuizQuestionCreate(user.token, input, quiz.quizId)).not.toThrow(HTTPError));
-    requestQuizQuestionCreate(user.token, input, quiz.quizId);
+    const thumbnailUrl = "http://google.com/some/image/path.jpg";
+    expect(() => (requestQuizQuestionCreate(user.token, input, quiz.quizId, thumbnailUrl)).not.toThrow(HTTPError));
+    requestQuizQuestionCreate(user.token, input, quiz.quizId, thumbnailUrl);
     expect(requestQuizInfo(user.token, quiz.quizId)).toStrictEqual(expectedInfo);
   });
 
   describe('Error test for 400 error', () => {
     let user: SessionId;
     let quiz: quizId;
+    let thumbnailUrl: string;
     beforeEach(() => {
       user = requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith') as SessionId;
       quiz = requestQuizCreate(user.token, 'My Quiz', 'My description.') as quizId;
+      thumbnailUrl = "http://google.com/some/image/path.jpg";
     });
 
     test.each([
@@ -1532,11 +1496,11 @@ describe('Testing Post /v2/admin/quiz/{quizid}/question', () => {
         }
       },
     ])("requestUpdateUserDetails error: '$test'", ({ quizQuestion }) => {
-      expect(() => requestQuizQuestionCreate(user.token, quizQuestion, quiz.quizId)).toThrow(HTTPError[400]);
+      expect(() => requestQuizQuestionCreate(user.token, quizQuestion, quiz.quizId, thumbnailUrl)).toThrow(HTTPError[400]);
     });
   });
 
-  describe('Error test for 401 error', () => {
+  describe('Error test for 400 error(thumbnailUrl)', () => {
     let user: SessionId;
     let quiz: quizId;
     let quizQuestion: quizQuestionCreateInput;
@@ -1562,17 +1526,59 @@ describe('Testing Post /v2/admin/quiz/{quizid}/question', () => {
       };
     });
 
-    test('Token is empty', () => {
-      expect(() => requestQuizQuestionCreate('', quizQuestion, quiz.quizId)).toThrow(HTTPError[401]);
+    test('thumbnailUrl is an empty', () => {
+      expect(() => requestQuizQuestionCreate(user.token, quizQuestion, quiz.quizId, '')).toThrow(HTTPError[400]);
+    });
+
+    test('The thumbnailUrl does not end with one of the following filetypes (case insensitive): jpg, jpeg, png', () => {
+      expect(() => requestQuizQuestionCreate(user.token, quizQuestion, quiz.quizId, 'http://google.com/some/image/path.')).toThrow(HTTPError[400]);
+    });
+
+    test('The thumbnailUrl does not begin with "http://" or "https://"', () => {
+      expect(() => requestQuizQuestionCreate(user.token, quizQuestion, quiz.quizId, 'google.com/some/image/path.jpg')).toThrow(HTTPError[400]);
+    });
+
+  });
+
+  describe('Error test for 401 error', () => {
+    let user: SessionId;
+    let quiz: quizId;
+    let quizQuestion: quizQuestionCreateInput;
+    let thumbnailUrl: string;
+    beforeEach(() => {
+      user = requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith') as SessionId;
+      quiz = requestQuizCreate(user.token, 'My Quiz', 'My description.') as quizId;
+      thumbnailUrl = "http://google.com/some/image/path.jpg";
+
+      quizQuestion = {
+        question: 'Who is the Monarch of England?',
+        duration: 4,
+        points: 5,
+        answers: [
+          {
+            answer: 'Prince Charles',
+            correct: true
+          },
+          {
+            answer: 'Prince Charles.',
+            correct: true
+          }
+        ]
+
+      };
     });
 
     test('Token is empty', () => {
-      expect(() => requestQuizQuestionCreate(user.token + 100, quizQuestion, quiz.quizId)).toThrow(HTTPError[401]);
+      expect(() => requestQuizQuestionCreate('', quizQuestion, quiz.quizId, thumbnailUrl)).toThrow(HTTPError[401]);
+    });
+
+    test('Token is empty', () => {
+      expect(() => requestQuizQuestionCreate(user.token + 100, quizQuestion, quiz.quizId, thumbnailUrl)).toThrow(HTTPError[401]);
     });
 
     test('logged out user', () => {
       requestLogout(user.token);
-      expect(() => requestQuizQuestionCreate(user.token, quizQuestion, quiz.quizId)).toThrow(HTTPError[401]);
+      expect(() => requestQuizQuestionCreate(user.token, quizQuestion, quiz.quizId, thumbnailUrl)).toThrow(HTTPError[401]);
     });
   });
 
@@ -1580,7 +1586,9 @@ describe('Testing Post /v2/admin/quiz/{quizid}/question', () => {
     const user = requestRegister('valideEmail@gmail.com', 'password1', 'Jane', 'Lawson') as SessionId;
     const quiz = requestQuizCreate(user.token, 'British', 'history') as quizId;
     const user2 = requestRegister('valideEmail2@gmail.com', 'password1', 'John', 'Lawson') as SessionId;
+    const thumbnailUrl = "http://google.com/some/image/path.jpg";
     requestQuizCreate(user.token, 'American', 'history') as quizId;
+    
 
     const input : quizQuestionCreateInput = {
       question: 'Who is the Monarch of England?',
@@ -1599,138 +1607,7 @@ describe('Testing Post /v2/admin/quiz/{quizid}/question', () => {
 
     };
 
-    expect(() => requestQuizQuestionCreate(user2.token, input, quiz.quizId)).toThrow(HTTPError[403]);
-  });
-});
-
-/**
- *
- */
-describe.skip('/v1/admin/quiz/trash testing', () => {
-  let user: SessionId;
-  let quiz: quizId;
-  beforeEach(() => {
-    user = requestRegister('chloe@gmail.com', 'password1', 'Chloe', 'Turner').jsonBody as SessionId;
-    quiz = requestQuizCreate(user.token, 'My Quiz', 'My description.').jsonBody as quizId;
-  });
-
-  describe('Unsuccessful Cases', () => {
-    test('Invalid SessionId', () => {
-      const result = requestQuizViewTrash(user.token + 1);
-      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-      expect(result.statusCode).toStrictEqual(401);
-    });
-  });
-  describe('Successful cases', () => {
-    test('no quizes in trash', () => {
-      expect(requestQuizViewTrash(user.token).jsonBody).toStrictEqual({ quizzes: [] });
-    });
-    test('single quiz in trash', () => {
-      requestQuizTrash(user.token, quiz.quizId);
-      expect(requestQuizViewTrash(user.token).jsonBody).toStrictEqual({ quizzes: [{ quizId: quiz.quizId, name: 'My Quiz' }] });
-    });
-
-    test('Remove multiple quizzes', () => {
-      const quiz2 = requestQuizCreate(user.token, 'My Second Quiz', 'My description.').jsonBody as quizId;
-      const quiz3 = requestQuizCreate(user.token, 'My Third Quiz', 'My description.').jsonBody as quizId;
-
-      requestQuizTrash(user.token, quiz.quizId);
-      requestQuizTrash(user.token, quiz3.quizId);
-      let trashList = requestQuizViewTrash(user.token).jsonBody as QuizListReturn;
-      let expectedList = {
-        quizzes: [
-          {
-            quizId: quiz.quizId,
-            name: 'My Quiz',
-          },
-          {
-            quizId: quiz3.quizId,
-            name: 'My Third Quiz',
-          },
-        ]
-      };
-      trashList.quizzes.sort((a: quizUser, b: quizUser) => a.quizId - b.quizId);
-      expectedList.quizzes.sort((a: quizUser, b: quizUser) => a.quizId - b.quizId);
-      expect(trashList).toStrictEqual(expectedList);
-
-      requestQuizTrash(user.token, quiz2.quizId);
-      trashList = requestQuizViewTrash(user.token).jsonBody as QuizListReturn;
-      expectedList = {
-        quizzes: [
-          {
-            quizId: quiz.quizId,
-            name: 'My Quiz',
-          },
-          {
-            quizId: quiz3.quizId,
-            name: 'My Third Quiz',
-          },
-          {
-            quizId: quiz2.quizId,
-            name: 'My Second Quiz',
-          },
-        ]
-      };
-      trashList.quizzes.sort((a: quizUser, b: quizUser) => a.quizId - b.quizId);
-      expectedList.quizzes.sort((a: quizUser, b: quizUser) => a.quizId - b.quizId);
-      expect(trashList).toStrictEqual(expectedList);
-    });
-  });
-});
-
-describe.skip('/v1/admin/quiz/{quizid}/restore testing', () => {
-  let user: SessionId;
-  let quiz: quizId;
-  beforeEach(() => {
-    user = requestRegister('chloe@gmail.com', 'password1', 'Chloe', 'Turner').jsonBody as SessionId;
-    quiz = requestQuizCreate(user.token, 'My Quiz', 'My description.').jsonBody as quizId;
-  });
-
-  describe('Unsuccessful Cases', () => {
-    test('Invalid AuthUserId', () => {
-      const result = requestQuizRestore(user.token + 1, quiz.quizId);
-      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-      expect(result.statusCode).toStrictEqual(401);
-    });
-    test('Invalid quizId', () => {
-      const result = requestQuizRestore(user.token, quiz.quizId + 1);
-      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-      expect(result.statusCode).toStrictEqual(403);
-    });
-    test('User does not own quiz with given quizId', () => {
-      const user2 = requestRegister('chloet@gmail.com', 'password1', 'Chloe', 'Turner').jsonBody as SessionId;
-      const result = requestQuizRestore(user2.token, quiz.quizId);
-      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-      expect(result.statusCode).toStrictEqual(403);
-    });
-    test('User owns quiz with same name as restored quiz', () => {
-      requestQuizTrash(user.token, quiz.quizId);
-      requestQuizCreate(user.token, 'My Quiz', 'My description.');
-      const result = requestQuizRestore(user.token, quiz.quizId);
-      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-      expect(result.statusCode).toStrictEqual(400);
-    });
-    test('quiz is not currently in trash', () => {
-      const result = requestQuizRestore(user.token, quiz.quizId);
-      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-      expect(result.statusCode).toStrictEqual(400);
-    });
-
-    test('Restore same quiz twice', () => {
-      requestQuizTrash(user.token, quiz.quizId);
-      requestQuizRestore(user.token, quiz.quizId);
-      const result = requestQuizRestore(user.token, quiz.quizId);
-      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-      expect(result.statusCode).toStrictEqual(400);
-    });
-  });
-  describe('Successful cases', () => {
-    test('restore quiz', () => {
-      requestQuizTrash(user.token, quiz.quizId);
-      expect(requestQuizRestore(user.token, quiz.quizId).jsonBody).toStrictEqual({});
-      expect(requestQuizList(user.token).jsonBody).toStrictEqual({ quizzes: [{ quizId: quiz.quizId, name: 'My Quiz' }] });
-      expect(requestQuizViewTrash(user.token).jsonBody).toStrictEqual({ quizzes: [] });
-    });
+    expect(() => requestQuizQuestionCreate(user2.token, input, quiz.quizId, thumbnailUrl)).toThrow(HTTPError[403]);
   });
 });
 

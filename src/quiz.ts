@@ -1,9 +1,8 @@
 import { getData, setData } from './dataStore';
-import { EmptyObject, ErrorReturn, QuizListReturn, quiz, quizId, quizQuestionCreateInput, quizQuestionCreateReturn, quizQuestionDuplicateReturn, thumbnailUrl } from './interfaces';
-import { validUserId, checkQuizName, checkQuestionValid, isValidQuizId, randomColour } from './quizUtil';
-import HTTPError from 'http-errors';
+import { EmptyObject, ErrorReturn, QuizListReturn, quiz, quizId, quizQuestionCreateInput, quizQuestionCreateReturn, quizQuestionDuplicateReturn } from './interfaces';
+import { validToken, checkQuizName, checkQuestionValid, isValidQuizId, randomColour, validthumbnailUrl } from './quizUtil';
 import { saveData } from './persistence';
-
+import HTTPError from 'http-errors';
 /**
  * Provides a list of all quizzes that are owned by the currently logged in user
  * @param {string} token - unique identifier for an academic
@@ -11,10 +10,7 @@ import { saveData } from './persistence';
  */
 export const adminQuizList = (token: string): QuizListReturn | ErrorReturn => {
   const data = getData();
-  const user = validUserId(token, data.users);
-  if ('error' in user) {
-    return user;
-  }
+  const user = validToken(token, data.users);
   saveData();
   return { quizzes: user.quizzes };
 };
@@ -29,14 +25,10 @@ export const adminQuizList = (token: string): QuizListReturn | ErrorReturn => {
 
 export const adminQuizCreate = (token: string, name: string, description: string): quizId | ErrorReturn => {
   const data = getData();
-  const user = validUserId(token, data.users);
-  // if ('error' in user) {
-  //   return user;
-  // } else
-  if (checkQuizName(name, user.quizzes) !== true) {
-    return checkQuizName(name, user.quizzes) as ErrorReturn;
-  } else if (description.length > 100) {
-    return { error: 'Description cannot be greater than 100 characters' };
+  const user = validToken(token, data.users);
+  checkQuizName(name, user.quizzes);
+  if (description.length > 100) {
+    throw HTTPError(400, 'Description cannot be greater than 100 characters');
   }
 
   data.quizIdStore += 1;
@@ -49,6 +41,7 @@ export const adminQuizCreate = (token: string, name: string, description: string
     numQuestions: 0,
     questions: [],
     duration: 0,
+    thumbnailUrl: '',
   } as quiz;
 
   data.quizzes.push(newQuiz);
@@ -67,19 +60,11 @@ export const adminQuizCreate = (token: string, name: string, description: string
  */
 export const adminQuizRemove = (token: string, quizId: number): EmptyObject | ErrorReturn => {
   const data = getData();
-  const user = validUserId(token, data.users);
-  // if ('error' in user) {
-  //   return user;
-  // }
-
+  const user = validToken(token, data.users);
   const quizzesIndex = data.quizzes.findIndex(quizzes => quizzes.quizId === quizId);
-  if (quizzesIndex === -1) {
-    return { error: 'Invalid quizId' };
-  }
-
   const userQuizzesIndex = user.quizzes.findIndex(quizzes => quizzes.quizId === quizId);
   if (userQuizzesIndex === -1) {
-    return { error: 'User does not own quiz' };
+    throw HTTPError(403, 'User does not own quiz');
   }
 
   const quiz = data.quizzes.find(quizzes => quizzes.quizId === quizId);
@@ -99,10 +84,7 @@ export const adminQuizRemove = (token: string, quizId: number): EmptyObject | Er
  */
 export const adminQuizInfo = (token: string, quizId: number): quiz | ErrorReturn => {
   const data = getData();
-  const user = validUserId(token, data.users);
-  // if ('error' in user) {
-  //   return user;
-  // }
+  const user = validToken(token, data.users);
 
   const quizzesIndex = data.quizzes.findIndex(quizzes => quizzes.quizId === quizId);
   if (quizzesIndex === -1) {
@@ -126,13 +108,8 @@ export const adminQuizInfo = (token: string, quizId: number): quiz | ErrorReturn
  */
 export const adminQuizNameUpdate = (token: string, quizId: number, name: string): EmptyObject | ErrorReturn => {
   const data = getData();
-  const user = validUserId(token, data.users);
-  // if ('error' in user) {
-  //   return user;
-  // } else
-  if (checkQuizName(name, user.quizzes) !== true) {
-    return checkQuizName(name, user.quizzes) as ErrorReturn;
-  }
+  const user = validToken(token, data.users);
+  checkQuizName(name, user.quizzes);
 
   const quizzesIndex = data.quizzes.findIndex(quizzes => quizzes.quizId === quizId);
   if (quizzesIndex === -1) {
@@ -160,10 +137,7 @@ export const adminQuizNameUpdate = (token: string, quizId: number, name: string)
  */
 export const adminQuizDescriptionUpdate = (token: string, quizId: number, newDescription: string): EmptyObject | ErrorReturn => {
   const data = getData();
-  const user = validUserId(token, data.users);
-  // if ('error' in user) {
-  //   return user;
-  // }
+  const user = validToken(token, data.users);
   const quizIndex = data.quizzes.findIndex(quizzes => quizzes.quizId === quizId);
 
   if (quizIndex === -1) {
@@ -192,20 +166,14 @@ export const adminQuizDescriptionUpdate = (token: string, quizId: number, newDes
  */
 export const adminQuizViewTrash = (token: string): QuizListReturn | ErrorReturn => {
   const data = getData();
-  const user = validUserId(token, data.users);
-  if ('error' in user) {
-    return user;
-  }
+  const user = validToken(token, data.users);
   saveData();
   return { quizzes: user.trash };
 };
 
 export const adminQuizQuestionUpdate = (token: string, questionBody: quizQuestionCreateInput, quizId: number, questionid: number): EmptyObject | ErrorReturn => {
   const data = getData();
-  const user = validUserId(token, data.users);
-  // if ('error' in user) {
-  //   return user;
-  // }
+  const user = validToken(token, data.users);
 
   const quizzesIndex = data.quizzes.findIndex(quizzes => quizzes.quizId === quizId);
   if (quizzesIndex === -1) {
@@ -252,10 +220,7 @@ export const adminQuizQuestionUpdate = (token: string, questionBody: quizQuestio
 
 export const adminQuizQuestionDelete = (token: string, quizId: number, questionid: number): EmptyObject | ErrorReturn => {
   const data = getData();
-  const user = validUserId(token, data.users);
-  // if ('error' in user) {
-  //   return user;
-  // }
+  const user = validToken(token, data.users);
 
   const quizzesIndex = data.quizzes.findIndex(quizzes => quizzes.quizId === quizId);
   if (quizzesIndex === -1) {
@@ -288,26 +253,18 @@ export const adminQuizQuestionDelete = (token: string, quizId: number, questioni
  */
 export const adminQuizRestore = (token: string, quizId: number): EmptyObject | ErrorReturn => {
   const data = getData();
-  const user = validUserId(token, data.users);
-  // if ('error' in user) {
-  //   return user;
-  // }
+  const user = validToken(token, data.users);
   const quizzesIndex = data.trash.findIndex(quizzes => quizzes.quizId === quizId);
-  const quiz = data.quizzes.find(quizzes => quizzes.quizId === quizId);
-  if (quizzesIndex === -1 && quiz === undefined) {
-    return { error: 'Invalid quizId' };
-  }
   const userQuizIndex = user.trash.findIndex(quizzes => quizzes.quizId === quizId);
   const quizUser = user.quizzes.find(quizzes => quizzes.quizId === quizId);
   if (userQuizIndex === -1) {
     if (quizUser === undefined) {
-      return { error: 'User does not own this quiz' };
+      throw HTTPError(403, 'User does not own this quiz');
     } else {
-      return { error: 'Quiz is not currently in the trash' };
+      throw HTTPError(400, 'Quiz is not currently in the trash');
     }
-  } else if (checkQuizName(user.trash[userQuizIndex].name, user.quizzes) !== true) {
-    return checkQuizName(user.trash[userQuizIndex].name, user.quizzes) as ErrorReturn;
   }
+  checkQuizName(user.trash[userQuizIndex].name, user.quizzes);
   data.trash[quizzesIndex].timeLastEdited = Math.floor(Date.now() / 1000);
   data.quizzes.push(data.trash[quizzesIndex]);
   user.quizzes.push(user.trash[userQuizIndex]);
@@ -327,10 +284,7 @@ export const adminQuizTrashEmpty = (token: string, quizIds: number[]): EmptyObje
   const data = getData();
 
   // Check if the token is valid. error 401
-  const user = validUserId(token, data.users);
-  // if ('error' in user) {
-  //   return user;
-  // }
+  const user = validToken(token, data.users);
 
   // Check if the current user owns the quizzes being removed. error 403
   // If a user owns a quiz where is it stored
@@ -366,13 +320,15 @@ export const adminQuizTrashEmpty = (token: string, quizIds: number[]): EmptyObje
  * @param {number} quizId - a unique identifier of quiz
  * @returns questionId
  */
-export const quizQuestionCreate = (token: string, questionBody: quizQuestionCreateInput, quizId: number, thumbnailUrl: thumbnailUrl): quizQuestionCreateReturn | ErrorReturn => {
+export const quizQuestionCreate = (token: string, questionBody: quizQuestionCreateInput, quizId: number, thumbnailUrl: string ): quizQuestionCreateReturn | ErrorReturn => {
   // Check token error
   const data = getData();
-  validUserId(token, data.users);
+  validToken(token, data.users);
+
   // Check if the user owns this quiz
   isValidQuizId(token, quizId);
-  // Check if the 
+  // Check if the thumbnailUrl is valid
+  validthumbnailUrl(thumbnailUrl);
   // Return the duration sum of the questions
   const question = checkQuestionValid(questionBody, quizId);
 
@@ -409,7 +365,7 @@ export const quizQuestionCreate = (token: string, questionBody: quizQuestionCrea
 
 export const quizTransfer = (token: string, userEmail: string, quizId: number): EmptyObject | ErrorReturn => {
   const data = getData();
-  validUserId(token, data.users);
+  validToken(token, data.users);
   isValidQuizId(token, quizId);
 
   const targetUser = data.users.find(users => users.email === userEmail);
@@ -441,10 +397,7 @@ export const quizTransfer = (token: string, userEmail: string, quizId: number): 
 
 export const adminQuizQuestionMove = (token: string, quizId: number, questionId: number, newPosition: number): EmptyObject | ErrorReturn => {
   const data = getData();
-  const user = validUserId(token, data.users);
-  // if ('error' in user) {
-  //   return user;
-  // }
+  const user = validToken(token, data.users);
 
   const userQuizIndex = user.quizzes.findIndex(quizzes => quizzes.quizId === quizId);
   if (userQuizIndex === -1) {
@@ -476,10 +429,7 @@ export const adminQuizQuestionMove = (token: string, quizId: number, questionId:
 
 export const adminQuizQuestionDuplicate = (token: string, quizId: number, questionId: number): quizQuestionDuplicateReturn | ErrorReturn => {
   const data = getData();
-  const user = validUserId(token, data.users);
-  // if ('error' in user) {
-  //   return user;
-  // }
+  const user = validToken(token, data.users);
 
   const userQuizIndex = user.quizzes.findIndex(quizzes => quizzes.quizId === quizId);
   if (userQuizIndex === -1) {

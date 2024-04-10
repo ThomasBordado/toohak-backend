@@ -33,20 +33,16 @@ import HTTPError from 'http-errors';
  *   }>
  *  }
  * } - for valid sessionId
-  * @returns {error: string}} - for invalid sessionId
   */
-export const validUserId = (token: string, userData: user[]) => {
-  if (token === '') {
-    throw HTTPError(401, 'Token is empty');
-  }
+export const validToken = (token: string, userData: user[]) => {
   // searches for sessionId and returns user if found
   for (const user of userData) {
     if (user.sessions.includes(token)) {
       return user;
     }
   }
-  // returns error if not found
-  throw HTTPError(401, 'Token is invalid');
+  // throws error if not found
+  throw HTTPError(401, 'Token is empty or invalid');
 };
 
 /**
@@ -64,24 +60,22 @@ export const validUserId = (token: string, userData: user[]) => {
 export const checkQuizName = (name: string, quizzesOwned: quizUser[]) => {
   // error if quiz name is < 3 && > 30 character
   if (name.length < 3 || name.length > 30) {
-    return { error: 'Quiz name must be between 3 and 30 characters' };
+    throw HTTPError(400, 'Quiz name must be between 3 and 30 characters');
   }
 
   // error if a character is not a letter(upper or lower) number,  or space
   for (const c of name) {
     if (!/[a-zA-Z\s\d]/.test(c)) {
-      return { error: 'Name can only contain alphanumeric characters and spaces' };
+      throw HTTPError(400, 'Name can only contain alphanumeric characters and spaces');
     }
   }
 
   // error if name matches name of quiz previously owned by user
   for (const quiz of quizzesOwned) {
     if (quiz.name === name) {
-      return { error: 'Quiz name previously used by user' };
+      throw HTTPError(400, 'Quiz name previously used by user');
     }
   }
-
-  return true;
 };
 
 export const checkQuestionValid = (quizQuestion: quizQuestionCreateInput, quizId: number) => {
@@ -147,7 +141,7 @@ export const checkQuestionValid = (quizQuestion: quizQuestionCreateInput, quizId
 /**
  *  It can only be used after checking the token
  */
-export const isValidQuizId = (token: string, quizId: number): EmptyObject | ErrorReturn => {
+export const isValidQuizId = (token: string, quizId: number) => {
   // Check if the quizId is invalid
   const data = getData();
   if (data.quizzes.length === 0) {
@@ -169,6 +163,18 @@ export const isValidQuizId = (token: string, quizId: number): EmptyObject | Erro
     throw HTTPError(403, 'Invalid quizId');
   }
 };
+
+export const validthumbnailUrl = (thumbnailUrl: string) => {
+  if (thumbnailUrl === '') {
+    throw HTTPError(400, 'The thumbnailUrl is an empty string.');
+  }
+  if (!thumbnailUrl.endsWith('jpg') && !thumbnailUrl.endsWith('jpeg') && !thumbnailUrl.endsWith('png')) {
+    throw HTTPError(400, 'The thumbnailUrl does not end with one of the following filetypes (case insensitive): jpg, jpeg, png');
+  }
+  if (!thumbnailUrl.startsWith('http://') && !thumbnailUrl.startsWith('https://')) {
+    throw HTTPError(400, 'The thumbnailUrl does not begin with "http://" or "https://"')
+  }
+}
 
 export const randomColour = (): string => {
   const colours = ['red', 'green', 'yellow', 'blue'];

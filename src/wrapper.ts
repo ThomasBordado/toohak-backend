@@ -1,13 +1,12 @@
 import request, { HttpVerb } from 'sync-request-curl';
 import { port, url } from './config.json';
-import { quizQuestionCreateInput, thumbnailUrl } from './interfaces';
+import { quizQuestionCreateInput } from './interfaces';
 import { IncomingHttpHeaders } from 'http';
 import HTTPError from 'http-errors';
-
 const SERVER_URL = `${url}:${port}`;
 
 // interface RequestHelperReturnType {
-//   statusCode: number;
+//   statusCode?: number;
 //   jsonBody?: Record<string, any>;
 //   error?: string;
 // }
@@ -28,7 +27,7 @@ const requestHelper = (
   path: string,
   payload: unknown,
   headers: IncomingHttpHeaders = {}
-): any => {
+) => {
   let qs = {};
   let json = {};
   if (['GET', 'DELETE'].includes(method.toUpperCase())) {
@@ -37,7 +36,6 @@ const requestHelper = (
     // PUT/POST
     json = payload;
   }
-
   const url = SERVER_URL + path;
   const res = request(method, url, { qs, json, headers });
 
@@ -55,15 +53,19 @@ const requestHelper = (
 
   const errorMessage = `[${res.statusCode}] ` + responseBody?.error || responseBody || 'No message specified!';
 
+
   // NOTE: the error is rethrown in the test below. This is useful becasuse the
   // test suite will halt (stop) if there's an error, rather than carry on and
   // potentially failing on a different expect statement without useful outputs
   switch (res.statusCode) {
     case 400: // BAD_REQUEST
+      throw HTTPError(res.statusCode, errorMessage);
     case 401: // UNAUTHORIZED
       throw HTTPError(res.statusCode, errorMessage);
+    case 403: // BAD_REQUEST
+      throw HTTPError(res.statusCode, errorMessage);
     case 404: // NOT_FOUND
-      throw HTTPError(res.statusCode, `Cannot find '${url}' [${method}]\nReason: ${errorMessage}\n\nHint: Check that your server.ts have the correct path AND method`);
+      throw HTTPError(res.statusCode, `Cannot find '${SERVER_URL + path}' [${method}]\nReason: ${errorMessage}\n\nHint: Check that your server.ts have the correct path AND method`);
     case 500: // INTERNAL_SERVER_ERROR
       throw HTTPError(res.statusCode, errorMessage + '\n\nHint: Your server crashed. Check the server log!\n');
     default:
@@ -98,15 +100,15 @@ export const requestUpdatePassword = (token: string, oldPassword: string, newPas
 };
 
 export const requestQuizList = (token: string) => {
-  return requestHelper('GET', '/v1/admin/quiz/list', {}, { token });
+  return requestHelper('GET', '/v2/admin/quiz/list', {}, { token });
 };
 
 export const requestQuizCreate = (token: string, name: string, description: string) => {
-  return requestHelper('POST', '/v1/admin/quiz', { name, description }, { token });
+  return requestHelper('POST', '/v2/admin/quiz', { name, description }, { token });
 };
 
 export const requestQuizTrash = (token: string, quizId: number) => {
-  return requestHelper('DELETE', `/v1/admin/quiz/${quizId}`, {}, { token });
+  return requestHelper('DELETE', `/v2/admin/quiz/${quizId}`, {}, { token });
 };
 
 export const requestQuizInfo = (token: string, quizId: number) => {
@@ -129,7 +131,7 @@ export const requestLogout = (token: string) => {
   return requestHelper('POST', '/v1/admin/auth/logout', {}, { token });
 };
 
-export const requestQuizQuestionCreate = (token: string, questionBody: quizQuestionCreateInput, quizid: number, thumbnailUrl: thumbnailUrl) => {
+export const requestQuizQuestionCreate = (token: string, questionBody: quizQuestionCreateInput, quizid: number, thumbnailUrl: string) => {
   return requestHelper('POST', `/v2/admin/quiz/${quizid}/question`, { questionBody, thumbnailUrl }, { token });
 };
 
@@ -158,9 +160,9 @@ export const requestDeleteQuizQuestion = (token: string, quizid: number, questio
 };
 
 export const requestQuizViewTrash = (token: string) => {
-  return requestHelper('GET', '/v1/admin/quiz/trash', {}, { token });
+  return requestHelper('GET', '/v2/admin/quiz/trash', {}, { token });
 };
 
 export const requestQuizRestore = (token: string, quizId: number) => {
-  return requestHelper('POST', `/v1/admin/quiz/${quizId}/restore`, {}, { token });
+  return requestHelper('POST', `/v2/admin/quiz/${quizId}/restore`, {}, { token });
 };

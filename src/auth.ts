@@ -1,7 +1,7 @@
 import { checkEmail, checkPassword, checkName, isValidToken, isSame, isPasswordCorrect, isNewPasswordUsed, isEmailUsedByOther, getHashOf } from './authUtil';
 import isEmail from 'validator/lib/isEmail.js';
 import { getData, setData } from './dataStore';
-import { validUserId } from './quizUtil';
+import { validToken } from './quizUtil';
 import { EmptyObject, ErrorReturn, UserDetailsReturn, user, SessionId } from './interfaces';
 import { saveData } from './persistence';
 import HTTPError from 'http-errors';
@@ -95,11 +95,8 @@ export const adminAuthLogin = (email: string, password: string): SessionId | Err
  */
 export const adminUserDetails = (token: string): UserDetailsReturn | ErrorReturn => {
   const data = getData();
-  const user = validUserId(token, data.users);
+  const user = validToken(token, data.users);
 
-  // if ('error' in user) {
-  //   return user;
-  // }
   saveData();
   return {
     user: {

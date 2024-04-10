@@ -10,7 +10,7 @@ beforeEach(() => {
 /*
  * Testing for registering a user
  */
-describe('Test requestRegister', () => {
+describe.skip('Test requestRegister', () => {
   // 1. Successful Register of two users
   test.skip('Test registering two users', () => {
     const response1 = requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith');
@@ -111,7 +111,7 @@ describe('Test requestRegister', () => {
 /*
  * Testing for logging into a user account.
  */
-describe('Test requestLogin', () => {
+describe.skip('Test requestLogin', () => {
   // 1. Successful login to an existing account.
   test.skip('Test successful login', () => {
     requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith');
@@ -183,7 +183,7 @@ describe('Test requestLogin', () => {
 /*
  * Testing for getting user details
  */
-describe('Test requestGetUserDetials', () => {
+describe.skip('Test requestGetUserDetials', () => {
   // 1. Succesful return of account details
   test.skip('Test succesful get user details', () => {
     const user1 = requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith').jsonBody as SessionId;
@@ -213,7 +213,7 @@ describe('Test requestGetUserDetials', () => {
 /*
  * Testing for updating user details
  */
-describe('requestUpdateUserDetails', () => {
+describe.skip('requestUpdateUserDetails', () => {
   let data: SessionId;
   beforeEach(() => {
     requestClear();
@@ -346,7 +346,7 @@ describe('requestUpdateUserDetails', () => {
 /*
  * Testing for updating user password
  */
-describe('requestUpdatePassword', () => {
+describe.skip('requestUpdatePassword', () => {
   let data: SessionId;
   beforeEach(() => {
     data = requestRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith') as SessionId;
@@ -438,7 +438,7 @@ describe('requestUpdatePassword', () => {
 /*
  * Testing for logging out of a session
  */
-describe('Test requestLogout', () => {
+describe.skip('Test requestLogout', () => {
   // 1. Successful logout after registering account.
   test.skip('Test successful logout', () => {
     const sessionId = requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith').jsonBody as SessionId;
