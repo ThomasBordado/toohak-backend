@@ -87,7 +87,10 @@ export interface quizQuestionCreateInput {
   duration: number;
   points: number;
   answers: answerInput[];
+}
 
+export interface thumbnailUrl {
+  thumbnailUrl: string;
 }
 
 export interface quizQuestionCreateReturn {

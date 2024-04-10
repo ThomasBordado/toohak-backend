@@ -1,5 +1,5 @@
 import { getData, setData } from './dataStore';
-import { EmptyObject, ErrorReturn, QuizListReturn, quiz, quizId, quizQuestionCreateInput, quizQuestionCreateReturn, quizQuestionDuplicateReturn } from './interfaces';
+import { EmptyObject, ErrorReturn, QuizListReturn, quiz, quizId, quizQuestionCreateInput, quizQuestionCreateReturn, quizQuestionDuplicateReturn, thumbnailUrl } from './interfaces';
 import { validUserId, checkQuizName, checkQuestionValid, isValidQuizId, randomColour } from './quizUtil';
 import HTTPError from 'http-errors';
 import { saveData } from './persistence';
@@ -366,12 +366,13 @@ export const adminQuizTrashEmpty = (token: string, quizIds: number[]): EmptyObje
  * @param {number} quizId - a unique identifier of quiz
  * @returns questionId
  */
-export const quizQuestionCreate = (token: string, questionBody: quizQuestionCreateInput, quizId: number): quizQuestionCreateReturn | ErrorReturn => {
+export const quizQuestionCreate = (token: string, questionBody: quizQuestionCreateInput, quizId: number, thumbnailUrl: thumbnailUrl): quizQuestionCreateReturn | ErrorReturn => {
   // Check token error
   const data = getData();
   validUserId(token, data.users);
   // Check if the user owns this quiz
   isValidQuizId(token, quizId);
+  // Check if the 
   // Return the duration sum of the questions
   const question = checkQuestionValid(questionBody, quizId);
 

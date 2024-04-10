@@ -278,8 +278,8 @@ app.delete('/v1/admin/quiz/trash/empty', (req: Request, res: Response) => {
 app.post('/v2/admin/quiz/:quizid/question', (req: Request, res: Response) => {
   const quizId = parseInt(req.params.quizid);
   const token = req.headers.token as string;
-  const { questionBody } = req.body;
-  const response = quizQuestionCreate(token, questionBody, quizId);
+  const { questionBody, thumbnailUrl } = req.body;
+  const response = quizQuestionCreate(token, questionBody, quizId, thumbnailUrl);
   res.json(response);
 });
 
