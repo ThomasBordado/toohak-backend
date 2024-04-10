@@ -320,7 +320,7 @@ export const adminQuizTrashEmpty = (token: string, quizIds: number[]): EmptyObje
  * @param {number} quizId - a unique identifier of quiz
  * @returns questionId
  */
-export const quizQuestionCreate = (token: string, questionBody: quizQuestionCreateInput, quizId: number, thumbnailUrl: string ): quizQuestionCreateReturn | ErrorReturn => {
+export const quizQuestionCreate = (token: string, questionBody: quizQuestionCreateInput, quizId: number, thumbnailUrl: string): quizQuestionCreateReturn | ErrorReturn => {
   // Check token error
   const data = getData();
   validToken(token, data.users);
@@ -336,6 +336,7 @@ export const quizQuestionCreate = (token: string, questionBody: quizQuestionCrea
   const findQuiz = data.quizzes.find(quizs => quizs.quizId === quizId);
   findQuiz.timeLastEdited = Math.floor(Date.now() / 1000);
   findQuiz.duration = question.duration;
+  findQuiz.thumbnailUrl = thumbnailUrl;
   findQuiz.numQuestions += 1;
   data.questionIdStore += 1;
   const questionId = data.questionIdStore;

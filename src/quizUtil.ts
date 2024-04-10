@@ -1,4 +1,4 @@
-import { quizUser, user, quizQuestionCreateInput, EmptyObject, ErrorReturn } from './interfaces';
+import { quizUser, user, quizQuestionCreateInput } from './interfaces';
 import { getData } from './dataStore';
 import HTTPError from 'http-errors';
 
@@ -172,9 +172,9 @@ export const validthumbnailUrl = (thumbnailUrl: string) => {
     throw HTTPError(400, 'The thumbnailUrl does not end with one of the following filetypes (case insensitive): jpg, jpeg, png');
   }
   if (!thumbnailUrl.startsWith('http://') && !thumbnailUrl.startsWith('https://')) {
-    throw HTTPError(400, 'The thumbnailUrl does not begin with "http://" or "https://"')
+    throw HTTPError(400, 'The thumbnailUrl does not begin with "http://" or "https://"');
   }
-}
+};
 
 export const randomColour = (): string => {
   const colours = ['red', 'green', 'yellow', 'blue'];

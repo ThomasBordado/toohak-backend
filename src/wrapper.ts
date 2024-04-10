@@ -53,7 +53,6 @@ const requestHelper = (
 
   const errorMessage = `[${res.statusCode}] ` + responseBody?.error || responseBody || 'No message specified!';
 
-
   // NOTE: the error is rethrown in the test below. This is useful becasuse the
   // test suite will halt (stop) if there's an error, rather than carry on and
   // potentially failing on a different expect statement without useful outputs
