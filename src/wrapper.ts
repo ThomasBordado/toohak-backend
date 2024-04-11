@@ -1,15 +1,14 @@
 import request, { HttpVerb } from 'sync-request-curl';
 import { port, url } from './config.json';
 import { quizQuestionCreateInput } from './interfaces';
-import { IncomingHttpHeaders } from 'http';
-import HTTPError from 'http-errors';
+
 const SERVER_URL = `${url}:${port}`;
 
-// interface RequestHelperReturnType {
-//   statusCode?: number;
-//   jsonBody?: Record<string, any>;
-//   error?: string;
-// }
+interface RequestHelperReturnType {
+  statusCode: number;
+  jsonBody?: Record<string, any>;
+  error?: string;
+}
 /**
  * Sends a request to the given route and return its results
  *
@@ -25,9 +24,8 @@ const SERVER_URL = `${url}:${port}`;
 const requestHelper = (
   method: HttpVerb,
   path: string,
-  payload: object = {},
-  headers: IncomingHttpHeaders = {}
-) => {
+  payload: object = {}
+): RequestHelperReturnType => {
   let qs = {};
   let json = {};
   if (['GET', 'DELETE'].includes(method)) {
@@ -36,41 +34,34 @@ const requestHelper = (
     // PUT/POST
     json = payload;
   }
-  const res = request(method, SERVER_URL + path, { qs, json, headers, timeout: 20000 });
+  const res = request(method, SERVER_URL + path, { qs, json, timeout: 20000 });
   const bodyString = res.body.toString();
-  let bodyObject;
+  let bodyObject: RequestHelperReturnType;
   try {
     // Return if valid JSON, in our own custom format
-    bodyObject = JSON.parse(bodyString);
-  } catch (error) {
-    if (res.statusCode === 200) {
-      throw HTTPError(500,
-        `Non-jsonifiable body despite code 200: '${res.body}'.\nCheck that you are not doing res.json(undefined) instead of res.json({}), e.g. in '/clear'`
-      );
-    }
-    bodyObject = { error: `Failed to parse JSON: '${error.message}'` };
+    bodyObject = {
+      jsonBody: JSON.parse(bodyString),
+      statusCode: res.statusCode,
+    };
+  } catch (error: any) {
+    bodyObject = {
+      error: `\
+Server responded with ${res.statusCode}, but body is not JSON!
+
+GIVEN:
+${bodyString}.
+
+REASON:
+${error.message}.
+
+HINT:
+Did you res.json(undefined)?`,
+      statusCode: res.statusCode,
+    };
   }
-
-  const errorMessage = `[${res.statusCode}] ` + bodyObject?.error || bodyObject || 'No message specified!';
-
-  // NOTE: the error is rethrown in the test below. This is useful becasuse the
-  // test suite will halt (stop) if there's an error, rather than carry on and
-  // potentially failing on a different expect statement without useful outputs
-  switch (res.statusCode) {
-    case 400: // BAD_REQUEST
-      throw HTTPError(res.statusCode, errorMessage);
-    case 401: // UNAUTHORIZED
-      throw HTTPError(res.statusCode, errorMessage);
-    case 403: // BAD_REQUEST
-      throw HTTPError(res.statusCode, errorMessage);
-    case 404: // NOT_FOUND
-      throw HTTPError(res.statusCode, `Cannot find '${SERVER_URL + path}' [${method}]\nReason: ${errorMessage}\n\nHint: Check that your server.ts have the correct path AND method`);
-    case 500: // INTERNAL_SERVER_ERROR
-      throw HTTPError(res.statusCode, errorMessage + '\n\nHint: Your server crashed. Check the server log!\n');
-    default:
-      if (res.statusCode !== 200) {
-        throw HTTPError(res.statusCode, errorMessage + `\n\nSorry, no idea! Look up the status code ${res.statusCode} online!\n`);
-      }
+  if ('error' in bodyObject) {
+    // Return the error in a custom structure for testing later
+    return { statusCode: res.statusCode, error: bodyObject.error };
   }
   return bodyObject;
 };
@@ -87,55 +78,55 @@ export const requestLogin = (email: string, password: string) => {
 };
 
 export const requestGetUserDetails = (token: string) => {
-  return requestHelper('GET', '/v1/admin/user/details', {}, { token });
+  return requestHelper('GET', '/v1/admin/user/details', { token });
 };
 
 export const requestUpdateUserDetails = (token: string, email: string, nameFirst: string, nameLast: string) => {
-  return requestHelper('PUT', '/v1/admin/user/details', { email, nameFirst, nameLast }, { token });
+  return requestHelper('PUT', '/v1/admin/user/details', { token, email, nameFirst, nameLast });
 };
 
 export const requestUpdatePassword = (token: string, oldPassword: string, newPassword: string) => {
-  return requestHelper('PUT', '/v1/admin/user/password', { oldPassword, newPassword }, { token });
+  return requestHelper('PUT', '/v1/admin/user/password', { token, oldPassword, newPassword });
 };
 
 export const requestQuizList = (token: string) => {
-  return requestHelper('GET', '/v2/admin/quiz/list', {}, { token });
+  return requestHelper('GET', '/v1/admin/quiz/list', { token });
 };
 
 export const requestQuizCreate = (token: string, name: string, description: string) => {
-  return requestHelper('POST', '/v2/admin/quiz', { name, description }, { token });
+  return requestHelper('POST', '/v1/admin/quiz', { token, name, description });
 };
 
 export const requestQuizTrash = (token: string, quizId: number) => {
-  return requestHelper('DELETE', `/v2/admin/quiz/${quizId}`, {}, { token });
+  return requestHelper('DELETE', `/v1/admin/quiz/${quizId}`, { token });
 };
 
 export const requestQuizInfo = (token: string, quizId: number) => {
-  return requestHelper('GET', `/v1/admin/quiz/${quizId}`, {}, { token });
+  return requestHelper('GET', `/v1/admin/quiz/${quizId}`, { token, quizId });
 };
 
 export const requestUpdateQuizName = (token: string, quizId: number, name: string) => {
-  return requestHelper('PUT', `/v1/admin/quiz/${quizId}/name`, { name }, { token });
+  return requestHelper('PUT', `/v1/admin/quiz/${quizId}/name`, { token, name, quizId });
 };
 
 export const requestUpdateQuizDescription = (token: string, quizId: number, description: string) => {
-  return requestHelper('PUT', `/v1/admin/quiz/${quizId}/description`, { description }, { token });
+  return requestHelper('PUT', `/v1/admin/quiz/${quizId}/description`, { token, quizId, description });
 };
 
 export const requestQuizTrashEmpty = (token: string, quizIds: string) => {
-  return requestHelper('DELETE', '/v1/admin/quiz/trash/empty', { quizIds }, { token });
+  return requestHelper('DELETE', '/v1/admin/quiz/trash/empty', { token, quizIds });
 };
 
 export const requestLogout = (token: string) => {
-  return requestHelper('POST', '/v1/admin/auth/logout', {}, { token });
+  return requestHelper('POST', '/v1/admin/auth/logout', { token });
 };
 
 export const requestQuizQuestionCreate = (token: string, questionBody: quizQuestionCreateInput, quizid: number) => {
-  return requestHelper('POST', `/v1/admin/quiz/${quizid}/question`, { questionBody }, { token });
+  return requestHelper('POST', `/v1/admin/quiz/${quizid}/question`, { token, questionBody, quizid });
 };
 
 export const requestquizTransfer = (token: string, userEmail: string, quizid: number) => {
-  return requestHelper('POST', `/v1/admin/quiz/${quizid}/transfer`, { userEmail }, { token });
+  return requestHelper('POST', `/v1/admin/quiz/${quizid}/transfer`, { token, userEmail });
 };
 
 export const requestClear = () => {
@@ -143,25 +134,25 @@ export const requestClear = () => {
 };
 
 export const requestQuestionDuplicate = (token: string, quizId: number, questionId: number) => {
-  return requestHelper('POST', `/v1/admin/quiz/${quizId}/question/${questionId}/duplicate`, {}, { token });
+  return requestHelper('POST', `/v1/admin/quiz/${quizId}/question/${questionId}/duplicate`, { token, quizId, questionId });
 };
 
 export const requestMoveQuestion = (token: string, quizId: number, questionId: number, newPosition: number) => {
-  return requestHelper('PUT', `/v1/admin/quiz/${quizId}/question/${questionId}/move`, { newPosition }, { token });
+  return requestHelper('PUT', `/v1/admin/quiz/${quizId}/question/${questionId}/move`, { token, quizId, questionId, newPosition });
 };
 
 export const requestUpdateQuizQuestion = (token: string, questionBody: quizQuestionCreateInput, quizid: number, questionid: number) => {
-  return requestHelper('PUT', `/v1/admin/quiz/${quizid}/question/${questionid}`, { questionBody }, { token });
+  return requestHelper('PUT', `/v1/admin/quiz/${quizid}/question/${questionid}`, { token, questionBody, quizid, questionid });
 };
 
 export const requestDeleteQuizQuestion = (token: string, quizid: number, questionid: number) => {
-  return requestHelper('DELETE', `/v1/admin/quiz/${quizid}/question/${questionid}`, {}, { token });
+  return requestHelper('DELETE', `/v1/admin/quiz/${quizid}/question/${questionid}`, { token, quizid, questionid });
 };
 
 export const requestQuizViewTrash = (token: string) => {
-  return requestHelper('GET', '/v2/admin/quiz/trash', {}, { token });
+  return requestHelper('GET', '/v1/admin/quiz/trash', { token });
 };
 
 export const requestQuizRestore = (token: string, quizId: number) => {
-  return requestHelper('POST', `/v2/admin/quiz/${quizId}/restore`, {}, { token });
+  return requestHelper('POST', `/v1/admin/quiz/${quizId}/restore`, { token });
 };

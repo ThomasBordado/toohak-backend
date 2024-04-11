@@ -24,7 +24,43 @@ export const adminQuizList = (token: string): QuizListReturn | ErrorReturn => {
  * @returns {{quizId: number}} - for valid authUserID, name and discription
  */
 
-export const adminQuizCreate = (token: string, name: string, description: string): quizId | ErrorReturn => {
+export const adminQuizCreate1 = (token: string, name: string, description: string): quizId | ErrorReturn => {
+  const data = getData();
+  const user = validToken(token, data.users);
+  checkQuizName(name, user.quizzes);
+  if (description.length > 100) {
+    throw HTTPError(400, 'Description cannot be greater than 100 characters');
+  }
+
+  data.quizIdStore += 1;
+  const newQuiz = {
+    quizId: data.quizIdStore,
+    name: name,
+    timeCreated: Math.floor(Date.now() / 1000),
+    timeLastEdited: Math.floor(Date.now() / 1000),
+    description: description,
+    numQuestions: 0,
+    questions: [],
+    duration: 0,
+  } as quiz;
+
+  data.quizzes.push(newQuiz);
+  user.quizzes.push({ quizId: data.quizIdStore, name: name });
+  saveData();
+  return {
+    quizId: data.quizIdStore
+  };
+};
+
+/**
+ * Given basic details about a new quiz, create one for the logged in user.
+ * @param {string} token - unique identifier for an academic
+ * @param {string} name - quiz name
+ * @param {string} description - quiz description
+ * @returns {{quizId: number}} - for valid authUserID, name and discription
+ */
+
+export const adminQuizCreate2 = (token: string, name: string, description: string): quizId | ErrorReturn => {
   const data = getData();
   const user = validToken(token, data.users);
   checkQuizName(name, user.quizzes);
@@ -197,11 +233,11 @@ export const adminQuizQuestionUpdate = (token: string, questionBody: quizQuestio
     return { error: 'Invalid questionId' };
   } else if (findQuestionIndex > -1) {
     const findQuestion = findQuiz.questions.find(questions => questions.questionId === questionid);
-    findQuestion.question = questionBody.questionBody.question;
-    findQuestion.duration = questionBody.questionBody.duration;
-    findQuestion.points = questionBody.questionBody.points;
+    findQuestion.question = questionBody.question;
+    findQuestion.duration = questionBody.duration;
+    findQuestion.points = questionBody.points;
 
-    const answerOut = questionBody.questionBody.answers.map(answer => {
+    const answerOut = questionBody.answers.map(answer => {
       data.answerIdStore += 1;
 
       return {
@@ -346,7 +382,7 @@ export const quizQuestionCreate = (token: string, questionBody: quizQuestionCrea
   data.questionIdStore += 1;
   const questionId = data.questionIdStore;
 
-  const answerOut = questionBody.questionBody.answers.map(answer => {
+  const answerOut = questionBody.answers.map(answer => {
     data.answerIdStore += 1;
 
     return {
@@ -359,9 +395,9 @@ export const quizQuestionCreate = (token: string, questionBody: quizQuestionCrea
 
   findQuiz.questions.push({
     questionId: questionId,
-    question: questionBody.questionBody.question,
-    duration: questionBody.questionBody.duration,
-    points: questionBody.questionBody.points,
+    question: questionBody.question,
+    duration: questionBody.duration,
+    points: questionBody.points,
     answers: answerOut,
   });
   setData(data);
@@ -460,7 +496,7 @@ export const adminQuizQuestionDuplicate = (token: string, quizId: number, questi
 
   const findQuestion = data.quizzes[findQuiz].questions.findIndex(quizQuestions => quizQuestions.questionId === questionId);
   if (findQuestion === -1) {
-    return { error: 'Does not refer to valid question' };
+    return { error: 'Invalid questionId' };
   }
 
   const questionToDuplicate = data.quizzes[findQuiz].questions[findQuestion];
