@@ -24,7 +24,43 @@ export const adminQuizList = (token: string): QuizListReturn | ErrorReturn => {
  * @returns {{quizId: number}} - for valid authUserID, name and discription
  */
 
-export const adminQuizCreate = (token: string, name: string, description: string): quizId | ErrorReturn => {
+export const adminQuizCreate1 = (token: string, name: string, description: string): quizId | ErrorReturn => {
+  const data = getData();
+  const user = validToken(token, data.users);
+  checkQuizName(name, user.quizzes);
+  if (description.length > 100) {
+    throw HTTPError(400, 'Description cannot be greater than 100 characters');
+  }
+
+  data.quizIdStore += 1;
+  const newQuiz = {
+    quizId: data.quizIdStore,
+    name: name,
+    timeCreated: Math.floor(Date.now() / 1000),
+    timeLastEdited: Math.floor(Date.now() / 1000),
+    description: description,
+    numQuestions: 0,
+    questions: [],
+    duration: 0,
+  } as quiz;
+
+  data.quizzes.push(newQuiz);
+  user.quizzes.push({ quizId: data.quizIdStore, name: name });
+  saveData();
+  return {
+    quizId: data.quizIdStore
+  };
+};
+
+/**
+ * Given basic details about a new quiz, create one for the logged in user.
+ * @param {string} token - unique identifier for an academic
+ * @param {string} name - quiz name
+ * @param {string} description - quiz description
+ * @returns {{quizId: number}} - for valid authUserID, name and discription
+ */
+
+export const adminQuizCreate2 = (token: string, name: string, description: string): quizId | ErrorReturn => {
   const data = getData();
   const user = validToken(token, data.users);
   checkQuizName(name, user.quizzes);
