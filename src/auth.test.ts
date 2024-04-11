@@ -1,7 +1,6 @@
 import { requestRegister, requestLogin, requestGetUserDetails, requestUpdateUserDetails, requestUpdatePassword, requestLogout, requestClear } from './wrapper';
 import { usersList, getUserId, getHashOf } from './authUtil';
 import { SessionId, UserId, user, UserDetailsReturn } from './interfaces';
-import HTTPError from 'http-errors';
 
 beforeEach(() => {
   requestClear();
