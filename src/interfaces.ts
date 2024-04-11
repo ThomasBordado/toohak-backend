@@ -1,3 +1,18 @@
+export interface messageInput {
+  messageBody: string;
+}
+
+export interface message {
+  messageBody: string;
+  playerId: number;
+  playerName: string;
+  timeSent: number;
+}
+
+export interface messages {
+  messages: message[];
+}
+
 export interface answer {
   answerId: number;
   answer: string;
@@ -28,7 +43,6 @@ export interface quiz {
   questions: quizQuestion[];
   duration: number;
   thumbnailUrl: string;
-  state: 'LOBBY' | 'QUESTION_COUNTDOWN' | 'QUESTION_OPEN' | 'QUESTION_CLOSE' | 'ANSWER_SHOW' | 'FINAL_RESULTS' | 'END'
 }
 
 export interface quizUser {
