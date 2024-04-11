@@ -16,9 +16,7 @@ import HTTPError from 'http-errors';
  * @returns {token: string} - unique identifier for a session, registering with email, password and name.
  */
 export const adminAuthRegister = (email: string, password: string, nameFirst: string, nameLast: string): SessionId | ErrorReturn => {
-  if (checkEmail(email) !== true) {
-    return checkEmail(email) as ErrorReturn;
-  }
+  checkEmail(email);
   checkPassword(password);
   checkName(nameFirst, 'First');
   checkName(nameLast, 'Last');
@@ -58,9 +56,7 @@ export const adminAuthRegister = (email: string, password: string, nameFirst: st
 export const adminAuthLogin = (email: string, password: string): SessionId | ErrorReturn => {
   const users = getData().users;
   if (users.length === 0) {
-    return {
-      error: 'Email address does not exist.'
-    };
+    throw HTTPError(400, 'Email address does not exist.');
   }
   const user = users.find(users => users.email === email);
   if (user && user.password === getHashOf(password)) {
@@ -75,13 +71,9 @@ export const adminAuthLogin = (email: string, password: string): SessionId | Err
     };
   } else if (user && user.password !== getHashOf(password)) {
     user.numFailedPasswordsSinceLastLogin++;
-    return {
-      error: 'Password is not correct for the given email.'
-    };
+    throw HTTPError(400, 'Password is not correct for the given email.');
   }
-  return {
-    error: 'Email address does not exist.'
-  };
+  throw HTTPError(400, 'Email address does not exist.');
 };
 
 /**
@@ -118,7 +110,54 @@ export const adminUserDetails = (token: string): UserDetailsReturn | ErrorReturn
  *
  * @returns {} - For updated user details
  */
-export const adminUserDetailsUpdate = (token: string, email: string, nameFirst: string, nameLast: string): EmptyObject | ErrorReturn => {
+export const adminUserDetailsUpdate1 = (token: string, email: string, nameFirst: string, nameLast: string): EmptyObject | ErrorReturn => {
+  // 1. Check if AuthUserId is a valid user
+  if (!isValidToken(token)) {
+    return { error: 'Token is empty or invalid' };
+  }
+
+  // 2. Check if the new email is invalid
+  if (!isEmail(email)) {
+    return { error: 'This is not a valid email.' };
+  }
+
+  // 3. Check if the email is used by another user(excluding the current authorised user)
+  if (isEmailUsedByOther(email, token)) {
+    return { error: 'Email is used by other user.' };
+  }
+
+  // 4. Check if NameFirst contains characters other than lowercase letters,
+  // uppercase letters, spaces, hyphens, or apostrophes
+  checkName(nameFirst, 'First');
+
+  // 5. Check the length of NameLast
+  checkName(nameLast, 'Last');
+
+  // 6. Update the data
+  const data = getData();
+  for (const users of data.users) {
+    if (users.sessions.includes(token)) {
+      users.email = email;
+      users.nameFirst = nameFirst;
+      users.nameLast = nameLast;
+      setData(data);
+      break;
+    }
+  }
+  saveData();
+  return {};
+};
+
+/**
+ * Given an admin user's authUserId and a set of properties, update the properties of this logged in admin user.
+ * @param {string} token - unique identifier for an academic
+ * @param {string} email - User's email
+ * @param {string} nameFirst - User's first name
+ * @param {string} nameLast - User's last name
+ *
+ * @returns {} - For updated user details
+ */
+export const adminUserDetailsUpdate2 = (token: string, email: string, nameFirst: string, nameLast: string): EmptyObject | ErrorReturn => {
   // 1. Check if AuthUserId is a valid user
   isValidToken(token);
 
@@ -161,7 +200,47 @@ export const adminUserDetailsUpdate = (token: string, email: string, nameFirst: 
 * @param {string} newPassword - the new password
 * @return {} - the password been updated
 */
-export const adminUserPasswordUpdate = (token: string, oldPassword: string, newPassword: string): EmptyObject | ErrorReturn => {
+export const adminUserPasswordUpdate1 = (token: string, oldPassword: string, newPassword: string): EmptyObject | ErrorReturn => {
+  // 1. Check if AuthUserId is valid
+  if (!isValidToken(token)) {
+    return { error: 'Token is empty or invalid' };
+  }
+
+  // 2. Check if the old password is correct
+  if (!isPasswordCorrect(token, oldPassword)) {
+    return { error: 'Old Password is not the correct old password.' };
+  }
+
+  // 3. Check if the old and new passwords are exactly the same
+  if (isSame(oldPassword, newPassword)) {
+    return { error: 'Old Password and New Password match exactly.' };
+  }
+
+  // 4. Check if the password is used by this user
+  if (isNewPasswordUsed(token, newPassword)) {
+    return { error: 'New Password has already been used before by this user.' };
+  }
+
+  // 5. Check is the new password valid
+  checkPassword(newPassword);
+
+  const data = getData();
+  const user = data.users.find(users => users.sessions.includes(token));
+  user.password = getHashOf(newPassword);
+  user.prevpassword.push(getHashOf(oldPassword));
+  setData(data);
+  saveData();
+  return {};
+};
+
+/**
+*Given details relating to a password change, update the password of a logged in user.
+* @param {string} token - unique Id for logged in user
+* @param {string} oldPassword - the password user willing to change
+* @param {string} newPassword - the new password
+* @return {} - the password been updated
+*/
+export const adminUserPasswordUpdate2 = (token: string, oldPassword: string, newPassword: string): EmptyObject | ErrorReturn => {
   // 1. Check if AuthUserId is valid
   if (!isValidToken(token)) {
     throw HTTPError(401, 'Token is empty or invalid');
@@ -214,7 +293,5 @@ export const adminAuthLogout = (token: string): EmptyObject | ErrorReturn => {
       return {};
     }
   }
-  return {
-    error: 'This is not a valid session.'
-  };
+  throw HTTPError(401, 'This is not a valid session.');
 };

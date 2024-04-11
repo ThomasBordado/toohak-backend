@@ -168,7 +168,7 @@ export const validthumbnailUrl = (thumbnailUrl: string) => {
   if (thumbnailUrl === '') {
     throw HTTPError(400, 'The thumbnailUrl is an empty string.');
   }
-  if (!thumbnailUrl.endsWith('jpg') && !thumbnailUrl.endsWith('jpeg') && !thumbnailUrl.endsWith('png')) {
+  if (!(thumbnailUrl.toLowerCase()).endsWith('jpg') && !(thumbnailUrl.toLowerCase()).endsWith('jpeg') && !(thumbnailUrl.toLowerCase()).endsWith('png')) {
     throw HTTPError(400, 'The thumbnailUrl does not end with one of the following filetypes (case insensitive): jpg, jpeg, png');
   }
   if (!thumbnailUrl.startsWith('http://') && !thumbnailUrl.startsWith('https://')) {
