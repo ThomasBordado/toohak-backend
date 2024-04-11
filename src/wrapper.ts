@@ -105,7 +105,7 @@ export const requestUpdateQuizName = (token: string, quizId: number, name: strin
 };
 
 export const requestUpdateQuizDescription = (token: string, quizId: number, description: string) => {
-  return requestHelper('PUT', `/v1/admin/quiz/${quizId}/description`, { token, quizId, description });
+  return requestHelper('PUT', `/v1/admin/quiz/${quizId}/description`, { token, description });
 };
 
 export const requestQuizTrashEmpty = (token: string, quizIds: string) => {
@@ -117,7 +117,7 @@ export const requestLogout = (token: string) => {
 };
 
 export const requestQuizQuestionCreate = (token: string, questionBody: quizQuestionCreateInput, quizid: number) => {
-  return requestHelper('POST', `/v1/admin/quiz/${quizid}/question`, { token, questionBody, quizid });
+  return requestHelper('POST', `/v1/admin/quiz/${quizid}/question`, { token, questionBody });
 };
 
 export const requestquizTransfer = (token: string, userEmail: string, quizid: number) => {
@@ -129,19 +129,19 @@ export const requestClear = () => {
 };
 
 export const requestQuestionDuplicate = (token: string, quizId: number, questionId: number) => {
-  return requestHelper('POST', `/v1/admin/quiz/${quizId}/question/${questionId}/duplicate`, { token, quizId, questionId });
+  return requestHelper('POST', `/v1/admin/quiz/${quizId}/question/${questionId}/duplicate`, { token });
 };
 
 export const requestMoveQuestion = (token: string, quizId: number, questionId: number, newPosition: number) => {
-  return requestHelper('PUT', `/v1/admin/quiz/${quizId}/question/${questionId}/move`, { token, quizId, questionId, newPosition });
+  return requestHelper('PUT', `/v1/admin/quiz/${quizId}/question/${questionId}/move`, { token, newPosition });
 };
 
 export const requestUpdateQuizQuestion = (token: string, questionBody: quizQuestionCreateInput, quizid: number, questionid: number) => {
-  return requestHelper('PUT', `/v1/admin/quiz/${quizid}/question/${questionid}`, { token, questionBody, quizid, questionid });
+  return requestHelper('PUT', `/v1/admin/quiz/${quizid}/question/${questionid}`, { token, questionBody });
 };
 
 export const requestDeleteQuizQuestion = (token: string, quizid: number, questionid: number) => {
-  return requestHelper('DELETE', `/v1/admin/quiz/${quizid}/question/${questionid}`, { token, quizid, questionid });
+  return requestHelper('DELETE', `/v1/admin/quiz/${quizid}/question/${questionid}`, { token });
 };
 
 export const requestQuizViewTrash = (token: string) => {
