@@ -79,6 +79,10 @@ export interface quizId {
   quizId: number;
 }
 
+export interface questionId {
+  questionId: number;
+}
+
 export interface QuizListReturn {
   quizzes: quizUser[];
 }
