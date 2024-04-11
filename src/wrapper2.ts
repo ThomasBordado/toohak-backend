@@ -97,3 +97,7 @@ export const requestQuizViewTrash = (token: string) => {
 export const requestQuizRestore = (token: string, quizId: number) => {
   return requestHelper('POST', `/v2/admin/quiz/${quizId}/restore`, {}, { token });
 };
+
+export const requestThumbnailUpdate = (token: string, quizId: number, imgUrl: string) => {
+  return requestHelper('PUT', `/v1/admin/quiz/${quizId}/thumbnail`, {imgUrl}, { token });
+};
