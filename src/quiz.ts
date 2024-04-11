@@ -4,6 +4,7 @@ import { validToken, checkQuizName, checkQuestionValid, isValidQuizId, randomCol
 import { isValidToken } from './authUtil';
 import { saveData } from './persistence';
 import HTTPError from 'http-errors';
+import { token } from 'morgan';
 /**
  * Provides a list of all quizzes that are owned by the currently logged in user
  * @param {string} token - unique identifier for an academic
@@ -524,4 +525,8 @@ export const adminQuizQuestionDuplicate = (token: string, quizId: number, questi
 
   // Return the ID of the new question
   return { newQuestionId: duplicatedQuestion.questionId };
+};
+
+export const adminQuizThumbnailUpdate = (token: string, quizId: number, imgUrl: string) => {
+
 };
