@@ -7,7 +7,7 @@ beforeEach(() => {
 });
 
 test('Test clear registered user', () => {
-  expect(requestClear()).toStrictEqual({});
+  expect(requestClear().jsonBody).toStrictEqual({});
 
   // Register a user
   const user = requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith');
@@ -24,12 +24,12 @@ test('Test clear registered user', () => {
 });
 
 // Add a test to clear quizzes when we are able to make quizzes.
-test.skip('Test clear quizzes', () => {
-  let user = requestRegister('haydensmith@gmail.com', 'password1', 'Tester', 'One');
-  const quiz = requestQuizCreate(user.token, 'My Quiz', 'My description.') as quizId;
-  const quiz2 = requestQuizCreate(user.token, 'My Second Quiz', 'My description.') as quizId;
-  const quiz3 = requestQuizCreate(user.token, 'My Third Quiz', 'My description.') as quizId;
-  const quizList = requestQuizList(user.token) as QuizListReturn;
+test('Test clear quizzes', () => {
+  let user = requestRegister('haydensmith@gmail.com', 'password1', 'Tester', 'One').jsonBody;
+  const quiz = requestQuizCreate(user.token, 'My Quiz', 'My description.').jsonBody as quizId;
+  const quiz2 = requestQuizCreate(user.token, 'My Second Quiz', 'My description.').jsonBody as quizId;
+  const quiz3 = requestQuizCreate(user.token, 'My Third Quiz', 'My description.').jsonBody as quizId;
+  const quizList = requestQuizList(user.token).jsonBody as QuizListReturn;
   const expectedList = {
     quizzes: [
       {
@@ -54,6 +54,6 @@ test.skip('Test clear quizzes', () => {
   expect(requestClear()).toStrictEqual({});
 
   expect(() => requestQuizList(user.token)).toThrow(HTTPError[401]);
-  user = requestRegister('haydensmith@gmail.com', 'password1', 'Tester', 'One') as SessionId;
+  user = requestRegister('haydensmith@gmail.com', 'password1', 'Tester', 'One').jsonBody as SessionId;
   expect(requestQuizList(user.token)).toStrictEqual({ quizzes: [] });
 });
