@@ -12,7 +12,7 @@ import process from 'process';
 import { clear } from './other';
 import { adminQuizList, adminQuizCreate, adminQuizRemove, adminQuizInfo, adminQuizNameUpdate, adminQuizDescriptionUpdate, adminQuizViewTrash, adminQuizRestore, quizQuestionCreate, adminQuizTrashEmpty, quizTransfer, adminQuizQuestionUpdate, adminQuizQuestionDelete, adminQuizQuestionMove, adminQuizQuestionDuplicate } from './quiz';
 import { adminAuthLogin, adminAuthRegister, adminUserDetails, adminUserDetailsUpdate, adminUserPasswordUpdate, adminAuthLogout } from './auth';
-import { sendSessionMessage, getSessionMessages, getSessionResult } from './player';
+import { sendSessionMessage, getSessionMessages, getPlayerResult } from './player';
 import { loadData, saveData } from './persistence';
 
 // Set up web app
@@ -285,7 +285,7 @@ app.post('/v1/admin/quiz/:quizId/question/:questionId/duplicate', (req: Request,
 
 app.get('/v1/player/:playerid/results', (req: Request, res: Response) => {
   const playerId = parseInt(req.params.playerid);
-  const result = getSessionResult(playerId);
+  const result = getPlayerResult(playerId);
   res.json(result);
 });
 

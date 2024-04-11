@@ -13,6 +13,23 @@ export interface messages {
   messages: message[];
 }
 
+export interface playerWithSore {
+  name: string;
+  score: number;
+}
+
+export interface questionResult {
+  questionId: number;
+  playersCorrectList: string[];
+  averageAnswerTime: number;
+  percentCorrect: number;
+}
+
+export interface getPlayerResultReturn {
+  usersRankedByScore: playerWithSore[];
+  questionResults: questionResult[];
+}
+
 export interface answer {
   answerId: number;
   answer: string;
