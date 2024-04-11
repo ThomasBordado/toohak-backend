@@ -1,6 +1,5 @@
 import request, { HttpVerb } from 'sync-request-curl';
 import { port, url } from './config.json';
-import { quizQuestionCreateInput } from './interfaces';
 import { IncomingHttpHeaders } from 'http';
 import HTTPError from 'http-errors';
 const SERVER_URL = `${url}:${port}`;
@@ -98,4 +97,3 @@ export const requestQuizViewTrash = (token: string) => {
 export const requestQuizRestore = (token: string, quizId: number) => {
   return requestHelper('POST', `/v2/admin/quiz/${quizId}/restore`, {}, { token });
 };
-

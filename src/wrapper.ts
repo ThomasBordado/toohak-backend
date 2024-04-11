@@ -4,11 +4,6 @@ import { quizQuestionCreateInput } from './interfaces';
 
 const SERVER_URL = `${url}:${port}`;
 
-interface RequestHelperReturnType {
-  statusCode: number;
-  jsonBody?: Record<string, any>;
-  error?: string;
-}
 /**
  * Sends a request to the given route and return its results
  *
@@ -25,7 +20,7 @@ const requestHelper = (
   method: HttpVerb,
   path: string,
   payload: object = {}
-): RequestHelperReturnType => {
+) => {
   let qs = {};
   let json = {};
   if (['GET', 'DELETE'].includes(method)) {
@@ -36,14 +31,14 @@ const requestHelper = (
   }
   const res = request(method, SERVER_URL + path, { qs, json, timeout: 20000 });
   const bodyString = res.body.toString();
-  let bodyObject: RequestHelperReturnType;
+  let bodyObject;
   try {
     // Return if valid JSON, in our own custom format
     bodyObject = {
       jsonBody: JSON.parse(bodyString),
       statusCode: res.statusCode,
     };
-  } catch (error: any) {
+  } catch (error) {
     bodyObject = {
       error: `\
 Server responded with ${res.statusCode}, but body is not JSON!
