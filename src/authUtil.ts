@@ -3,6 +3,7 @@ import { getData } from './dataStore';
 import { ErrorReturn, UserId, user } from './interfaces';
 import { loadData } from './persistence';
 import crypto from 'crypto';
+import HTTPError from 'http-errors';
 /**
  * Check a given email. If valid return true and if the email
  * is in use or is invalid determined by validator return error object
@@ -16,12 +17,12 @@ export const checkEmail = (email: string) => {
   if (data.users.length !== 0) {
     const emailCopy = data.users.find(users => users.email === email);
     if (emailCopy) {
-      return { error: 'Email is in use' };
+      throw HTTPError(400, 'Email is in use');
     }
   }
 
   if (!isEmail(email)) {
-    return { error: 'This is not a valid email.' };
+    throw HTTPError(400, 'This is not a valid email.');
   }
 
   return true;
@@ -37,9 +38,9 @@ export const checkEmail = (email: string) => {
  */
 export const checkPassword = (password: string) => {
   if (password.length < 8) {
-    return { error: 'Password must be 8 characters minimum.' };
+    throw HTTPError(400, 'Password must be 8 characters minimum.');
   } else if (!/\d/.test(password) || !/[a-zA-Z]/.test(password)) {
-    return { error: 'Password must contain atleast 1 number and 1 letter.' };
+    throw HTTPError(400, 'Password must contain atleast 1 number and 1 letter.');
   }
 
   return true;
@@ -57,11 +58,11 @@ export const checkPassword = (password: string) => {
  */
 export const checkName = (name: string, position: string) => {
   if (name.length < 2 || name.length > 20) {
-    return { error: position + ' name must be between 2 to 20 characters.' };
+    throw HTTPError(400, position + ' name must be between 2 to 20 characters.');
   }
   for (const c of name) {
     if (!/[a-zA-Z\s'-]/.test(c)) {
-      return { error: position + ' can only contain lowercase letters, uppercase letters, spaces, hyphens, or apostrophes.' };
+      throw HTTPError(400, position + ' can only contain lowercase letters, uppercase letters, spaces, hyphens, or apostrophes.');
     }
   }
 

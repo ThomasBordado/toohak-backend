@@ -4,6 +4,7 @@ import { getData, setData } from './dataStore';
 import { validToken } from './quizUtil';
 import { EmptyObject, ErrorReturn, UserDetailsReturn, user, SessionId } from './interfaces';
 import { saveData } from './persistence';
+import HTTPError from 'http-errors';
 
 /**
  * Register a user with an email, password, and names, then returns their authUserId.
@@ -15,15 +16,10 @@ import { saveData } from './persistence';
  * @returns {token: string} - unique identifier for a session, registering with email, password and name.
  */
 export const adminAuthRegister = (email: string, password: string, nameFirst: string, nameLast: string): SessionId | ErrorReturn => {
-  if (checkEmail(email) !== true) {
-    return checkEmail(email) as ErrorReturn;
-  } else if (checkPassword(password) !== true) {
-    return checkPassword(password) as ErrorReturn;
-  } else if (checkName(nameFirst, 'First') !== true) {
-    return checkName(nameFirst, 'First') as ErrorReturn;
-  } else if (checkName(nameLast, 'Last') !== true) {
-    return checkName(nameLast, 'Last') as ErrorReturn;
-  }
+  checkEmail(email);
+  checkPassword(password);
+  checkName(nameFirst, 'First');
+  checkName(nameLast, 'Last');
 
   const data = getData();
   data.userIdStore += 1;
@@ -60,9 +56,7 @@ export const adminAuthRegister = (email: string, password: string, nameFirst: st
 export const adminAuthLogin = (email: string, password: string): SessionId | ErrorReturn => {
   const users = getData().users;
   if (users.length === 0) {
-    return {
-      error: 'Email address does not exist.'
-    };
+    throw HTTPError(400, 'Email address does not exist.');
   }
   const user = users.find(users => users.email === email);
   if (user && user.password === getHashOf(password)) {
@@ -77,13 +71,9 @@ export const adminAuthLogin = (email: string, password: string): SessionId | Err
     };
   } else if (user && user.password !== getHashOf(password)) {
     user.numFailedPasswordsSinceLastLogin++;
-    return {
-      error: 'Password is not correct for the given email.'
-    };
+    throw HTTPError(400, 'Password is not correct for the given email.');
   }
-  return {
-    error: 'Email address does not exist.'
-  };
+  throw HTTPError(400, 'Email address does not exist.');
 };
 
 /**
@@ -138,14 +128,10 @@ export const adminUserDetailsUpdate = (token: string, email: string, nameFirst: 
 
   // 4. Check if NameFirst contains characters other than lowercase letters,
   // uppercase letters, spaces, hyphens, or apostrophes
-  if (checkName(nameFirst, 'First') !== true) {
-    return checkName(nameFirst, 'First') as ErrorReturn;
-  }
+  checkName(nameFirst, 'First');
 
   // 5. Check the length of NameLast
-  if (checkName(nameLast, 'Last') !== true) {
-    return checkName(nameLast, 'Last') as ErrorReturn;
-  }
+  checkName(nameLast, 'Last');
 
   // 6. Update the data
   const data = getData();
@@ -191,9 +177,7 @@ export const adminUserPasswordUpdate = (token: string, oldPassword: string, newP
   }
 
   // 5. Check is the new password valid
-  if (checkPassword(newPassword) !== true) {
-    return checkPassword(newPassword) as ErrorReturn;
-  }
+  checkPassword(newPassword);
 
   const data = getData();
   const user = data.users.find(users => users.sessions.includes(token));
@@ -224,7 +208,5 @@ export const adminAuthLogout = (token: string): EmptyObject | ErrorReturn => {
       return {};
     }
   }
-  return {
-    error: 'This is not a valid session.'
-  };
+  throw HTTPError(401, 'This is not a valid session.');
 };

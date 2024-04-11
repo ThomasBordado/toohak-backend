@@ -97,3 +97,11 @@ export const requestQuizViewTrash = (token: string) => {
 export const requestQuizRestore = (token: string, quizId: number) => {
   return requestHelper('POST', `/v2/admin/quiz/${quizId}/restore`, {}, { token });
 };
+
+export const requestLogout = (token: string) => {
+  return requestHelper('POST', '/v2/admin/auth/logout', {}, { token });
+};
+
+export const requestQuizTrashEmpty = (token: string, quizIds: string) => {
+  return requestHelper('DELETE', '/v2/admin/quiz/trash/empty', { quizIds }, { token });
+};

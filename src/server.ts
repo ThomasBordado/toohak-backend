@@ -43,24 +43,12 @@ app.get('/echo', (req: Request, res: Response) => {
 app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
   const { email, password, nameFirst, nameLast } = req.body;
   const response = adminAuthRegister(email, password, nameFirst, nameLast);
-  if ('error' in response) {
-    if (response.error === 'Token is empty or invalid') {
-      return res.status(401).json(response);
-    } else if (response.error === 'Valid token is provided, but user is not an owner of this quiz') {
-      return res.status(403).json(response);
-    }
-    return res.status(400).json(response);
-  }
   res.json(response);
 });
 
 app.post('/v1/admin/auth/login', (req: Request, res: Response) => {
   const { email, password } = req.body;
   const response = adminAuthLogin(email, password);
-
-  if ('error' in response) {
-    return res.status(400).json(response);
-  }
   res.json(response);
 });
 
@@ -104,9 +92,12 @@ app.put('/v1/admin/user/password', (req: Request, res: Response) => {
 app.post('/v1/admin/auth/logout', (req: Request, res: Response) => {
   const token = req.body.token as string;
   const response = adminAuthLogout(token);
-  if ('error' in response) {
-    return res.status(401).json(response);
-  }
+  res.json(response);
+});
+
+app.post('/v2/admin/auth/logout', (req: Request, res: Response) => {
+  const token = req.headers.token as string;
+  const response = adminAuthLogout(token);
   res.json(response);
 });
 
@@ -306,20 +297,17 @@ app.put('/v1/admin/quiz/:quizid/name', (req: Request, res: Response) => {
   res.json(result);
 });
 
+app.delete('/v2/admin/quiz/trash/empty', (req: Request, res: Response) => {
+  const token = req.headers.token as string;
+  const quizIds = JSON.parse(req.query.quizIds as string);
+  const result = adminQuizTrashEmpty(token, quizIds);
+  res.json(result);
+});
+
 app.delete('/v1/admin/quiz/trash/empty', (req: Request, res: Response) => {
   const token = req.query.token as string;
   const quizIds = JSON.parse(req.query.quizIds as string);
-
   const result = adminQuizTrashEmpty(token, quizIds);
-
-  if ('error' in result) {
-    if (result.error.localeCompare('Token is empty or invalid') === 0) {
-      return res.status(401).json(result);
-    } else if (result.error.localeCompare('Valid token, but one or more of the Quiz IDs is not owned by current user') === 0) {
-      return res.status(403).json(result);
-    }
-    return res.status(400).json(result);
-  }
   res.json(result);
 });
 
