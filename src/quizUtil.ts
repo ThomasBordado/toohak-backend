@@ -1,5 +1,6 @@
 import { quizUser, user, quizQuestionCreateInput, EmptyObject, ErrorReturn } from './interfaces';
 import { getData } from './dataStore';
+import HTTPError from 'http-errors';
 
 /**
  * Check if AuthUserId is valid.
@@ -32,17 +33,16 @@ import { getData } from './dataStore';
  *   }>
  *  }
  * } - for valid sessionId
-  * @returns {error: string}} - for invalid sessionId
   */
-export const validUserId = (token: string, userData: user[]) => {
+export const validToken = (token: string, userData: user[]) => {
   // searches for sessionId and returns user if found
   for (const user of userData) {
     if (user.sessions.includes(token)) {
       return user;
     }
   }
-  // returns error if not found
-  return { error: 'Token is empty or invalid' };
+  // throws error if not found
+  throw HTTPError(401, 'Token is empty or invalid');
 };
 
 /**
@@ -60,39 +60,37 @@ export const validUserId = (token: string, userData: user[]) => {
 export const checkQuizName = (name: string, quizzesOwned: quizUser[]) => {
   // error if quiz name is < 3 && > 30 character
   if (name.length < 3 || name.length > 30) {
-    return { error: 'Quiz name must be between 3 and 30 characters' };
+    throw HTTPError(400, 'Quiz name must be between 3 and 30 characters');
   }
 
   // error if a character is not a letter(upper or lower) number,  or space
   for (const c of name) {
     if (!/[a-zA-Z\s\d]/.test(c)) {
-      return { error: 'Name can only contain alphanumeric characters and spaces' };
+      throw HTTPError(400, 'Name can only contain alphanumeric characters and spaces');
     }
   }
 
   // error if name matches name of quiz previously owned by user
   for (const quiz of quizzesOwned) {
     if (quiz.name === name) {
-      return { error: 'Quiz name previously used by user' };
+      throw HTTPError(400, 'Quiz name previously used by user');
     }
   }
-
-  return true;
 };
 
 export const checkQuestionValid = (quizQuestion: quizQuestionCreateInput, quizId: number) => {
   // Check the string length
-  if (quizQuestion.questionBody.question.length < 5 || quizQuestion.questionBody.question.length > 50) {
+  if (quizQuestion.question.length < 5 || quizQuestion.question.length > 50) {
     return { error: 'Question string is less than 5 characters in length or greater than 50 characters in length' };
   }
 
   // Check the answer length
-  if (quizQuestion.questionBody.answers.length > 6 || quizQuestion.questionBody.answers.length < 2) {
+  if (quizQuestion.answers.length > 6 || quizQuestion.answers.length < 2) {
     return { error: 'The question has more than 6 answers or less than 2 answers' };
   }
 
   // Check the duration
-  if (quizQuestion.questionBody.duration <= 0) {
+  if (quizQuestion.duration <= 0) {
     return { error: 'The question duration is not a positive number' };
   }
 
@@ -103,18 +101,18 @@ export const checkQuestionValid = (quizQuestion: quizQuestionCreateInput, quizId
   for (let i = 0; i < quiz.questions.length; i++) {
     sum = sum + quiz.questions[i].duration;
   }
-  sum = sum + quizQuestion.questionBody.duration;
+  sum = sum + quizQuestion.duration;
   if (sum > 180) {
     return { error: 'The sum of the question durations in the quiz exceeds 3 minutes' };
   }
 
   // Check the point award
-  if (quizQuestion.questionBody.points < 1 || quizQuestion.questionBody.points > 10) {
+  if (quizQuestion.points < 1 || quizQuestion.points > 10) {
     return { error: 'The points awarded for the question are less than 1 or greater than 10' };
   }
 
   // Check the answer length
-  for (const answer of quizQuestion.questionBody.answers) {
+  for (const answer of quizQuestion.answers) {
     if (answer.answer.length < 1 || answer.answer.length > 30) {
       return { error: 'The length of any answer is shorter than 1 character long, or longer than 30 characters long' };
     }
@@ -122,8 +120,8 @@ export const checkQuestionValid = (quizQuestion: quizQuestionCreateInput, quizId
 
   // Check if there's duplicate answers
   const uniqueAnswers : string[] = [];
-  for (let i = 0; i < quizQuestion.questionBody.answers.length; i++) {
-    const currentAnswer = quizQuestion.questionBody.answers[i].answer;
+  for (let i = 0; i < quizQuestion.answers.length; i++) {
+    const currentAnswer = quizQuestion.answers[i].answer;
     if (!uniqueAnswers.includes(currentAnswer)) {
       uniqueAnswers.push(currentAnswer);
     } else {
@@ -132,7 +130,7 @@ export const checkQuestionValid = (quizQuestion: quizQuestionCreateInput, quizId
   }
 
   // Check if there's correct answer
-  const answer = quizQuestion.questionBody.answers.find(quizs => quizs.correct === true);
+  const answer = quizQuestion.answers.find(quizs => quizs.correct === true);
   if (!answer) {
     return { error: 'There are no correct answers' };
   }
