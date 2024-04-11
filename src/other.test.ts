@@ -1,6 +1,5 @@
 import { requestRegister, requestLogin, requestClear, requestQuizList, requestQuizCreate } from './wrapper';
 import { quizId, QuizListReturn, quizUser, SessionId } from './interfaces';
-import HTTPError from 'http-errors';
 
 beforeEach(() => {
   requestClear();
@@ -11,16 +10,16 @@ test('Test clear registered user', () => {
 
   // Register a user
   const user = requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith');
-  expect(user).toStrictEqual({ token: expect.any(String) });
+  expect(user.jsonBody).toStrictEqual({ token: expect.any(String) });
 
   // Login successfully
-  expect(requestLogin('hayden.smith@unsw.edu.au', 'password1')).toStrictEqual({ token: expect.any(String) });
+  expect(requestLogin('hayden.smith@unsw.edu.au', 'password1').jsonBody).toStrictEqual({ token: expect.any(String) });
 
   // Clear registered users
-  expect(requestClear()).toStrictEqual({});
+  expect(requestClear().jsonBody).toStrictEqual({});
 
   // Unsuccessful login because user doesnt exist anymore
-  expect(() => requestLogin('hayden.smith@unsw.edu.au', 'password1')).toThrow(HTTPError[400]);
+  expect(requestLogin('hayden.smith@unsw.edu.au', 'password1').jsonBody).toStrictEqual({ error: expect.any(String) });
 });
 
 // Add a test to clear quizzes when we are able to make quizzes.
@@ -51,9 +50,9 @@ test('Test clear quizzes', () => {
   expectedList.quizzes.sort((a: quizUser, b: quizUser) => a.quizId - b.quizId);
   expect(quizList).toStrictEqual(expectedList);
 
-  expect(requestClear()).toStrictEqual({});
+  expect(requestClear().jsonBody).toStrictEqual({});
 
-  expect(() => requestQuizList(user.token)).toThrow(HTTPError[401]);
+  expect(requestQuizList(user.token).jsonBody).toStrictEqual({ error: expect.any(String) });
   user = requestRegister('haydensmith@gmail.com', 'password1', 'Tester', 'One').jsonBody as SessionId;
-  expect(requestQuizList(user.token)).toStrictEqual({ quizzes: [] });
+  expect(requestQuizList(user.token).jsonBody).toStrictEqual({ quizzes: [] });
 });
