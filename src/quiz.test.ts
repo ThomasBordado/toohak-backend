@@ -188,8 +188,8 @@ describe.skip('requestQuizInfo testing', () => {
   let user: SessionId;
   let quiz: quizId;
   beforeEach(() => {
-    user = requestRegister('ethan@gmail.com', 'password1', 'Ethan', 'McGregor').jsonBody as SessionId;
-    quiz = requestQuizCreate(user.token, 'My Quiz', 'My description.').jsonBody as quizId;
+    user = requestRegister('ethan@gmail.com', 'password1', 'Ethan', 'McGregor') as SessionId;
+    quiz = requestQuizCreate(user.token, 'My Quiz', 'My description.') as quizId;
   });
 
   describe('Unsuccessful Cases', () => {
@@ -200,11 +200,11 @@ describe.skip('requestQuizInfo testing', () => {
       expect(() => requestQuizInfo(user.token, quiz.quizId + 1)).toThrow(HTTPError[403]);
     });
     test('User does not own quiz with given quizId', () => {
-      const user2 = requestRegister('ethanm@gmail.com', 'password12', 'Ethanm', 'EMcGregor').jsonBody as SessionId;
+      const user2 = requestRegister('ethanm@gmail.com', 'password12', 'Ethanm', 'EMcGregor') as SessionId;
       expect(() => requestQuizInfo(user2.token, quiz.quizId)).toThrow(HTTPError[403]);
     });
     test('User owns quiz with same name as given quizId', () => {
-      const user2 = requestRegister('ethanm@gmail.com', 'password12', 'Ethanm', 'EMcGregor').jsonBody as SessionId;
+      const user2 = requestRegister('ethanm@gmail.com', 'password12', 'Ethanm', 'EMcGregor') as SessionId;
       requestQuizCreate(user2.token, 'My Quiz', 'My description.');
       expect(() => requestQuizInfo(user2.token, quiz.quizId)).toThrow(HTTPError[403]);
     });
@@ -212,7 +212,7 @@ describe.skip('requestQuizInfo testing', () => {
   describe('Successful cases', () => {
     test('Return correct object containing quiz info', () => {
       const result = requestQuizInfo(user.token, quiz.quizId);
-      expect(result.jsonBody).toStrictEqual({
+      expect(result).toStrictEqual({
         quizId: quiz.quizId,
         name: 'My Quiz',
         questions: [],
@@ -234,8 +234,8 @@ describe.skip('requestUpdateQuizName testing', () => {
   let user: SessionId;
   let quiz: quizId;
   beforeEach(() => {
-    user = requestRegister('ethan@gmail.com', 'password1', 'Ethan', 'Mcgregor').jsonBody as SessionId;
-    quiz = requestQuizCreate(user.token, 'My Quiz', 'My description.').jsonBody as quizId;
+    user = requestRegister('ethan@gmail.com', 'password1', 'Ethan', 'Mcgregor') as SessionId;
+    quiz = requestQuizCreate(user.token, 'My Quiz', 'My description.') as quizId;
   });
 
   describe('Unsuccessful Cases', () => {
@@ -246,11 +246,11 @@ describe.skip('requestUpdateQuizName testing', () => {
       expect(() => requestUpdateQuizName(user.token, quiz.quizId + 1, 'Ethans quiz')).toThrow(HTTPError[403]);
     });
     test('User does not own quiz with given quizId', () => {
-      const user2 = requestRegister('ethanm@gmail.com', 'password12', 'Ethanm', 'EMcGregor').jsonBody as SessionId;
+      const user2 = requestRegister('ethanm@gmail.com', 'password12', 'Ethanm', 'EMcGregor') as SessionId;
       expect(() => requestUpdateQuizName(user2.token, quiz.quizId, 'Ethans quiz')).toThrow(HTTPError[403]);
     });
     test('User owns quiz with same name as given quizId', () => {
-      const user2 = requestRegister('ethanm@gmail.com', 'password12', 'Ethanm', 'EMcGregor').jsonBody as SessionId;
+      const user2 = requestRegister('ethanm@gmail.com', 'password12', 'Ethanm', 'EMcGregor') as SessionId;
       requestQuizCreate(user2.token, 'My Quiz', 'My description.');
       expect(() => requestUpdateQuizName(user2.token, quiz.quizId, 'Ethans quiz')).toThrow(HTTPError[403]);
     });
@@ -275,21 +275,21 @@ describe.skip('requestUpdateQuizName testing', () => {
   describe('Successful cases', () => {
     test('Return correct object containing quiz info', () => {
       const result = requestUpdateQuizName(user.token, quiz.quizId, 'Ethansquiz');
-      expect(result.jsonBody).toStrictEqual({});
+      expect(result).toStrictEqual({});
       expect(result.statusCode).toStrictEqual(200);
     });
     test('successfully change single name', () => {
       requestUpdateQuizName(user.token, quiz.quizId, 'Ethansquiz');
       const result = requestQuizList(user.token);
-      expect(result.jsonBody).toStrictEqual({ quizzes: [{ quizId: quiz.quizId, name: 'Ethansquiz' }] });
+      expect(result).toStrictEqual({ quizzes: [{ quizId: quiz.quizId, name: 'Ethansquiz' }] });
       expect(result.statusCode).toStrictEqual(200);
     });
     test('successfully change multiple names', () => {
-      const quiz2 = requestQuizCreate(user.token, 'My Second Quiz', 'My Second description.').jsonBody as quizId;
-      const quiz3 = requestQuizCreate(user.token, 'My Third Quiz', 'My Third description.').jsonBody as quizId;
+      const quiz2 = requestQuizCreate(user.token, 'My Second Quiz', 'My Second description.') as quizId;
+      const quiz3 = requestQuizCreate(user.token, 'My Third Quiz', 'My Third description.') as quizId;
       requestUpdateQuizName(user.token, quiz.quizId, 'Ethansquiz');
       requestUpdateQuizName(user.token, quiz2.quizId, 'Ethanssecondquiz');
-      const quizList = requestQuizList(user.token).jsonBody as QuizListReturn;
+      const quizList = requestQuizList(user.token) as QuizListReturn;
       const expectedList = {
         quizzes: [
           {
@@ -367,8 +367,8 @@ describe.skip('Testing it2 function, adminQuizQuestionUpdate', () => {
   let questionin: quizQuestionCreateInput;
   let questionout: quizQuestionCreateReturn;
   beforeEach(() => {
-    user = requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith').jsonBody as SessionId;
-    quiz = requestQuizCreate(user.token, 'My Quiz', 'My description.').jsonBody as quizId;
+    user = requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith') as SessionId;
+    quiz = requestQuizCreate(user.token, 'My Quiz', 'My description.') as quizId;
 
     questionin = {
       question: 'Who is the Monarch of England?',
@@ -385,7 +385,7 @@ describe.skip('Testing it2 function, adminQuizQuestionUpdate', () => {
         }
       ]
     };
-    questionout = requestQuizQuestionCreate(user.token, questionin, quiz.quizId).jsonBody as quizQuestionCreateReturn;
+    questionout = requestQuizQuestionCreate(user.token, questionin, quiz.quizId) as quizQuestionCreateReturn;
 
   });
 
@@ -408,7 +408,7 @@ describe.skip('Testing it2 function, adminQuizQuestionUpdate', () => {
     };
     const result = requestUpdateQuizQuestion(user.token, updated, quiz.quizId, questionout.questionId);
     expect(result.statusCode).toStrictEqual(200);
-    expect(result.jsonBody).toStrictEqual({});
+    expect(result).toStrictEqual({});
   });
 
   // 2. Invalid Token/empty token
@@ -486,8 +486,8 @@ describe.skip('Testing it2 function, adminQuizQuestionUpdate', () => {
       ]
     };
 
-    const user2 = requestRegister('jareds@gmail.com', 'password2', 'Jared', 'Simion').jsonBody as SessionId;
-    const quiz2 = requestQuizCreate(user2.token, 'My Quiz', 'My description.').jsonBody as quizId;
+    const user2 = requestRegister('jareds@gmail.com', 'password2', 'Jared', 'Simion') as SessionId;
+    const quiz2 = requestQuizCreate(user2.token, 'My Quiz', 'My description.') as quizId;
     expect(() => requestUpdateQuizQuestion(user.token, updated, quiz2.quizId, questionout.questionId)).toThrow(HTTPError[403]);
   });
 });
@@ -498,8 +498,8 @@ describe.skip('Testing it2 function, adminQuizQuestionDelete', () => {
   let questionin: quizQuestionCreateInput;
   let questionout: quizQuestionCreateReturn;
   beforeEach(() => {
-    user = requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith').jsonBody as SessionId;
-    quiz = requestQuizCreate(user.token, 'My Quiz', 'My description.').jsonBody as quizId;
+    user = requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith') as SessionId;
+    quiz = requestQuizCreate(user.token, 'My Quiz', 'My description.') as quizId;
     questionin = {
       question: 'Who is the Monarch of England?',
       duration: 4,
@@ -516,7 +516,7 @@ describe.skip('Testing it2 function, adminQuizQuestionDelete', () => {
       ]
 
     };
-    questionout = requestQuizQuestionCreate(user.token, questionin, quiz.quizId).jsonBody as quizQuestionCreateReturn;
+    questionout = requestQuizQuestionCreate(user.token, questionin, quiz.quizId) as quizQuestionCreateReturn;
   });
 
   // 2. Invalid Token/empty token
@@ -532,8 +532,8 @@ describe.skip('Testing it2 function, adminQuizQuestionDelete', () => {
     expect(() => requestDeleteQuizQuestion(user.token, quiz.quizId + 1, questionout.questionId)).toThrow(HTTPError[403]);
   });
   test('Test user doesn not own quiz', () => {
-    const user2 = requestRegister('jareds@gmail.com', 'password2', 'Jared', 'Simion').jsonBody as SessionId;
-    const quiz2 = requestQuizCreate(user2.token, 'My Quiz', 'My description.').jsonBody as quizId;
+    const user2 = requestRegister('jareds@gmail.com', 'password2', 'Jared', 'Simion') as SessionId;
+    const quiz2 = requestQuizCreate(user2.token, 'My Quiz', 'My description.') as quizId;
     expect(() => requestDeleteQuizQuestion(user.token, quiz2.quizId, questionout.questionId)).toThrow(HTTPError[403]);
   });
 
