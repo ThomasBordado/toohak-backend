@@ -376,10 +376,10 @@ app.post('/v1/admin/quiz/:quizId/question/:questionId/duplicate', (req: Request,
   res.json(result);
 });
 
-app.put('/v1/admin/quiz/{quizid}/thumbnail', (req: Request, res: Response) => {
+app.put('/v1/admin/quiz/:quizid/thumbnail', (req: Request, res: Response) => {
   const token = req.headers.token as string;
   const quizId = parseInt(req.params.quizid as string);
-  const imgUrl = req.body;
+  const imgUrl = req.body.imgUrl as string;
   const result = adminQuizThumbnailUpdate(token, quizId, imgUrl);
   res.json(result);
 });
