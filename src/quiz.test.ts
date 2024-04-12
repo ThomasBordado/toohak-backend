@@ -410,31 +410,31 @@ describe('requestUpdateQuizDescription testing', () => {
   });
 });
 
-describe.skip('Testing it2 function, adminQuizQuestionUpdate', () => {
+describe('Testing it2 function, adminQuizQuestionUpdate', () => {
   let user: SessionId;
   let quiz: quizId;
-  // let questionin: quizQuestionCreateInput;
+  let questionin: quizQuestionCreateInput;
   let questionout: quizQuestionCreateReturn;
   beforeEach(() => {
     user = requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith').jsonBody as SessionId;
     quiz = requestQuizCreate(user.token, 'My Quiz', 'My description.').jsonBody as quizId;
 
-    // questionin = {
-    //   question: 'Who is the Monarch of England?',
-    //   duration: 4,
-    //   points: 5,
-    //   answers: [
-    //     {
-    //       answer: 'Prince Charles',
-    //       correct: true
-    //     },
-    //     {
-    //       answer: 'Prince Charles.',
-    //       correct: true
-    //     }
-    //   ]
-    // };
-    // questionout = requestQuizQuestionCreate(user.token, questionin, quiz.quizId).jsonBody as quizQuestionCreateReturn;
+    questionin = {
+      question: 'Who is the Monarch of England?',
+      duration: 4,
+      points: 5,
+      answers: [
+        {
+          answer: 'Prince Charles',
+          correct: true
+        },
+        {
+          answer: 'Prince Charles.',
+          correct: true
+        }
+      ]
+    };
+    questionout = requestQuizQuestionCreate(user.token, questionin, quiz.quizId).jsonBody as quizQuestionCreateReturn;
 
     // question1 = requestQuestionCreate
     // question2 = requestQuestionCreate
@@ -551,31 +551,31 @@ describe.skip('Testing it2 function, adminQuizQuestionUpdate', () => {
   });
 });
 
-describe.skip('Testing it2 function, adminQuizQuestionDelete', () => {
+describe('Testing it2 function, adminQuizQuestionDelete', () => {
   let user: SessionId;
   let quiz: quizId;
-  // let questionin: quizQuestionCreateInput;
+  let questionin: quizQuestionCreateInput;
   let questionout: quizQuestionCreateReturn;
   beforeEach(() => {
     user = requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith').jsonBody as SessionId;
     quiz = requestQuizCreate(user.token, 'My Quiz', 'My description.').jsonBody as quizId;
-    // questionin = {
-    //   question: 'Who is the Monarch of England?',
-    //   duration: 4,
-    //   points: 5,
-    //   answers: [
-    //     {
-    //       answer: 'Prince Charles',
-    //       correct: true
-    //     },
-    //     {
-    //       answer: 'Prince Charles.',
-    //       correct: true
-    //     }
-    //   ]
+    questionin = {
+      question: 'Who is the Monarch of England?',
+      duration: 4,
+      points: 5,
+      answers: [
+        {
+          answer: 'Prince Charles',
+          correct: true
+        },
+        {
+          answer: 'Prince Charles.',
+          correct: true
+        }
+      ]
 
-    // };
-    // questionout = requestQuizQuestionCreate(user.token, questionin, quiz.quizId).jsonBody as quizQuestionCreateReturn;
+    };
+    questionout = requestQuizQuestionCreate(user.token, questionin, quiz.quizId).jsonBody as quizQuestionCreateReturn;
     // question1 = requestQuestionCreate
     // question2 = requestQuestionCreate
     // question3 = requestQuestionCreate
@@ -1748,10 +1748,10 @@ describe('Testing Post /v1/admin/quiz/{quizid}/transfer', () => {
   });
 });
 
-describe.skip('adminQuizQuestionMove testing', () => {
+describe('adminQuizQuestionMove testing', () => {
   let user: SessionId;
   let quiz: quizId;
-  // let questionin: quizQuestionCreateInput;
+  let questionin: quizQuestionCreateInput;
   let question1: quizQuestionCreateReturn;
   let question2: quizQuestionCreateReturn;
   let question3: quizQuestionCreateReturn;
@@ -1759,24 +1759,24 @@ describe.skip('adminQuizQuestionMove testing', () => {
   beforeEach(() => {
     user = requestRegister('jareds@gmail.com', 'password2024', 'Jared', 'Simion').jsonBody as SessionId;
     quiz = requestQuizCreate(user.token, 'My Quiz', 'My Quiz Description').jsonBody as quizId;
-    // questionin = {
-    //   question: 'Who is the Monarch of England?',
-    //   duration: 4,
-    //   points: 5,
-    //   answers: [
-    //     {
-    //       answer: 'Prince Charles',
-    //       correct: true
-    //     },
-    //     {
-    //       answer: 'Prince Charles.',
-    //       correct: true
-    //     }
-    //   ]
-    // };
-    // question1 = requestQuizQuestionCreate(user.token, questionin, quiz.quizId).jsonBody as quizQuestionCreateReturn;
-    // question2 = requestQuizQuestionCreate(user.token, questionin, quiz.quizId).jsonBody as quizQuestionCreateReturn;
-    // question3 = requestQuizQuestionCreate(user.token, questionin, quiz.quizId).jsonBody as quizQuestionCreateReturn;
+    questionin =  {
+      question: 'Who is the Monarch of England?',
+      duration: 4,
+      points: 5,
+      answers: [
+        {
+          answer: 'Prince Charles',
+          correct: true
+        },
+        {
+          answer: 'Prince Charles.',
+          correct: true
+        }
+      ]
+    };
+    question1 = requestQuizQuestionCreate(user.token, questionin, quiz.quizId).jsonBody as quizQuestionCreateReturn;
+    question2 = requestQuizQuestionCreate(user.token, questionin, quiz.quizId).jsonBody as quizQuestionCreateReturn;
+    question3 = requestQuizQuestionCreate(user.token, questionin, quiz.quizId).jsonBody as quizQuestionCreateReturn;
   });
   // 1. Succesfully move question 1 to last.
   test('Test succesfully moving question to new position', () => {
@@ -1821,66 +1821,66 @@ describe.skip('adminQuizQuestionMove testing', () => {
   });
 });
 
-describe.skip('adminQuizQuestionDuplicate testing', () => {
+describe('adminQuizQuestionDuplicate testing', () => {
   let user: SessionId;
   let quiz: quizId;
-  // let questionin: quizQuestionCreateInput;
-  // let questionin2: quizQuestionCreateInput;
-  // let questionin3: quizQuestionCreateInput;
+  let questionin: quizQuestionCreateInput;
+  let questionin2: quizQuestionCreateInput;
+  let questionin3: quizQuestionCreateInput;
   let question1: quizQuestionCreateReturn;
   let question2: quizQuestionCreateReturn;
 
   beforeEach(() => {
     user = requestRegister('jareds@gmail.com', 'password2024', 'Jared', 'Simion').jsonBody as SessionId;
     quiz = requestQuizCreate(user.token, 'My Quiz', 'My Quiz Description').jsonBody as quizId;
-    // questionin = {
-    //   question: 'Who is the Monarch of England?',
-    //   duration: 4,
-    //   points: 5,
-    //   answers: [
-    //     {
-    //       answer: 'Prince Charles',
-    //       correct: true
-    //     },
-    //     {
-    //       answer: 'Prince Charles.',
-    //       correct: true
-    //     }
-    //   ]
-    // };
-    // questionin2 = {
-    //   question: 'Who is the best Person?',
-    //   duration: 4,
-    //   points: 5,
-    //   answers: [
-    //     {
-    //       answer: 'Thomas',
-    //       correct: true
-    //     },
-    //     {
-    //       answer: 'Bordado',
-    //       correct: true
-    //     }
-    //   ]
-    // };
-    // questionin3 = {
-    //   question: 'Who is the wrost Person?',
-    //   duration: 4,
-    //   points: 5,
-    //   answers: [
-    //     {
-    //       answer: 'Thomas',
-    //       correct: true
-    //     },
-    //     {
-    //       answer: 'Bordado',
-    //       correct: true
-    //     }
-    //   ]
-    // };
-    // question1 = requestQuizQuestionCreate(user.token, questionin, quiz.quizId).jsonBody as quizQuestionCreateReturn;
-    // question2 = requestQuizQuestionCreate(user.token, questionin2, quiz.quizId).jsonBody as quizQuestionCreateReturn;
-    // requestQuizQuestionCreate(user.token, questionin3, quiz.quizId).jsonBody as quizQuestionCreateReturn;
+    questionin = {
+      question: 'Who is the Monarch of England?',
+      duration: 4,
+      points: 5,
+      answers: [
+        {
+          answer: 'Prince Charles',
+          correct: true
+        },
+        {
+          answer: 'Prince Charles.',
+          correct: true
+        }
+      ]
+    };
+    questionin2 = {
+      question: 'Who is the best Person?',
+      duration: 4,
+      points: 5,
+      answers: [
+        {
+          answer: 'Thomas',
+          correct: true
+        },
+        {
+          answer: 'Bordado',
+          correct: true
+        }
+      ]
+    };
+    questionin3 = {
+      question: 'Who is the wrost Person?',
+      duration: 4,
+      points: 5,
+      answers: [
+        {
+          answer: 'Thomas',
+          correct: true
+        },
+        {
+          answer: 'Bordado',
+          correct: true
+        }
+      ]
+    };
+    question1 = requestQuizQuestionCreate(user.token, questionin, quiz.quizId).jsonBody as quizQuestionCreateReturn;
+    question2 = requestQuizQuestionCreate(user.token, questionin2, quiz.quizId).jsonBody as quizQuestionCreateReturn;
+    requestQuizQuestionCreate(user.token, questionin3, quiz.quizId).jsonBody as quizQuestionCreateReturn;
   });
 
   // 1. Succesfully duplicate question
