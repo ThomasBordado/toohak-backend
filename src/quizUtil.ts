@@ -1,4 +1,4 @@
-import { quizUser, user, quizQuestionCreateInput } from './interfaces';
+import { quizUser, user, quizQuestionCreateInput, quizQuestionCreateInputV1 } from './interfaces';
 import { getData } from './dataStore';
 import HTTPError from 'http-errors';
 
@@ -80,6 +80,66 @@ export const checkQuizName = (name: string, quizzesOwned: quizUser[]) => {
       throw HTTPError(400, 'Quiz name previously used by user');
     }
   }
+};
+
+export const checkQuestionValidV1 = (quizQuestion: quizQuestionCreateInputV1, quizId: number) => {
+  // Check the string length
+  if (quizQuestion.question.length < 5 || quizQuestion.question.length > 50) {
+    return { error: 'Question string is less than 5 characters in length or greater than 50 characters in length' };
+  }
+
+  // Check the answer length
+  if (quizQuestion.answers.length > 6 || quizQuestion.answers.length < 2) {
+    return { error: 'The question has more than 6 answers or less than 2 answers' };
+  }
+
+  // Check the duration
+  if (quizQuestion.duration <= 0) {
+    return { error: 'The question duration is not a positive number' };
+  }
+
+  // Calculate the sum of duration
+  const data = getData();
+  const quiz = data.quizzes.find(quizs => quizs.quizId === quizId);
+  let sum = 0;
+  for (let i = 0; i < quiz.questions.length; i++) {
+    sum = sum + quiz.questions[i].duration;
+  }
+  sum = sum + quizQuestion.duration;
+  if (sum > 180) {
+    return { error: 'The sum of the question durations in the quiz exceeds 3 minutes' };
+  }
+
+  // Check the point award
+  if (quizQuestion.points < 1 || quizQuestion.points > 10) {
+    return { error: 'The points awarded for the question are less than 1 or greater than 10' };
+  }
+
+  // Check the answer length
+  for (const answer of quizQuestion.answers) {
+    if (answer.answer.length < 1 || answer.answer.length > 30) {
+      return { error: 'The length of any answer is shorter than 1 character long, or longer than 30 characters long' };
+    }
+  }
+
+  // Check if there's duplicate answers
+  const uniqueAnswers : string[] = [];
+  for (let i = 0; i < quizQuestion.answers.length; i++) {
+    const currentAnswer = quizQuestion.answers[i].answer;
+    if (!uniqueAnswers.includes(currentAnswer)) {
+      uniqueAnswers.push(currentAnswer);
+    } else {
+      return { error: 'Any answer strings are duplicates of one another (within the same question)' };
+    }
+  }
+
+  // Check if there's correct answer
+  const answer = quizQuestion.answers.find(quizs => quizs.correct === true);
+  if (!answer) {
+    return { error: 'There are no correct answers' };
+  }
+
+  return { duration: sum };
 };
 
 export const checkQuestionValid = (quizQuestion: quizQuestionCreateInput, quizId: number) => {

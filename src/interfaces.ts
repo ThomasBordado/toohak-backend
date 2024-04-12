@@ -123,6 +123,14 @@ export interface quizQuestionCreateInput {
   duration: number;
   points: number;
   answers: answerInput[];
+  thumbnailUrl: string;
+}
+
+export interface quizQuestionCreateInputV1 {
+  question: string;
+  duration: number;
+  points: number;
+  answers: answerInput[];
 }
 
 export interface quizQuestionCreateReturn {

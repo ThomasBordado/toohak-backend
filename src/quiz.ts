@@ -1,6 +1,6 @@
 import { getData, setData } from './dataStore';
-import { EmptyObject, ErrorReturn, QuizListReturn, quiz, quizId, quizQuestionCreateInput, quizQuestionCreateReturn, quizQuestionDuplicateReturn, getPlayerResultReturn, messageInput, messages } from './interfaces';
-import { validToken, checkQuizName, checkQuestionValid, isValidQuizId, randomColour, validthumbnailUrl } from './quizUtil';
+import { EmptyObject, ErrorReturn, QuizListReturn, quiz, quizId, quizQuestionCreateInput, quizQuestionCreateInputV1, quizQuestionCreateReturn, quizQuestionDuplicateReturn, getPlayerResultReturn, messageInput, messages } from './interfaces';
+import { validToken, checkQuizName, checkQuestionValid, isValidQuizId, randomColour, validthumbnailUrl, checkQuestionValidV1 } from './quizUtil';
 import { saveData } from './persistence';
 import HTTPError from 'http-errors';
 /**
@@ -355,7 +355,7 @@ export const adminQuizTrashEmpty = (token: string, quizIds: number[]): EmptyObje
  * @param {number} quizId - a unique identifier of quiz
  * @returns questionId
  */
-export const quizQuestionCreate1 = (token: string, questionBody: quizQuestionCreateInput, quizId: number): quizQuestionCreateReturn | ErrorReturn => {
+export const quizQuestionCreate1 = (token: string, questionBody: quizQuestionCreateInputV1, quizId: number): quizQuestionCreateReturn | ErrorReturn => {
   // Check token error
   const data = getData();
   validToken(token, data.users);
@@ -366,7 +366,7 @@ export const quizQuestionCreate1 = (token: string, questionBody: quizQuestionCre
     return quiz as ErrorReturn;
   }
   // Check if the errors in questionBody
-  const question = checkQuestionValid(questionBody, quizId);
+  const question = checkQuestionValidV1(questionBody, quizId);
   if ('error' in question) {
     return question as ErrorReturn;
   }
@@ -409,7 +409,7 @@ export const quizQuestionCreate1 = (token: string, questionBody: quizQuestionCre
  * @param {number} quizId - a unique identifier of quiz
  * @returns questionId
  */
-export const quizQuestionCreate2 = (token: string, questionBody: quizQuestionCreateInput, quizId: number, thumbnailUrl: string): quizQuestionCreateReturn | ErrorReturn => {
+export const quizQuestionCreate2 = (token: string, questionBody: quizQuestionCreateInput, quizId: number): quizQuestionCreateReturn | ErrorReturn => {
   // Check token error
   const data = getData();
   validToken(token, data.users);
@@ -417,7 +417,7 @@ export const quizQuestionCreate2 = (token: string, questionBody: quizQuestionCre
   // Check if the user owns this quiz
   isValidQuizId(token, quizId);
   // Check if the thumbnailUrl is valid
-  validthumbnailUrl(thumbnailUrl);
+  validthumbnailUrl(questionBody.thumbnailUrl);
   // Return the duration sum of the questions
   const question = checkQuestionValid(questionBody, quizId);
 
@@ -425,7 +425,7 @@ export const quizQuestionCreate2 = (token: string, questionBody: quizQuestionCre
   const findQuiz = data.quizzes.find(quizs => quizs.quizId === quizId);
   findQuiz.timeLastEdited = Math.floor(Date.now() / 1000);
   findQuiz.duration = question.duration;
-  findQuiz.thumbnailUrl = thumbnailUrl;
+  findQuiz.thumbnailUrl = questionBody.thumbnailUrl;
   findQuiz.numQuestions += 1;
   data.questionIdStore += 1;
   const questionId = data.questionIdStore;
