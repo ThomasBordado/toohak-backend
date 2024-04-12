@@ -1,5 +1,5 @@
-import { requestRegister, requestLogin, requestGetUserDetails, requestUpdateUserDetails, requestUpdatePassword, requestClear } from './wrapper';
-import { requestLogout } from './wrapper2';
+import { requestRegister, requestLogin, requestGetUserDetails, requestClear } from './wrapper';
+import { requestLogout, requestUpdateUserDetails, requestUpdatePassword } from './wrapper2';
 import { usersList, getUserId, getHashOf } from './authUtil';
 import { SessionId, UserId, user } from './interfaces';
 import HTTPError from 'http-errors';
@@ -44,11 +44,12 @@ describe.skip('Test requestGetUserDetials', () => {
 describe('requestUpdateUserDetails', () => {
   let data: SessionId;
   beforeEach(() => {
+    requestClear();
     data = requestRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith').jsonBody as SessionId;
   });
 
   test('requestUpdateUserDetails error: invalid authUserId', () => {
-    expect(requestUpdateUserDetails((parseInt(data.token) + 1).toString(), 'validemail1@gmail.com', 'Jane', 'Smith').jsonBody).toStrictEqual({ error: expect.any(String) });
+    expect(() => (requestUpdateUserDetails(data.token + 1, 'validemail@gmail.com', 'Jane', 'Smith')).toThrow(HTTPError[401]));
   });
 
   test.each([
@@ -62,14 +63,14 @@ describe('requestUpdateUserDetails', () => {
     { test: 'invalid nameLast(too long)', email: 'validemail@gmail.com', nameFirst: 'Jane', nameLast: 'SmithSmithSmithSmithSmith' },
   ])("requestUpdateUserDetails error: '$test'", ({ email, nameFirst, nameLast }) => {
     requestRegister('validemail1@gmail.com', 'password7', 'Jennifer', 'Lawson');
-    const response = requestUpdateUserDetails(data.token, email, nameFirst, nameLast);
-    expect(response.jsonBody).toStrictEqual({ error: expect.any(String) });
-    expect(response.statusCode).toStrictEqual(400);
+    expect(() => (requestUpdateUserDetails(data.token, email, nameFirst, nameLast)).toThrow(HTTPError[400]));
   });
 
   // 2. Testing for return value
   test('requestUpdateUserDetails return type', () => {
-    expect(requestUpdateUserDetails(data.token, 'validemail1@gmail.com', 'Jane', 'Smith').jsonBody).toStrictEqual({});
+    expect(() => (requestUpdateUserDetails(data.token, 'validemail1@gmail.com', 'John', 'Smith')).not.toThrow(HTTPError));
+    const returntype = requestUpdateUserDetails(data.token, 'validemail1@gmail.com', 'John', 'Smith');
+    expect(returntype).toStrictEqual({ });
   });
 
   // 3. Testing for behaviors
@@ -178,13 +179,12 @@ describe('requestUpdateUserDetails', () => {
 describe('requestUpdatePassword', () => {
   let data: SessionId;
   beforeEach(() => {
+    requestClear();
     data = requestRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith').jsonBody as SessionId;
   });
 
   test('adminUserPasswordUpdate error: invalid token', () => {
-    const response = requestUpdatePassword((parseInt(data.token) + 1).toString(), '1234567a', '1234567b');
-    expect(response.jsonBody).toStrictEqual({ error: expect.any(String) });
-    expect(response.statusCode).toStrictEqual(401);
+    expect(() => requestUpdatePassword((data.token + 1).toString(), '1234567a', '1234567b')).toThrow(HTTPError[401]);
   });
 
   test.each([
@@ -194,16 +194,14 @@ describe('requestUpdatePassword', () => {
     { test: 'New password not valid(does not contain letter)', oldPassword: '1234567a', newPassword: '12345678' },
     { test: 'New password not valid(does not contain number)', oldPassword: '1234567a', newPassword: 'abcdefgh' },
   ])("adminUserPasswordUpdate error: '$test'", ({ oldPassword, newPassword }) => {
-    const response = requestUpdatePassword(data.token, oldPassword, newPassword);
-    expect(response.jsonBody).toStrictEqual({ error: expect.any(String) });
-    expect(response.statusCode).toStrictEqual(400);
+    expect(() => requestUpdatePassword(data.token, oldPassword, newPassword)).toThrow(HTTPError[400]);
   });
 
   // 2. Testing for return value
   test('adminUserPasswordUpdate return type', () => {
-    const response = requestUpdatePassword(data.token, '1234567a', '1234567b');
-    expect(response.jsonBody).toStrictEqual({});
-    expect(response.statusCode).toStrictEqual(200);
+    expect(() => (requestUpdatePassword(data.token, '1234567a', '1234567b')).not.toThrow(HTTPError));
+    const returntype = requestUpdatePassword(data.token, '1234567a', '1234567b');
+    expect(returntype).toStrictEqual({ });
   });
 
   // 3. Testing for behaviors

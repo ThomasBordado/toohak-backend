@@ -78,7 +78,7 @@ export const checkName = (name: string, position: string) => {
 export const isValidToken = (token: string): boolean => {
   const data = getData();
   if (token === '') {
-    throw HTTPError(401, 'Token is invalid');
+    throw HTTPError(401, 'Token is empty');
   }
   if (data.users.length === 0) {
     throw HTTPError(401, 'Token is invalid');
@@ -187,13 +187,13 @@ export const getUserId = (token: string): UserId | ErrorReturn => {
   loadData();
   const data = getData();
   if (token === '') {
-    return { error: 'invalid token' };
+    return { error: 'empty token, failed to get UserId' };
   }
   const user = data.users.find(users => users.sessions.includes(token));
   if (user) {
     return { authUserId: user.userId };
   }
-  return { error: 'invalid token' };
+  return { error: 'invalid token, failed to get UserId' };
 };
 
 /**
