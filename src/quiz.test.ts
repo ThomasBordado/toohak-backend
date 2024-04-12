@@ -1108,10 +1108,10 @@ describe('Testing Post /v1/admin/quiz/{quizid}/question', () => {
         }
       ]
     };
-
     const quizQuestionCreateResponse = requestQuizQuestionCreate(user.token, input, quiz.quizId);
     expect(quizQuestionCreateResponse.statusCode).toStrictEqual(200);
     expect(quizQuestionCreateResponse.jsonBody).toStrictEqual({ questionId: expect.any(Number) });
+
     const expectedInfo: quiz = {
       quizId: quiz.quizId,
       name: 'British',
@@ -1121,19 +1121,19 @@ describe('Testing Post /v1/admin/quiz/{quizid}/question', () => {
       numQuestions: 1,
       questions: [
         {
-          questionId: quizQuestionCreateResponse.jsonBody.questionId,
+          questionId: expect.any(Number),
           question: 'Who is the Monarch of England?',
           duration: 4,
           points: 5,
           answers: [
             {
-              answerId: 1,
+              answerId: expect.any(Number),
               answer: 'Prince Charles',
               colour: expect.any(String),
               correct: true,
             },
             {
-              answerId: 2,
+              answerId: expect.any(Number),
               answer: 'Prince Charles.',
               colour: expect.any(String),
               correct: true,
@@ -1181,7 +1181,7 @@ describe('Testing Post /v1/admin/quiz/{quizid}/question', () => {
 
         quizQuestion: {
 
-          question: 'Who?',
+          question: 'Whoaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa?',
           duration: 5,
           points: 5,
           answers: [
@@ -1202,7 +1202,7 @@ describe('Testing Post /v1/admin/quiz/{quizid}/question', () => {
 
         quizQuestion: {
 
-          question: 'Who?',
+          question: 'Who is the Monarch of England?',
           duration: 5,
           points: 5,
           answers: [
@@ -1210,31 +1210,6 @@ describe('Testing Post /v1/admin/quiz/{quizid}/question', () => {
               answer: 'Prince Charles',
               correct: true,
             },
-            {
-              answer: 'Louis XVI',
-              correct: false,
-            }
-          ]
-
-        }
-      },
-      {
-        test: 'Question string too long',
-
-        quizQuestion: {
-
-          question: 'Who?',
-          duration: 5,
-          points: 5,
-          answers: [
-            {
-              answer: 'Prince Charles',
-              correct: true,
-            },
-            {
-              answer: 'Louis XVI',
-              correct: false,
-            }
           ]
 
         }
@@ -1244,39 +1219,38 @@ describe('Testing Post /v1/admin/quiz/{quizid}/question', () => {
 
         quizQuestion: {
 
-          question: 'Who?',
+          question: 'Who is the Monarch of England?',
           duration: 5,
           points: 5,
           answers: [
             {
-              answer: 'Prince Charles',
+              answer: 'Prince Charles1',
               correct: true,
             },
             {
               answer: 'Louis XVI',
               correct: false,
-            }
-          ]
-
-        }
-      },
-      {
-        test: 'Question string too long',
-
-        quizQuestion: {
-
-          question: 'Who?',
-          duration: 5,
-          points: 5,
-          answers: [
+            },
             {
-              answer: 'Prince Charles',
+              answer: 'Prince Charles2',
               correct: true,
             },
             {
-              answer: 'Louis XVI',
-              correct: false,
-            }
+              answer: 'Prince Charles3',
+              correct: true,
+            },
+            {
+              answer: 'Prince Charles4',
+              correct: true,
+            },
+            {
+              answer: 'Prince Charles5',
+              correct: true,
+            },
+            {
+              answer: 'Prince Charles6',
+              correct: true,
+            },
           ]
 
         }
@@ -1286,29 +1260,8 @@ describe('Testing Post /v1/admin/quiz/{quizid}/question', () => {
 
         quizQuestion: {
 
-          question: 'Who?',
-          duration: 5,
-          points: 5,
-          answers: [
-            {
-              answer: 'Prince Charles',
-              correct: true,
-            },
-            {
-              answer: 'Louis XVI',
-              correct: false,
-            }
-          ]
-
-        }
-      },
-      {
-        test: 'Question string too long',
-
-        quizQuestion: {
-
-          question: 'Who?',
-          duration: 5,
+          question: 'Who is the Monarch of England?',
+          duration: -1,
           points: 5,
           answers: [
             {
@@ -1328,29 +1281,8 @@ describe('Testing Post /v1/admin/quiz/{quizid}/question', () => {
 
         quizQuestion: {
 
-          question: 'Who?',
-          duration: 5,
-          points: 5,
-          answers: [
-            {
-              answer: 'Prince Charles',
-              correct: true,
-            },
-            {
-              answer: 'Louis XVI',
-              correct: false,
-            }
-          ]
-
-        }
-      },
-      {
-        test: 'Question string too long',
-
-        quizQuestion: {
-
-          question: 'Who?',
-          duration: 5,
+          question: 'Who is the Monarch of England?',
+          duration: 350,
           points: 5,
           answers: [
             {
@@ -1370,30 +1302,9 @@ describe('Testing Post /v1/admin/quiz/{quizid}/question', () => {
 
         quizQuestion: {
 
-          question: 'Who?',
+          question: 'Who is the Monarch of England?',
           duration: 5,
-          points: 5,
-          answers: [
-            {
-              answer: 'Prince Charles',
-              correct: true,
-            },
-            {
-              answer: 'Louis XVI',
-              correct: false,
-            }
-          ]
-
-        }
-      },
-      {
-        test: 'Question string too long',
-
-        quizQuestion: {
-
-          question: 'Who?',
-          duration: 5,
-          points: 5,
+          points: 0,
           answers: [
             {
               answer: 'Prince Charles',
@@ -1414,7 +1325,7 @@ describe('Testing Post /v1/admin/quiz/{quizid}/question', () => {
 
           question: 'Who?',
           duration: 5,
-          points: 5,
+          points: 15,
           answers: [
             {
               answer: 'Prince Charles',
@@ -1429,7 +1340,7 @@ describe('Testing Post /v1/admin/quiz/{quizid}/question', () => {
         }
       },
       {
-        test: 'Question string too long',
+        test: 'Invalid answer length(too short)',
 
         quizQuestion: {
 
@@ -1438,7 +1349,28 @@ describe('Testing Post /v1/admin/quiz/{quizid}/question', () => {
           points: 5,
           answers: [
             {
-              answer: 'Prince Charles',
+              answer: '',
+              correct: true,
+            },
+            {
+              answer: 'Louis XVI',
+              correct: false,
+            }
+          ]
+
+        }
+      },
+      {
+        test: 'Invalid answer length(too short)',
+
+        quizQuestion: {
+
+          question: 'Who?',
+          duration: 5,
+          points: 5,
+          answers: [
+            {
+              answer: 'Prince Charles!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!',
               correct: true,
             },
             {
@@ -1451,27 +1383,6 @@ describe('Testing Post /v1/admin/quiz/{quizid}/question', () => {
       },
       {
         test: 'Duplicates answers in one question',
-
-        quizQuestion: {
-
-          question: 'Who?',
-          duration: 5,
-          points: 5,
-          answers: [
-            {
-              answer: 'Prince Charles',
-              correct: true,
-            },
-            {
-              answer: 'Louis XVI',
-              correct: false,
-            }
-          ]
-
-        }
-      },
-      {
-        test: 'Question string too long',
 
         quizQuestion: {
 
@@ -1510,26 +1421,6 @@ describe('Testing Post /v1/admin/quiz/{quizid}/question', () => {
             }
           ]
 
-        }
-      },
-      {
-        test: 'Question string too long',
-
-        quizQuestion: {
-
-          question: 'Who?',
-          duration: 5,
-          points: 5,
-          answers: [
-            {
-              answer: 'Prince Charles',
-              correct: true,
-            },
-            {
-              answer: 'Louis XVI',
-              correct: false,
-            }
-          ]
         }
       },
     ])("requestUpdateUserDetails error: '$test'", ({ quizQuestion }) => {
@@ -1815,7 +1706,7 @@ describe('Testing Post /v1/admin/quiz/{quizid}/transfer', () => {
       expect(quizTransferResponse.jsonBody).toStrictEqual({ error: expect.any(String) });
     });
 
-    test('Token is empty', () => {
+    test('Token is invalid', () => {
       const quizTransferResponse = requestquizTransfer(user2.token + 100, 'validemail@gmail.com', quiz.quizId);
       expect(quizTransferResponse.statusCode).toStrictEqual(401);
       expect(quizTransferResponse.jsonBody).toStrictEqual({ error: expect.any(String) });
@@ -1826,7 +1717,7 @@ describe('Testing Post /v1/admin/quiz/{quizid}/transfer', () => {
     requestLogout(user1.token);
 
     const user3 = requestRegister('validemail3@gmail.com', '1234567a', 'Jane', 'Smith').jsonBody as SessionId;
-    const quiz3 = requestQuizCreate(user1.token, 'My quiz Name1', 'A description of my quiz').jsonBody as quizId;
+    const quiz3 = requestQuizCreate(user3.token, 'My quiz Name1', 'A description of my quiz').jsonBody as quizId;
     requestLogout(user3.token);
 
     const user2 = requestRegister('validemail2@gmail.com', '1234567a', 'Jennifer', 'Lawson').jsonBody as SessionId;

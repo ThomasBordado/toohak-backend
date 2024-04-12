@@ -215,6 +215,7 @@ describe('Test requestGetUserDetials', () => {
 describe('requestUpdateUserDetails', () => {
   let data: SessionId;
   beforeEach(() => {
+    requestClear();
     data = requestRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith').jsonBody as SessionId;
   });
 
@@ -379,7 +380,7 @@ describe('requestUpdatePassword', () => {
 
   // 3. Testing for behaviors
   // one user
-  test('adminUserPasswordUpdate return type', () => {
+  test('adminUserPasswordUpdate behavior1', () => {
     requestUpdatePassword(data.token, '1234567a', '1234567b');
     const result1 = usersList().sort((a, b) => a.userId - b.userId);
     const userId = getUserId(data.token) as UserId;
@@ -402,7 +403,7 @@ describe('requestUpdatePassword', () => {
   });
 
   // more than one user and with requestUpdateUserDetails, many times
-  test('adminUserPasswordUpdate return type', () => {
+  test('adminUserPasswordUpdate behavior2', () => {
     const id2 = requestRegister('validemail2@gmail.com', '1234567a', 'Jennifer', 'Smith').jsonBody as SessionId;
     requestUpdatePassword(id2.token, '1234567a', '1234567b');
     requestUpdatePassword(id2.token, '1234567b', '1234567c');
