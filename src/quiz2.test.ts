@@ -1803,3 +1803,123 @@ describe.skip('adminQuizQuestionDuplicate testing', () => {
     expect(result.statusCode).toStrictEqual(403);
   });
 });
+
+describe('/v1/player/:playerid/chat, sessionMessagesList', () => {
+  beforeEach(() => {
+    // requestClear();
+    // const user = requestRegister('janeS@gmail.com', 'password1', 'Jane', 'Hu').jsonBody as SessionId;
+    // const quiz = requestQuizCreate(user.token, 'British', 'history') as quizId;
+    
+    // start a new session
+    // const session = requestxxx(user.token, 3);
+
+    // join a session
+    // const player = requestxxx(user.token, 'Jane.S');
+
+    // Send a message
+    // const message = {
+    //   message: {
+    //     messageBody: 'Welcome to the test.',
+    //   }
+    // }
+    // requestSendMessage(player.playerId, message);
+  });
+
+    // 1. Correct return type and behavior
+    // expect(() => (requestMessageList(player.playerId)).not.toThrow(HTTPError));
+    // const returnType = requestMessageList(player.playerId);
+    // expect(returnType).toStrictEqual({ 
+    //   messages: [
+    //   {
+    //     messageBody: 'Welcome to the test.',
+    //     playerId: player.playerId,
+    //     playerName: 'Jane.S',
+    //     timeSent: expect.any(Number),
+    //   }
+    // ] });
+
+
+    // 2. return more than one messages
+    // const message = {
+    //   message: {
+    //     messageBody: 'Hi, my name is Yimei.',
+    //   }
+    // }
+    // requestSendMessage(player.playerId, message);
+    // requestSendMessage(player.playerId, message);
+    // requestSendMessage(player.playerId, message);
+    // const returnType = requestMessageList(player.playerId);
+    // const expectList = {}
+
+
+    // 3. Error test 400: player ID does not exist
+    // expect(() => (requestMessageList(player.playerId + 100)).toThrow(HTTPError[400]));
+});
+
+describe('/v1/player/:playerid/chat, sessionSendMessage', () => {
+  beforeEach(() => {
+    // requestClear();
+    // const user = requestRegister('janeS@gmail.com', 'password1', 'Jane', 'Hu').jsonBody as SessionId;
+    // const quiz = requestQuizCreate(user.token, 'British', 'history') as quizId;
+    
+    // start a new session
+    // const session = requestxxx(user.token, 3);
+
+    // join a session
+    // const player = requestxxx(user.token, 'Jane.S');
+
+  });
+
+    // 1. Correct return type
+    // const message = {
+    //   message: {
+    //     messageBody: 'Welcome to the test.',
+    //   }
+    // }
+    // expect(() => (requestSendMessage(player.playerId, message)).not.toThrow(HTTPError));
+    // const returnType = requestSendMessage(player.playerId, message);
+    // expect(returnType).toStrictEqual({ });
+
+
+    // 2. behavior test
+    // const message = {
+    //   message: {
+    //     messageBody: 'Welcome to the test.',
+    //   }
+    // }
+    // requestSendMessage(player.playerId, message);
+    // requestSendMessage(player.playerId, message);
+    // requestSendMessage(player.playerId, message);
+    // const returnType = requestMessageList(player.playerId);
+    // const expectList = {}
+
+    // 3a. Error test 400: player ID does not exist
+    // const message = {
+    //   message: {
+    //     messageBody: 'Welcome to the test.',
+    //   }
+    // }
+    // requestSendMessage(player.playerId + 100, message);
+
+    // 3b. Error test 400: message body is less than 1 character or more than 100 characters
+    // const message1 = {
+    //   message: {
+    //     messageBody: '.',
+    //   }
+    // };
+    // expect(() => (requestSendMessage(player.playerId, message1)).toThrow(HTTPError[400]));
+
+
+    // const message2 = {
+    //   message: {
+    //     messageBody: 'Longggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg',
+    //   }
+    // };
+    // expect(() => (requestSendMessage(player.playerId, message2)).toThrow(HTTPError[400]));
+});
+
+describe('/v1/player/:playerid/results, sessionGetPlayerResult', () => {
+  beforeEach(() => {
+
+  });
+});

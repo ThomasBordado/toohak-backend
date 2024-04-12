@@ -1912,21 +1912,3 @@ describe('adminQuizQuestionDuplicate testing', () => {
     expect(result.statusCode).toStrictEqual(400);
   });
 });
-
-describe('/v1/player/:playerid/results, sessionGetPlayerResult', () => {
-  beforeEach(() => {
-
-  });
-});
-
-describe('/v1/player/:playerid/chat, sessionMessagesList', () => {
-  beforeEach(() => {
-
-  });
-});
-
-describe('/v1/player/:playerid/chat, sessionSendMessage', () => {
-  beforeEach(() => {
-
-  });
-});
