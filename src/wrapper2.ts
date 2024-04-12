@@ -1,5 +1,6 @@
 import request, { HttpVerb } from 'sync-request-curl';
 import { port, url } from './config.json';
+import { quizQuestionCreateInput } from './interfaces';
 import { IncomingHttpHeaders } from 'http';
 import HTTPError from 'http-errors';
 const SERVER_URL = `${url}:${port}`;
@@ -77,6 +78,13 @@ const requestHelper = (
 // ========================================================================= //
 
 // Wrapper functions
+export const requestUpdateUserDetails = (token: string, email: string, nameFirst: string, nameLast: string) => {
+  return requestHelper('PUT', '/v2/admin/user/details', { email, nameFirst, nameLast }, { token });
+};
+
+export const requestUpdatePassword = (token: string, oldPassword: string, newPassword: string) => {
+  return requestHelper('PUT', '/v2/admin/user/password', { oldPassword, newPassword }, { token });
+};
 
 export const requestQuizList = (token: string) => {
   return requestHelper('GET', '/v2/admin/quiz/list', {}, { token });
@@ -100,4 +108,20 @@ export const requestQuizRestore = (token: string, quizId: number) => {
 
 export const requestThumbnailUpdate = (token: string, quizId: number, imgUrl: string) => {
   return requestHelper('PUT', `/v1/admin/quiz/${quizId}/thumbnail`, { imgUrl }, { token });
+};
+
+export const requestLogout = (token: string) => {
+  return requestHelper('POST', '/v2/admin/auth/logout', {}, { token });
+};
+
+export const requestQuizTrashEmpty = (token: string, quizIds: string) => {
+  return requestHelper('DELETE', '/v2/admin/quiz/trash/empty', { quizIds }, { token });
+};
+
+export const requestquizTransfer = (token: string, userEmail: string, quizid: number) => {
+  return requestHelper('POST', `/v2/admin/quiz/${quizid}/transfer`, { userEmail }, { token });
+};
+
+export const requestQuizQuestionCreate = (token: string, questionBody: quizQuestionCreateInput, quizid: number, thumbnailUrl: string) => {
+  return requestHelper('POST', `/v2/admin/quiz/${quizid}/question`, { questionBody, thumbnailUrl }, { token });
 };

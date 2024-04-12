@@ -79,6 +79,10 @@ export interface quizId {
   quizId: number;
 }
 
+export interface questionId {
+  questionId: number;
+}
+
 export interface QuizListReturn {
   quizzes: quizUser[];
 }
@@ -88,7 +92,6 @@ export interface quizQuestionCreateInput {
   duration: number;
   points: number;
   answers: answerInput[];
-
 }
 
 export interface quizQuestionCreateReturn {

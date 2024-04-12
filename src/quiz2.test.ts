@@ -1,6 +1,6 @@
-import { requestRegister, requestQuizInfo, requestUpdateQuizName, requestUpdateQuizDescription, requestClear, requestQuizQuestionCreate, requestQuizTrashEmpty, requestquizTransfer, requestLogout, requestLogin, requestUpdateQuizQuestion, requestDeleteQuizQuestion, requestMoveQuestion, requestQuestionDuplicate } from './wrapper';
-import { requestQuizList, requestQuizCreate, requestQuizTrash, requestQuizViewTrash, requestQuizRestore, requestThumbnailUpdate } from './wrapper2';
-import { QuizListReturn, SessionId, quizId, quizUser, quizQuestionCreateInput, quiz, quizQuestionCreateReturn } from './interfaces';
+import { requestRegister, requestQuizInfo, requestUpdateQuizName, requestUpdateQuizDescription, requestClear, requestLogin, requestUpdateQuizQuestion, requestDeleteQuizQuestion, requestMoveQuestion, requestQuestionDuplicate } from './wrapper';
+import { requestQuizList, requestQuizCreate, requestQuizTrash, requestQuizViewTrash, requestQuizRestore, requestQuizTrashEmpty, requestQuizQuestionCreate, requestquizTransfer, requestLogout, requestThumbnailUpdate } from './wrapper2';
+import { QuizListReturn, SessionId, quizId, quizUser, quizQuestionCreateInput, quiz, quizQuestionCreateReturn, questionId } from './interfaces';
 import HTTPError from 'http-errors';
 
 beforeEach(() => {
@@ -389,28 +389,28 @@ describe.skip('requestUpdateQuizDescription testing', () => {
 describe.skip('Testing it2 function, adminQuizQuestionUpdate', () => {
   let user: SessionId;
   let quiz: quizId;
-  let questionin: quizQuestionCreateInput;
+  // let questionin: quizQuestionCreateInput;
   let questionout: quizQuestionCreateReturn;
   beforeEach(() => {
     user = requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith').jsonBody as SessionId;
     quiz = requestQuizCreate(user.token, 'My Quiz', 'My description.').jsonBody as quizId;
 
-    questionin = {
-      question: 'Who is the Monarch of England?',
-      duration: 4,
-      points: 5,
-      answers: [
-        {
-          answer: 'Prince Charles',
-          correct: true
-        },
-        {
-          answer: 'Prince Charles.',
-          correct: true
-        }
-      ]
-    };
-    questionout = requestQuizQuestionCreate(user.token, questionin, quiz.quizId).jsonBody as quizQuestionCreateReturn;
+    // questionin = {
+    //   question: 'Who is the Monarch of England?',
+    //   duration: 4,
+    //   points: 5,
+    //   answers: [
+    //     {
+    //       answer: 'Prince Charles',
+    //       correct: true
+    //     },
+    //     {
+    //       answer: 'Prince Charles.',
+    //       correct: true
+    //     }
+    //   ]
+    // };
+    // questionout = requestQuizQuestionCreate(user.token, questionin, quiz.quizId).jsonBody as quizQuestionCreateReturn;
 
     // question1 = requestQuestionCreate
     // question2 = requestQuestionCreate
@@ -530,28 +530,28 @@ describe.skip('Testing it2 function, adminQuizQuestionUpdate', () => {
 describe.skip('Testing it2 function, adminQuizQuestionDelete', () => {
   let user: SessionId;
   let quiz: quizId;
-  let questionin: quizQuestionCreateInput;
+  // let questionin: quizQuestionCreateInput;
   let questionout: quizQuestionCreateReturn;
   beforeEach(() => {
     user = requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith').jsonBody as SessionId;
     quiz = requestQuizCreate(user.token, 'My Quiz', 'My description.').jsonBody as quizId;
-    questionin = {
-      question: 'Who is the Monarch of England?',
-      duration: 4,
-      points: 5,
-      answers: [
-        {
-          answer: 'Prince Charles',
-          correct: true
-        },
-        {
-          answer: 'Prince Charles.',
-          correct: true
-        }
-      ]
+    // questionin = {
+    //   question: 'Who is the Monarch of England?',
+    //   duration: 4,
+    //   points: 5,
+    //   answers: [
+    //     {
+    //       answer: 'Prince Charles',
+    //       correct: true
+    //     },
+    //     {
+    //       answer: 'Prince Charles.',
+    //       correct: true
+    //     }
+    //   ]
 
-    };
-    questionout = requestQuizQuestionCreate(user.token, questionin, quiz.quizId).jsonBody as quizQuestionCreateReturn;
+    // };
+    // questionout = requestQuizQuestionCreate(user.token, questionin, quiz.quizId).jsonBody as quizQuestionCreateReturn;
     // question1 = requestQuestionCreate
     // question2 = requestQuestionCreate
     // question3 = requestQuestionCreate
@@ -594,27 +594,27 @@ describe.skip('Testing it2 function, adminQuizQuestionDelete', () => {
 describe.skip('Testing it2 function, adminQuizQuestionDelete', () => {
   let user: SessionId;
   let quiz: quizId;
-  let questionin: quizQuestionCreateInput;
+  // let questionin: quizQuestionCreateInput;
   let questionout: quizQuestionCreateReturn;
   beforeEach(() => {
     user = requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith').jsonBody as SessionId;
     quiz = requestQuizCreate(user.token, 'My Quiz', 'My description.').jsonBody as quizId;
-    questionin = {
-      question: 'Who is the Monarch of England?',
-      duration: 4,
-      points: 5,
-      answers: [
-        {
-          answer: 'Prince Charles',
-          correct: true
-        },
-        {
-          answer: 'Prince Charles.',
-          correct: true
-        }
-      ]
-    };
-    questionout = requestQuizQuestionCreate(user.token, questionin, quiz.quizId).jsonBody as quizQuestionCreateReturn;
+    // questionin = {
+    //   question: 'Who is the Monarch of England?',
+    //   duration: 4,
+    //   points: 5,
+    //   answers: [
+    //     {
+    //       answer: 'Prince Charles',
+    //       correct: true
+    //     },
+    //     {
+    //       answer: 'Prince Charles.',
+    //       correct: true
+    //     }
+    //   ]
+    // };
+    // questionout = requestQuizQuestionCreate(user.token, questionin, quiz.quizId).jsonBody as quizQuestionCreateReturn;
     // question1 = requestQuestionCreate
     // question2 = requestQuestionCreate
     // question3 = requestQuestionCreate
@@ -776,12 +776,12 @@ describe('requestQuizRestore testing', () => {
 /*
  * Testing for trash empty
  */
-describe.skip('adminQuizTrashEmpty testing', () => {
+describe('adminQuizTrashEmpty testing', () => {
   let user: SessionId;
   let quiz: quizId;
   beforeEach(() => {
     user = requestRegister('tom@gmail.com', 'password1', 'Tom', 'Thompson').jsonBody as SessionId;
-    quiz = requestQuizCreate(user.token, 'First Quiz', 'Good description').jsonBody as quizId;
+    quiz = requestQuizCreate(user.token, 'First Quiz', 'Good description') as quizId;
   });
 
   describe('Unsuccessful Cases', () => {
@@ -790,14 +790,12 @@ describe.skip('adminQuizTrashEmpty testing', () => {
       // Convert the list to a JSON string
       const quizIdsString: string = JSON.stringify(quizIds);
 
-      const result = requestQuizTrashEmpty(user.token, quizIdsString);
-      expect(result.statusCode).toStrictEqual(400);
-      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
+      expect(() => requestQuizTrashEmpty(user.token, quizIdsString)).toThrow(HTTPError[400]);
     });
 
     test('All quiz ids are not in the trash', () => {
-      const quiz2 = requestQuizCreate(user.token, 'Second Quiz', 'Better description').jsonBody as quizId;
-      const quiz3 = requestQuizCreate(user.token, 'Third Quiz', 'Best description').jsonBody as quizId;
+      const quiz2 = requestQuizCreate(user.token, 'Second Quiz', 'Better description') as quizId;
+      const quiz3 = requestQuizCreate(user.token, 'Third Quiz', 'Best description') as quizId;
 
       // Send the first 2 quizzes into the trash
       requestQuizTrash(user.token, quiz.quizId);
@@ -807,9 +805,7 @@ describe.skip('adminQuizTrashEmpty testing', () => {
       // Convert the list to a JSON string
       const quizIdsString: string = JSON.stringify(quizIds);
 
-      const result = requestQuizTrashEmpty(user.token, quizIdsString);
-      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-      expect(result.statusCode).toStrictEqual(400);
+      expect(() => requestQuizTrashEmpty(user.token, quizIdsString)).toThrow(HTTPError[400]);
     });
     test('Token refers to invalid session', () => {
       requestQuizTrash(user.token, quiz.quizId);
@@ -819,9 +815,7 @@ describe.skip('adminQuizTrashEmpty testing', () => {
       const quizIdsString: string = JSON.stringify(quizIds);
 
       const newToken = parseInt(user.token) + 1;
-      const result = requestQuizTrashEmpty(newToken.toString(), quizIdsString);
-      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-      expect(result.statusCode).toStrictEqual(401);
+      expect(() => requestQuizTrashEmpty(newToken.toString(), quizIdsString)).toThrow(HTTPError[401]);
     });
 
     test('Token refers to empty session', () => {
@@ -831,14 +825,12 @@ describe.skip('adminQuizTrashEmpty testing', () => {
       // Convert the list to a JSON string
       const quizIdsString: string = JSON.stringify(quizIds);
 
-      const result = requestQuizTrashEmpty('', quizIdsString);
-      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-      expect(result.statusCode).toStrictEqual(401);
+      expect(() => requestQuizTrashEmpty('', quizIdsString)).toThrow(HTTPError[401]);
     });
 
     test('Quiz is not owned by current session', () => {
       const user2 = requestRegister('John@gmail.com', 'password1', 'John', 'Flow').jsonBody as SessionId;
-      const quiz2 = requestQuizCreate(user2.token, 'Quiz of John', 'Quiz of John').jsonBody as quizId;
+      const quiz2 = requestQuizCreate(user2.token, 'Quiz of John', 'Quiz of John') as quizId;
       requestQuizTrash(user.token, quiz.quizId);
       requestQuizTrash(user2.token, quiz2.quizId);
 
@@ -846,16 +838,14 @@ describe.skip('adminQuizTrashEmpty testing', () => {
       // Convert the list to a JSON string
       const quizIdsString: string = JSON.stringify(quizIds);
 
-      const result = requestQuizTrashEmpty(user.token, quizIdsString);
-      expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-      expect(result.statusCode).toStrictEqual(403);
+      expect(() => requestQuizTrashEmpty(user.token, quizIdsString)).toThrow(HTTPError[403]);
     });
   });
 
   describe('Successful cases', () => {
     test('Empty One Item in Trash', () => {
       requestQuizTrash(user.token, quiz.quizId);
-      let trashList = requestQuizViewTrash(user.token).jsonBody as QuizListReturn;
+      let trashList = requestQuizViewTrash(user.token) as QuizListReturn;
       let expectedList = {
         quizzes: [
           {
@@ -872,11 +862,9 @@ describe.skip('adminQuizTrashEmpty testing', () => {
       // Convert the list to a JSON string
       const quizIdsString: string = JSON.stringify(quizIds);
 
-      const response = requestQuizTrashEmpty(user.token, quizIdsString);
-      expect(response.jsonBody).toStrictEqual({});
-      expect(response.statusCode).toStrictEqual(200);
+      expect(requestQuizTrashEmpty(user.token, quizIdsString)).toStrictEqual({});
 
-      trashList = requestQuizViewTrash(user.token).jsonBody as QuizListReturn;
+      trashList = requestQuizViewTrash(user.token) as QuizListReturn;
       expectedList = { quizzes: [] };
       trashList.quizzes.sort((a: quizUser, b: quizUser) => a.quizId - b.quizId);
       expectedList.quizzes.sort((a: quizUser, b: quizUser) => a.quizId - b.quizId);
@@ -884,15 +872,15 @@ describe.skip('adminQuizTrashEmpty testing', () => {
     });
 
     test('Empty all items in Trash', () => {
-      const quiz2 = requestQuizCreate(user.token, 'Second Quiz', 'Better description').jsonBody as quizId;
-      const quiz3 = requestQuizCreate(user.token, 'Third Quiz', 'Best description').jsonBody as quizId;
+      const quiz2 = requestQuizCreate(user.token, 'Second Quiz', 'Better description') as quizId;
+      const quiz3 = requestQuizCreate(user.token, 'Third Quiz', 'Best description') as quizId;
 
       // Send the first 2 quizzes into the trash
       requestQuizTrash(user.token, quiz.quizId);
       requestQuizTrash(user.token, quiz2.quizId);
       requestQuizTrash(user.token, quiz3.quizId);
 
-      let trashList = requestQuizViewTrash(user.token).jsonBody as QuizListReturn;
+      let trashList = requestQuizViewTrash(user.token) as QuizListReturn;
       let expectedList = {
         quizzes: [
           {
@@ -917,11 +905,9 @@ describe.skip('adminQuizTrashEmpty testing', () => {
       // Convert the list to a JSON string
       const quizIdsString: string = JSON.stringify(quizIds);
 
-      const response = requestQuizTrashEmpty(user.token, quizIdsString);
-      expect(response.jsonBody).toStrictEqual({});
-      expect(response.statusCode).toStrictEqual(200);
+      expect(requestQuizTrashEmpty(user.token, quizIdsString)).toStrictEqual({});
 
-      trashList = requestQuizViewTrash(user.token).jsonBody as QuizListReturn;
+      trashList = requestQuizViewTrash(user.token) as QuizListReturn;
       expectedList = { quizzes: [] };
       trashList.quizzes.sort((a: quizUser, b: quizUser) => a.quizId - b.quizId);
       expectedList.quizzes.sort((a: quizUser, b: quizUser) => a.quizId - b.quizId);
@@ -929,15 +915,15 @@ describe.skip('adminQuizTrashEmpty testing', () => {
     });
 
     test('Empty last item in Trash', () => {
-      const quiz2 = requestQuizCreate(user.token, 'Second Quiz', 'Better description').jsonBody as quizId;
-      const quiz3 = requestQuizCreate(user.token, 'Third Quiz', 'Best description').jsonBody as quizId;
+      const quiz2 = requestQuizCreate(user.token, 'Second Quiz', 'Better description') as quizId;
+      const quiz3 = requestQuizCreate(user.token, 'Third Quiz', 'Best description') as quizId;
 
       // Send the first 2 quizzes into the trash
       requestQuizTrash(user.token, quiz.quizId);
       requestQuizTrash(user.token, quiz2.quizId);
       requestQuizTrash(user.token, quiz3.quizId);
 
-      let trashList = requestQuizViewTrash(user.token).jsonBody as QuizListReturn;
+      let trashList = requestQuizViewTrash(user.token) as QuizListReturn;
       let expectedList = {
         quizzes: [
           {
@@ -962,11 +948,9 @@ describe.skip('adminQuizTrashEmpty testing', () => {
       // Convert the list to a JSON string
       const quizIdsString: string = JSON.stringify(quizIds);
 
-      const response = requestQuizTrashEmpty(user.token, quizIdsString);
-      expect(response.jsonBody).toStrictEqual({});
-      expect(response.statusCode).toStrictEqual(200);
+      expect(requestQuizTrashEmpty(user.token, quizIdsString)).toStrictEqual({});
 
-      trashList = requestQuizViewTrash(user.token).jsonBody as QuizListReturn;
+      trashList = requestQuizViewTrash(user.token) as QuizListReturn;
       expectedList = {
         quizzes: [
           {
@@ -985,15 +969,15 @@ describe.skip('adminQuizTrashEmpty testing', () => {
     });
 
     test('Empty first item in Trash', () => {
-      const quiz2 = requestQuizCreate(user.token, 'Second Quiz', 'Better description').jsonBody as quizId;
-      const quiz3 = requestQuizCreate(user.token, 'Third Quiz', 'Best description').jsonBody as quizId;
+      const quiz2 = requestQuizCreate(user.token, 'Second Quiz', 'Better description') as quizId;
+      const quiz3 = requestQuizCreate(user.token, 'Third Quiz', 'Best description') as quizId;
 
       // Send the first 2 quizzes into the trash
       requestQuizTrash(user.token, quiz.quizId);
       requestQuizTrash(user.token, quiz2.quizId);
       requestQuizTrash(user.token, quiz3.quizId);
 
-      let trashList = requestQuizViewTrash(user.token).jsonBody as QuizListReturn;
+      let trashList = requestQuizViewTrash(user.token) as QuizListReturn;
       let expectedList = {
         quizzes: [
           {
@@ -1018,11 +1002,9 @@ describe.skip('adminQuizTrashEmpty testing', () => {
       // Convert the list to a JSON string
       const quizIdsString: string = JSON.stringify(quizIds);
 
-      const response = requestQuizTrashEmpty(user.token, quizIdsString);
-      expect(response.jsonBody).toStrictEqual({});
-      expect(response.statusCode).toStrictEqual(200);
+      expect(requestQuizTrashEmpty(user.token, quizIdsString)).toStrictEqual({});
 
-      trashList = requestQuizViewTrash(user.token).jsonBody as QuizListReturn;
+      trashList = requestQuizViewTrash(user.token) as QuizListReturn;
       expectedList = {
         quizzes: [
           {
@@ -1042,10 +1024,10 @@ describe.skip('adminQuizTrashEmpty testing', () => {
     });
 
     test('Empty odd items in Trash', () => {
-      const quiz2 = requestQuizCreate(user.token, 'Second Quiz', 'Better description').jsonBody as quizId;
-      const quiz3 = requestQuizCreate(user.token, 'Third Quiz', 'Best description').jsonBody as quizId;
-      const quiz4 = requestQuizCreate(user.token, 'Fourth Quiz', 'Bad description').jsonBody as quizId;
-      const quiz5 = requestQuizCreate(user.token, 'Fifth Quiz', 'Worst description').jsonBody as quizId;
+      const quiz2 = requestQuizCreate(user.token, 'Second Quiz', 'Better description') as quizId;
+      const quiz3 = requestQuizCreate(user.token, 'Third Quiz', 'Best description') as quizId;
+      const quiz4 = requestQuizCreate(user.token, 'Fourth Quiz', 'Bad description') as quizId;
+      const quiz5 = requestQuizCreate(user.token, 'Fifth Quiz', 'Worst description') as quizId;
 
       // Send the first 2 quizzes into the trash
       requestQuizTrash(user.token, quiz.quizId);
@@ -1054,7 +1036,7 @@ describe.skip('adminQuizTrashEmpty testing', () => {
       requestQuizTrash(user.token, quiz4.quizId);
       requestQuizTrash(user.token, quiz5.quizId);
 
-      let trashList = requestQuizViewTrash(user.token).jsonBody as QuizListReturn;
+      let trashList = requestQuizViewTrash(user.token) as QuizListReturn;
       let expectedList = {
         quizzes: [
           {
@@ -1087,11 +1069,9 @@ describe.skip('adminQuizTrashEmpty testing', () => {
       // Convert the list to a JSON string
       const quizIdsString: string = JSON.stringify(quizIds);
 
-      const response = requestQuizTrashEmpty(user.token, quizIdsString);
-      expect(response.jsonBody).toStrictEqual({});
-      expect(response.statusCode).toStrictEqual(200);
+      expect(requestQuizTrashEmpty(user.token, quizIdsString)).toStrictEqual({});
 
-      trashList = requestQuizViewTrash(user.token).jsonBody as QuizListReturn;
+      trashList = requestQuizViewTrash(user.token) as QuizListReturn;
       expectedList = {
         quizzes: [
           {
@@ -1114,10 +1094,10 @@ describe.skip('adminQuizTrashEmpty testing', () => {
 /**
  * test for creating quiz question
  */
-describe.skip('Testing Post /v1/admin/quiz/{quizid}/question', () => {
+describe('Testing Post /v2/admin/quiz/{quizid}/question', () => {
   test('Correct status code and return value', () => {
     const user = requestRegister('valideEmail@gmail.com', 'password1', 'Jane', 'Lawson').jsonBody as SessionId;
-    const quiz = requestQuizCreate(user.token, 'British', 'history').jsonBody as quizId;
+    const quiz = requestQuizCreate(user.token, 'British', 'history') as quizId;
     const input : quizQuestionCreateInput = {
       question: 'Who is the Monarch of England?',
       duration: 4,
@@ -1134,9 +1114,10 @@ describe.skip('Testing Post /v1/admin/quiz/{quizid}/question', () => {
       ]
     };
 
-    const quizQuestionCreateResponse = requestQuizQuestionCreate(user.token, input, quiz.quizId);
-    expect(quizQuestionCreateResponse.statusCode).toStrictEqual(200);
-    expect(quizQuestionCreateResponse.jsonBody).toStrictEqual({ questionId: expect.any(Number) });
+    const thumbnailUrl = 'http://google.com/some/image/path.jpg';
+    expect(() => (requestQuizQuestionCreate(user.token, input, quiz.quizId, thumbnailUrl)).not.toThrow(HTTPError));
+    const returnType = requestQuizQuestionCreate(user.token, input, quiz.quizId, thumbnailUrl) as questionId;
+
     const expectedInfo: quiz = {
       quizId: quiz.quizId,
       name: 'British',
@@ -1146,7 +1127,7 @@ describe.skip('Testing Post /v1/admin/quiz/{quizid}/question', () => {
       numQuestions: 1,
       questions: [
         {
-          questionId: quizQuestionCreateResponse.jsonBody.questionId,
+          questionId: returnType.questionId,
           question: 'Who is the Monarch of England?',
           duration: 4,
           points: 5,
@@ -1167,19 +1148,21 @@ describe.skip('Testing Post /v1/admin/quiz/{quizid}/question', () => {
         }
       ],
       duration: 4,
-      thumbnailUrl: '',
+      thumbnailUrl: 'http://google.com/some/image/path.jpg',
     };
+    expect(returnType).toStrictEqual({ questionId: expect.any(Number) });
     expect(requestQuizInfo(user.token, quiz.quizId).jsonBody).toStrictEqual(expectedInfo);
   });
 
   describe('Error test for 400 error', () => {
     let user: SessionId;
     let quiz: quizId;
+    let thumbnailUrl: string;
     beforeEach(() => {
       user = requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith').jsonBody as SessionId;
-      quiz = requestQuizCreate(user.token, 'My Quiz', 'My description.').jsonBody as quizId;
+      quiz = requestQuizCreate(user.token, 'My Quiz', 'My description.') as quizId;
+      thumbnailUrl = 'http://google.com/some/image/path.jpg';
     });
-
     test.each([
       {
         test: 'Question string too short',
@@ -1207,7 +1190,7 @@ describe.skip('Testing Post /v1/admin/quiz/{quizid}/question', () => {
 
         quizQuestion: {
 
-          question: 'Who?',
+          question: 'Whoaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa?',
           duration: 5,
           points: 5,
           answers: [
@@ -1228,7 +1211,7 @@ describe.skip('Testing Post /v1/admin/quiz/{quizid}/question', () => {
 
         quizQuestion: {
 
-          question: 'Who?',
+          question: 'Who is the Monarch of England?',
           duration: 5,
           points: 5,
           answers: [
@@ -1236,31 +1219,6 @@ describe.skip('Testing Post /v1/admin/quiz/{quizid}/question', () => {
               answer: 'Prince Charles',
               correct: true,
             },
-            {
-              answer: 'Louis XVI',
-              correct: false,
-            }
-          ]
-
-        }
-      },
-      {
-        test: 'Question string too long',
-
-        quizQuestion: {
-
-          question: 'Who?',
-          duration: 5,
-          points: 5,
-          answers: [
-            {
-              answer: 'Prince Charles',
-              correct: true,
-            },
-            {
-              answer: 'Louis XVI',
-              correct: false,
-            }
           ]
 
         }
@@ -1270,39 +1228,38 @@ describe.skip('Testing Post /v1/admin/quiz/{quizid}/question', () => {
 
         quizQuestion: {
 
-          question: 'Who?',
+          question: 'Who is the Monarch of England?',
           duration: 5,
           points: 5,
           answers: [
             {
-              answer: 'Prince Charles',
+              answer: 'Prince Charles1',
               correct: true,
             },
             {
               answer: 'Louis XVI',
               correct: false,
-            }
-          ]
-
-        }
-      },
-      {
-        test: 'Question string too long',
-
-        quizQuestion: {
-
-          question: 'Who?',
-          duration: 5,
-          points: 5,
-          answers: [
+            },
             {
-              answer: 'Prince Charles',
+              answer: 'Prince Charles2',
               correct: true,
             },
             {
-              answer: 'Louis XVI',
-              correct: false,
-            }
+              answer: 'Prince Charles3',
+              correct: true,
+            },
+            {
+              answer: 'Prince Charles4',
+              correct: true,
+            },
+            {
+              answer: 'Prince Charles5',
+              correct: true,
+            },
+            {
+              answer: 'Prince Charles6',
+              correct: true,
+            },
           ]
 
         }
@@ -1312,29 +1269,8 @@ describe.skip('Testing Post /v1/admin/quiz/{quizid}/question', () => {
 
         quizQuestion: {
 
-          question: 'Who?',
-          duration: 5,
-          points: 5,
-          answers: [
-            {
-              answer: 'Prince Charles',
-              correct: true,
-            },
-            {
-              answer: 'Louis XVI',
-              correct: false,
-            }
-          ]
-
-        }
-      },
-      {
-        test: 'Question string too long',
-
-        quizQuestion: {
-
-          question: 'Who?',
-          duration: 5,
+          question: 'Who is the Monarch of England?',
+          duration: -1,
           points: 5,
           answers: [
             {
@@ -1354,29 +1290,8 @@ describe.skip('Testing Post /v1/admin/quiz/{quizid}/question', () => {
 
         quizQuestion: {
 
-          question: 'Who?',
-          duration: 5,
-          points: 5,
-          answers: [
-            {
-              answer: 'Prince Charles',
-              correct: true,
-            },
-            {
-              answer: 'Louis XVI',
-              correct: false,
-            }
-          ]
-
-        }
-      },
-      {
-        test: 'Question string too long',
-
-        quizQuestion: {
-
-          question: 'Who?',
-          duration: 5,
+          question: 'Who is the Monarch of England?',
+          duration: 350,
           points: 5,
           answers: [
             {
@@ -1396,30 +1311,9 @@ describe.skip('Testing Post /v1/admin/quiz/{quizid}/question', () => {
 
         quizQuestion: {
 
-          question: 'Who?',
+          question: 'Who is the Monarch of England?',
           duration: 5,
-          points: 5,
-          answers: [
-            {
-              answer: 'Prince Charles',
-              correct: true,
-            },
-            {
-              answer: 'Louis XVI',
-              correct: false,
-            }
-          ]
-
-        }
-      },
-      {
-        test: 'Question string too long',
-
-        quizQuestion: {
-
-          question: 'Who?',
-          duration: 5,
-          points: 5,
+          points: 0,
           answers: [
             {
               answer: 'Prince Charles',
@@ -1440,7 +1334,7 @@ describe.skip('Testing Post /v1/admin/quiz/{quizid}/question', () => {
 
           question: 'Who?',
           duration: 5,
-          points: 5,
+          points: 15,
           answers: [
             {
               answer: 'Prince Charles',
@@ -1455,7 +1349,7 @@ describe.skip('Testing Post /v1/admin/quiz/{quizid}/question', () => {
         }
       },
       {
-        test: 'Question string too long',
+        test: 'Invalid answer length(too short)',
 
         quizQuestion: {
 
@@ -1464,7 +1358,28 @@ describe.skip('Testing Post /v1/admin/quiz/{quizid}/question', () => {
           points: 5,
           answers: [
             {
-              answer: 'Prince Charles',
+              answer: '',
+              correct: true,
+            },
+            {
+              answer: 'Louis XVI',
+              correct: false,
+            }
+          ]
+
+        }
+      },
+      {
+        test: 'Invalid answer length(too short)',
+
+        quizQuestion: {
+
+          question: 'Who?',
+          duration: 5,
+          points: 5,
+          answers: [
+            {
+              answer: 'Prince Charles!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!',
               correct: true,
             },
             {
@@ -1477,27 +1392,6 @@ describe.skip('Testing Post /v1/admin/quiz/{quizid}/question', () => {
       },
       {
         test: 'Duplicates answers in one question',
-
-        quizQuestion: {
-
-          question: 'Who?',
-          duration: 5,
-          points: 5,
-          answers: [
-            {
-              answer: 'Prince Charles',
-              correct: true,
-            },
-            {
-              answer: 'Louis XVI',
-              correct: false,
-            }
-          ]
-
-        }
-      },
-      {
-        test: 'Question string too long',
 
         quizQuestion: {
 
@@ -1538,30 +1432,46 @@ describe.skip('Testing Post /v1/admin/quiz/{quizid}/question', () => {
 
         }
       },
-      {
-        test: 'Question string too long',
-
-        quizQuestion: {
-
-          question: 'Who?',
-          duration: 5,
-          points: 5,
-          answers: [
-            {
-              answer: 'Prince Charles',
-              correct: true,
-            },
-            {
-              answer: 'Louis XVI',
-              correct: false,
-            }
-          ]
-        }
-      },
     ])("requestUpdateUserDetails error: '$test'", ({ quizQuestion }) => {
-      const response = requestQuizQuestionCreate(user.token, quizQuestion, quiz.quizId);
-      expect(response.jsonBody).toStrictEqual({ error: expect.any(String) });
-      expect(response.statusCode).toStrictEqual(400);
+      expect(() => requestQuizQuestionCreate(user.token, quizQuestion, quiz.quizId, thumbnailUrl)).toThrow(HTTPError[400]);
+    });
+  });
+
+  describe('Error test for 400 error(thumbnailUrl)', () => {
+    let user: SessionId;
+    let quiz: quizId;
+    let quizQuestion: quizQuestionCreateInput;
+    beforeEach(() => {
+      user = requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith').jsonBody as SessionId;
+      quiz = requestQuizCreate(user.token, 'My Quiz', 'My description.') as quizId;
+
+      quizQuestion = {
+        question: 'Who is the Monarch of England?',
+        duration: 4,
+        points: 5,
+        answers: [
+          {
+            answer: 'Prince Charles',
+            correct: true
+          },
+          {
+            answer: 'Prince Charles.',
+            correct: true
+          }
+        ]
+
+      };
+    });
+    test('thumbnailUrl is an empty', () => {
+      expect(() => requestQuizQuestionCreate(user.token, quizQuestion, quiz.quizId, '')).toThrow(HTTPError[400]);
+    });
+
+    test('The thumbnailUrl does not end with one of the following filetypes (case insensitive): jpg, jpeg, png', () => {
+      expect(() => requestQuizQuestionCreate(user.token, quizQuestion, quiz.quizId, 'http://google.com/some/image/path.')).toThrow(HTTPError[400]);
+    });
+
+    test('The thumbnailUrl does not begin with "http://" or "https://"', () => {
+      expect(() => requestQuizQuestionCreate(user.token, quizQuestion, quiz.quizId, 'google.com/some/image/path.jpg')).toThrow(HTTPError[400]);
     });
   });
 
@@ -1569,9 +1479,11 @@ describe.skip('Testing Post /v1/admin/quiz/{quizid}/question', () => {
     let user: SessionId;
     let quiz: quizId;
     let quizQuestion: quizQuestionCreateInput;
+    let thumbnailUrl: string;
     beforeEach(() => {
       user = requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith').jsonBody as SessionId;
-      quiz = requestQuizCreate(user.token, 'My Quiz', 'My description.').jsonBody as quizId;
+      quiz = requestQuizCreate(user.token, 'My Quiz', 'My description.') as quizId;
+      thumbnailUrl = 'http://google.com/some/image/path.jpg';
 
       quizQuestion = {
         question: 'Who is the Monarch of England?',
@@ -1591,30 +1503,25 @@ describe.skip('Testing Post /v1/admin/quiz/{quizid}/question', () => {
     });
 
     test('Token is empty', () => {
-      const quizQuestionCreateResponse = requestQuizQuestionCreate('', quizQuestion, quiz.quizId);
-      expect(quizQuestionCreateResponse.statusCode).toStrictEqual(401);
-      expect(quizQuestionCreateResponse.jsonBody).toStrictEqual({ error: expect.any(String) });
+      expect(() => requestQuizQuestionCreate('', quizQuestion, quiz.quizId, thumbnailUrl)).toThrow(HTTPError[401]);
     });
 
     test('Token is empty', () => {
-      const quizQuestionCreateResponse = requestQuizQuestionCreate(user.token + 100, quizQuestion, quiz.quizId);
-      expect(quizQuestionCreateResponse.statusCode).toStrictEqual(401);
-      expect(quizQuestionCreateResponse.jsonBody).toStrictEqual({ error: expect.any(String) });
+      expect(() => requestQuizQuestionCreate(user.token + 100, quizQuestion, quiz.quizId, thumbnailUrl)).toThrow(HTTPError[401]);
     });
 
     test('logged out user', () => {
       requestLogout(user.token);
-      const quizQuestionCreateResponse = requestQuizQuestionCreate(user.token, quizQuestion, quiz.quizId);
-      expect(quizQuestionCreateResponse.statusCode).toStrictEqual(401);
-      expect(quizQuestionCreateResponse.jsonBody).toStrictEqual({ error: expect.any(String) });
+      expect(() => requestQuizQuestionCreate(user.token, quizQuestion, quiz.quizId, thumbnailUrl)).toThrow(HTTPError[401]);
     });
   });
 
   test('Error test for 403 error, Valid token is provided, but user is not an owner of this quiz', () => {
     const user = requestRegister('valideEmail@gmail.com', 'password1', 'Jane', 'Lawson').jsonBody as SessionId;
-    const quiz = requestQuizCreate(user.token, 'British', 'history').jsonBody as quizId;
+    const quiz = requestQuizCreate(user.token, 'British', 'history') as quizId;
     const user2 = requestRegister('valideEmail2@gmail.com', 'password1', 'John', 'Lawson').jsonBody as SessionId;
-    requestQuizCreate(user.token, 'American', 'history').jsonBody as quizId;
+    const thumbnailUrl = 'http://google.com/some/image/path.jpg';
+    requestQuizCreate(user.token, 'American', 'history') as quizId;
 
     const input : quizQuestionCreateInput = {
       question: 'Who is the Monarch of England?',
@@ -1632,26 +1539,24 @@ describe.skip('Testing Post /v1/admin/quiz/{quizid}/question', () => {
       ]
     };
 
-    const quizQuestionCreatResponse = requestQuizQuestionCreate(user2.token, input, quiz.quizId);
-    expect(quizQuestionCreatResponse.statusCode).toStrictEqual(403);
-    expect(quizQuestionCreatResponse.jsonBody).toStrictEqual({ error: expect.any(String) });
+    expect(() => requestQuizQuestionCreate(user2.token, input, quiz.quizId, thumbnailUrl)).toThrow(HTTPError[403]);
   });
 });
 
 /**
  * Test for quiz transfer
  */
-describe.skip('Testing Post /v1/admin/quiz/{quizid}/transfer', () => {
+describe('Testing Post /v2/admin/quiz/{quizid}/transfer', () => {
   test('Correct status code and return value', () => {
     const user1 = requestRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith').jsonBody as SessionId;
     requestLogout(user1.token);
 
     const user2 = requestRegister('validemail2@gmail.com', '1234567a', 'Jennifer', 'Lawson').jsonBody as SessionId;
-    const quiz = requestQuizCreate(user2.token, 'My quiz Name', 'A description of my quiz').jsonBody as quizId;
+    const quiz = requestQuizCreate(user2.token, 'My quiz Name', 'A description of my quiz') as quizId;
 
-    const quizTransferResponse = requestquizTransfer(user2.token, 'validemail@gmail.com', quiz.quizId);
-    expect(quizTransferResponse.jsonBody).toStrictEqual({});
-    expect(quizTransferResponse.statusCode).toStrictEqual(200);
+    expect(() => requestquizTransfer(user2.token, 'validemail@gmail.com', quiz.quizId).not.toThrow(HTTPError));
+    const returntype = requestquizTransfer(user2.token, 'validemail@gmail.com', quiz.quizId);
+    expect(returntype).toStrictEqual({});
   });
 
   describe('Error test for 400 error', () => {
@@ -1662,12 +1567,12 @@ describe.skip('Testing Post /v1/admin/quiz/{quizid}/transfer', () => {
     beforeEach(() => {
       requestClear();
       user1 = requestRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith').jsonBody as SessionId;
-      requestQuizCreate(user1.token, 'My quiz Name1', 'A description of my quiz').jsonBody as quizId;
+      requestQuizCreate(user1.token, 'My quiz Name1', 'A description of my quiz') as quizId;
       requestLogout(user1.token);
 
       user2 = requestRegister('validemail2@gmail.com', '1234567a', 'Jennifer', 'Lawson').jsonBody as SessionId;
-      quiz2 = requestQuizCreate(user2.token, 'My quiz Name2', 'A description of my quiz').jsonBody as quizId;
-      quiz3 = requestQuizCreate(user2.token, 'My quiz Name1', 'A description of my quiz').jsonBody as quizId;
+      quiz2 = requestQuizCreate(user2.token, 'My quiz Name2', 'A description of my quiz') as quizId;
+      quiz3 = requestQuizCreate(user2.token, 'My quiz Name1', 'A description of my quiz') as quizId;
     });
 
     test.each([
@@ -1680,14 +1585,10 @@ describe.skip('Testing Post /v1/admin/quiz/{quizid}/transfer', () => {
     ])(
       'Error with token="$token", userEmail=$userEmail"',
       ({ userEmaill }) => {
-        const quizTransferResponse = requestquizTransfer(user2.token, userEmaill, quiz2.quizId);
-        expect(quizTransferResponse.jsonBody).toStrictEqual({ error: expect.any(String) });
-        expect(quizTransferResponse.statusCode).toStrictEqual(400);
+        expect(() => requestquizTransfer(user2.token, userEmaill, quiz2.quizId)).toThrow(HTTPError[400]);
       });
     test('Quiz ID refers to a quiz that has a name that is already used by the target user', () => {
-      const quizTransferResponse = requestquizTransfer(user2.token, 'validemail@gmail.com', quiz3.quizId);
-      expect(quizTransferResponse.jsonBody).toStrictEqual({ error: expect.any(String) });
-      expect(quizTransferResponse.statusCode).toStrictEqual(400);
+      expect(() => requestquizTransfer(user2.token, 'validemail@gmail.com', quiz3.quizId)).toThrow(HTTPError[400]);
     });
   });
 
@@ -1699,34 +1600,29 @@ describe.skip('Testing Post /v1/admin/quiz/{quizid}/transfer', () => {
       requestRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith').jsonBody as SessionId;
 
       user2 = requestRegister('validemail2@gmail.com', '1234567a', 'Jennifer', 'Lawson').jsonBody as SessionId;
-      quiz = requestQuizCreate(user2.token, 'My quiz Name', 'A description of my quiz').jsonBody as quizId;
+      quiz = requestQuizCreate(user2.token, 'My quiz Name', 'A description of my quiz') as quizId;
     });
 
     test('Token is empty', () => {
-      const quizTransferResponse = requestquizTransfer('', 'validemail@gmail.com', quiz.quizId);
-      expect(quizTransferResponse.statusCode).toStrictEqual(401);
-      expect(quizTransferResponse.jsonBody).toStrictEqual({ error: expect.any(String) });
+      expect(() => requestquizTransfer('', 'validemail@gmail.com', quiz.quizId)).toThrow(HTTPError[401]);
     });
 
-    test('Token is empty', () => {
-      const quizTransferResponse = requestquizTransfer(user2.token + 100, 'validemail@gmail.com', quiz.quizId);
-      expect(quizTransferResponse.statusCode).toStrictEqual(401);
-      expect(quizTransferResponse.jsonBody).toStrictEqual({ error: expect.any(String) });
+    test('Token is invalid', () => {
+      expect(() => requestquizTransfer(user2.token + 100, 'validemail@gmail.com', quiz.quizId)).toThrow(HTTPError[401]);
     });
   });
+
   test('Error test for 403 error, Valid token is provided, but user is not an owner of this quiz', () => {
     const user1 = requestRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith').jsonBody as SessionId;
     requestLogout(user1.token);
 
     const user3 = requestRegister('validemail3@gmail.com', '1234567a', 'Jane', 'Smith').jsonBody as SessionId;
-    const quiz3 = requestQuizCreate(user1.token, 'My quiz Name1', 'A description of my quiz').jsonBody as quizId;
+    const quiz3 = requestQuizCreate(user3.token, 'My quiz Name1', 'A description of my quiz') as quizId;
     requestLogout(user3.token);
 
     const user2 = requestRegister('validemail2@gmail.com', '1234567a', 'Jennifer', 'Lawson').jsonBody as SessionId;
 
-    const quizTransferResponse = requestquizTransfer(user2.token, 'validemail@gmail.com', quiz3.quizId);
-    expect(quizTransferResponse.statusCode).toStrictEqual(403);
-    expect(quizTransferResponse.jsonBody).toStrictEqual({ error: expect.any(String) });
+    expect(() => requestquizTransfer(user2.token, 'validemail1@gmail.com', quiz3.quizId)).toThrow(HTTPError[403]);
   });
 
   test('Testing behavior for QuizTransfer', () => {
@@ -1734,11 +1630,11 @@ describe.skip('Testing Post /v1/admin/quiz/{quizid}/transfer', () => {
     requestLogout(user1.token);
 
     const user2 = requestRegister('validemail2@gmail.com', '1234567a', 'Jennifer', 'Lawson').jsonBody as SessionId;
-    const quiz = requestQuizCreate(user2.token, 'My quiz Name', 'A description of my quiz').jsonBody as quizId;
+    const quiz = requestQuizCreate(user2.token, 'My quiz Name', 'A description of my quiz') as quizId;
     requestquizTransfer(user2.token, 'validemail@gmail.com', quiz.quizId);
     const user1Token = requestLogin('validemail@gmail.com', '1234567a').jsonBody;
-    const result1 = requestQuizList(user1Token.token).jsonBody as QuizListReturn;
-    const result2 = requestQuizList(user2.token).jsonBody as QuizListReturn;
+    const result1 = requestQuizList(user1Token.token) as QuizListReturn;
+    const result2 = requestQuizList(user2.token) as QuizListReturn;
     expect(result1).toStrictEqual({ quizzes: [{ quizId: 1, name: 'My quiz Name' }] });
     expect(result2).toStrictEqual({ quizzes: [] });
   });
@@ -1747,7 +1643,7 @@ describe.skip('Testing Post /v1/admin/quiz/{quizid}/transfer', () => {
 describe.skip('adminQuizQuestionMove testing', () => {
   let user: SessionId;
   let quiz: quizId;
-  let questionin: quizQuestionCreateInput;
+  // let questionin: quizQuestionCreateInput;
   let question1: quizQuestionCreateReturn;
   let question2: quizQuestionCreateReturn;
   let question3: quizQuestionCreateReturn;
@@ -1755,24 +1651,24 @@ describe.skip('adminQuizQuestionMove testing', () => {
   beforeEach(() => {
     user = requestRegister('jareds@gmail.com', 'password2024', 'Jared', 'Simion').jsonBody as SessionId;
     quiz = requestQuizCreate(user.token, 'My Quiz', 'My Quiz Description').jsonBody as quizId;
-    questionin = {
-      question: 'Who is the Monarch of England?',
-      duration: 4,
-      points: 5,
-      answers: [
-        {
-          answer: 'Prince Charles',
-          correct: true
-        },
-        {
-          answer: 'Prince Charles.',
-          correct: true
-        }
-      ]
-    };
-    question1 = requestQuizQuestionCreate(user.token, questionin, quiz.quizId).jsonBody as quizQuestionCreateReturn;
-    question2 = requestQuizQuestionCreate(user.token, questionin, quiz.quizId).jsonBody as quizQuestionCreateReturn;
-    question3 = requestQuizQuestionCreate(user.token, questionin, quiz.quizId).jsonBody as quizQuestionCreateReturn;
+    // questionin = {
+    //   question: 'Who is the Monarch of England?',
+    //   duration: 4,
+    //   points: 5,
+    //   answers: [
+    //     {
+    //       answer: 'Prince Charles',
+    //       correct: true
+    //     },
+    //     {
+    //       answer: 'Prince Charles.',
+    //       correct: true
+    //     }
+    //   ]
+    // };
+    // question1 = requestQuizQuestionCreate(user.token, questionin, quiz.quizId).jsonBody as quizQuestionCreateReturn;
+    // question2 = requestQuizQuestionCreate(user.token, questionin, quiz.quizId).jsonBody as quizQuestionCreateReturn;
+    // question3 = requestQuizQuestionCreate(user.token, questionin, quiz.quizId).jsonBody as quizQuestionCreateReturn;
   });
   // 1. Succesfully move question 1 to last.
   test('Test succesfully moving question to new position', () => {
@@ -1820,63 +1716,63 @@ describe.skip('adminQuizQuestionMove testing', () => {
 describe.skip('adminQuizQuestionDuplicate testing', () => {
   let user: SessionId;
   let quiz: quizId;
-  let questionin: quizQuestionCreateInput;
-  let questionin2: quizQuestionCreateInput;
-  let questionin3: quizQuestionCreateInput;
+  // let questionin: quizQuestionCreateInput;
+  // let questionin2: quizQuestionCreateInput;
+  // let questionin3: quizQuestionCreateInput;
   let question1: quizQuestionCreateReturn;
   let question2: quizQuestionCreateReturn;
 
   beforeEach(() => {
     user = requestRegister('jareds@gmail.com', 'password2024', 'Jared', 'Simion').jsonBody as SessionId;
     quiz = requestQuizCreate(user.token, 'My Quiz', 'My Quiz Description').jsonBody as quizId;
-    questionin = {
-      question: 'Who is the Monarch of England?',
-      duration: 4,
-      points: 5,
-      answers: [
-        {
-          answer: 'Prince Charles',
-          correct: true
-        },
-        {
-          answer: 'Prince Charles.',
-          correct: true
-        }
-      ]
-    };
-    questionin2 = {
-      question: 'Who is the best Person?',
-      duration: 4,
-      points: 5,
-      answers: [
-        {
-          answer: 'Thomas',
-          correct: true
-        },
-        {
-          answer: 'Bordado',
-          correct: true
-        }
-      ]
-    };
-    questionin3 = {
-      question: 'Who is the wrost Person?',
-      duration: 4,
-      points: 5,
-      answers: [
-        {
-          answer: 'Thomas',
-          correct: true
-        },
-        {
-          answer: 'Bordado',
-          correct: true
-        }
-      ]
-    };
-    question1 = requestQuizQuestionCreate(user.token, questionin, quiz.quizId).jsonBody as quizQuestionCreateReturn;
-    question2 = requestQuizQuestionCreate(user.token, questionin2, quiz.quizId).jsonBody as quizQuestionCreateReturn;
-    requestQuizQuestionCreate(user.token, questionin3, quiz.quizId).jsonBody as quizQuestionCreateReturn;
+    // questionin = {
+    //   question: 'Who is the Monarch of England?',
+    //   duration: 4,
+    //   points: 5,
+    //   answers: [
+    //     {
+    //       answer: 'Prince Charles',
+    //       correct: true
+    //     },
+    //     {
+    //       answer: 'Prince Charles.',
+    //       correct: true
+    //     }
+    //   ]
+    // };
+    // questionin2 = {
+    //   question: 'Who is the best Person?',
+    //   duration: 4,
+    //   points: 5,
+    //   answers: [
+    //     {
+    //       answer: 'Thomas',
+    //       correct: true
+    //     },
+    //     {
+    //       answer: 'Bordado',
+    //       correct: true
+    //     }
+    //   ]
+    // };
+    // questionin3 = {
+    //   question: 'Who is the wrost Person?',
+    //   duration: 4,
+    //   points: 5,
+    //   answers: [
+    //     {
+    //       answer: 'Thomas',
+    //       correct: true
+    //     },
+    //     {
+    //       answer: 'Bordado',
+    //       correct: true
+    //     }
+    //   ]
+    // };
+    // question1 = requestQuizQuestionCreate(user.token, questionin, quiz.quizId).jsonBody as quizQuestionCreateReturn;
+    // question2 = requestQuizQuestionCreate(user.token, questionin2, quiz.quizId).jsonBody as quizQuestionCreateReturn;
+    // requestQuizQuestionCreate(user.token, questionin3, quiz.quizId).jsonBody as quizQuestionCreateReturn;
   });
 
   // 1. Succesfully duplicate question
