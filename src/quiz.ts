@@ -1,6 +1,6 @@
 import { getData, setData } from './dataStore';
 import { EmptyObject, ErrorReturn, QuizListReturn, quiz, quizId, quizQuestionCreateInput, quizQuestionCreateReturn, quizQuestionDuplicateReturn } from './interfaces';
-import { validToken, checkQuizName, checkQuestionValid, isValidQuizId, randomColour } from './quizUtil';
+import { validToken, checkQuizName, checkQuestionValid, isValidQuizId, randomColour, validthumbnailUrl } from './quizUtil';
 import { isValidToken } from './authUtil';
 import { saveData } from './persistence';
 import HTTPError from 'http-errors';
@@ -527,6 +527,18 @@ export const adminQuizQuestionDuplicate = (token: string, quizId: number, questi
   return { newQuestionId: duplicatedQuestion.questionId };
 };
 
-export const adminQuizThumbnailUpdate = (token: string, quizId: number, imgUrl: string) => {
+export const adminQuizThumbnailUpdate = (token: string, quizId: number, thumbnailUrl: string) => {
+  const data = getData();
+  const user = validToken(token, data.users);
+  const quizUser = user.quizzes.find(quizzes => quizzes.quizId === quizId);
+  if (quizUser === undefined) {
+    throw HTTPError(403, 'User does not own quiz');
+  }
+  validthumbnailUrl(thumbnailUrl);
 
+  const quiz = data.quizzes.find(quizzes => quizzes.quizId === quizId);
+  quiz.thumbnailUrl = thumbnailUrl;
+  quiz.timeLastEdited = Math.floor(Date.now() / 1000);
+  saveData();
+  return {};
 };

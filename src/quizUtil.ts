@@ -169,3 +169,15 @@ export const randomColour = (): string => {
   const index = Math.floor(Math.random() * colours.length);
   return colours[index];
 };
+
+export const validthumbnailUrl = (thumbnailUrl: string) => {
+  if (thumbnailUrl === '') {
+    throw HTTPError(400, 'The thumbnailUrl is an empty string.');
+  }
+  if (!(thumbnailUrl.toLowerCase()).endsWith('jpg') && !(thumbnailUrl.toLowerCase()).endsWith('jpeg') && !(thumbnailUrl.toLowerCase()).endsWith('png')) {
+    throw HTTPError(400, 'The thumbnailUrl does not end with one of the following filetypes (case insensitive): jpg, jpeg, png');
+  }
+  if (!thumbnailUrl.startsWith('http://') && !thumbnailUrl.startsWith('https://')) {
+    throw HTTPError(400, 'The thumbnailUrl does not begin with "http://" or "https://"');
+  }
+};
