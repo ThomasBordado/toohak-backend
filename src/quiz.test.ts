@@ -1,5 +1,5 @@
 import { requestRegister, requestQuizList, requestQuizCreate, requestQuizTrash, requestQuizInfo, requestUpdateQuizName, requestUpdateQuizDescription, requestClear, requestQuizViewTrash, requestQuizRestore, requestQuizQuestionCreate, requestQuizTrashEmpty, requestquizTransfer, requestLogout, requestLogin, requestUpdateQuizQuestion, requestDeleteQuizQuestion, requestMoveQuestion, requestQuestionDuplicate } from './wrapper';
-import { QuizListReturn, SessionId, quizId, quizUser, quizQuestionCreateInput, quiz, quizQuestionCreateReturn } from './interfaces';
+import { QuizListReturn, SessionId, quizId, quizUser, quizQuestionCreateInputV1, quiz, quizQuestionCreateReturn } from './interfaces';
 
 beforeEach(() => {
   requestClear();
@@ -413,7 +413,7 @@ describe('requestUpdateQuizDescription testing', () => {
 describe('Testing it2 function, adminQuizQuestionUpdate', () => {
   let user: SessionId;
   let quiz: quizId;
-  let questionin: quizQuestionCreateInput;
+  let questionin: quizQuestionCreateInputV1;
   let questionout: quizQuestionCreateReturn;
   beforeEach(() => {
     user = requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith').jsonBody as SessionId;
@@ -554,7 +554,7 @@ describe('Testing it2 function, adminQuizQuestionUpdate', () => {
 describe('Testing it2 function, adminQuizQuestionDelete', () => {
   let user: SessionId;
   let quiz: quizId;
-  let questionin: quizQuestionCreateInput;
+  let questionin: quizQuestionCreateInputV1;
   let questionout: quizQuestionCreateReturn;
   beforeEach(() => {
     user = requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith').jsonBody as SessionId;
@@ -1093,7 +1093,7 @@ describe('Testing Post /v1/admin/quiz/{quizid}/question', () => {
   test('Correct status code and return value', () => {
     const user = requestRegister('valideEmail@gmail.com', 'password1', 'Jane', 'Lawson').jsonBody as SessionId;
     const quiz = requestQuizCreate(user.token, 'British', 'history').jsonBody as quizId;
-    const input : quizQuestionCreateInput = {
+    const input : quizQuestionCreateInputV1 = {
       question: 'Who is the Monarch of England?',
       duration: 4,
       points: 5,
@@ -1433,7 +1433,7 @@ describe('Testing Post /v1/admin/quiz/{quizid}/question', () => {
   describe('Error test for 401 error', () => {
     let user: SessionId;
     let quiz: quizId;
-    let quizQuestion: quizQuestionCreateInput;
+    let quizQuestion: quizQuestionCreateInputV1;
     beforeEach(() => {
       user = requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith').jsonBody as SessionId;
       quiz = requestQuizCreate(user.token, 'My Quiz', 'My description.').jsonBody as quizId;
@@ -1482,7 +1482,7 @@ describe('Testing Post /v1/admin/quiz/{quizid}/question', () => {
     const user2 = requestRegister('valideEmail2@gmail.com', 'password1', 'John', 'Lawson').jsonBody as SessionId;
     requestQuizCreate(user.token, 'American', 'history').jsonBody as quizId;
 
-    const input : quizQuestionCreateInput = {
+    const input : quizQuestionCreateInputV1 = {
       question: 'Who is the Monarch of England?',
       duration: 4,
       points: 5,
@@ -1745,7 +1745,7 @@ describe('Testing Post /v1/admin/quiz/{quizid}/transfer', () => {
 describe('adminQuizQuestionMove testing', () => {
   let user: SessionId;
   let quiz: quizId;
-  let questionin: quizQuestionCreateInput;
+  let questionin: quizQuestionCreateInputV1;
   let question1: quizQuestionCreateReturn;
   let question2: quizQuestionCreateReturn;
   let question3: quizQuestionCreateReturn;
@@ -1818,9 +1818,9 @@ describe('adminQuizQuestionMove testing', () => {
 describe('adminQuizQuestionDuplicate testing', () => {
   let user: SessionId;
   let quiz: quizId;
-  let questionin: quizQuestionCreateInput;
-  let questionin2: quizQuestionCreateInput;
-  let questionin3: quizQuestionCreateInput;
+  let questionin: quizQuestionCreateInputV1;
+  let questionin2: quizQuestionCreateInputV1;
+  let questionin3: quizQuestionCreateInputV1;
   let question1: quizQuestionCreateReturn;
   let question2: quizQuestionCreateReturn;
 

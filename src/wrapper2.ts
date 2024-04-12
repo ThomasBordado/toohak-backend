@@ -118,6 +118,6 @@ export const requestquizTransfer = (token: string, userEmail: string, quizid: nu
   return requestHelper('POST', `/v2/admin/quiz/${quizid}/transfer`, { userEmail }, { token });
 };
 
-export const requestQuizQuestionCreate = (token: string, questionBody: quizQuestionCreateInput, quizid: number, thumbnailUrl: string) => {
-  return requestHelper('POST', `/v2/admin/quiz/${quizid}/question`, { questionBody, thumbnailUrl }, { token });
+export const requestQuizQuestionCreate = (token: string, questionBody: quizQuestionCreateInput, quizid: number) => {
+  return requestHelper('POST', `/v2/admin/quiz/${quizid}/question`, { questionBody }, { token });
 };
