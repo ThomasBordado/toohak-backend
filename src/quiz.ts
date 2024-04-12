@@ -453,7 +453,38 @@ export const quizQuestionCreate2 = (token: string, questionBody: quizQuestionCre
   return { questionId: questionId };
 };
 
-export const quizTransfer = (token: string, userEmail: string, quizId: number): EmptyObject | ErrorReturn => {
+export const quizTransfer1 = (token: string, userEmail: string, quizId: number): EmptyObject | ErrorReturn => {
+  const data = getData();
+  validToken(token, data.users);
+  isValidQuizId(token, quizId);
+
+  const targetUser = data.users.find(users => users.email === userEmail);
+  if (targetUser === undefined) {
+    return { error: 'UserEmail is not a real user' };
+  }
+  if (targetUser.sessions.includes(token)) {
+    return { error: 'UserEmail is the current logged in user' };
+  }
+
+  const findQuiz = data.quizzes.find(quizs => quizs.quizId === quizId);
+  const quiz = targetUser.quizzes.find(quizzes => quizzes.name === findQuiz.name);
+  if (quiz) {
+    return { error: 'Quiz ID refers to a quiz that has a name that is already used by the target user' };
+  }
+  // push the quiz to the target user
+  const currentUser = data.users.find(users => users.sessions.includes(token));
+  const userQuiz = currentUser.quizzes.find(quizs => quizs.quizId === quizId);
+  findQuiz.timeLastEdited = Math.floor(Date.now() / 1000);
+  targetUser.quizzes.push(userQuiz);
+  // delete the quiz in origin user
+  const userQuizzesIndex = currentUser.quizzes.findIndex(quizzes => quizzes.quizId === quizId);
+  currentUser.quizzes.splice(userQuizzesIndex, 1);
+  setData(data);
+  saveData();
+  return {};
+};
+
+export const quizTransfer2 = (token: string, userEmail: string, quizId: number): EmptyObject | ErrorReturn => {
   const data = getData();
   validToken(token, data.users);
   isValidQuizId(token, quizId);

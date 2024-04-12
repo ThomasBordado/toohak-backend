@@ -39,7 +39,7 @@ export const validToken = (token: string, userData: user[]) => {
   if (token === '') {
     throw HTTPError(401, 'Token is empty');
   }
-  
+
   for (const user of userData) {
     if (user.sessions.includes(token)) {
       return user;

@@ -1112,7 +1112,6 @@ describe('Testing Post /v1/admin/quiz/{quizid}/question', () => {
     expect(quizQuestionCreateResponse.statusCode).toStrictEqual(200);
     expect(quizQuestionCreateResponse.jsonBody).toStrictEqual({ questionId: expect.any(Number) });
 
-
     const expectedInfo: quiz = {
       quizId: quiz.quizId,
       name: 'British',
@@ -1439,7 +1438,6 @@ describe('Testing Post /v1/admin/quiz/{quizid}/question', () => {
       user = requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith').jsonBody as SessionId;
       quiz = requestQuizCreate(user.token, 'My Quiz', 'My description.').jsonBody as quizId;
 
-
       quizQuestion = {
         question: 'Who is the Monarch of England?',
         duration: 4,
@@ -1483,7 +1481,6 @@ describe('Testing Post /v1/admin/quiz/{quizid}/question', () => {
     const quiz = requestQuizCreate(user.token, 'British', 'history').jsonBody as quizId;
     const user2 = requestRegister('valideEmail2@gmail.com', 'password1', 'John', 'Lawson').jsonBody as SessionId;
     requestQuizCreate(user.token, 'American', 'history').jsonBody as quizId;
-
 
     const input : quizQuestionCreateInput = {
       question: 'Who is the Monarch of England?',
@@ -1655,7 +1652,6 @@ describe('Testing Post /v1/admin/quiz/{quizid}/transfer', () => {
     expect(quizTransferResponse.statusCode).toStrictEqual(200);
   });
 
-
   describe('Error test for 400 error', () => {
     let user1: SessionId;
     let user2: SessionId;
@@ -1670,7 +1666,6 @@ describe('Testing Post /v1/admin/quiz/{quizid}/transfer', () => {
       user2 = requestRegister('validemail2@gmail.com', '1234567a', 'Jennifer', 'Lawson').jsonBody as SessionId;
       quiz2 = requestQuizCreate(user2.token, 'My quiz Name2', 'A description of my quiz').jsonBody as quizId;
       quiz3 = requestQuizCreate(user2.token, 'My quiz Name1', 'A description of my quiz').jsonBody as quizId;
-
     });
 
     test.each([
@@ -1730,7 +1725,6 @@ describe('Testing Post /v1/admin/quiz/{quizid}/transfer', () => {
     const quizTransferResponse = requestquizTransfer(user2.token, 'validemail@gmail.com', quiz3.quizId);
     expect(quizTransferResponse.statusCode).toStrictEqual(403);
     expect(quizTransferResponse.jsonBody).toStrictEqual({ error: expect.any(String) });
-
   });
 
   test('Testing behavior for QuizTransfer', () => {
@@ -1759,7 +1753,7 @@ describe('adminQuizQuestionMove testing', () => {
   beforeEach(() => {
     user = requestRegister('jareds@gmail.com', 'password2024', 'Jared', 'Simion').jsonBody as SessionId;
     quiz = requestQuizCreate(user.token, 'My Quiz', 'My Quiz Description').jsonBody as quizId;
-    questionin =  {
+    questionin = {
       question: 'Who is the Monarch of England?',
       duration: 4,
       points: 5,

@@ -10,7 +10,7 @@ import fs from 'fs';
 import path from 'path';
 import process from 'process';
 import { clear } from './other';
-import { adminQuizList, adminQuizCreate1, adminQuizCreate2, adminQuizRemove, adminQuizInfo, adminQuizNameUpdate, adminQuizDescriptionUpdate, adminQuizViewTrash, adminQuizRestore, adminQuizTrashEmpty, quizTransfer, adminQuizQuestionUpdate, adminQuizQuestionDelete, adminQuizQuestionMove, adminQuizQuestionDuplicate, quizQuestionCreate2, quizQuestionCreate1 } from './quiz';
+import { adminQuizList, adminQuizCreate1, adminQuizCreate2, adminQuizRemove, adminQuizInfo, adminQuizNameUpdate, adminQuizDescriptionUpdate, adminQuizViewTrash, adminQuizRestore, adminQuizTrashEmpty, quizTransfer1, quizTransfer2, adminQuizQuestionUpdate, adminQuizQuestionDelete, adminQuizQuestionMove, adminQuizQuestionDuplicate, quizQuestionCreate2, quizQuestionCreate1 } from './quiz';
 import { adminAuthLogin, adminAuthRegister, adminUserDetails, adminUserDetailsUpdate2, adminUserPasswordUpdate2, adminAuthLogout, adminUserDetailsUpdate1, adminUserPasswordUpdate1 } from './auth';
 import { loadData, saveData } from './persistence';
 
@@ -74,7 +74,6 @@ app.put('/v1/admin/user/details', (req: Request, res: Response) => {
   }
   return res.json(response);
 });
-
 
 app.put('/v2/admin/user/details', (req: Request, res: Response) => {
   const token = req.headers.token as string;
@@ -354,24 +353,7 @@ app.post('/v1/admin/quiz/:quizid/transfer', (req: Request, res: Response) => {
   const quizId = parseInt(req.params.quizid);
   const token = req.body.token as string;
   const { userEmail } = req.body;
-  const response = quizTransfer(token, userEmail, quizId);
-  if ('error' in response) {
-    if (response.error.localeCompare('Token is empty or invalid') === 0) {
-      return res.status(401).json(response);
-    } else if (response.error.localeCompare('Invalid quizId') === 0 || response.error.localeCompare('user does not own the quiz') === 0) {
-      return res.status(403).json(response);
-    }
-    return res.status(400).json(response);
-  }
-  res.json(response);
-});
-
-
-app.post('/v1/admin/quiz/:quizid/transfer', (req: Request, res: Response) => {
-  const quizId = parseInt(req.params.quizid);
-  const token = req.body.token as string;
-  const { userEmail } = req.body;
-  const response = quizTransfer(token, userEmail, quizId);
+  const response = quizTransfer1(token, userEmail, quizId);
   if ('error' in response) {
     if (response.error.localeCompare('Token is empty or invalid') === 0) {
       return res.status(401).json(response);
@@ -385,9 +367,9 @@ app.post('/v1/admin/quiz/:quizid/transfer', (req: Request, res: Response) => {
 
 app.post('/v2/admin/quiz/:quizid/transfer', (req: Request, res: Response) => {
   const quizId = parseInt(req.params.quizid);
-  const token = req.body.token as string;
+  const token = req.headers.token as string;
   const { userEmail } = req.body;
-  const response = quizTransfer(token, userEmail, quizId);
+  const response = quizTransfer2(token, userEmail, quizId);
   res.json(response);
 });
 
