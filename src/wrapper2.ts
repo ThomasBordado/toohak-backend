@@ -99,5 +99,5 @@ export const requestQuizRestore = (token: string, quizId: number) => {
 };
 
 export const requestThumbnailUpdate = (token: string, quizId: number, imgUrl: string) => {
-  return requestHelper('PUT', `/v1/admin/quiz/${quizId}/thumbnail`, {imgUrl}, { token });
+  return requestHelper('PUT', `/v1/admin/quiz/${quizId}/thumbnail`, { imgUrl }, { token });
 };

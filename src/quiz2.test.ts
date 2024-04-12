@@ -1914,7 +1914,7 @@ describe ('adminQuizThumbnailUpdate testing', () => {
   let quiz: quizId;
   beforeEach(() => {
     user = requestRegister('ethan@gmail.com', 'password1', 'Ethan', 'McGregor').jsonBody as SessionId;
-    quiz = requestQuizCreate(user.token, 'My Quiz', 'My description.').jsonBody as quizId;
+    quiz = requestQuizCreate(user.token, 'My Quiz', 'My description.') as quizId;
   });
 
   describe ('Unsuccessful cases', () => {
@@ -1976,7 +1976,7 @@ describe ('adminQuizThumbnailUpdate testing', () => {
         imgUrl: 'http://google.com/some/image/path.ng',
       },
     ])(`Invalid imgUrl: ${test}`, ({ imgUrl }) => {
-      expect(() => requestThumbnailUpdate(user.token, quiz.quizId, imgUrl)).toThrow(HTTPError[403]);
+      expect(() => requestThumbnailUpdate(user.token, quiz.quizId, imgUrl)).toThrow(HTTPError[400]);
     });
   });
   describe ('Successful Cases', () => {
@@ -1993,7 +1993,7 @@ describe ('adminQuizThumbnailUpdate testing', () => {
           duration: 0,
           thumbnailUrl: 'http://google.com/some/image/path.jpg',
       };
-      expect(requestQuizInfo(user.token, quiz.quizId)).toStrictEqual(expected);
+      expect(requestQuizInfo(user.token, quiz.quizId).jsonBody).toStrictEqual(expected);
     });
     test.each([
       {
@@ -2021,7 +2021,7 @@ describe ('adminQuizThumbnailUpdate testing', () => {
           duration: 0,
           thumbnailUrl: imgUrl,
       };
-      expect(requestQuizInfo(user.token, quiz.quizId)).toStrictEqual(expected);
+      expect(requestQuizInfo(user.token, quiz.quizId).jsonBody).toStrictEqual(expected);
     });
     test ('Update same thumbnail twice', () => {
       expect(requestThumbnailUpdate(user.token, quiz.quizId, 'http://google.com/some/image/path.jpg')).toStrictEqual({});
@@ -2036,9 +2036,9 @@ describe ('adminQuizThumbnailUpdate testing', () => {
           duration: 0,
           thumbnailUrl: 'http://google.com/some/image/path.jpg',
       };
-      expect(requestQuizInfo(user.token, quiz.quizId)).toStrictEqual(expected);
+      expect(requestQuizInfo(user.token, quiz.quizId).jsonBody).toStrictEqual(expected);
       expect(requestThumbnailUpdate(user.token, quiz.quizId, 'http://google.com/some/image/path.jpg')).toStrictEqual({});
-      expect(requestQuizInfo(user.token, quiz.quizId)).toStrictEqual(expected);
+      expect(requestQuizInfo(user.token, quiz.quizId).jsonBody).toStrictEqual(expected);
     });
     test ('Update different thumbnail twice', () => {
       expect(requestThumbnailUpdate(user.token, quiz.quizId, 'http://google.com/some/image/path.jpg')).toStrictEqual({});
@@ -2053,7 +2053,7 @@ describe ('adminQuizThumbnailUpdate testing', () => {
           duration: 0,
           thumbnailUrl: 'http://google.com/some/image/path.jpg',
       };
-      expect(requestQuizInfo(user.token, quiz.quizId)).toStrictEqual(expected);
+      expect(requestQuizInfo(user.token, quiz.quizId).jsonBody).toStrictEqual(expected);
       expect(requestThumbnailUpdate(user.token, quiz.quizId, 'http://google.com/different/image/path.jpg')).toStrictEqual({});
       const expected2: quiz = {
         quizId: quiz.quizId,
@@ -2066,7 +2066,7 @@ describe ('adminQuizThumbnailUpdate testing', () => {
         duration: 0,
         thumbnailUrl: 'http://google.com/different/image/path.jpg',
       };
-      expect(requestQuizInfo(user.token, quiz.quizId)).toStrictEqual(expected2);
+      expect(requestQuizInfo(user.token, quiz.quizId).jsonBody).toStrictEqual(expected2);
     });
   });
 });
