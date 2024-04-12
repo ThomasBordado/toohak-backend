@@ -1805,7 +1805,7 @@ describe.skip('adminQuizQuestionDuplicate testing', () => {
   });
 });
 
-describe ('adminQuizThumbnailUpdate testing', () => {
+describe('adminQuizThumbnailUpdate testing', () => {
   let user: SessionId;
   let quiz: quizId;
   beforeEach(() => {
@@ -1813,7 +1813,7 @@ describe ('adminQuizThumbnailUpdate testing', () => {
     quiz = requestQuizCreate(user.token, 'My Quiz', 'My description.') as quizId;
   });
 
-  describe ('Unsuccessful cases', () => {
+  describe('Unsuccessful cases', () => {
     test('Invalid AuthUserId', () => {
       expect(() => requestThumbnailUpdate(user.token + 1, quiz.quizId, 'http://google.com/some/image/path.jpg')).toThrow(HTTPError[401]);
     });
@@ -1875,19 +1875,19 @@ describe ('adminQuizThumbnailUpdate testing', () => {
       expect(() => requestThumbnailUpdate(user.token, quiz.quizId, imgUrl)).toThrow(HTTPError[400]);
     });
   });
-  describe ('Successful Cases', () => {
-    test ('successful thumbnail update', () => {
+  describe('Successful Cases', () => {
+    test('successful thumbnail update', () => {
       expect(requestThumbnailUpdate(user.token, quiz.quizId, 'http://google.com/some/image/path.jpg')).toStrictEqual({});
       const expected: quiz = {
-          quizId: quiz.quizId,
-          name: 'My Quiz',
-          questions: [],
-          timeCreated: expect.any(Number),
-          timeLastEdited: expect.any(Number),
-          description: 'My description.',
-          numQuestions: 0,
-          duration: 0,
-          thumbnailUrl: 'http://google.com/some/image/path.jpg',
+        quizId: quiz.quizId,
+        name: 'My Quiz',
+        questions: [],
+        timeCreated: expect.any(Number),
+        timeLastEdited: expect.any(Number),
+        description: 'My description.',
+        numQuestions: 0,
+        duration: 0,
+        thumbnailUrl: 'http://google.com/some/image/path.jpg',
       };
       expect(requestQuizInfo(user.token, quiz.quizId).jsonBody).toStrictEqual(expected);
     });
@@ -1907,47 +1907,47 @@ describe ('adminQuizThumbnailUpdate testing', () => {
     ])(`successful thumbnail edgcases: ${test}`, ({ imgUrl }) => {
       expect(requestThumbnailUpdate(user.token, quiz.quizId, imgUrl)).toStrictEqual({});
       const expected: quiz = {
-          quizId: quiz.quizId,
-          name: 'My Quiz',
-          questions: [],
-          timeCreated: expect.any(Number),
-          timeLastEdited: expect.any(Number),
-          description: 'My description.',
-          numQuestions: 0,
-          duration: 0,
-          thumbnailUrl: imgUrl,
+        quizId: quiz.quizId,
+        name: 'My Quiz',
+        questions: [],
+        timeCreated: expect.any(Number),
+        timeLastEdited: expect.any(Number),
+        description: 'My description.',
+        numQuestions: 0,
+        duration: 0,
+        thumbnailUrl: imgUrl,
       };
       expect(requestQuizInfo(user.token, quiz.quizId).jsonBody).toStrictEqual(expected);
     });
-    test ('Update same thumbnail twice', () => {
+    test('Update same thumbnail twice', () => {
       expect(requestThumbnailUpdate(user.token, quiz.quizId, 'http://google.com/some/image/path.jpg')).toStrictEqual({});
       const expected: quiz = {
-          quizId: quiz.quizId,
-          name: 'My Quiz',
-          questions: [],
-          timeCreated: expect.any(Number),
-          timeLastEdited: expect.any(Number),
-          description: 'My description.',
-          numQuestions: 0,
-          duration: 0,
-          thumbnailUrl: 'http://google.com/some/image/path.jpg',
+        quizId: quiz.quizId,
+        name: 'My Quiz',
+        questions: [],
+        timeCreated: expect.any(Number),
+        timeLastEdited: expect.any(Number),
+        description: 'My description.',
+        numQuestions: 0,
+        duration: 0,
+        thumbnailUrl: 'http://google.com/some/image/path.jpg',
       };
       expect(requestQuizInfo(user.token, quiz.quizId).jsonBody).toStrictEqual(expected);
       expect(requestThumbnailUpdate(user.token, quiz.quizId, 'http://google.com/some/image/path.jpg')).toStrictEqual({});
       expect(requestQuizInfo(user.token, quiz.quizId).jsonBody).toStrictEqual(expected);
     });
-    test ('Update different thumbnail twice', () => {
+    test('Update different thumbnail twice', () => {
       expect(requestThumbnailUpdate(user.token, quiz.quizId, 'http://google.com/some/image/path.jpg')).toStrictEqual({});
       const expected: quiz = {
-          quizId: quiz.quizId,
-          name: 'My Quiz',
-          questions: [],
-          timeCreated: expect.any(Number),
-          timeLastEdited: expect.any(Number),
-          description: 'My description.',
-          numQuestions: 0,
-          duration: 0,
-          thumbnailUrl: 'http://google.com/some/image/path.jpg',
+        quizId: quiz.quizId,
+        name: 'My Quiz',
+        questions: [],
+        timeCreated: expect.any(Number),
+        timeLastEdited: expect.any(Number),
+        description: 'My description.',
+        numQuestions: 0,
+        duration: 0,
+        thumbnailUrl: 'http://google.com/some/image/path.jpg',
       };
       expect(requestQuizInfo(user.token, quiz.quizId).jsonBody).toStrictEqual(expected);
       expect(requestThumbnailUpdate(user.token, quiz.quizId, 'http://google.com/different/image/path.jpg')).toStrictEqual({});

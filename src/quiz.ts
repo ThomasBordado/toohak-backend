@@ -3,7 +3,7 @@ import { EmptyObject, ErrorReturn, QuizListReturn, quiz, quizId, quizQuestionCre
 import { validToken, checkQuizName, checkQuestionValid, isValidQuizId, randomColour, validthumbnailUrl } from './quizUtil';
 import { saveData } from './persistence';
 import HTTPError from 'http-errors';
-import { token } from 'morgan';
+
 /**
  * Provides a list of all quizzes that are owned by the currently logged in user
  * @param {string} token - unique identifier for an academic
