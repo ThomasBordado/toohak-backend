@@ -5,7 +5,7 @@ beforeEach(() => {
   requestClear();
 });
 
-test.skip('Test clear registered user', () => {
+test('Test clear registered user', () => {
   expect(requestClear().jsonBody).toStrictEqual({});
 
   // Register a user
@@ -23,7 +23,7 @@ test.skip('Test clear registered user', () => {
 });
 
 // Add a test to clear quizzes when we are able to make quizzes.
-test.skip('Test clear quizzes', () => {
+test('Test clear quizzes', () => {
   let user = requestRegister('haydensmith@gmail.com', 'password1', 'Tester', 'One').jsonBody;
   const quiz = requestQuizCreate(user.token, 'My Quiz', 'My description.').jsonBody as quizId;
   const quiz2 = requestQuizCreate(user.token, 'My Second Quiz', 'My description.').jsonBody as quizId;

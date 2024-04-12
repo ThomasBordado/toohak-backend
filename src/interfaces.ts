@@ -59,7 +59,7 @@ export interface quiz {
   numQuestions: number;
   questions: quizQuestion[];
   duration: number;
-  thumbnailUrl: string;
+  thumbnailUrl?: string;
 }
 
 export interface quizUser {
@@ -108,6 +108,10 @@ export interface UserDetailsReturn {
 
 export interface quizId {
   quizId: number;
+}
+
+export interface questionId {
+  questionId: number;
 }
 
 export interface QuizListReturn {

@@ -1,7 +1,6 @@
 import { requestRegister, requestLogin, requestGetUserDetails, requestUpdateUserDetails, requestUpdatePassword, requestLogout, requestClear } from './wrapper';
 import { usersList, getUserId, getHashOf } from './authUtil';
 import { SessionId, UserId, user, UserDetailsReturn } from './interfaces';
-import HTTPError from 'http-errors';
 
 beforeEach(() => {
   requestClear();
@@ -10,7 +9,7 @@ beforeEach(() => {
 /*
  * Testing for registering a user
  */
-describe.skip('Test requestRegister', () => {
+describe('Test requestRegister', () => {
   // 1. Successful Register of two users
   test('Test registering two users', () => {
     const response1 = requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith');
@@ -111,7 +110,7 @@ describe.skip('Test requestRegister', () => {
 /*
  * Testing for logging into a user account.
  */
-describe.skip('Test requestLogin', () => {
+describe('Test requestLogin', () => {
   // 1. Successful login to an existing account.
   test('Test successful login', () => {
     requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith');
@@ -183,7 +182,7 @@ describe.skip('Test requestLogin', () => {
 /*
  * Testing for getting user details
  */
-describe.skip('Test requestGetUserDetials', () => {
+describe('Test requestGetUserDetials', () => {
   // 1. Succesful return of account details
   test('Test succesful get user details', () => {
     const user1 = requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith').jsonBody as SessionId;
@@ -217,11 +216,11 @@ describe('requestUpdateUserDetails', () => {
   let data: SessionId;
   beforeEach(() => {
     requestClear();
-    data = requestRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith') as SessionId;
+    data = requestRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith').jsonBody as SessionId;
   });
 
   test('requestUpdateUserDetails error: invalid authUserId', () => {
-    expect(() => requestUpdateUserDetails((data.token + 1), 'validemail1@gmail.com', 'Jane', 'Smith')).toThrow(HTTPError[401]);
+    expect(requestUpdateUserDetails((parseInt(data.token) + 1).toString(), 'validemail1@gmail.com', 'Jane', 'Smith').jsonBody).toStrictEqual({ error: expect.any(String) });
   });
 
   test.each([
@@ -235,12 +234,14 @@ describe('requestUpdateUserDetails', () => {
     { test: 'invalid nameLast(too long)', email: 'validemail@gmail.com', nameFirst: 'Jane', nameLast: 'SmithSmithSmithSmithSmith' },
   ])("requestUpdateUserDetails error: '$test'", ({ email, nameFirst, nameLast }) => {
     requestRegister('validemail1@gmail.com', 'password7', 'Jennifer', 'Lawson');
-    expect(() => requestUpdateUserDetails(data.token, email, nameFirst, nameLast)).toThrow(HTTPError[400]);
+    const response = requestUpdateUserDetails(data.token, email, nameFirst, nameLast);
+    expect(response.jsonBody).toStrictEqual({ error: expect.any(String) });
+    expect(response.statusCode).toStrictEqual(400);
   });
 
   // 2. Testing for return value
   test('requestUpdateUserDetails return type', () => {
-    expect(() => requestUpdateUserDetails(data.token, 'validemail1@gmail.com', 'Jane', 'Smith').not.toThrow(HTTPError));
+    expect(requestUpdateUserDetails(data.token, 'validemail1@gmail.com', 'Jane', 'Smith').jsonBody).toStrictEqual({});
   });
 
   // 3. Testing for behaviors
@@ -270,7 +271,7 @@ describe('requestUpdateUserDetails', () => {
 
   // more than one user
   test('requestUpdateUserDetails update (more than one user)', () => {
-    const id2 = requestRegister('validemail2@gmail.com', '1234567a', 'Jane', 'Smith') as SessionId;
+    const id2 = requestRegister('validemail2@gmail.com', '1234567a', 'Jane', 'Smith').jsonBody as SessionId;
     requestUpdateUserDetails(id2.token, 'validemail1@gmail.com', 'Jennifer', 'Lawson');
     const result = usersList().sort((a, b) => a.userId - b.userId);
     const userId = getUserId(data.token) as UserId;
@@ -307,7 +308,7 @@ describe('requestUpdateUserDetails', () => {
 
   // Able to change if email is same as the old one
   test('requestUpdateUserDetails new email is as same as the old one', () => {
-    const id2 = requestRegister('validemail2@gmail.com', '1234567a', 'Jane', 'Smith') as SessionId;
+    const id2 = requestRegister('validemail2@gmail.com', '1234567a', 'Jane', 'Smith').jsonBody as SessionId;
     requestUpdateUserDetails(id2.token, 'validemail2@gmail.com', 'Jennifer', 'Lawson');
     const result = usersList().sort((a, b) => a.userId - b.userId);
     const userId = getUserId(data.token) as UserId;
@@ -349,11 +350,13 @@ describe('requestUpdateUserDetails', () => {
 describe('requestUpdatePassword', () => {
   let data: SessionId;
   beforeEach(() => {
-    data = requestRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith') as SessionId;
+    data = requestRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith').jsonBody as SessionId;
   });
 
   test('adminUserPasswordUpdate error: invalid token', () => {
-    expect(() => requestUpdatePassword((parseInt(data.token) + 1).toString(), '1234567a', '1234567b')).toThrow(HTTPError[401]);
+    const response = requestUpdatePassword((parseInt(data.token) + 1).toString(), '1234567a', '1234567b');
+    expect(response.jsonBody).toStrictEqual({ error: expect.any(String) });
+    expect(response.statusCode).toStrictEqual(401);
   });
 
   test.each([
@@ -363,12 +366,16 @@ describe('requestUpdatePassword', () => {
     { test: 'New password not valid(does not contain letter)', oldPassword: '1234567a', newPassword: '12345678' },
     { test: 'New password not valid(does not contain number)', oldPassword: '1234567a', newPassword: 'abcdefgh' },
   ])("adminUserPasswordUpdate error: '$test'", ({ oldPassword, newPassword }) => {
-    expect(() => requestUpdatePassword(data.token, oldPassword, newPassword)).toThrow(HTTPError[400]);
+    const response = requestUpdatePassword(data.token, oldPassword, newPassword);
+    expect(response.jsonBody).toStrictEqual({ error: expect.any(String) });
+    expect(response.statusCode).toStrictEqual(400);
   });
 
   // 2. Testing for return value
   test('adminUserPasswordUpdate return type', () => {
-    expect(() => requestUpdatePassword(data.token, '1234567a', '1234567b').not.toThrow(HTTPError));
+    const response = requestUpdatePassword(data.token, '1234567a', '1234567b');
+    expect(response.jsonBody).toStrictEqual({});
+    expect(response.statusCode).toStrictEqual(200);
   });
 
   // 3. Testing for behaviors
@@ -397,7 +404,7 @@ describe('requestUpdatePassword', () => {
 
   // more than one user and with requestUpdateUserDetails, many times
   test('adminUserPasswordUpdate behavior2', () => {
-    const id2 = requestRegister('validemail2@gmail.com', '1234567a', 'Jennifer', 'Smith') as SessionId;
+    const id2 = requestRegister('validemail2@gmail.com', '1234567a', 'Jennifer', 'Smith').jsonBody as SessionId;
     requestUpdatePassword(id2.token, '1234567a', '1234567b');
     requestUpdatePassword(id2.token, '1234567b', '1234567c');
     const result = usersList().sort((a, b) => a.userId - b.userId);
@@ -438,7 +445,7 @@ describe('requestUpdatePassword', () => {
 /*
  * Testing for logging out of a session
  */
-describe.skip('Test requestLogout', () => {
+describe('Test requestLogout', () => {
   // 1. Successful logout after registering account.
   test('Test successful logout', () => {
     const sessionId = requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith').jsonBody as SessionId;

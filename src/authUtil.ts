@@ -17,12 +17,12 @@ export const checkEmail = (email: string) => {
   if (data.users.length !== 0) {
     const emailCopy = data.users.find(users => users.email === email);
     if (emailCopy) {
-      return { error: 'Email is in use' };
+      throw HTTPError(400, 'Email is in use');
     }
   }
 
   if (!isEmail(email)) {
-    return { error: 'This is not a valid email.' };
+    throw HTTPError(400, 'This is not a valid email.');
   }
 
   return true;
@@ -58,7 +58,7 @@ export const checkPassword = (password: string) => {
  */
 export const checkName = (name: string, position: string) => {
   if (name.length < 2 || name.length > 20) {
-    throw HTTPError(400, position + 'name must be between 2 to 20 characters.');
+    throw HTTPError(400, position + ' name must be between 2 to 20 characters.');
   }
   for (const c of name) {
     if (!/[a-zA-Z\s'-]/.test(c)) {
@@ -78,7 +78,7 @@ export const checkName = (name: string, position: string) => {
 export const isValidToken = (token: string): boolean => {
   const data = getData();
   if (token === '') {
-    throw HTTPError(401, 'Token is invalid');
+    throw HTTPError(401, 'Token is empty');
   }
   if (data.users.length === 0) {
     throw HTTPError(401, 'Token is invalid');
@@ -187,13 +187,13 @@ export const getUserId = (token: string): UserId | ErrorReturn => {
   loadData();
   const data = getData();
   if (token === '') {
-    return { error: 'invalid token' };
+    return { error: 'empty token, failed to get UserId' };
   }
   const user = data.users.find(users => users.sessions.includes(token));
   if (user) {
     return { authUserId: user.userId };
   }
-  return { error: 'invalid token' };
+  return { error: 'invalid token, failed to get UserId' };
 };
 
 /**

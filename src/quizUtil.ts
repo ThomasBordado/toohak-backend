@@ -36,13 +36,17 @@ import HTTPError from 'http-errors';
   */
 export const validToken = (token: string, userData: user[]) => {
   // searches for sessionId and returns user if found
+  if (token === '') {
+    throw HTTPError(401, 'Token is empty');
+  }
+
   for (const user of userData) {
     if (user.sessions.includes(token)) {
       return user;
     }
   }
   // throws error if not found
-  throw HTTPError(401, 'Token is empty or invalid');
+  throw HTTPError(401, 'Token is invalid');
 };
 
 /**
@@ -98,6 +102,7 @@ export const checkQuestionValid = (quizQuestion: quizQuestionCreateInput, quizId
   const data = getData();
   const quiz = data.quizzes.find(quizs => quizs.quizId === quizId);
   let sum = 0;
+
   for (let i = 0; i < quiz.questions.length; i++) {
     sum = sum + quiz.questions[i].duration;
   }
@@ -168,7 +173,7 @@ export const validthumbnailUrl = (thumbnailUrl: string) => {
   if (thumbnailUrl === '') {
     throw HTTPError(400, 'The thumbnailUrl is an empty string.');
   }
-  if (!thumbnailUrl.endsWith('jpg') && !thumbnailUrl.endsWith('jpeg') && !thumbnailUrl.endsWith('png')) {
+  if (!(thumbnailUrl.toLowerCase()).endsWith('jpg') && !(thumbnailUrl.toLowerCase()).endsWith('jpeg') && !(thumbnailUrl.toLowerCase()).endsWith('png')) {
     throw HTTPError(400, 'The thumbnailUrl does not end with one of the following filetypes (case insensitive): jpg, jpeg, png');
   }
   if (!thumbnailUrl.startsWith('http://') && !thumbnailUrl.startsWith('https://')) {
