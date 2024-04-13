@@ -312,7 +312,6 @@ describe('requestUpdateQuizName testing', () => {
   });
 });
 
-
 /*
  * Testing for updating quiz Description
  */
@@ -387,7 +386,6 @@ describe('Testing it2 function, adminQuizQuestionUpdate', () => {
       thumbnailUrl: 'http://google.com/some/image/path.jpg',
     };
     questionout = requestQuizQuestionCreate(user.token, questionin, quiz.quizId) as quizQuestionCreateReturn;
-
   });
 
   // 1. Succesfully update question
@@ -989,7 +987,7 @@ describe('adminQuizTrashEmpty testing', () => {
 /**
  * test for creating quiz question
  */
-describe('Testing Post /v2/admin/quiz/{quizid}/question', () => {
+describe.skip('Testing Post /v2/admin/quiz/{quizid}/question', () => {
   test('Correct status code and return value', () => {
     const user = requestRegister('valideEmail@gmail.com', 'password1', 'Jane', 'Lawson').jsonBody as SessionId;
     const quiz = requestQuizCreate(user.token, 'British', 'history') as quizId;

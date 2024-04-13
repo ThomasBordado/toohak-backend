@@ -435,7 +435,6 @@ describe('Testing it2 function, adminQuizQuestionUpdate', () => {
       ]
     };
     questionout = requestQuizQuestionCreate(user.token, questionin, quiz.quizId).jsonBody as quizQuestionCreateReturn;
-
   });
 
   // 1. Succesfully update question
