@@ -9,7 +9,7 @@ beforeEach(() => {
 /*
  * Testing for registering a user
  */
-describe.skip('Test requestRegister', () => {
+describe('Test requestRegister', () => {
   // 1. Successful Register of two users
   test('Test registering two users', () => {
     const response1 = requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith');
@@ -110,7 +110,7 @@ describe.skip('Test requestRegister', () => {
 /*
  * Testing for logging into a user account.
  */
-describe.skip('Test requestLogin', () => {
+describe('Test requestLogin', () => {
   // 1. Successful login to an existing account.
   test('Test successful login', () => {
     requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith');
@@ -182,7 +182,7 @@ describe.skip('Test requestLogin', () => {
 /*
  * Testing for getting user details
  */
-describe.skip('Test requestGetUserDetials', () => {
+describe('Test requestGetUserDetials', () => {
   // 1. Succesful return of account details
   test('Test succesful get user details', () => {
     const user1 = requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith').jsonBody as SessionId;
@@ -212,9 +212,10 @@ describe.skip('Test requestGetUserDetials', () => {
 /*
  * Testing for updating user details
  */
-describe.skip('requestUpdateUserDetails', () => {
+describe('requestUpdateUserDetails', () => {
   let data: SessionId;
   beforeEach(() => {
+    requestClear();
     data = requestRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith').jsonBody as SessionId;
   });
 
@@ -346,7 +347,7 @@ describe.skip('requestUpdateUserDetails', () => {
 /*
  * Testing for updating user password
  */
-describe.skip('requestUpdatePassword', () => {
+describe('requestUpdatePassword', () => {
   let data: SessionId;
   beforeEach(() => {
     data = requestRegister('validemail@gmail.com', '1234567a', 'Jane', 'Smith').jsonBody as SessionId;
@@ -379,7 +380,7 @@ describe.skip('requestUpdatePassword', () => {
 
   // 3. Testing for behaviors
   // one user
-  test('adminUserPasswordUpdate return type', () => {
+  test('adminUserPasswordUpdate behavior1', () => {
     requestUpdatePassword(data.token, '1234567a', '1234567b');
     const result1 = usersList().sort((a, b) => a.userId - b.userId);
     const userId = getUserId(data.token) as UserId;
@@ -402,7 +403,7 @@ describe.skip('requestUpdatePassword', () => {
   });
 
   // more than one user and with requestUpdateUserDetails, many times
-  test('adminUserPasswordUpdate return type', () => {
+  test('adminUserPasswordUpdate behavior2', () => {
     const id2 = requestRegister('validemail2@gmail.com', '1234567a', 'Jennifer', 'Smith').jsonBody as SessionId;
     requestUpdatePassword(id2.token, '1234567a', '1234567b');
     requestUpdatePassword(id2.token, '1234567b', '1234567c');
@@ -444,7 +445,7 @@ describe.skip('requestUpdatePassword', () => {
 /*
  * Testing for logging out of a session
  */
-describe.skip('Test requestLogout', () => {
+describe('Test requestLogout', () => {
   // 1. Successful logout after registering account.
   test('Test successful logout', () => {
     const sessionId = requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith').jsonBody as SessionId;

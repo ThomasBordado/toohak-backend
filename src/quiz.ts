@@ -1,7 +1,6 @@
 import { getData, setData } from './dataStore';
-import { EmptyObject, ErrorReturn, QuizListReturn, quiz, quizId, quizQuestionCreateInput, quizQuestionCreateReturn, quizQuestionDuplicateReturn } from './interfaces';
-import { validToken, checkQuizName, checkQuestionValid, isValidQuizId, randomColour } from './quizUtil';
-import { isValidToken } from './authUtil';
+import { EmptyObject, ErrorReturn, QuizListReturn, quiz, quizId, quizQuestionCreateInput, quizQuestionCreateInputV1, quizQuestionCreateReturn, quizQuestionDuplicateReturn } from './interfaces';
+import { validToken, checkQuizName, checkQuestionValid, isValidQuizId, randomColour, validthumbnailUrl, checkQuestionValidV1 } from './quizUtil';
 import { saveData } from './persistence';
 import HTTPError from 'http-errors';
 /**
@@ -24,7 +23,43 @@ export const adminQuizList = (token: string): QuizListReturn | ErrorReturn => {
  * @returns {{quizId: number}} - for valid authUserID, name and discription
  */
 
-export const adminQuizCreate = (token: string, name: string, description: string): quizId | ErrorReturn => {
+export const adminQuizCreate1 = (token: string, name: string, description: string): quizId | ErrorReturn => {
+  const data = getData();
+  const user = validToken(token, data.users);
+  checkQuizName(name, user.quizzes);
+  if (description.length > 100) {
+    throw HTTPError(400, 'Description cannot be greater than 100 characters');
+  }
+
+  data.quizIdStore += 1;
+  const newQuiz = {
+    quizId: data.quizIdStore,
+    name: name,
+    timeCreated: Math.floor(Date.now() / 1000),
+    timeLastEdited: Math.floor(Date.now() / 1000),
+    description: description,
+    numQuestions: 0,
+    questions: [],
+    duration: 0,
+  } as quiz;
+
+  data.quizzes.push(newQuiz);
+  user.quizzes.push({ quizId: data.quizIdStore, name: name });
+  saveData();
+  return {
+    quizId: data.quizIdStore
+  };
+};
+
+/**
+ * Given basic details about a new quiz, create one for the logged in user.
+ * @param {string} token - unique identifier for an academic
+ * @param {string} name - quiz name
+ * @param {string} description - quiz description
+ * @returns {{quizId: number}} - for valid authUserID, name and discription
+ */
+
+export const adminQuizCreate2 = (token: string, name: string, description: string): quizId | ErrorReturn => {
   const data = getData();
   const user = validToken(token, data.users);
   checkQuizName(name, user.quizzes);
@@ -233,7 +268,7 @@ export const adminQuizQuestionDelete = (token: string, quizId: number, questioni
   const findQuiz = data.quizzes.find(quizzes => quizzes.quizId === quizId);
   const findQuestion = findQuiz.questions.findIndex(questions => questions.questionId === questionid);
   if (findQuestion === -1) {
-    throw HTTPError(403, 'Invalid questionId');
+    throw HTTPError(400, 'Invalid questionId');
   } else if (findQuestion > -1) {
     findQuiz.questions.splice(findQuestion, 1);
   }
@@ -288,12 +323,11 @@ export const adminQuizTrashEmpty = (token: string, quizIds: number[]): EmptyObje
 
   // Check if the current user owns the quizzes being removed. error 403
   // If a user owns a quiz where is it stored
-  // if a quiz is in the trash from a user where?
   for (const quizId of quizIds) {
     const quizIndexTrash = user.trash.findIndex(quiz => quiz.quizId === quizId);
     const quizIndexOwn = user.quizzes.findIndex(quiz => quiz.quizId === quizId);
     if (quizIndexTrash === -1 && quizIndexOwn === -1) {
-      return { error: 'Valid token, but one or more of the Quiz IDs is not owned by current user' };
+      throw HTTPError(403, 'Valid token, but one or more of the Quiz IDs is not owned by current user');
     }
   }
 
@@ -301,7 +335,7 @@ export const adminQuizTrashEmpty = (token: string, quizIds: number[]): EmptyObje
   for (const quizId of quizIds) {
     const quizIndex = user.trash.findIndex(quiz => quiz.quizId === quizId);
     if (quizIndex === -1) {
-      return { error: 'One or more of the Quiz IDs is not currently in the trash' };
+      throw HTTPError(400, 'One or more of the Quiz IDs is not currently in the trash');
     }
   }
 
@@ -320,7 +354,7 @@ export const adminQuizTrashEmpty = (token: string, quizIds: number[]): EmptyObje
  * @param {number} quizId - a unique identifier of quiz
  * @returns questionId
  */
-export const quizQuestionCreate = (token: string, questionBody: quizQuestionCreateInput, quizId: number): quizQuestionCreateReturn | ErrorReturn => {
+export const quizQuestionCreate1 = (token: string, questionBody: quizQuestionCreateInputV1, quizId: number): quizQuestionCreateReturn | ErrorReturn => {
   // Check token error
   const data = getData();
   validToken(token, data.users);
@@ -331,7 +365,7 @@ export const quizQuestionCreate = (token: string, questionBody: quizQuestionCrea
     return quiz as ErrorReturn;
   }
   // Check if the errors in questionBody
-  const question = checkQuestionValid(questionBody, quizId);
+  const question = checkQuestionValidV1(questionBody, quizId);
   if ('error' in question) {
     return question as ErrorReturn;
   }
@@ -367,17 +401,62 @@ export const quizQuestionCreate = (token: string, questionBody: quizQuestionCrea
   return { questionId: questionId };
 };
 
-export const quizTransfer = (token: string, userEmail: string, quizId: number): EmptyObject | ErrorReturn => {
-  const tokenCheck = isValidToken(token);
-  if (!tokenCheck) {
-    return { error: 'Token is empty or invalid' };
-  }
-  const quizIdCheck = isValidQuizId(token, quizId);
-  if ('error' in quizIdCheck) {
-    return quizIdCheck as ErrorReturn;
-  }
-
+/**
+ *
+ * @param {string} token - unique identifier for logined user
+ * @param {Array} questionBody - the question needed to be updated to the quiz
+ * @param {number} quizId - a unique identifier of quiz
+ * @returns questionId
+ */
+export const quizQuestionCreate2 = (token: string, questionBody: quizQuestionCreateInput, quizId: number): quizQuestionCreateReturn | ErrorReturn => {
+  // Check token error
   const data = getData();
+  validToken(token, data.users);
+
+  // Check if the user owns this quiz
+  isValidQuizId(token, quizId);
+  // Check if the thumbnailUrl is valid
+  validthumbnailUrl(questionBody.thumbnailUrl);
+  // Return the duration sum of the questions
+  const question = checkQuestionValid(questionBody, quizId);
+
+  // Push new question into quiz
+  const findQuiz = data.quizzes.find(quizs => quizs.quizId === quizId);
+  findQuiz.timeLastEdited = Math.floor(Date.now() / 1000);
+  findQuiz.duration = question.duration;
+  findQuiz.thumbnailUrl = questionBody.thumbnailUrl;
+  findQuiz.numQuestions += 1;
+  data.questionIdStore += 1;
+  const questionId = data.questionIdStore;
+
+  const answerOut = questionBody.answers.map(answer => {
+    data.answerIdStore += 1;
+    return {
+      answerId: data.answerIdStore,
+      answer: answer.answer,
+      colour: randomColour(),
+      correct: answer.correct,
+    };
+  });
+
+  findQuiz.questions.push({
+    questionId: questionId,
+    question: questionBody.question,
+    duration: questionBody.duration,
+    points: questionBody.points,
+    answers: answerOut,
+  });
+
+  setData(data);
+  saveData();
+  return { questionId: questionId };
+};
+
+export const quizTransfer1 = (token: string, userEmail: string, quizId: number): EmptyObject | ErrorReturn => {
+  const data = getData();
+  validToken(token, data.users);
+  isValidQuizId(token, quizId);
+
   const targetUser = data.users.find(users => users.email === userEmail);
   if (targetUser === undefined) {
     return { error: 'UserEmail is not a real user' };
@@ -391,12 +470,38 @@ export const quizTransfer = (token: string, userEmail: string, quizId: number): 
   if (quiz) {
     return { error: 'Quiz ID refers to a quiz that has a name that is already used by the target user' };
   }
-  /*
-  const findState = findQuiz.quizQuestions.find(questions => questions.state === true);
-  if (findState) {
-    return {error: 'Any session for this quiz is not in END state'}
+  // push the quiz to the target user
+  const currentUser = data.users.find(users => users.sessions.includes(token));
+  const userQuiz = currentUser.quizzes.find(quizs => quizs.quizId === quizId);
+  findQuiz.timeLastEdited = Math.floor(Date.now() / 1000);
+  targetUser.quizzes.push(userQuiz);
+  // delete the quiz in origin user
+  const userQuizzesIndex = currentUser.quizzes.findIndex(quizzes => quizzes.quizId === quizId);
+  currentUser.quizzes.splice(userQuizzesIndex, 1);
+  setData(data);
+  saveData();
+  return {};
+};
+
+export const quizTransfer2 = (token: string, userEmail: string, quizId: number): EmptyObject | ErrorReturn => {
+  const data = getData();
+  validToken(token, data.users);
+  isValidQuizId(token, quizId);
+
+  const targetUser = data.users.find(users => users.email === userEmail);
+  if (targetUser === undefined) {
+    throw HTTPError(400, 'UserEmail is not a real user');
   }
-*/
+  if (targetUser.sessions.includes(token)) {
+    throw HTTPError(400, 'UserEmail is the current logged in user');
+  }
+
+  const findQuiz = data.quizzes.find(quizs => quizs.quizId === quizId);
+  const quiz = targetUser.quizzes.find(quizzes => quizzes.name === findQuiz.name);
+  if (quiz) {
+    throw HTTPError(400, 'Quiz ID refers to a quiz that has a name that is already used by the target user');
+  }
+
   // push the quiz to the target user
   const currentUser = data.users.find(users => users.sessions.includes(token));
   const userQuiz = currentUser.quizzes.find(quizs => quizs.quizId === quizId);

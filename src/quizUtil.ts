@@ -1,4 +1,4 @@
-import { quizUser, user, quizQuestionCreateInput, EmptyObject, ErrorReturn } from './interfaces';
+import { quizUser, user, quizQuestionCreateInput, quizQuestionCreateInputV1 } from './interfaces';
 import { getData } from './dataStore';
 import HTTPError from 'http-errors';
 
@@ -36,13 +36,17 @@ import HTTPError from 'http-errors';
   */
 export const validToken = (token: string, userData: user[]) => {
   // searches for sessionId and returns user if found
+  if (token === '') {
+    throw HTTPError(401, 'Token is empty');
+  }
+
   for (const user of userData) {
     if (user.sessions.includes(token)) {
       return user;
     }
   }
   // throws error if not found
-  throw HTTPError(401, 'Token is empty or invalid');
+  throw HTTPError(401, 'Token is invalid');
 };
 
 /**
@@ -78,7 +82,7 @@ export const checkQuizName = (name: string, quizzesOwned: quizUser[]) => {
   }
 };
 
-export const checkQuestionValid = (quizQuestion: quizQuestionCreateInput, quizId: number) => {
+export const checkQuestionValidV1 = (quizQuestion: quizQuestionCreateInputV1, quizId: number) => {
   // Check the string length
   if (quizQuestion.question.length < 5 || quizQuestion.question.length > 50) {
     return { error: 'Question string is less than 5 characters in length or greater than 50 characters in length' };
@@ -138,14 +142,75 @@ export const checkQuestionValid = (quizQuestion: quizQuestionCreateInput, quizId
   return { duration: sum };
 };
 
+export const checkQuestionValid = (quizQuestion: quizQuestionCreateInput, quizId: number) => {
+  // Check the string length
+  if (quizQuestion.question.length < 5 || quizQuestion.question.length > 50) {
+    throw HTTPError(400, 'Question string is less than 5 characters in length or greater than 50 characters in length');
+  }
+
+  // Check the answer length
+  if (quizQuestion.answers.length > 6 || quizQuestion.answers.length < 2) {
+    throw HTTPError(400, 'The question has more than 6 answers or less than 2 answers');
+  }
+
+  // Check the duration
+  if (quizQuestion.duration <= 0) {
+    throw HTTPError(400, 'The question duration is not a positive number');
+  }
+
+  // Calculate the sum of duration
+  const data = getData();
+  const quiz = data.quizzes.find(quizs => quizs.quizId === quizId);
+  let sum = 0;
+
+  for (let i = 0; i < quiz.questions.length; i++) {
+    sum = sum + quiz.questions[i].duration;
+  }
+  sum = sum + quizQuestion.duration;
+  if (sum > 180) {
+    throw HTTPError(400, 'The sum of the question durations in the quiz exceeds 3 minutes');
+  }
+
+  // Check the point award
+  if (quizQuestion.points < 1 || quizQuestion.points > 10) {
+    throw HTTPError(400, 'The points awarded for the question are less than 1 or greater than 10');
+  }
+
+  // Check the answer length
+  for (const answer of quizQuestion.answers) {
+    if (answer.answer.length < 1 || answer.answer.length > 30) {
+      throw HTTPError(400, 'The length of any answer is shorter than 1 character long, or longer than 30 characters long');
+    }
+  }
+
+  // Check if there's duplicate answers
+  const uniqueAnswers : string[] = [];
+  for (let i = 0; i < quizQuestion.answers.length; i++) {
+    const currentAnswer = quizQuestion.answers[i].answer;
+    if (!uniqueAnswers.includes(currentAnswer)) {
+      uniqueAnswers.push(currentAnswer);
+    } else {
+      throw HTTPError(400, 'Any answer strings are duplicates of one another (within the same question)');
+    }
+  }
+
+  // Check if there's correct answer
+  const answer = quizQuestion.answers.find(quizs => quizs.correct === true);
+  if (!answer) {
+    throw HTTPError(400, 'There are no correct answers');
+  }
+
+  return { duration: sum };
+};
+
 /**
- *
+ *  It can only be used after checking the token
  */
-export const isValidQuizId = (token: string, quizId: number): EmptyObject | ErrorReturn => {
+export const isValidQuizId = (token: string, quizId: number) => {
   // Check if the quizId is invalid
   const data = getData();
   if (data.quizzes.length === 0) {
-    return { error: 'Invalid quizId' };
+    throw HTTPError(403, 'Invalid quizId');
   }
 
   // Check if the user own the quiz
@@ -158,9 +223,21 @@ export const isValidQuizId = (token: string, quizId: number): EmptyObject | Erro
     if (findQuiz !== undefined) {
       return {};
     }
-    return { error: 'user does not own the quiz' };
+    throw HTTPError(403, 'user does not own the quiz');
   } else {
-    return { error: 'Invalid quizId' };
+    throw HTTPError(403, 'Invalid quizId');
+  }
+};
+
+export const validthumbnailUrl = (thumbnailUrl: string) => {
+  if (thumbnailUrl === '') {
+    throw HTTPError(400, 'The thumbnailUrl is an empty string.');
+  }
+  if (!(thumbnailUrl.toLowerCase()).endsWith('jpg') && !(thumbnailUrl.toLowerCase()).endsWith('jpeg') && !(thumbnailUrl.toLowerCase()).endsWith('png')) {
+    throw HTTPError(400, 'The thumbnailUrl does not end with one of the following filetypes (case insensitive): jpg, jpeg, png');
+  }
+  if (!thumbnailUrl.startsWith('http://') && !thumbnailUrl.startsWith('https://')) {
+    throw HTTPError(400, 'The thumbnailUrl does not begin with "http://" or "https://"');
   }
 };
 

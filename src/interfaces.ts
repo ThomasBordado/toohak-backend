@@ -28,7 +28,7 @@ export interface quiz {
   numQuestions: number;
   questions: quizQuestion[];
   duration: number;
-  thumbnailUrl: string;
+  thumbnailUrl?: string;
 }
 
 export interface quizUser {
@@ -79,6 +79,10 @@ export interface quizId {
   quizId: number;
 }
 
+export interface questionId {
+  questionId: number;
+}
+
 export interface QuizListReturn {
   quizzes: quizUser[];
 }
@@ -88,7 +92,14 @@ export interface quizQuestionCreateInput {
   duration: number;
   points: number;
   answers: answerInput[];
+  thumbnailUrl: string;
+}
 
+export interface quizQuestionCreateInputV1 {
+  question: string;
+  duration: number;
+  points: number;
+  answers: answerInput[];
 }
 
 export interface quizQuestionCreateReturn {
