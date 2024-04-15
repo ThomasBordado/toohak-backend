@@ -987,7 +987,7 @@ describe('adminQuizTrashEmpty testing', () => {
 /**
  * test for creating quiz question
  */
-describe.skip('Testing Post /v2/admin/quiz/{quizid}/question', () => {
+describe('Testing Post /v2/admin/quiz/{quizid}/question', () => {
   test('Correct status code and return value', () => {
     const user = requestRegister('valideEmail@gmail.com', 'password1', 'Jane', 'Lawson').jsonBody as SessionId;
     const quiz = requestQuizCreate(user.token, 'British', 'history') as quizId;
@@ -1044,7 +1044,7 @@ describe.skip('Testing Post /v2/admin/quiz/{quizid}/question', () => {
       thumbnailUrl: 'http://google.com/some/image/path.jpg',
     };
     expect(returnType).toStrictEqual({ questionId: expect.any(Number) });
-    expect(requestQuizInfo(user.token, quiz.quizId).jsonBody).toStrictEqual(expectedInfo);
+    expect(requestQuizInfo(user.token, quiz.quizId)).toStrictEqual(expectedInfo);
   });
 
   describe('Error test for 400 error', () => {
