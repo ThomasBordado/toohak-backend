@@ -161,4 +161,3 @@ export interface DataStore {
   quizSessionIdStore: number;
   quizSessions: QuizSession[];
 }
-

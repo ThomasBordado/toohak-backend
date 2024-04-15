@@ -1806,7 +1806,7 @@ describe.skip('adminQuizQuestionDuplicate testing', () => {
 
 describe('requestSessionView testing', () => {
   let user: SessionId;
-  let quiz: quizId
+  let quiz: quizId;
   beforeEach(() => {
     user = requestRegister('chloe@gmail.com', 'password1', 'Chloe', 'Turner').jsonBody as SessionId;
     quiz = requestQuizCreate(user.token, 'My Quiz', 'My description.');
@@ -1822,12 +1822,12 @@ describe('requestSessionView testing', () => {
   });
   describe('Successful Cases', () => {
     test('No sessions started: return empty array', () => {
-      expect(requestSessionView(user.token, quiz.quizId)).toStrictEqual({ activeSessions: [], inactiveSessions: [], });
+      expect(requestSessionView(user.token, quiz.quizId)).toStrictEqual({ activeSessions: [], inactiveSessions: [] });
     });
-    test.todo('one active session')
-    test.todo('multiple active sessions')
-    test.todo('one inactive session')
-    test.todo('multiple inactive sessions')
-    test.todo('both active and inactive sessions')
+    test.todo('one active session');
+    test.todo('multiple active sessions');
+    test.todo('one inactive session');
+    test.todo('multiple inactive sessions');
+    test.todo('both active and inactive sessions');
   });
 });
