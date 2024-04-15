@@ -604,8 +604,8 @@ export const viewSessions = (token: string, quizId: number) => {
     throw HTTPError(403, 'User does not own quiz');
   }
 
-  let activeSessions = [];
-  let inactiveSessions = [];
+  const activeSessions = [];
+  const inactiveSessions = [];
   for (const quizSessions of data.quizSessions) {
     if (quizSessions.quizStatus.metadata.quizId === quizId) {
       if (quizSessions.quizStatus.state === 'END') {
@@ -627,7 +627,7 @@ export const sessionStart = (token: string, quizId: number, autoStartNum: number
   const user = validToken(token, data.users);
 
   const userQuiz = user.quizzes.find(quizzes => quizzes.quizId === quizId);
-  const userTrash = user.trash.find(quizzes => quizzes.quizId === quizId)
+  const userTrash = user.trash.find(quizzes => quizzes.quizId === quizId);
   if (userQuiz === undefined) {
     if (userTrash === undefined) {
       throw HTTPError(403, 'User does not own quiz');

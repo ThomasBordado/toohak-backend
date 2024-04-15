@@ -1811,7 +1811,7 @@ describe('requestSessionStart testing', () => {
   let user: SessionId;
   let quiz: quizId;
   let questionin: quizQuestionCreateInput;
-  let question: questionId
+  let question: questionId;
   beforeEach(() => {
     user = requestRegister('chloe@gmail.com', 'password1', 'Chloe', 'Turner').jsonBody as SessionId;
     quiz = requestQuizCreate(user.token, 'My Quiz', 'My Quiz Description');
@@ -1890,7 +1890,6 @@ describe('requestSessionStart testing', () => {
     test('autoNum = 50', () => {
       expect(requestSessionStart(user.token, quiz.quizId, 50)).toStrictEqual({ sessionId: expect.any(Number) });
     });
-    test.todo('check any changes made to quiz does not effect session info')
-
+    test.todo('check any changes made to quiz does not effect session info');
   });
 });
