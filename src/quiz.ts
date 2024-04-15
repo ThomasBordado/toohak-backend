@@ -594,3 +594,7 @@ export const adminQuizQuestionDuplicate = (token: string, quizId: number, questi
   // Return the ID of the new question
   return { newQuestionId: duplicatedQuestion.questionId };
 };
+
+export const viewSessions = (token: string, quizId: number) => {
+
+};
