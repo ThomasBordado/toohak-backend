@@ -110,6 +110,45 @@ export interface quizQuestionDuplicateReturn {
   newQuestionId: number;
 }
 
+export interface QuizStatus {
+  state: string;
+  atQuestion: number;
+  players: string[];
+  metadata: quiz;
+}
+
+export interface UserRank {
+  name: string;
+  score: number;
+}
+
+export interface QuestionResults {
+  questionId: number;
+  playerCorrectList: string[];
+  averageAnswerTime: number;
+  percentCorrect: number;
+}
+
+export interface QuizResults {
+  usersRankedByScore: UserRank[];
+  questionResults: QuestionResults[];
+}
+
+export interface Message {
+  messageBody: string;
+  playerId: number;
+  playerName: string;
+  timeSent: number;
+}
+
+export interface QuizSession {
+  sessionId: number;
+  autoStartNum: number;
+  quizStatus: QuizStatus;
+  quizResults: QuizResults;
+  messages: Message[];
+}
+
 export interface DataStore {
   users: user[];
   quizzes: quiz[];
@@ -119,4 +158,7 @@ export interface DataStore {
   questionIdStore: number;
   answerIdStore: number;
   trash: quiz[];
+  quizSessionIdStore: number;
+  quizSessions: QuizSession[];
 }
+
