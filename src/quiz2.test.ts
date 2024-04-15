@@ -1824,15 +1824,10 @@ describe('requestSessionView testing', () => {
     test('No sessions started: return empty array', () => {
       expect(requestSessionView(user.token, quiz.quizId)).toStrictEqual({ activeSessions: [], inactiveSessions: [], });
     });
-    test.todo('one active session', () => {
-    });
-    test.todo('multiple active sessions', () => {
-    });
-    test.todo('one inactive session', () => {
-    });
-    test.todo('multiple inactive sessions', () => {
-    });
-    test.todo('both active and inactive sessions', () => {
-    });
+    test.todo('one active session')
+    test.todo('multiple active sessions')
+    test.todo('one inactive session')
+    test.todo('multiple inactive sessions')
+    test.todo('both active and inactive sessions')
   });
 });
