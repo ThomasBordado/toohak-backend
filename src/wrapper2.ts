@@ -121,3 +121,7 @@ export const requestquizTransfer = (token: string, userEmail: string, quizid: nu
 export const requestQuizQuestionCreate = (token: string, questionBody: quizQuestionCreateInput, quizid: number) => {
   return requestHelper('POST', `/v2/admin/quiz/${quizid}/question`, { questionBody }, { token });
 };
+
+export const requestSessionStart = (token: string, quizid: number, autoStartNum: number) => {
+  return requestHelper('POST', `/v1/admin/quiz/${quizid}/session/start`, { autoStartNum }, { token });
+};
