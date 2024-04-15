@@ -1,5 +1,5 @@
 import { requestRegister, requestQuizInfo, requestUpdateQuizName, requestUpdateQuizDescription, requestClear, requestLogin, requestDeleteQuizQuestion, requestMoveQuestion, requestQuestionDuplicate } from './wrapper';
-import { requestQuizList, requestQuizCreate, requestQuizTrash, requestQuizViewTrash, requestQuizRestore, requestQuizTrashEmpty, requestQuizQuestionCreate, requestquizTransfer, requestLogout } from './wrapper2';
+import { requestQuizList, requestQuizCreate, requestQuizTrash, requestQuizViewTrash, requestQuizRestore, requestQuizTrashEmpty, requestQuizQuestionCreate, requestquizTransfer, requestLogout, requestSessionView } from './wrapper2';
 import { QuizListReturn, SessionId, quizId, quizUser, quizQuestionCreateInput, quiz, quizQuestionCreateReturn, questionId } from './interfaces';
 import HTTPError from 'http-errors';
 
@@ -1801,5 +1801,38 @@ describe.skip('adminQuizQuestionDuplicate testing', () => {
     const result = requestQuestionDuplicate(user.token, quiz2.quizId, question1.questionId);
     expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
     expect(result.statusCode).toStrictEqual(403);
+  });
+});
+
+describe('requestSessionView testing', () => {
+  let user: SessionId;
+  let quiz: quizId
+  beforeEach(() => {
+    user = requestRegister('chloe@gmail.com', 'password1', 'Chloe', 'Turner').jsonBody as SessionId;
+    quiz = requestQuizCreate(user.token, 'My Quiz', 'My description.');
+  });
+
+  describe('Unsuccessful Cases', () => {
+    test('Invalid Token', () => {
+      expect(() => requestSessionView(user.token + 1, quiz.quizId)).toThrow(HTTPError[401]);
+    });
+    test('Invalid quizId', () => {
+      expect(() => requestSessionView(user.token, quiz.quizId + 1)).toThrow(HTTPError[403]);
+    });
+  });
+  describe('Successful Cases', () => {
+    test('No sessions started: return empty array', () => {
+      expect(requestSessionView(user.token, quiz.quizId)).toStrictEqual({ activeSessions: [], inactiveSessions: [], });
+    });
+    test.todo('one active session', () => {
+    });
+    test.todo('multiple active sessions', () => {
+    });
+    test.todo('one inactive session', () => {
+    });
+    test.todo('multiple inactive sessions', () => {
+    });
+    test.todo('both active and inactive sessions', () => {
+    });
   });
 });
