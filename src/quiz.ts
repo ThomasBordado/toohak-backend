@@ -1,5 +1,5 @@
 import { getData, setData } from './dataStore';
-import { EmptyObject, ErrorReturn, QuizListReturn, quiz, quizId, quizQuestionCreateInput, quizQuestionCreateInputV1, quizQuestionCreateReturn, quizQuestionDuplicateReturn, QuizSession } from './interfaces';
+import { EmptyObject, ErrorReturn, QuizListReturn, quiz, quizId, quizQuestionCreateInput, quizQuestionCreateInputV1, quizQuestionCreateReturn, quizQuestionDuplicateReturn, QuizSession, State } from './interfaces';
 import { validToken, checkQuizName, checkQuestionValid, isValidQuizId, randomColour, validthumbnailUrl, checkQuestionValidV1 } from './quizUtil';
 import { saveData } from './persistence';
 import HTTPError from 'http-errors';
@@ -655,7 +655,7 @@ export const sessionStart = (token: string, quizId: number, autoStartNum: number
     sessionId: data.quizSessionIdStore,
     autoStartNum: autoStartNum,
     quizStatus: {
-      state: 'LOBBY',
+      state: State.LOBBY,
       atQuestion: 0,
       players: [],
       metadata: quiz,
