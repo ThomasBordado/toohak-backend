@@ -596,5 +596,28 @@ export const adminQuizQuestionDuplicate = (token: string, quizId: number, questi
 };
 
 export const viewSessions = (token: string, quizId: number) => {
+  const data = getData();
+  const user = validToken(token, data.users);
 
+  const userQuiz = user.quizzes.find(quizzes => quizzes.quizId === quizId);
+  if (userQuiz === undefined) {
+    throw HTTPError(403, 'User does not own quiz');
+  }
+
+  const activeSessions = [];
+  const inactiveSessions = [];
+  for (const quizSessions of data.quizSessions) {
+    if (quizSessions.quizStatus.metadata.quizId === quizId) {
+      if (quizSessions.quizStatus.state === 'END') {
+        inactiveSessions.push(quizSessions.sessionId);
+      } else {
+        activeSessions.push(quizSessions.sessionId);
+      }
+    }
+  }
+
+  return {
+    activeSessions: activeSessions,
+    inactiveSessions: inactiveSessions,
+  };
 };
