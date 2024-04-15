@@ -10,7 +10,7 @@ import fs from 'fs';
 import path from 'path';
 import process from 'process';
 import { clear } from './other';
-import { adminQuizList, adminQuizCreate1, adminQuizCreate2, adminQuizRemove, adminQuizInfo, adminQuizNameUpdate, adminQuizDescriptionUpdate, adminQuizViewTrash, adminQuizRestore, adminQuizTrashEmpty, quizTransfer1, quizTransfer2, adminQuizQuestionUpdate, adminQuizQuestionDelete, adminQuizQuestionMove, adminQuizQuestionDuplicate, quizQuestionCreate2, quizQuestionCreate1, viewSessions } from './quiz';
+import { adminQuizList, adminQuizCreate1, adminQuizCreate2, adminQuizRemove, adminQuizInfo, adminQuizNameUpdate, adminQuizDescriptionUpdate, adminQuizViewTrash, adminQuizRestore, adminQuizTrashEmpty, quizTransfer1, quizTransfer2, adminQuizQuestionUpdate, adminQuizQuestionDelete, adminQuizQuestionMove, adminQuizQuestionDuplicate, quizQuestionCreate2, quizQuestionCreate1, viewSessions, sessionStart } from './quiz';
 import { adminAuthLogin, adminAuthRegister, adminUserDetails, adminUserDetailsUpdate2, adminUserPasswordUpdate2, adminAuthLogout, adminUserDetailsUpdate1, adminUserPasswordUpdate1 } from './auth';
 import { loadData, saveData } from './persistence';
 
@@ -399,6 +399,14 @@ app.get('/v1/admin/quiz/:quizid/sessions', (req: Request, res: Response) => {
   const quizId = parseInt(req.params.quizid as string);
   const result = viewSessions(token, quizId);
   res.json(result);
+});
+
+app.post('/v1/admin/quiz/:quizid/session/start', (req: Request, res: Response) => {
+  const quizId = parseInt(req.params.quizid);
+  const token = req.headers.token as string;
+  const { autoStartNum } = req.body;
+  const response = sessionStart(token, quizId, autoStartNum);
+  res.json(response);
 });
 
 // ====================================================================

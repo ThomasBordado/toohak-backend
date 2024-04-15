@@ -125,3 +125,7 @@ export const requestQuizQuestionCreate = (token: string, questionBody: quizQuest
 export const requestSessionView = (token: string, quizid: number) => {
   return requestHelper('GET', `/v1/admin/quiz/${quizid}/sessions`, {}, { token });
 };
+
+export const requestSessionStart = (token: string, quizid: number, autoStartNum: number) => {
+  return requestHelper('POST', `/v1/admin/quiz/${quizid}/session/start`, { autoStartNum }, { token });
+};
