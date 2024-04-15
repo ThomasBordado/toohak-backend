@@ -1,5 +1,5 @@
 import { requestRegister, requestClear } from './wrapper';
-import { requestQuizCreate, requestQuizQuestionCreate, requestSessionStart, requestUpdateSessionState } from './wrapper2';
+import { requestQuizCreate, requestQuizQuestionCreate, requestSessionStart, requestUpdateSessionState, requestPlayerJoin } from './wrapper2';
 import { SessionId, quizId, quizQuestionCreateInput } from './interfaces';
 import HTTPError from 'http-errors';
 

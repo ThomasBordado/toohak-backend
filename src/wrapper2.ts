@@ -137,3 +137,7 @@ export const requestUpdateQuizQuestion = (token: string, questionBody: quizQuest
 export const requestDeleteQuizQuestion = (token: string, quizid: number, questionid: number) => {
   return requestHelper('DELETE', `/v2/admin/quiz/${quizid}/question/${questionid}`, {}, { token });
 };
+
+export const requestPlayerJoin = (sessionId: number, name: string) => {
+  return requestHelper('POST', `/v1/player/join`, { sessionId, name }, {});
+};
