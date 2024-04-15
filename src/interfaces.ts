@@ -110,13 +110,31 @@ export interface quizQuestionDuplicateReturn {
   newQuestionId: number;
 }
 
+export enum State {
+  LOBBY = 'LOBBY',
+  QUESTION_COUNTDOWN = 'QUESTION_COUNTDOWN',
+  QUESTION_OPEN = 'QUESTION_OPEN',
+  QUESTION_CLOSE = 'QUESTION_CLOSE',
+  ANSWER_SHOW = 'ANSWER_SHOW',
+  FINAL_RESULTS = 'FINAL_RESULTS',
+  END = 'END',
+}
+
+export enum Action {
+  NEXT_QUESTION = 'NEXT_QUESTION',
+  SKIP_COUNTDOWN = 'SKIP_COUNTDOWN',
+  GO_TO_ANSWER = 'GO_TO_ANSWER',
+  GO_TO_FINAL_RESULTS = 'GO_TO_FINAL_RESULTS',
+  END = 'END',
+}
+
 export interface sessionViewReturn {
   activeSessions: number[];
   inactiveSessions: number[];
 }
 
 export interface QuizStatus {
-  state: string;
+  state: State;
   atQuestion: number;
   players: string[];
   metadata: quiz;
