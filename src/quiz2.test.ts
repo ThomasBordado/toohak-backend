@@ -1,4 +1,4 @@
-import { requestRegister, requestQuizInfo, requestUpdateQuizName, requestUpdateQuizDescription, requestClear, requestLogin, requestUpdateQuizQuestion, requestDeleteQuizQuestion, requestMoveQuestion, requestQuestionDuplicate } from './wrapper';
+import { requestRegister, requestQuizInfo, requestUpdateQuizName, requestUpdateQuizDescription, requestClear, requestLogin, requestDeleteQuizQuestion, requestMoveQuestion, requestQuestionDuplicate } from './wrapper';
 import { requestQuizList, requestQuizCreate, requestQuizTrash, requestQuizViewTrash, requestQuizRestore, requestQuizTrashEmpty, requestQuizQuestionCreate, requestquizTransfer, requestLogout, requestThumbnailUpdate } from './wrapper2';
 import { QuizListReturn, SessionId, quizId, quizUser, quizQuestionCreateInput, quiz, quizQuestionCreateReturn, questionId } from './interfaces';
 import HTTPError from 'http-errors';
@@ -386,146 +386,146 @@ describe.skip('requestUpdateQuizDescription testing', () => {
   });
 });
 
-describe.skip('Testing it2 function, adminQuizQuestionUpdate', () => {
-  let user: SessionId;
-  let quiz: quizId;
-  // let questionin: quizQuestionCreateInput;
-  let questionout: quizQuestionCreateReturn;
-  beforeEach(() => {
-    user = requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith').jsonBody as SessionId;
-    quiz = requestQuizCreate(user.token, 'My Quiz', 'My description.').jsonBody as quizId;
+// describe.skip('Testing it2 function, adminQuizQuestionUpdate', () => {
+//   let user: SessionId;
+//   let quiz: quizId;
+//   // let questionin: quizQuestionCreateInput;
+//   let questionout: quizQuestionCreateReturn;
+//   beforeEach(() => {
+//     user = requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith').jsonBody as SessionId;
+//     quiz = requestQuizCreate(user.token, 'My Quiz', 'My description.').jsonBody as quizId;
 
-    // questionin = {
-    //   question: 'Who is the Monarch of England?',
-    //   duration: 4,
-    //   points: 5,
-    //   answers: [
-    //     {
-    //       answer: 'Prince Charles',
-    //       correct: true
-    //     },
-    //     {
-    //       answer: 'Prince Charles.',
-    //       correct: true
-    //     }
-    //   ]
-    // };
-    // questionout = requestQuizQuestionCreate(user.token, questionin, quiz.quizId).jsonBody as quizQuestionCreateReturn;
+//     // questionin = {
+//     //   question: 'Who is the Monarch of England?',
+//     //   duration: 4,
+//     //   points: 5,
+//     //   answers: [
+//     //     {
+//     //       answer: 'Prince Charles',
+//     //       correct: true
+//     //     },
+//     //     {
+//     //       answer: 'Prince Charles.',
+//     //       correct: true
+//     //     }
+//     //   ]
+//     // };
+//     // questionout = requestQuizQuestionCreate(user.token, questionin, quiz.quizId).jsonBody as quizQuestionCreateReturn;
 
-    // question1 = requestQuestionCreate
-    // question2 = requestQuestionCreate
-    // question3 = requestQuestionCreate
-  });
+//     // question1 = requestQuestionCreate
+//     // question2 = requestQuestionCreate
+//     // question3 = requestQuestionCreate
+//   });
 
-  // 1. Succesfully update question
-  test('Test succesful update of question', () => {
-    const updated = {
-      question: 'Who is the King of England?',
-      duration: 6,
-      points: 4,
-      answers: [
-        {
-          answer: 'King Charles',
-          correct: true
-        },
-        {
-          answer: 'King Charles.',
-          correct: true
-        }
-      ]
-    };
-    const result = requestUpdateQuizQuestion(user.token, updated, quiz.quizId, questionout.questionId);
-    expect(result.statusCode).toStrictEqual(200);
-    expect(result.jsonBody).toStrictEqual({});
-  });
+//   // 1. Succesfully update question
+//   test('Test succesful update of question', () => {
+//     const updated = {
+//       question: 'Who is the King of England?',
+//       duration: 6,
+//       points: 4,
+//       answers: [
+//         {
+//           answer: 'King Charles',
+//           correct: true
+//         },
+//         {
+//           answer: 'King Charles.',
+//           correct: true
+//         }
+//       ]
+//     };
+//     // const result = requestUpdateQuizQuestion(user.token, updated, quiz.quizId, questionout.questionId);
+//     // expect(result.statusCode).toStrictEqual(200);
+//     // expect(result.jsonBody).toStrictEqual({});
+//   });
 
-  // 2. Invalid Token/empty token
-  test('Test invalid Token', () => {
-    const updated = {
-      question: 'Who is the King of England?',
-      duration: 6,
-      points: 4,
-      answers: [
-        {
-          answer: 'King Charles',
-          correct: true
-        },
-        {
-          answer: 'King Charles.',
-          correct: true
-        }
-      ]
-    };
-    const result = requestUpdateQuizQuestion(user.token + 1, updated, quiz.quizId, questionout.questionId);
-    expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-    expect(result.statusCode).toStrictEqual(401);
-  });
-  test('Test empty Token', () => {
-    const updated = {
-      question: 'Who is the King of England?',
-      duration: 6,
-      points: 4,
-      answers: [
-        {
-          answer: 'King Charles',
-          correct: true
-        },
-        {
-          answer: 'King Charles.',
-          correct: true
-        }
-      ]
-    };
-    const result = requestUpdateQuizQuestion('', updated, quiz.quizId, questionout.questionId);
-    expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-    expect(result.statusCode).toStrictEqual(401);
-  });
+//   // 2. Invalid Token/empty token
+//   test('Test invalid Token', () => {
+//     const updated = {
+//       question: 'Who is the King of England?',
+//       duration: 6,
+//       points: 4,
+//       answers: [
+//         {
+//           answer: 'King Charles',
+//           correct: true
+//         },
+//         {
+//           answer: 'King Charles.',
+//           correct: true
+//         }
+//       ]
+//     };
+//     const result = requestUpdateQuizQuestion(user.token + 1, updated, quiz.quizId, questionout.questionId);
+//     expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
+//     expect(result.statusCode).toStrictEqual(401);
+//   });
+//   test('Test empty Token', () => {
+//     const updated = {
+//       question: 'Who is the King of England?',
+//       duration: 6,
+//       points: 4,
+//       answers: [
+//         {
+//           answer: 'King Charles',
+//           correct: true
+//         },
+//         {
+//           answer: 'King Charles.',
+//           correct: true
+//         }
+//       ]
+//     };
+//     // const result = requestUpdateQuizQuestion('', updated, quiz.quizId, questionout.questionId);
+//     expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
+//     expect(result.statusCode).toStrictEqual(401);
+//   });
 
-  // 3. Invalid quizid or user does not own quiz
-  test('Test invalid quizId, Valid token', () => {
-    const updated = {
-      question: 'Who is the King of England?',
-      duration: 6,
-      points: 4,
-      answers: [
-        {
-          answer: 'King Charles',
-          correct: true
-        },
-        {
-          answer: 'King Charles.',
-          correct: true
-        }
-      ]
-    };
-    const result = requestUpdateQuizQuestion(user.token, updated, quiz.quizId + 1, questionout.questionId);
-    expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-    expect(result.statusCode).toStrictEqual(403);
-  });
-  test('Test user doesn not own quiz', () => {
-    const updated = {
-      question: 'Who is the King of England?',
-      duration: 6,
-      points: 4,
-      answers: [
-        {
-          answer: 'King Charles',
-          correct: true
-        },
-        {
-          answer: 'King Charles.',
-          correct: true
-        }
-      ]
-    };
+//   // 3. Invalid quizid or user does not own quiz
+//   test('Test invalid quizId, Valid token', () => {
+//     const updated = {
+//       question: 'Who is the King of England?',
+//       duration: 6,
+//       points: 4,
+//       answers: [
+//         {
+//           answer: 'King Charles',
+//           correct: true
+//         },
+//         {
+//           answer: 'King Charles.',
+//           correct: true
+//         }
+//       ]
+//     };
+//     const result = requestUpdateQuizQuestion(user.token, updated, quiz.quizId + 1, questionout.questionId);
+//     expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
+//     expect(result.statusCode).toStrictEqual(403);
+//   });
+//   test('Test user doesn not own quiz', () => {
+//     const updated = {
+//       question: 'Who is the King of England?',
+//       duration: 6,
+//       points: 4,
+//       answers: [
+//         {
+//           answer: 'King Charles',
+//           correct: true
+//         },
+//         {
+//           answer: 'King Charles.',
+//           correct: true
+//         }
+//       ]
+//     };
 
-    const user2 = requestRegister('jareds@gmail.com', 'password2', 'Jared', 'Simion').jsonBody as SessionId;
-    const quiz2 = requestQuizCreate(user2.token, 'My Quiz', 'My description.').jsonBody as quizId;
-    const result = requestUpdateQuizQuestion(user.token, updated, quiz2.quizId, questionout.questionId);
-    expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-    expect(result.statusCode).toStrictEqual(403);
-  });
-});
+//     const user2 = requestRegister('jareds@gmail.com', 'password2', 'Jared', 'Simion').jsonBody as SessionId;
+//     const quiz2 = requestQuizCreate(user2.token, 'My Quiz', 'My description.').jsonBody as quizId;
+//     const result = requestUpdateQuizQuestion(user.token, updated, quiz2.quizId, questionout.questionId);
+//     expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
+//     expect(result.statusCode).toStrictEqual(403);
+//   });
+// });
 
 describe.skip('Testing it2 function, adminQuizQuestionDelete', () => {
   let user: SessionId;
@@ -1111,12 +1111,12 @@ describe('Testing Post /v2/admin/quiz/{quizid}/question', () => {
           answer: 'Prince Charles.',
           correct: true
         }
-      ]
+      ],
+      thumbnailUrl: 'http://google.com/some/image/path.jpg',
     };
 
-    const thumbnailUrl = 'http://google.com/some/image/path.jpg';
-    expect(() => (requestQuizQuestionCreate(user.token, input, quiz.quizId, thumbnailUrl)).not.toThrow(HTTPError));
-    const returnType = requestQuizQuestionCreate(user.token, input, quiz.quizId, thumbnailUrl) as questionId;
+    expect(() => (requestQuizQuestionCreate(user.token, input, quiz.quizId)).not.toThrow(HTTPError));
+    const returnType = requestQuizQuestionCreate(user.token, input, quiz.quizId) as questionId;
 
     const expectedInfo: quiz = {
       quizId: quiz.quizId,
@@ -1157,11 +1157,9 @@ describe('Testing Post /v2/admin/quiz/{quizid}/question', () => {
   describe('Error test for 400 error', () => {
     let user: SessionId;
     let quiz: quizId;
-    let thumbnailUrl: string;
     beforeEach(() => {
       user = requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith').jsonBody as SessionId;
       quiz = requestQuizCreate(user.token, 'My Quiz', 'My description.') as quizId;
-      thumbnailUrl = 'http://google.com/some/image/path.jpg';
     });
     test.each([
       {
@@ -1181,8 +1179,8 @@ describe('Testing Post /v2/admin/quiz/{quizid}/question', () => {
               answer: 'Louis XVI',
               correct: false,
             }
-          ]
-
+          ],
+          thumbnailUrl: 'http://google.com/some/image/path.jpg',
         }
       },
       {
@@ -1202,8 +1200,8 @@ describe('Testing Post /v2/admin/quiz/{quizid}/question', () => {
               answer: 'Louis XVI',
               correct: false,
             }
-          ]
-
+          ],
+          thumbnailUrl: 'http://google.com/some/image/path.jpg',
         }
       },
       {
@@ -1219,8 +1217,8 @@ describe('Testing Post /v2/admin/quiz/{quizid}/question', () => {
               answer: 'Prince Charles',
               correct: true,
             },
-          ]
-
+          ],
+          thumbnailUrl: 'http://google.com/some/image/path.jpg',
         }
       },
       {
@@ -1260,8 +1258,8 @@ describe('Testing Post /v2/admin/quiz/{quizid}/question', () => {
               answer: 'Prince Charles6',
               correct: true,
             },
-          ]
-
+          ],
+          thumbnailUrl: 'http://google.com/some/image/path.jpg',
         }
       },
       {
@@ -1281,8 +1279,8 @@ describe('Testing Post /v2/admin/quiz/{quizid}/question', () => {
               answer: 'Louis XVI',
               correct: false,
             }
-          ]
-
+          ],
+          thumbnailUrl: 'http://google.com/some/image/path.jpg',
         }
       },
       {
@@ -1302,8 +1300,8 @@ describe('Testing Post /v2/admin/quiz/{quizid}/question', () => {
               answer: 'Louis XVI',
               correct: false,
             }
-          ]
-
+          ],
+          thumbnailUrl: 'http://google.com/some/image/path.jpg',
         }
       },
       {
@@ -1323,8 +1321,8 @@ describe('Testing Post /v2/admin/quiz/{quizid}/question', () => {
               answer: 'Louis XVI',
               correct: false,
             }
-          ]
-
+          ],
+          thumbnailUrl: 'http://google.com/some/image/path.jpg',
         }
       },
       {
@@ -1344,8 +1342,8 @@ describe('Testing Post /v2/admin/quiz/{quizid}/question', () => {
               answer: 'Louis XVI',
               correct: false,
             }
-          ]
-
+          ],
+          thumbnailUrl: 'http://google.com/some/image/path.jpg',
         }
       },
       {
@@ -1365,8 +1363,8 @@ describe('Testing Post /v2/admin/quiz/{quizid}/question', () => {
               answer: 'Louis XVI',
               correct: false,
             }
-          ]
-
+          ],
+          thumbnailUrl: 'http://google.com/some/image/path.jpg',
         }
       },
       {
@@ -1386,8 +1384,8 @@ describe('Testing Post /v2/admin/quiz/{quizid}/question', () => {
               answer: 'Louis XVI',
               correct: false,
             }
-          ]
-
+          ],
+          thumbnailUrl: 'http://google.com/some/image/path.jpg',
         }
       },
       {
@@ -1407,8 +1405,8 @@ describe('Testing Post /v2/admin/quiz/{quizid}/question', () => {
               answer: 'Louis XVI',
               correct: false,
             }
-          ]
-
+          ],
+          thumbnailUrl: 'http://google.com/some/image/path.jpg',
         }
       },
       {
@@ -1428,12 +1426,12 @@ describe('Testing Post /v2/admin/quiz/{quizid}/question', () => {
               answer: 'Louis XVI',
               correct: false,
             }
-          ]
-
+          ],
+          thumbnailUrl: 'http://google.com/some/image/path.jpg',
         }
       },
     ])("requestUpdateUserDetails error: '$test'", ({ quizQuestion }) => {
-      expect(() => requestQuizQuestionCreate(user.token, quizQuestion, quiz.quizId, thumbnailUrl)).toThrow(HTTPError[400]);
+      expect(() => requestQuizQuestionCreate(user.token, quizQuestion, quiz.quizId)).toThrow(HTTPError[400]);
     });
   });
 
@@ -1458,20 +1456,22 @@ describe('Testing Post /v2/admin/quiz/{quizid}/question', () => {
             answer: 'Prince Charles.',
             correct: true
           }
-        ]
-
+        ],
+        thumbnailUrl: '',
       };
     });
     test('thumbnailUrl is an empty', () => {
-      expect(() => requestQuizQuestionCreate(user.token, quizQuestion, quiz.quizId, '')).toThrow(HTTPError[400]);
+      expect(() => requestQuizQuestionCreate(user.token, quizQuestion, quiz.quizId)).toThrow(HTTPError[400]);
     });
 
     test('The thumbnailUrl does not end with one of the following filetypes (case insensitive): jpg, jpeg, png', () => {
-      expect(() => requestQuizQuestionCreate(user.token, quizQuestion, quiz.quizId, 'http://google.com/some/image/path.')).toThrow(HTTPError[400]);
+      quizQuestion.thumbnailUrl = 'http://google.com/some/image/path.';
+      expect(() => requestQuizQuestionCreate(user.token, quizQuestion, quiz.quizId)).toThrow(HTTPError[400]);
     });
 
     test('The thumbnailUrl does not begin with "http://" or "https://"', () => {
-      expect(() => requestQuizQuestionCreate(user.token, quizQuestion, quiz.quizId, 'google.com/some/image/path.jpg')).toThrow(HTTPError[400]);
+      quizQuestion.thumbnailUrl = 'google.com/some/image/path.jpg';
+      expect(() => requestQuizQuestionCreate(user.token, quizQuestion, quiz.quizId)).toThrow(HTTPError[400]);
     });
   });
 
@@ -1479,11 +1479,9 @@ describe('Testing Post /v2/admin/quiz/{quizid}/question', () => {
     let user: SessionId;
     let quiz: quizId;
     let quizQuestion: quizQuestionCreateInput;
-    let thumbnailUrl: string;
     beforeEach(() => {
       user = requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith').jsonBody as SessionId;
       quiz = requestQuizCreate(user.token, 'My Quiz', 'My description.') as quizId;
-      thumbnailUrl = 'http://google.com/some/image/path.jpg';
 
       quizQuestion = {
         question: 'Who is the Monarch of England?',
@@ -1498,21 +1496,22 @@ describe('Testing Post /v2/admin/quiz/{quizid}/question', () => {
             answer: 'Prince Charles.',
             correct: true
           }
-        ]
+        ],
+        thumbnailUrl: 'http://google.com/some/image/path.jpg',
       };
     });
 
     test('Token is empty', () => {
-      expect(() => requestQuizQuestionCreate('', quizQuestion, quiz.quizId, thumbnailUrl)).toThrow(HTTPError[401]);
+      expect(() => requestQuizQuestionCreate('', quizQuestion, quiz.quizId)).toThrow(HTTPError[401]);
     });
 
     test('Token is empty', () => {
-      expect(() => requestQuizQuestionCreate(user.token + 100, quizQuestion, quiz.quizId, thumbnailUrl)).toThrow(HTTPError[401]);
+      expect(() => requestQuizQuestionCreate(user.token + 100, quizQuestion, quiz.quizId)).toThrow(HTTPError[401]);
     });
 
     test('logged out user', () => {
       requestLogout(user.token);
-      expect(() => requestQuizQuestionCreate(user.token, quizQuestion, quiz.quizId, thumbnailUrl)).toThrow(HTTPError[401]);
+      expect(() => requestQuizQuestionCreate(user.token, quizQuestion, quiz.quizId)).toThrow(HTTPError[401]);
     });
   });
 
@@ -1520,7 +1519,6 @@ describe('Testing Post /v2/admin/quiz/{quizid}/question', () => {
     const user = requestRegister('valideEmail@gmail.com', 'password1', 'Jane', 'Lawson').jsonBody as SessionId;
     const quiz = requestQuizCreate(user.token, 'British', 'history') as quizId;
     const user2 = requestRegister('valideEmail2@gmail.com', 'password1', 'John', 'Lawson').jsonBody as SessionId;
-    const thumbnailUrl = 'http://google.com/some/image/path.jpg';
     requestQuizCreate(user.token, 'American', 'history') as quizId;
 
     const input : quizQuestionCreateInput = {
@@ -1536,10 +1534,11 @@ describe('Testing Post /v2/admin/quiz/{quizid}/question', () => {
           answer: 'Prince Charles.',
           correct: true
         }
-      ]
+      ],
+      thumbnailUrl: 'http://google.com/some/image/path.jpg',
     };
 
-    expect(() => requestQuizQuestionCreate(user2.token, input, quiz.quizId, thumbnailUrl)).toThrow(HTTPError[403]);
+    expect(() => requestQuizQuestionCreate(user2.token, input, quiz.quizId)).toThrow(HTTPError[403]);
   });
 });
 

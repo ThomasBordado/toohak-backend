@@ -344,8 +344,8 @@ app.post('/v1/admin/quiz/:quizid/question', (req: Request, res: Response) => {
 app.post('/v2/admin/quiz/:quizid/question', (req: Request, res: Response) => {
   const quizId = parseInt(req.params.quizid);
   const token = req.headers.token as string;
-  const { questionBody, thumbnailUrl } = req.body;
-  const response = quizQuestionCreate2(token, questionBody, quizId, thumbnailUrl);
+  const { questionBody } = req.body;
+  const response = quizQuestionCreate2(token, questionBody, quizId);
   res.json(response);
 });
 
