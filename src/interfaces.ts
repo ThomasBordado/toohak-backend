@@ -83,6 +83,10 @@ export interface questionId {
   questionId: number;
 }
 
+export interface PlayerId {
+  playerId: number;
+}
+
 export interface QuizListReturn {
   quizzes: quizUser[];
 }
@@ -110,6 +114,13 @@ export interface quizQuestionDuplicateReturn {
   newQuestionId: number;
 }
 
+export interface Player {
+  playerId: number;
+  name: string;
+  answerIds: number[];
+  score: number;
+}
+
 export interface DataStore {
   users: user[];
   quizzes: quiz[];
@@ -118,5 +129,6 @@ export interface DataStore {
   sessionIdStore: number;
   questionIdStore: number;
   answerIdStore: number;
+  playerIdStore: number;
   trash: quiz[];
 }

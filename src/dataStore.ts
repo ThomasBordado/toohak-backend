@@ -9,6 +9,7 @@ let data: DataStore = {
   sessionIdStore: 0,
   questionIdStore: 0,
   answerIdStore: 0,
+  playerIdStore: 0,
   trash: [],
 };
 
