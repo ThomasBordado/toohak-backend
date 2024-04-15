@@ -1,6 +1,6 @@
 import { requestRegister, requestQuizInfo, requestUpdateQuizName, requestUpdateQuizDescription, requestClear, requestLogin, requestDeleteQuizQuestion, requestMoveQuestion, requestQuestionDuplicate } from './wrapper';
 import { requestQuizList, requestQuizCreate, requestQuizTrash, requestQuizViewTrash, requestQuizRestore, requestQuizTrashEmpty, requestQuizQuestionCreate, requestquizTransfer, requestLogout, requestSessionView, requestSessionStart } from './wrapper2';
-import { QuizListReturn, SessionId, quizId, quizUser, quizQuestionCreateInput, quiz, quizQuestionCreateReturn, questionId } from './interfaces';
+import { QuizListReturn, SessionId, quizId, quizUser, quizQuestionCreateInput, quiz, quizQuestionCreateReturn, questionId, sessionViewReturn } from './interfaces';
 import HTTPError from 'http-errors';
 
 beforeEach(() => {
@@ -1807,9 +1807,27 @@ describe.skip('adminQuizQuestionDuplicate testing', () => {
 describe('requestSessionView testing', () => {
   let user: SessionId;
   let quiz: quizId;
+  let questionin: quizQuestionCreateInput;
   beforeEach(() => {
     user = requestRegister('chloe@gmail.com', 'password1', 'Chloe', 'Turner').jsonBody as SessionId;
-    quiz = requestQuizCreate(user.token, 'My Quiz', 'My description.');
+    quiz = requestQuizCreate(user.token, 'My Quiz', 'My Quiz Description');
+    questionin = {
+      question: 'Who is the Monarch of England?',
+      duration: 4,
+      points: 5,
+      answers: [
+        {
+          answer: 'Prince Charles',
+          correct: true
+        },
+        {
+          answer: 'Prince Charles.',
+          correct: true
+        }
+      ],
+      thumbnailUrl: 'http://google.com/some/image/path.jpg',
+    };
+    requestQuizQuestionCreate(user.token, questionin, quiz.quizId);
   });
 
   describe('Unsuccessful Cases', () => {
@@ -1824,8 +1842,28 @@ describe('requestSessionView testing', () => {
     test('No sessions started: return empty array', () => {
       expect(requestSessionView(user.token, quiz.quizId)).toStrictEqual({ activeSessions: [], inactiveSessions: [] });
     });
-    test.todo('one active session');
-    test.todo('multiple active sessions');
+    test('one active session', () => {
+      const session = requestSessionStart(user.token, quiz.quizId, 3);
+      expect(requestSessionView(user.token, quiz.quizId)).toStrictEqual({ activeSessions: [session.sessionId], inactiveSessions: [] });
+    });
+    test('multiple active sessions', () => {
+      const session1 = requestSessionStart(user.token, quiz.quizId, 3);
+      const session2 = requestSessionStart(user.token, quiz.quizId, 3);
+      const session3 = requestSessionStart(user.token, quiz.quizId, 3);
+      const quizSessions = requestSessionView(user.token, quiz.quizId);
+      const expectedSessions: sessionViewReturn = {
+        activeSessions: [
+          session1.sessionId,
+          session2.sessionId,
+          session3.sessionId,
+        ],
+        inactiveSessions: [],
+      };
+      // sorting both arrays in order of unique quizId so that the order of array matches
+      quizSessions.activeSessions.sort((a: number, b: number) => a - b);
+      expectedSessions.activeSessions.sort((a: number, b: number) => a - b);
+      expect(quizSessions).toStrictEqual(expectedSessions);
+    });
     test.todo('one inactive session');
     test.todo('multiple inactive sessions');
     test.todo('both active and inactive sessions');
@@ -1839,7 +1877,7 @@ describe('requestSessionStart testing', () => {
   let user: SessionId;
   let quiz: quizId;
   let questionin: quizQuestionCreateInput;
-  let question: questionId
+  let question: questionId;
   beforeEach(() => {
     user = requestRegister('chloe@gmail.com', 'password1', 'Chloe', 'Turner').jsonBody as SessionId;
     quiz = requestQuizCreate(user.token, 'My Quiz', 'My Quiz Description');
@@ -1918,6 +1956,6 @@ describe('requestSessionStart testing', () => {
     test('autoNum = 50', () => {
       expect(requestSessionStart(user.token, quiz.quizId, 50)).toStrictEqual({ sessionId: expect.any(Number) });
     });
-    test.todo('check any changes made to quiz does not effect session info')
+    test.todo('check any changes made to quiz does not effect session info');
   });
 });
