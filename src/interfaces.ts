@@ -110,6 +110,11 @@ export interface quizQuestionDuplicateReturn {
   newQuestionId: number;
 }
 
+export interface sessionViewReturn {
+  activeSessions: number[];
+  inactiveSessions: number[];
+}
+
 export interface QuizStatus {
   state: string;
   atQuestion: number;
