@@ -137,3 +137,7 @@ export const requestUpdateQuizQuestion = (token: string, questionBody: quizQuest
 export const requestDeleteQuizQuestion = (token: string, quizid: number, questionid: number) => {
   return requestHelper('DELETE', `/v2/admin/quiz/${quizid}/question/${questionid}`, {}, { token });
 };
+
+export const requestUpdateSessionState = (token: string, quizid: number, sessionid: number, action: string) => {
+  return requestHelper('PUT', `/v1/admin/quiz/${quizid}/session/${sessionid}`, { }, { token });
+};
