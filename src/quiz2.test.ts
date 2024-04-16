@@ -1,5 +1,5 @@
-import { requestRegister, requestUpdateQuizDescription, requestClear, requestLogin, requestMoveQuestion, requestQuestionDuplicate } from './wrapper';
-import { requestQuizList, requestQuizCreate, requestQuizTrash, requestQuizViewTrash, requestQuizRestore, requestQuizTrashEmpty, requestQuizQuestionCreate, requestquizTransfer, requestLogout, requestQuizInfo, requestUpdateQuizName, requestUpdateQuizQuestion, requestDeleteQuizQuestion } from './wrapper2';
+import { requestRegister, requestClear, requestLogin } from './wrapper';
+import { requestQuizList, requestQuizCreate, requestQuizTrash, requestQuizViewTrash, requestQuizRestore, requestQuizTrashEmpty, requestQuizQuestionCreate, requestquizTransfer, requestLogout, requestQuizInfo, requestUpdateQuizName, requestUpdateQuizQuestion, requestDeleteQuizQuestion, requestUpdateQuizDescription, requestMoveQuestion, requestQuestionDuplicate } from './wrapper2';
 import { QuizListReturn, SessionId, quizId, quizUser, quizQuestionCreateInput, quiz, quizQuestionCreateReturn, questionId } from './interfaces';
 import HTTPError from 'http-errors';
 
@@ -315,48 +315,40 @@ describe('requestUpdateQuizName testing', () => {
 /*
  * Testing for updating quiz Description
  */
-describe.skip('requestUpdateQuizDescription testing', () => {
+describe('requestUpdateQuizDescription testing', () => {
   let user: SessionId;
   let quiz: quizId;
   beforeEach(() => {
     user = requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith').jsonBody as SessionId;
-    quiz = requestQuizCreate(user.token, 'My Quiz', 'My description.').jsonBody as quizId;
+    quiz = requestQuizCreate(user.token, 'My Quiz', 'My description.') as quizId;
   });
 
   // 1. Succesful quiz description update
   test('Test Succesful adminQuizDescriptionUpdate', () => {
     const result = requestUpdateQuizDescription(user.token, quiz.quizId, 'My updated description.');
-    expect(result.jsonBody).toStrictEqual({});
+    expect(result).toStrictEqual({});
   });
 
   // 2. Session token is not valid
   test('Test user.token is not valid', () => {
-    const result = requestUpdateQuizDescription(user.token + 1, quiz.quizId, 'My updated description.');
-    expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-    expect(result.statusCode).toStrictEqual(401);
+    expect(() => requestUpdateQuizDescription(user.token + 1, quiz.quizId, 'My updated description.')).toThrow(HTTPError[401]);
   });
 
   // 3. Quiz Id does not refer to a valid quiz
   test('Test quizid does not refer to valid quiz', () => {
-    const result = requestUpdateQuizDescription(user.token, quiz.quizId + 1, 'My updated description.');
-    expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-    expect(result.statusCode).toStrictEqual(403);
+    expect(() => requestUpdateQuizDescription(user.token, quiz.quizId + 1, 'My updated description.')).toThrow(HTTPError[403]);
   });
 
   // 4. Quiz Id does not refer to a quiz this user owns
   test('Test quizid does not refer to a quiz this user owns', () => {
     const user2 = requestRegister('jared@gmail.com', 'password3', 'Jared', 'Simion').jsonBody as SessionId;
-    const notmyquiz = requestQuizCreate(user2.token, 'My Quiz2', 'My description.').jsonBody as quizId;
-    const result = requestUpdateQuizDescription(user.token, notmyquiz.quizId, 'My updated description.');
-    expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-    expect(result.statusCode).toStrictEqual(403);
+    const notmyquiz = requestQuizCreate(user2.token, 'My Quiz2', 'My description.') as quizId;
+    expect(() => requestUpdateQuizDescription(user.token, notmyquiz.quizId, 'My updated description.')).toThrow(HTTPError[403]);
   });
 
   // 5. Quiz description is more than 100 characters long
   test('Test quiz description < 100 characters long', () => {
-    const result = requestUpdateQuizDescription(user.token, quiz.quizId, 'My very, very, very, very, very, very, very, very, very, very, very, very, very, very, long description.');
-    expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-    expect(result.statusCode).toStrictEqual(400);
+    expect(() => requestUpdateQuizDescription(user.token, quiz.quizId, 'My very, very, very, very, very, very, very, very, very, very, very, very, very, very, long description.')).toThrow(HTTPError[400]);
   });
 });
 
@@ -1532,167 +1524,153 @@ describe('Testing Post /v2/admin/quiz/{quizid}/transfer', () => {
   });
 });
 
-describe.skip('adminQuizQuestionMove testing', () => {
+describe('adminQuizQuestionMove testing', () => {
   let user: SessionId;
   let quiz: quizId;
-  // let questionin: quizQuestionCreateInput;
+  let questionin: quizQuestionCreateInput;
   let question1: quizQuestionCreateReturn;
   let question2: quizQuestionCreateReturn;
   let question3: quizQuestionCreateReturn;
 
   beforeEach(() => {
     user = requestRegister('jareds@gmail.com', 'password2024', 'Jared', 'Simion').jsonBody as SessionId;
-    quiz = requestQuizCreate(user.token, 'My Quiz', 'My Quiz Description').jsonBody as quizId;
-    // questionin = {
-    //   question: 'Who is the Monarch of England?',
-    //   duration: 4,
-    //   points: 5,
-    //   answers: [
-    //     {
-    //       answer: 'Prince Charles',
-    //       correct: true
-    //     },
-    //     {
-    //       answer: 'Prince Charles.',
-    //       correct: true
-    //     }
-    //   ]
-    // };
-    // question1 = requestQuizQuestionCreate(user.token, questionin, quiz.quizId).jsonBody as quizQuestionCreateReturn;
-    // question2 = requestQuizQuestionCreate(user.token, questionin, quiz.quizId).jsonBody as quizQuestionCreateReturn;
-    // question3 = requestQuizQuestionCreate(user.token, questionin, quiz.quizId).jsonBody as quizQuestionCreateReturn;
+    quiz = requestQuizCreate(user.token, 'My Quiz', 'My Quiz Description') as quizId;
+    questionin = {
+      question: 'Who is the Monarch of England?',
+      duration: 4,
+      points: 5,
+      answers: [
+        {
+          answer: 'Prince Charles',
+          correct: true
+        },
+        {
+          answer: 'Prince Charles.',
+          correct: true
+        }
+      ],
+      thumbnailUrl: 'http://google.com/some/image/path.jpg'
+    };
+    question1 = requestQuizQuestionCreate(user.token, questionin, quiz.quizId) as quizQuestionCreateReturn;
+    question2 = requestQuizQuestionCreate(user.token, questionin, quiz.quizId) as quizQuestionCreateReturn;
+    question3 = requestQuizQuestionCreate(user.token, questionin, quiz.quizId) as quizQuestionCreateReturn;
   });
   // 1. Succesfully move question 1 to last.
   test('Test succesfully moving question to new position', () => {
-    const result = requestMoveQuestion(user.token, quiz.quizId, question1.questionId, 2);
-    expect(result.statusCode).toStrictEqual(200);
+    expect(requestMoveQuestion(user.token, quiz.quizId, question1.questionId, 2)).toStrictEqual({});
   });
   // 1. Succesfully move question last to 1.
   test('Test succesfully moving question to new position', () => {
-    const result = requestMoveQuestion(user.token, quiz.quizId, question3.questionId, 0);
-    expect(result.statusCode).toStrictEqual(200);
+    expect(requestMoveQuestion(user.token, quiz.quizId, question3.questionId, 0)).toStrictEqual({});
   });
   // 1. Succesfully move question 2 to 1.
   test('Test succesfully moving question to new position', () => {
-    const result = requestMoveQuestion(user.token, quiz.quizId, question2.questionId, 0);
-    expect(result.statusCode).toStrictEqual(200);
+    expect(requestMoveQuestion(user.token, quiz.quizId, question2.questionId, 0)).toStrictEqual({});
   });
   // 2. Invalid Token
   test('Test invalid Token', () => {
-    const result = requestMoveQuestion(user.token + 1, quiz.quizId, question1.questionId, 2);
-    expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-    expect(result.statusCode).toStrictEqual(401);
+    expect(() => requestMoveQuestion(user.token + 1, quiz.quizId, question1.questionId, 2)).toThrow(HTTPError[401]);
   });
 
   // 3. Valid token but quizId invalid
   test('Test invalid quizId, Valid token', () => {
-    const result = requestMoveQuestion(user.token, quiz.quizId + 1, question1.questionId, 2);
-    expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-    expect(result.statusCode).toStrictEqual(403);
+    expect(() => requestMoveQuestion(user.token, quiz.quizId + 1, question1.questionId, 2)).toThrow(HTTPError[403]);
   });
 
   // 4. New position is less than 0
   test('Test newPosition is less than 0', () => {
-    const result = requestMoveQuestion(user.token, quiz.quizId, question1.questionId, -1);
-    expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-    expect(result.statusCode).toStrictEqual(400);
+    expect(() => requestMoveQuestion(user.token, quiz.quizId, question1.questionId, -1)).toThrow(HTTPError[400]);
   });
   // 5. New position is greater than (n-1)
   test('Test newPosition is greater than (n-1)', () => {
-    const result = requestMoveQuestion(user.token, quiz.quizId, question1.questionId, 5);
-    expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-    expect(result.statusCode).toStrictEqual(400);
+    expect(() => requestMoveQuestion(user.token, quiz.quizId, question1.questionId, 5)).toThrow(HTTPError[400]);
   });
 });
 
-describe.skip('adminQuizQuestionDuplicate testing', () => {
+describe('adminQuizQuestionDuplicate testing', () => {
   let user: SessionId;
   let quiz: quizId;
-  // let questionin: quizQuestionCreateInput;
-  // let questionin2: quizQuestionCreateInput;
-  // let questionin3: quizQuestionCreateInput;
+  let questionin: quizQuestionCreateInput;
+  let questionin2: quizQuestionCreateInput;
+  let questionin3: quizQuestionCreateInput;
   let question1: quizQuestionCreateReturn;
   let question2: quizQuestionCreateReturn;
 
   beforeEach(() => {
     user = requestRegister('jareds@gmail.com', 'password2024', 'Jared', 'Simion').jsonBody as SessionId;
-    quiz = requestQuizCreate(user.token, 'My Quiz', 'My Quiz Description').jsonBody as quizId;
-    // questionin = {
-    //   question: 'Who is the Monarch of England?',
-    //   duration: 4,
-    //   points: 5,
-    //   answers: [
-    //     {
-    //       answer: 'Prince Charles',
-    //       correct: true
-    //     },
-    //     {
-    //       answer: 'Prince Charles.',
-    //       correct: true
-    //     }
-    //   ]
-    // };
-    // questionin2 = {
-    //   question: 'Who is the best Person?',
-    //   duration: 4,
-    //   points: 5,
-    //   answers: [
-    //     {
-    //       answer: 'Thomas',
-    //       correct: true
-    //     },
-    //     {
-    //       answer: 'Bordado',
-    //       correct: true
-    //     }
-    //   ]
-    // };
-    // questionin3 = {
-    //   question: 'Who is the wrost Person?',
-    //   duration: 4,
-    //   points: 5,
-    //   answers: [
-    //     {
-    //       answer: 'Thomas',
-    //       correct: true
-    //     },
-    //     {
-    //       answer: 'Bordado',
-    //       correct: true
-    //     }
-    //   ]
-    // };
-    // question1 = requestQuizQuestionCreate(user.token, questionin, quiz.quizId).jsonBody as quizQuestionCreateReturn;
-    // question2 = requestQuizQuestionCreate(user.token, questionin2, quiz.quizId).jsonBody as quizQuestionCreateReturn;
-    // requestQuizQuestionCreate(user.token, questionin3, quiz.quizId).jsonBody as quizQuestionCreateReturn;
+    quiz = requestQuizCreate(user.token, 'My Quiz', 'My Quiz Description') as quizId;
+    questionin = {
+      question: 'Who is the Monarch of England?',
+      duration: 4,
+      points: 5,
+      answers: [
+        {
+          answer: 'Prince Charles',
+          correct: true
+        },
+        {
+          answer: 'Prince Charles.',
+          correct: true
+        }
+      ],
+      thumbnailUrl: 'http://google.com/some/image/path.jpg'
+    };
+    questionin2 = {
+      question: 'Who is the best Person?',
+      duration: 4,
+      points: 5,
+      answers: [
+        {
+          answer: 'Thomas',
+          correct: true
+        },
+        {
+          answer: 'Bordado',
+          correct: true
+        }
+      ],
+      thumbnailUrl: 'http://google.com/some/image/path.jpg'
+    };
+    questionin3 = {
+      question: 'Who is the wrost Person?',
+      duration: 4,
+      points: 5,
+      answers: [
+        {
+          answer: 'Thomas',
+          correct: true
+        },
+        {
+          answer: 'Bordado',
+          correct: true
+        }
+      ],
+      thumbnailUrl: 'http://google.com/some/image/path.jpg'
+    };
+    question1 = requestQuizQuestionCreate(user.token, questionin, quiz.quizId) as quizQuestionCreateReturn;
+    question2 = requestQuizQuestionCreate(user.token, questionin2, quiz.quizId) as quizQuestionCreateReturn;
+    requestQuizQuestionCreate(user.token, questionin3, quiz.quizId) as quizQuestionCreateReturn;
   });
 
   // 1. Succesfully duplicate question
   test('Test succesful duplication of question', () => {
-    const result = requestQuestionDuplicate(user.token, quiz.quizId, question2.questionId);
-    expect(result.statusCode).toStrictEqual(200);
+    expect(requestQuestionDuplicate(user.token, quiz.quizId, question2.questionId)).toStrictEqual({ newQuestionId: expect.any(Number) });
   });
 
   // 2. Invalid Token
   test('Test invalid Token', () => {
-    const result = requestQuestionDuplicate(user.token + 1, quiz.quizId, question1.questionId);
-    expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-    expect(result.statusCode).toStrictEqual(401);
+    expect(() => requestQuestionDuplicate(user.token + 1, quiz.quizId, question1.questionId)).toThrow(HTTPError[401]);
   });
 
   // 3. Valid token but quizId invalid
   test('Test invalid quizId, Valid token', () => {
-    const result = requestQuestionDuplicate(user.token, quiz.quizId + 1, question1.questionId);
-    expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-    expect(result.statusCode).toStrictEqual(403);
+    expect(() => requestQuestionDuplicate(user.token, quiz.quizId + 1, question1.questionId)).toThrow(HTTPError[403]);
   });
 
   // 4. Valid token invalid quizId/user does not own this quiz
   test('Test Empty quizId', () => {
-    const user2 = requestRegister('jareds@gmail.com', 'password2', 'Jared', 'Simion').jsonBody as SessionId;
-    const quiz2 = requestQuizCreate(user2.token, 'My Quiz', 'My description.').jsonBody as quizId;
-    const result = requestQuestionDuplicate(user.token, quiz2.quizId, question1.questionId);
-    expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
-    expect(result.statusCode).toStrictEqual(403);
+    const user2 = requestRegister('jareds2@gmail.com', 'password2', 'Jared', 'Simion').jsonBody as SessionId;
+    const quiz2 = requestQuizCreate(user2.token, 'My Quiz', 'My description.') as quizId;
+    expect(() => requestQuestionDuplicate(user.token, quiz2.quizId, question1.questionId)).toThrow(HTTPError[403]);
   });
 });
