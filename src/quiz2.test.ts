@@ -1804,7 +1804,10 @@ describe.skip('adminQuizQuestionDuplicate testing', () => {
   });
 });
 
-describe('/v1/player/:playerid/chat, sessionSendMessage', () => {
+/**
+ * Test for sending messages in session
+ */
+describe('POST /v1/player/:playerid/chat, sessionSendMessage', () => {
   beforeEach(() => {
     requestClear();
     const user = requestRegister('valideEmail@gmail.com', 'password1', 'Jane', 'Lawson').jsonBody as SessionId;
@@ -1884,7 +1887,10 @@ describe('/v1/player/:playerid/chat, sessionSendMessage', () => {
 
 });
 
-describe('/v1/player/:playerid/chat, sessionMessagesList', () => {
+/**
+ * Test for Listing messages in session
+ */
+describe('GET /v1/player/:playerid/chat, sessionMessagesList', () => {
   beforeEach(() => {
     requestClear();
     const user = requestRegister('valideEmail@gmail.com', 'password1', 'Jane', 'Lawson').jsonBody as SessionId;
