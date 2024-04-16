@@ -1,5 +1,5 @@
 import { requestRegister, requestClear } from './wrapper';
-import { requestQuizCreate, requestQuizQuestionCreate, requestSessionStart, requestUpdateSessionState, requestPlayerJoin, requestPlayerStatus } from './wrapper2';
+import { requestQuizCreate, requestQuizQuestionCreate, requestSessionStart, requestUpdateSessionState, requestPlayerJoin, requestPlayerStatus, requestPlayerQuestionInfo } from './wrapper2';
 import { SessionId, questionId, quizId, quizQuestionCreateInput } from './interfaces';
 import HTTPError from 'http-errors';
 
@@ -11,30 +11,30 @@ beforeEach(() => {
  * Testing for players joining to sessions
  */
 describe('Test requestPlayerJoin', () => {
-    let user: SessionId;
-    let quiz: quizId;
-    let questionin: quizQuestionCreateInput;
-    beforeEach(() => {
-        user = requestRegister('tom@gmail.com', 'password1', 'Thomas', 'Bordado').jsonBody as SessionId;
-        quiz = requestQuizCreate(user.token, 'My Quiz', 'My Quiz Description');
-        questionin = {
-        question: 'Who is the Monarch of England?',
-        duration: 4,
-        points: 5,
-        answers: [
-            {
-            answer: 'Prince Charles',
-            correct: true
-            },
-            {
-            answer: 'Prince Charlie',
-            correct: false
-            }
-        ],
-        thumbnailUrl: 'http://google.com/some/image/path.jpg',
-        };
-        requestQuizQuestionCreate(user.token, questionin, quiz.quizId);
-    });
+  let user: SessionId;
+  let quiz: quizId;
+  let questionin: quizQuestionCreateInput;
+  beforeEach(() => {
+    user = requestRegister('tom@gmail.com', 'password1', 'Thomas', 'Bordado').jsonBody as SessionId;
+    quiz = requestQuizCreate(user.token, 'My Quiz', 'My Quiz Description');
+    questionin = {
+      question: 'Who is the Monarch of England?',
+      duration: 4,
+      points: 5,
+      answers: [
+        {
+          answer: 'Prince Charles',
+          correct: true
+        },
+        {
+          answer: 'Prince Charlie',
+          correct: false
+        }
+      ],
+      thumbnailUrl: 'http://google.com/some/image/path.jpg',
+    };
+    requestQuizQuestionCreate(user.token, questionin, quiz.quizId);
+  });
   // 1. Successful Player joining
   test('Test player joining with name', () => {
     const session = requestSessionStart(user.token, quiz.quizId, 3);
@@ -79,25 +79,25 @@ describe('Test requestPlayerStatus', () => {
   let quiz: quizId;
   let questionin: quizQuestionCreateInput;
   beforeEach(() => {
-      user = requestRegister('tom@gmail.com', 'password1', 'Thomas', 'Bordado').jsonBody as SessionId;
-      quiz = requestQuizCreate(user.token, 'My Quiz', 'My Quiz Description');
-      questionin = {
+    user = requestRegister('tom@gmail.com', 'password1', 'Thomas', 'Bordado').jsonBody as SessionId;
+    quiz = requestQuizCreate(user.token, 'My Quiz', 'My Quiz Description');
+    questionin = {
       question: 'Who is the Monarch of England?',
       duration: 4,
       points: 5,
       answers: [
-          {
+        {
           answer: 'Prince Charles',
           correct: true
-          },
-          {
+        },
+        {
           answer: 'Prince Charlie',
           correct: false
-          }
+        }
       ],
       thumbnailUrl: 'http://google.com/some/image/path.jpg',
-      };
-      requestQuizQuestionCreate(user.token, questionin, quiz.quizId);
+    };
+    requestQuizQuestionCreate(user.token, questionin, quiz.quizId);
   });
   // 1. Successful Player status
   test('Test playerStatus', () => {
@@ -112,7 +112,6 @@ describe('Test requestPlayerStatus', () => {
     const playerId = requestPlayerJoin(session.sessionId, 'thomas');
     expect(requestPlayerStatus(playerId + 1)).toStrictEqual({ state: 'LOBBY', numQuestions: 1, atQuestion: 0 });
   });
-
 });
 
 /*
@@ -124,44 +123,45 @@ describe('Test requestPlayerQuestionInfo', () => {
   let questionin: quizQuestionCreateInput;
   let questionId: questionId;
   beforeEach(() => {
-      user = requestRegister('tom@gmail.com', 'password1', 'Thomas', 'Bordado').jsonBody as SessionId;
-      quiz = requestQuizCreate(user.token, 'My Quiz', 'My Quiz Description');
-      questionin = {
+    user = requestRegister('tom@gmail.com', 'password1', 'Thomas', 'Bordado').jsonBody as SessionId;
+    quiz = requestQuizCreate(user.token, 'My Quiz', 'My Quiz Description');
+    questionin = {
       question: 'Who is the Monarch of England?',
       duration: 4,
       points: 5,
       answers: [
-          {
+        {
           answer: 'Prince Charles',
           correct: true
-          },
-          {
+        },
+        {
           answer: 'Prince Charlie',
           correct: false
-          }
+        }
       ],
       thumbnailUrl: 'http://google.com/some/image/path.jpg',
-      };
-      questionId = requestQuizQuestionCreate(user.token, questionin, quiz.quizId);
+    };
+    questionId = requestQuizQuestionCreate(user.token, questionin, quiz.quizId);
   });
   // 1. Successful Player status
   test('Test playerStatus', () => {
     const session = requestSessionStart(user.token, quiz.quizId, 3);
     const playerId = requestPlayerJoin(session.sessionId, 'thomas');
     const result = requestPlayerQuestionInfo(playerId, 1);
-    expect(result).toStrictEqual({ 
-      questionId: questionId, 
-      question: "Who is the Monarch of England?", 
-      duration: 4, 
-      thumbnailUrl: "http://google.com/some/image/path.jpg", 
+    expect(result).toStrictEqual({
+      questionId: questionId,
+      question: 'Who is the Monarch of England?',
+      duration: 4,
+      thumbnailUrl: 'http://google.com/some/image/path.jpg',
       points: 5,
       answers: [
-      {
-        answerId: 2384, // This must be changed
-        answer: "Prince Charles",
-        colour: "red" // This also must be changed.
-      }
-      ]});
+        {
+          answerId: 2384, // This must be changed
+          answer: 'Prince Charles',
+          colour: 'red' // This also must be changed.
+        }
+      ]
+    });
   });
 
   // 2. Player id invalid
@@ -205,5 +205,4 @@ describe('Test requestPlayerQuestionInfo', () => {
     const playerId = requestPlayerJoin(session.sessionId, 'thomas');
     expect(requestPlayerQuestionInfo(playerId + 1, 1)).toThrow(HTTPError[400]);
   });
-
 });

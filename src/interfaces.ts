@@ -110,6 +110,15 @@ export interface quizQuestionDuplicateReturn {
   newQuestionId: number;
 }
 
+export interface PlayerQuestionInfo {
+  questionId: number,
+  question: string,
+  duration: number,
+  thumbnailUrl: string,
+  points: number,
+  answers: answer[]
+}
+
 export interface DataStore {
   users: user[];
   quizzes: quiz[];

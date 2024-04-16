@@ -12,6 +12,7 @@ import process from 'process';
 import { clear } from './other';
 import { adminQuizList, adminQuizCreate1, adminQuizCreate2, adminQuizRemove, adminQuizInfo, adminQuizNameUpdate, adminQuizDescriptionUpdate, adminQuizViewTrash, adminQuizRestore, adminQuizTrashEmpty, quizTransfer1, quizTransfer2, adminQuizQuestionUpdate, adminQuizQuestionDelete, adminQuizQuestionMove, adminQuizQuestionDuplicate, quizQuestionCreate2, quizQuestionCreate1 } from './quiz';
 import { adminAuthLogin, adminAuthRegister, adminUserDetails, adminUserDetailsUpdate2, adminUserPasswordUpdate2, adminAuthLogout, adminUserDetailsUpdate1, adminUserPasswordUpdate1 } from './auth';
+import { playerQuestionInfo } from './player'
 import { loadData, saveData } from './persistence';
 
 // Set up web app
@@ -423,6 +424,13 @@ app.post('/v1/admin/quiz/:quizId/question/:questionId/duplicate', (req: Request,
     }
     return res.status(403).json(result);
   }
+  res.json(result);
+});
+
+app.get('/v1/player/:playerid/question/:questionposition', (req: Request, res: Response) => {
+  const playerId = parseInt(req.params.playerid as string);
+  const questionPosition = parseInt(req.params.questionposition as string);
+  const result = playerQuestionInfo(playerId, questionPosition);
   res.json(result);
 });
 
