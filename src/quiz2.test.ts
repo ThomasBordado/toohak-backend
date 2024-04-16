@@ -1804,12 +1804,6 @@ describe.skip('adminQuizQuestionDuplicate testing', () => {
   });
 });
 
-describe('/v1/player/:playerid/chat, sessionMessagesList', () => {
-  beforeEach(() => {
-    requestClear();
-  });
-});
-
 describe('/v1/player/:playerid/chat, sessionSendMessage', () => {
   beforeEach(() => {
     requestClear();
@@ -1857,6 +1851,75 @@ describe('/v1/player/:playerid/chat, sessionSendMessage', () => {
   test('If message body is more than 100 characters', () => {
     // const invalidMessage = { messageBody: "A longgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg" } as messageInput;
     // expect(() => requestSendMessage(player.playerId, invalidMessage)).toThrow(HTTPError[400]);
+  });
+
+  test('Testing behavior', () => {
+    // requestSendMessage(player.playerId, message);
+    // requestSendMessage(player.playerId, message);
+    // requestSendMessage(player.playerId, message);
+    // const expectedMessageList = {
+    //   messages: [
+    //     {
+    //       messageBody: "Hello everyone! Nice to chat.",
+    //       playerId: player.playerId,
+    //       playerName: "Jane.S",
+    //       timeSent: expect.any(Number),
+    //     },
+    //     {
+    //       messageBody: "Hello everyone! Nice to chat.",
+    //       playerId: player.playerId,
+    //       playerName: "Jane.S",
+    //       timeSent: expect.any(Number),
+    //     },
+    //     {
+    //       messageBody: "Hello everyone! Nice to chat.",
+    //       playerId: player.playerId,
+    //       playerName: "Jane.S",
+    //       timeSent: expect.any(Number),
+    //     },
+    //   ]
+    // }
+    // expect(requestMessageList(player.playerId)).toStrictEqual(expectedMessageList);;
+  });
+
+});
+
+describe('/v1/player/:playerid/chat, sessionMessagesList', () => {
+  beforeEach(() => {
+    requestClear();
+    const user = requestRegister('valideEmail@gmail.com', 'password1', 'Jane', 'Lawson').jsonBody as SessionId;
+    const quiz = requestQuizCreate(user.token, 'My Quiz', 'My Quiz Description') as quizId;
+    // Add a question in a quiz
+    const input : quizQuestionCreateInput = {
+      question: 'Who is the Monarch of England?',
+      duration: 10,
+      points: 5,
+      answers: [
+        {
+          answer: 'Prince Charles',
+          correct: true
+        },
+        {
+          answer: 'Prince Charles.',
+          correct: true
+        }
+      ],
+      thumbnailUrl: 'http://google.com/some/image/path.jpg',
+    };
+    requestQuizQuestionCreate(user.token, input, quiz.quizId);
+    // const session = requestStartSession(quiz.quizId, user.token, 3);
+    // const player = requestJoinSession(session.sessionId, 'Jane.S');
+    const message = { messageBody: "Hello everyone! Nice to chat." } as messageInput;
+  });
+
+  test('Correct return type', () => {
+    // expect(() => (requestMessageList(player.playerId)).not.toThrow(HTTPError));
+    // const returnType = requestMessageList(player.playerId);
+    // expect(returnType).toStrictEqual({ messages: [] });
+  });
+
+  test('If player ID does not exist', () => {
+    // expect(() => requestMessageList(player.playerId + 100)).toThrow(HTTPError[400]);
   });
 
   test('Testing behavior', () => {
