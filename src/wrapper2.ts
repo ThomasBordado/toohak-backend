@@ -1,6 +1,6 @@
 import request, { HttpVerb } from 'sync-request-curl';
 import { port, url } from './config.json';
-import { quizQuestionCreateInput } from './interfaces';
+import { quizQuestionCreateInput, Action } from './interfaces';
 import { IncomingHttpHeaders } from 'http';
 import HTTPError from 'http-errors';
 const SERVER_URL = `${url}:${port}`;
@@ -138,6 +138,6 @@ export const requestDeleteQuizQuestion = (token: string, quizid: number, questio
   return requestHelper('DELETE', `/v2/admin/quiz/${quizid}/question/${questionid}`, {}, { token });
 };
 
-export const requestUpdateSessionState = (token: string, quizid: number, sessionid: number, action: string) => {
+export const requestUpdateSessionState = (token: string, quizid: number, sessionid: number, action: Action) => {
   return requestHelper('PUT', `/v1/admin/quiz/${quizid}/session/${sessionid}`, { }, { token });
 };
