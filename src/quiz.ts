@@ -1,5 +1,5 @@
 import { getData, setData } from './dataStore';
-import { EmptyObject, ErrorReturn, QuizListReturn, quiz, quizId, quizQuestionCreateInput, quizQuestionCreateInputV1, quizQuestionCreateReturn, quizQuestionDuplicateReturn, getPlayerResultReturn, messageInput, messages } from './interfaces';
+import { EmptyObject, ErrorReturn, QuizListReturn, quiz, quizId, quizQuestionCreateInput, quizQuestionCreateInputV1, quizQuestionCreateReturn, quizQuestionDuplicateReturn, getSessionResultReturn, messageInput, messages } from './interfaces';
 import { validToken, checkQuizName, checkQuestionValid, isValidQuizId, randomColour, validthumbnailUrl, checkQuestionValidV1 } from './quizUtil';
 import { saveData } from './persistence';
 import HTTPError from 'http-errors';
@@ -594,8 +594,31 @@ export const adminQuizQuestionDuplicate = (token: string, quizId: number, questi
   return { newQuestionId: duplicatedQuestion.questionId };
 };
 
-export const sessionGetPlayerResult = (playerId: number): getPlayerResultReturn => {
-    return { usersRankedByScore: [
+export const sessionGetSessionResult = (playerId: number): getSessionResultReturn => {
+    
+  
+  
+
+  const playerResult = {
+    usersRankedByScore: [
+      {
+        name: "Hayden",
+        score: 45
+      }
+    ],
+    questionResults: [
+      {
+        questionId: 5546,
+        playersCorrectList: [
+          "Hayden"
+        ],
+        averageAnswerTime: 45,
+        percentCorrect: 54
+      }
+    ]
+  } as getSessionResultReturn;
+
+  return { usersRankedByScore: [
         {
           name: "Hayden",
           score: 45
