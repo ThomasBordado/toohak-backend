@@ -37,7 +37,7 @@ export const playerJoin = (sessionId: number, name: string): PlayerId => {
     if (sessions[sessionIndex].quizStatus.state !== 'LOBBY') {
         throw HTTPError(400, 'Session is not in LOBBY state');
     }
-    const players = sessions.players;
+    const players = sessions.quizStatus.players;
     if (name === "") {
         name = generateRandomName();
     } else if (players.some(player => players.name === name)) {
