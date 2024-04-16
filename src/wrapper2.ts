@@ -121,3 +121,19 @@ export const requestquizTransfer = (token: string, userEmail: string, quizid: nu
 export const requestQuizQuestionCreate = (token: string, questionBody: quizQuestionCreateInput, quizid: number) => {
   return requestHelper('POST', `/v2/admin/quiz/${quizid}/question`, { questionBody }, { token });
 };
+
+export const requestQuizInfo = (token: string, quizId: number) => {
+  return requestHelper('GET', `/v2/admin/quiz/${quizId}`, { quizId }, { token });
+};
+
+export const requestUpdateQuizName = (token: string, quizId: number, name: string) => {
+  return requestHelper('PUT', `/v2/admin/quiz/${quizId}/name`, { name, quizId }, { token });
+};
+
+export const requestUpdateQuizQuestion = (token: string, questionBody: quizQuestionCreateInput, quizid: number, questionid: number) => {
+  return requestHelper('PUT', `/v2/admin/quiz/${quizid}/question/${questionid}`, { questionBody }, { token });
+};
+
+export const requestDeleteQuizQuestion = (token: string, quizid: number, questionid: number) => {
+  return requestHelper('DELETE', `/v2/admin/quiz/${quizid}/question/${questionid}`, {}, { token });
+};
