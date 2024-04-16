@@ -1920,6 +1920,37 @@ describe('/v1/player/:playerid/chat, sessionSendMessage', () => {
 
 describe('/v1/player/:playerid/results, sessionGetPlayerResult', () => {
   beforeEach(() => {
+    requestClear();
+    const user = requestRegister('valideEmail@gmail.com', 'password1', 'Jane', 'Lawson').jsonBody as SessionId;
+    const quiz = requestQuizCreate(user.token, 'My Quiz', 'My Quiz Description') as quizId;
+    // Add a question in a quiz
+    const input : quizQuestionCreateInput = {
+      question: 'Who is the Monarch of England?',
+      duration: 10,
+      points: 5,
+      answers: [
+        {
+          answer: 'Prince Charles',
+          correct: true
+        },
+        {
+          answer: 'Prince Charles.',
+          correct: true
+        }
+      ],
+      thumbnailUrl: 'http://google.com/some/image/path.jpg',
+    };
+    requestQuizQuestionCreate(user.token, input, quiz.quizId);
+    // const session = requestStartSession(quiz.quizId, user.token, 3);
+    // const player = requestJoinSession(session.sessionId, 'Jane.S');
+  });
+
+  test('player ID does not exist', () => {
 
   });
+
+  test('Session is not in FINAL_RESULTS state', () => {
+
+  });
+
 });
