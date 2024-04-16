@@ -139,5 +139,5 @@ export const requestDeleteQuizQuestion = (token: string, quizid: number, questio
 };
 
 export const requestPlayerStatus = (playerid: number) => {
-  return requestHelper('DELETE', `/v1/player/${playerid}`, {}, {});
+  return requestHelper('GET', `/v1/player/${playerid}`, {}, {});
 };
