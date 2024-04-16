@@ -435,10 +435,6 @@ describe('Testing it2 function, adminQuizQuestionUpdate', () => {
       ]
     };
     questionout = requestQuizQuestionCreate(user.token, questionin, quiz.quizId).jsonBody as quizQuestionCreateReturn;
-
-    // question1 = requestQuestionCreate
-    // question2 = requestQuestionCreate
-    // question3 = requestQuestionCreate
   });
 
   // 1. Succesfully update question
@@ -576,9 +572,6 @@ describe('Testing it2 function, adminQuizQuestionDelete', () => {
 
     };
     questionout = requestQuizQuestionCreate(user.token, questionin, quiz.quizId).jsonBody as quizQuestionCreateReturn;
-    // question1 = requestQuestionCreate
-    // question2 = requestQuestionCreate
-    // question3 = requestQuestionCreate
   });
 
   // 2. Invalid Token/empty token
@@ -614,6 +607,7 @@ describe('Testing it2 function, adminQuizQuestionDelete', () => {
     expect(result.statusCode).toStrictEqual(400);
   });
 });
+
 /*
  * Testing for viewing quizzes in trash
  */

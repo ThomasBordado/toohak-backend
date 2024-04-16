@@ -240,6 +240,15 @@ app.put('/v1/admin/quiz/:quizid/question/:questionid', (req: Request, res: Respo
   res.json(response);
 });
 
+app.put('/v2/admin/quiz/:quizid/question/:questionid', (req: Request, res: Response) => {
+  const quizId = parseInt(req.params.quizid as string);
+  const questionId = parseInt(req.params.questionid as string);
+  const token = req.headers.token as string;
+  const { questionBody } = req.body;
+  const response = adminQuizQuestionUpdate(token, questionBody, quizId, questionId);
+  res.json(response);
+});
+
 app.delete('/v1/admin/quiz/:quizid/question/:questionid', (req: Request, res: Response) => {
   const quizId = parseInt(req.params.quizid as string);
   const questionId = parseInt(req.params.questionid as string);
@@ -253,6 +262,14 @@ app.delete('/v1/admin/quiz/:quizid/question/:questionid', (req: Request, res: Re
     }
     return res.status(400).json(response);
   }
+  res.json(response);
+});
+
+app.delete('/v2/admin/quiz/:quizid/question/:questionid', (req: Request, res: Response) => {
+  const quizId = parseInt(req.params.quizid as string);
+  const questionId = parseInt(req.params.questionid as string);
+  const token = req.headers.token as string;
+  const response = adminQuizQuestionDelete(token, quizId, questionId);
   res.json(response);
 });
 
@@ -295,6 +312,13 @@ app.get('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
   res.json(result);
 });
 
+app.get('/v2/admin/quiz/:quizid', (req: Request, res: Response) => {
+  const token = req.headers.token as string;
+  const quizId = parseInt(req.params.quizid as string);
+  const result = adminQuizInfo(token, quizId);
+  res.json(result);
+});
+
 app.put('/v1/admin/quiz/:quizid/name', (req: Request, res: Response) => {
   const quizId = parseInt(req.params.quizid as string);
   const token = req.body.token as string;
@@ -308,6 +332,14 @@ app.put('/v1/admin/quiz/:quizid/name', (req: Request, res: Response) => {
     }
     return res.status(400).json(result);
   }
+  res.json(result);
+});
+
+app.put('/v2/admin/quiz/:quizid/name', (req: Request, res: Response) => {
+  const quizId = parseInt(req.params.quizid as string);
+  const token = req.headers.token as string;
+  const { name } = req.body;
+  const result = adminQuizNameUpdate(token, quizId, name);
   res.json(result);
 });
 
