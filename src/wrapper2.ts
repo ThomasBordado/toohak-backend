@@ -138,6 +138,14 @@ export const requestDeleteQuizQuestion = (token: string, quizid: number, questio
   return requestHelper('DELETE', `/v2/admin/quiz/${quizid}/question/${questionid}`, {}, { token });
 };
 
+export const requestSessionView = (token: string, quizid: number) => {
+  return requestHelper('GET', `/v1/admin/quiz/${quizid}/sessions`, {}, { token });
+};
+
+export const requestSessionStart = (token: string, quizid: number, autoStartNum: number) => {
+  return requestHelper('POST', `/v1/admin/quiz/${quizid}/session/start`, { autoStartNum }, { token });
+};
+
 export const requestUpdateSessionState = (token: string, quizid: number, sessionid: number, action: Action) => {
   return requestHelper('PUT', `/v1/admin/quiz/${quizid}/session/${sessionid}`, { }, { token });
 };
