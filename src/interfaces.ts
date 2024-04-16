@@ -25,7 +25,7 @@ export interface questionResult {
   percentCorrect: number;
 }
 
-export interface getPlayerResultReturn {
+export interface getSessionResultReturn {
   usersRankedByScore: playerWithSore[];
   questionResults: questionResult[];
 }
