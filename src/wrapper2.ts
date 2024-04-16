@@ -1,6 +1,6 @@
 import request, { HttpVerb } from 'sync-request-curl';
 import { port, url } from './config.json';
-import { quizQuestionCreateInput } from './interfaces';
+import { quizQuestionCreateInput, messageInput } from './interfaces';
 import { IncomingHttpHeaders } from 'http';
 import HTTPError from 'http-errors';
 const SERVER_URL = `${url}:${port}`;
@@ -120,4 +120,16 @@ export const requestquizTransfer = (token: string, userEmail: string, quizid: nu
 
 export const requestQuizQuestionCreate = (token: string, questionBody: quizQuestionCreateInput, quizid: number) => {
   return requestHelper('POST', `/v2/admin/quiz/${quizid}/question`, { questionBody }, { token });
+};
+
+export const requestPlayerResult = (playerid: number) => {
+  return requestHelper('GET', `/v1/player/${playerid}/results`, { playerid });
+};
+
+export const requestMessageList = (playerid: number) => {
+  return requestHelper('GET', `/v1/player/${playerid}/chat`, { playerid });
+};
+
+export const requestSendMessage = (playerid: number, message: messageInput) => {
+  return requestHelper('POST', `/v1/player/${playerid}/chat`, { message });
 };

@@ -1,5 +1,5 @@
 import { getData, setData } from './dataStore';
-import { EmptyObject, ErrorReturn, QuizListReturn, quiz, quizId, quizQuestionCreateInput, quizQuestionCreateInputV1, quizQuestionCreateReturn, quizQuestionDuplicateReturn, getPlayerResultReturn, messageInput, messages } from './interfaces';
+import { EmptyObject, ErrorReturn, QuizListReturn, quiz, quizId, quizQuestionCreateInput, quizQuestionCreateInputV1, quizQuestionCreateReturn, quizQuestionDuplicateReturn, getPlayerResultReturn, messageInput, MessageListReturn } from './interfaces';
 import { validToken, checkQuizName, checkQuestionValid, isValidQuizId, randomColour, validthumbnailUrl, checkQuestionValidV1 } from './quizUtil';
 import { saveData } from './persistence';
 import HTTPError from 'http-errors';
@@ -596,7 +596,9 @@ export const adminQuizQuestionDuplicate = (token: string, quizId: number, questi
 };
 
 export const sessionGetPlayerResult = (playerId: number): getPlayerResultReturn => {
-    return { usersRankedByScore: [
+    
+  
+  return { usersRankedByScore: [
         {
           name: "Hayden",
           score: 45
@@ -615,8 +617,17 @@ export const sessionGetPlayerResult = (playerId: number): getPlayerResultReturn 
     }
 }
 
-export const sessionMessagesList = (playerId: number): messages => {
-    return {  messages: [
+export const sessionMessagesList = (playerId: number): MessageListReturn => {
+  // ValidPlayerId(playerId);
+  //
+  // const data = getData();
+  // for (const session of data.quizSessions) {
+  //   if (session.quizStatus.players.playerId === playerId) {
+  //     return session.messages;
+  //   }
+  // }
+
+  return {  messages: [
         {
           messageBody: "This is a message body",
           playerId: 5546,
@@ -628,5 +639,24 @@ export const sessionMessagesList = (playerId: number): messages => {
 }
 
 export const sessionSendMessage = (playerId: number, message: messageInput): EmptyObject => {
-    return { };
+  // ValidPlayerId(playerId);
+  if (message.messageBody.length < 1 || message.messageBody.length > 100) {
+    throw HTTPError(400, 'message body is less than 1 character or more than 100 characters.');
+  }
+
+  const newmessage = {
+    messageBody: "This is a message body",
+    playerId: playerId,
+    playerName: "Yuchao Jiang",
+    timeSent: Math.floor(Date.now() / 1000),
+  }
+  // push
+  // const data = getData();
+  // for (const session of data.quizSessions) {
+  //   if (session.quizStatus.players.playerId === playerId) {
+  //     session.messages.push(newmessage);
+  //   }
+  // }
+  
+  return { };
 }
