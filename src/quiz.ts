@@ -593,3 +593,7 @@ export const adminQuizQuestionDuplicate = (token: string, quizId: number, questi
   // Return the ID of the new question
   return { newQuestionId: duplicatedQuestion.questionId };
 };
+
+export const UpdateSessionState = (token: string, quizId: number, sessionId: number, action: string) => {
+
+};
