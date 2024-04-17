@@ -1,6 +1,6 @@
 import { getData, setData } from './dataStore';
 import { EmptyObject, ErrorReturn, QuizListReturn, quiz, quizId, quizQuestionCreateInput, quizQuestionCreateInputV1, quizQuestionCreateReturn, quizQuestionDuplicateReturn, getSessionResultReturn, messageInput, messages } from './interfaces';
-import { validToken, checkQuizName, checkQuestionValid, isValidQuizId, randomColour, validthumbnailUrl, checkQuestionValidV1 } from './quizUtil';
+import { validToken, checkQuizName, checkQuestionValid, isValidQuizId, randomColour, validthumbnailUrl, checkQuestionValidV1, isActiveQuizSession } from './quizUtil';
 import { saveData } from './persistence';
 import HTTPError from 'http-errors';
 /**
@@ -485,6 +485,7 @@ export const quizTransfer1 = (token: string, userEmail: string, quizId: number):
 
 export const quizTransfer2 = (token: string, userEmail: string, quizId: number): EmptyObject | ErrorReturn => {
   const data = getData();
+  
   validToken(token, data.users);
   isValidQuizId(token, quizId);
 
@@ -496,11 +497,15 @@ export const quizTransfer2 = (token: string, userEmail: string, quizId: number):
     throw HTTPError(400, 'UserEmail is the current logged in user');
   }
 
+  // find if Quiz ID refers to a quiz that has a name that is already used by the target user
   const findQuiz = data.quizzes.find(quizs => quizs.quizId === quizId);
   const quiz = targetUser.quizzes.find(quizzes => quizzes.name === findQuiz.name);
   if (quiz) {
     throw HTTPError(400, 'Quiz ID refers to a quiz that has a name that is already used by the target user');
   }
+
+  // Check if there's an active session for this quiz
+  isActiveQuizSession(quizId);
 
   // push the quiz to the target user
   const currentUser = data.users.find(users => users.sessions.includes(token));
