@@ -252,19 +252,7 @@ export const playerIdToSession = (playerId: number) => {
   for (const session of data.quizSessions) {
     for (const player of session.quizStatus.players) {
       if (player.playerId === playerId) {
-        return session.sessionId;
-      }
-    }
-  }
-  throw HTTPError(400, 'player ID does not exist');
-}
-
-export const playerIdToPLayerInfo = (playerId: number) => {
-  const data = getData();
-  for (const session of data.quizSessions) {
-    for (const player of session.quizStatus.players) {
-      if (player.playerId === playerId) {
-        return player;
+        return session;
       }
     }
   }
