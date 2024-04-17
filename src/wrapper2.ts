@@ -147,5 +147,9 @@ export const requestSessionStart = (token: string, quizid: number, autoStartNum:
 };
 
 export const requestUpdateSessionState = (token: string, quizid: number, sessionid: number, action: Action) => {
-  return requestHelper('PUT', `/v1/admin/quiz/${quizid}/session/${sessionid}`, { }, { token });
+  return requestHelper('PUT', `/v1/admin/quiz/${quizid}/session/${sessionid}`, { action }, { token });
+};
+
+export const requestGetSessionStatus = (token: string, quizid: number, sessionid: number) => {
+  return requestHelper('GET', `/v1/admin/quiz/${quizid}/session/${sessionid}`, {}, { token });
 };

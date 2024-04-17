@@ -450,6 +450,14 @@ app.put('/v1/admin/quiz/:quizid/session/:sessionid', (req: Request, res: Respons
   res.json(response);
 });
 
+app.get('/v1/admin/quiz/:quizid/session/:sessionid', (req: Request, res: Response) => {
+  const quizId = parseInt(req.params.quizid);
+  const sessionid = parseInt(req.params.sessionid);
+  const token = req.headers.token as string;
+  const response = GetSessionStatus(token, quizId, sessionid);
+  res.json(response);
+});
+
 // ====================================================================
 //  ================= WORK IS DONE ABOVE THIS LINE ===================
 // ====================================================================

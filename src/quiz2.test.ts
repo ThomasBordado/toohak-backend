@@ -1,5 +1,5 @@
 import { requestRegister, requestUpdateQuizDescription, requestClear, requestLogin, requestMoveQuestion, requestQuestionDuplicate } from './wrapper';
-import { requestQuizList, requestQuizCreate, requestQuizTrash, requestQuizViewTrash, requestQuizRestore, requestQuizTrashEmpty, requestQuizQuestionCreate, requestquizTransfer, requestLogout, requestQuizInfo, requestUpdateQuizName, requestUpdateQuizQuestion, requestDeleteQuizQuestion, requestSessionView, requestSessionStart, requestUpdateSessionState } from './wrapper2';
+import { requestQuizList, requestQuizCreate, requestQuizTrash, requestQuizViewTrash, requestQuizRestore, requestQuizTrashEmpty, requestQuizQuestionCreate, requestquizTransfer, requestLogout, requestQuizInfo, requestUpdateQuizName, requestUpdateQuizQuestion, requestDeleteQuizQuestion, requestSessionView, requestSessionStart, requestUpdateSessionState, requestGetSessionStatus } from './wrapper2';
 import { QuizListReturn, SessionId, quizId, quizUser, quizQuestionCreateInput, quiz, quizQuestionCreateReturn, questionId, sessionViewReturn, QuizSession, QuizStatus, Action } from './interfaces';
 import HTTPError from 'http-errors';
 
@@ -1705,7 +1705,7 @@ describe('request UpdateSessionState testing', () => {
   let question: questionId;
   let session: QuizSession;
   beforeEach(() => {
-    user = requestRegister('chloe@gmail.com', 'password1', 'Chloe', 'Turner').jsonBody as SessionId;
+    user = requestRegister('ethan@gmail.com', 'password1', 'Ethan', 'McGregor').jsonBody as SessionId;
     quiz = requestQuizCreate(user.token, 'My Quiz', 'My Quiz Description');
     questionin = {
       question: 'Who is the Monarch of England?',
@@ -1757,6 +1757,91 @@ describe('request UpdateSessionState testing', () => {
       // console.log(result.quizStatus.state);
       // console.log(session.quizStatus.state);
       expect(session.quizStatus.state).toStrictEqual('END');
+    });
+  });
+});
+
+//GetSessionStatus Testing
+describe('request GetSessionStatus testing', () => {
+  let user: SessionId;
+  let quiz: quizId;
+  let questionin: quizQuestionCreateInput;
+  let question: questionId;
+  let session: QuizSession;
+  beforeEach(() => {
+    user = requestRegister('ethan@gmail.com', 'password1', 'Ethan', 'McGregor').jsonBody as SessionId;
+    quiz = requestQuizCreate(user.token, 'My Quiz', 'My Quiz Description');
+    questionin = {
+      question: 'Who is the Monarch of England?',
+      duration: 4,
+      points: 5,
+      answers: [
+        {
+          answer: 'Prince Charles',
+          correct: true
+        },
+        {
+          answer: 'Prince Charles.',
+          correct: true
+        }
+      ],
+      thumbnailUrl: 'http://google.com/some/image/path.jpg',
+    };
+    question = requestQuizQuestionCreate(user.token, questionin, quiz.quizId);
+    session = requestSessionStart(user.token, quiz.quizId, 3);
+  });
+
+  describe('Unsuccessful Cases', () => {
+    test('Invalid SessionId', () => {
+      expect(() => requestGetSessionStatus(user.token + 1, quiz.quizId, session.sessionId)).toThrow(HTTPError[401]);
+    });
+    test('Invalid quizId', () => {
+      expect(() => requestGetSessionStatus(user.token, quiz.quizId + 1, session.sessionId)).toThrow(HTTPError[403]);
+    });
+    test('user does not own quiz', () => {
+      const user2 = requestRegister('ethan@gmail.com', 'password1', 'Ethan', 'McGregor').jsonBody as SessionId;
+      expect(() => requestGetSessionStatus(user2.token, quiz.quizId, session.sessionId)).toThrow(HTTPError[403]);
+    });
+    test('Session Id does not refer to a valid session within this quiz', () => {
+      expect(() => requestGetSessionStatus(user.token, quiz.quizId, session.sessionId + 1)).toThrow(HTTPError[400]);
+    });
+  });
+  describe('Successful cases', () => {
+    test('Correct return value', () => {
+      expect(requestGetSessionStatus(user.token, quiz.quizId, session.sessionId)).toStrictEqual({
+        "state": "LOBBY",
+        "atQuestion": 0,
+        "players": [],
+        "metadata": {
+          "quizId": quiz.quizId,
+          "name": "My Quiz",
+          "timeCreated": expect.any(Number),
+          "timeLastEdited": expect.any(Number),
+          "description": "My Quiz Description",
+          "numQuestions": 1,
+          "questions": [
+            {
+              "questionId": expect.any(Number),
+              "question": "Who is the Monarch of England?",
+              "duration": 4,
+              "thumbnailUrl": "http://google.com/some/image/path.jpg",
+              "points": 5,
+              "answers": [
+                {
+                  answer: 'Prince Charles',
+                  correct: true
+                },
+                {
+                  answer: 'Prince Charles.',
+                  correct: true
+                }
+              ]
+            }
+          ],
+          "duration": expect.any(Number),
+          "thumbnailUrl": "http://google.com/some/image/path.jpg"
+        }
+      });
     });
   });
 });
