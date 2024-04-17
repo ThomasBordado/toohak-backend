@@ -792,4 +792,26 @@ export const UpdateSessionState = (token: string, quizId: number, sessionId: num
 
 };
 
+export const GetSessionStatus = (token: string, quizId: number, sessionId: number) => {
+  const data = getData();
+  const user = validToken(token, data.users);
+
+  const userQuiz = user.quizzes.find(quizzes => quizzes.quizId === quizId);
+  if (userQuiz === undefined) {
+    throw HTTPError(403, 'User does not own quiz');
+  }
+
+  const activeSessions = viewSessions(token, quizId).activeSessions;
+  if (!activeSessions.includes(sessionId)) {
+    throw HTTPError(400, 'Session Id does not refer to a valid session within this quiz');
+  }
+
+  for (const quizSessions of data.quizSessions) {
+    if (quizSessions.sessionId === sessionId) {
+      return quizSessions.quizStatus;
+    }
+  }
+
+};
+
 

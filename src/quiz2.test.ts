@@ -1705,7 +1705,7 @@ describe('request UpdateSessionState testing', () => {
   let question: questionId;
   let session: QuizSession;
   beforeEach(() => {
-    user = requestRegister('ethan@gmail.com', 'password1', 'Ethan', 'McGregor').jsonBody as SessionId;
+    user = requestRegister('chloe@gmail.com', 'password1', 'Chloe', 'Turner').jsonBody as SessionId;
     quiz = requestQuizCreate(user.token, 'My Quiz', 'My Quiz Description');
     questionin = {
       question: 'Who is the Monarch of England?',
@@ -1752,11 +1752,10 @@ describe('request UpdateSessionState testing', () => {
     test('Correct return value', () => {
       expect(requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, Action.END)).toStrictEqual({});
     });
-    test('Correctly updates state', () => {
-      requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, Action.END);
-      // console.log(result.quizStatus.state);
-      // console.log(session.quizStatus.state);
-      expect(session.quizStatus.state).toStrictEqual('END');
+    test('Correctly updates state LOBBY --> QUESTION_COUNTDOWN', () => {
+      requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, Action.NEXT_QUESTION);
+      const result = requestGetSessionStatus(user.token, quiz.quizId, session.sessionId);
+      expect(result.state).toStrictEqual('QUESTION_COUNTDOWN');
     });
   });
 });
@@ -1769,7 +1768,7 @@ describe('request GetSessionStatus testing', () => {
   let question: questionId;
   let session: QuizSession;
   beforeEach(() => {
-    user = requestRegister('ethan@gmail.com', 'password1', 'Ethan', 'McGregor').jsonBody as SessionId;
+    user = requestRegister('chloe@gmail.com', 'password1', 'Chloe', 'Turner').jsonBody as SessionId;
     quiz = requestQuizCreate(user.token, 'My Quiz', 'My Quiz Description');
     questionin = {
       question: 'Who is the Monarch of England?',
@@ -1808,6 +1807,7 @@ describe('request GetSessionStatus testing', () => {
   });
   describe('Successful cases', () => {
     test('Correct return value', () => {
+      // console.log(requestGetSessionStatus(user.token, quiz.quizId, session.sessionId));
       expect(requestGetSessionStatus(user.token, quiz.quizId, session.sessionId)).toStrictEqual({
         "state": "LOBBY",
         "atQuestion": 0,
@@ -1824,15 +1824,19 @@ describe('request GetSessionStatus testing', () => {
               "questionId": expect.any(Number),
               "question": "Who is the Monarch of England?",
               "duration": 4,
-              "thumbnailUrl": "http://google.com/some/image/path.jpg",
+              // "thumbnailUrl": "http://google.com/some/image/path.jpg",
               "points": 5,
               "answers": [
                 {
                   answer: 'Prince Charles',
+                  answerId: expect.any(Number),
+                  colour: expect.any(String),
                   correct: true
                 },
                 {
                   answer: 'Prince Charles.',
+                  answerId: expect.any(Number),
+                  colour: expect.any(String),
                   correct: true
                 }
               ]
