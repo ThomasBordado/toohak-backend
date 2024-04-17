@@ -671,29 +671,125 @@ export const sessionStart = (token: string, quizId: number, autoStartNum: number
 };
 
 export const UpdateSessionState = (token: string, quizId: number, sessionId: number, action: Action) => {
-//   const data = getData();
-//   const user = validToken(token, data.users);
+  const data = getData();
+  const user = validToken(token, data.users);
 
-//   const userQuiz = user.quizzes.find(quizzes => quizzes.quizId === quizId);
-//   if (userQuiz === undefined) {
-//     throw HTTPError(403, 'User does not own quiz');
-//   }
+  const userQuiz = user.quizzes.find(quizzes => quizzes.quizId === quizId);
+  if (userQuiz === undefined) {
+    throw HTTPError(403, 'User does not own quiz');
+  }
 
-//   if (!Action.includes(action)) {
-//     throw HTTPError(400, 'Action provided is not a valid Action enum');
-//   }
+  if (!(action in Action)) {
+    throw HTTPError(400, 'Action provided is not a valid Action enum');
+  }
 
-//   const activeSessions = viewSessions(token, quizId).activeSessions;
-//   if (!activeSessions.includes(sessionId)) {
-//     throw HTTPError(400, 'Session Id does not refer to a valid session within this quiz');
-//   }
+  const activeSessions = viewSessions(token, quizId).activeSessions;
+  if (!activeSessions.includes(sessionId)) {
+    throw HTTPError(400, 'Session Id does not refer to a valid session within this quiz');
+  }
 
-//   for (const quizSessions of data.quizSessions) {
-//     if (quizSessions.quizStatus.metadata.quizId === quizId) {
+  let timerId1: ReturnType<typeof setTimeout>; 
+  const DELAY = 3;
+
+  for (const quizSessions of data.quizSessions) {
+    if (quizSessions.sessionId === sessionId) {
+
+      //Can go to end from any state
+      if (action === 'END') {
+        quizSessions.quizStatus.state = State.END;
+        return {};
+      }
+
+      //LOBBY can branch to: 
+      // - QUESTION_COUNTDOWN via NEXT_QUESTION
+      if (quizSessions.quizStatus.state === 'LOBBY') {
+        if (action === 'NEXT_QUESTION') {
+          quizSessions.quizStatus.state = State.QUESTION_COUNTDOWN;
+          return {};
+        }
+        timerId1 = setTimeout(CountdownToOpen, DELAY * 1000);
+      } 
+
+      //QUESTION_COUNTDOWN can branch to: 
+      // - QUESTION_OPEN via SKIP_COUNTDOWN 
+      // - QUESTION_OPEN after 3 seconds elapsed
+      if (quizSessions.quizStatus.state === 'QUESTION_COUNTDOWN') {
+        clearTimeout(timerId1);
+        if (action === 'SKIP_COUNTDOWN') {
+          quizSessions.quizStatus.state = State.QUESTION_OPEN;
+          return {};
+        }
+      }
+
+      //QUESTION_OPEN can branch to: 
+      // - ANSWER_SHOW via GO_TO_ANSWER, 
+      // - QUESTION_CLOSE after duration ends
+      if (quizSessions.quizStatus.state === 'QUESTION_OPEN') {
+        if (action === 'GO_TO_ANSWER') {
+          quizSessions.quizStatus.state = State.ANSWER_SHOW;
+          return {};
+        }
+      }
+
+      //QUESTION_CLOSE can branch to: 
+      // - ANSWER_SHOW via GO_TO_ANSWER, 
+      // - QUESTION_COUNTDOWN via NEXT_QUESTION, 
+      // - FINAL_RESULTS via GO_TO_FINAL_RESULTS
+      if (quizSessions.quizStatus.state === 'QUESTION_CLOSE') {
+        if (action === 'GO_TO_ANSWER') {
+          quizSessions.quizStatus.state = State.ANSWER_SHOW;
+          return {};
+        }
+      }
+      if (quizSessions.quizStatus.state === 'QUESTION_CLOSE') {
+        if (action === 'NEXT_QUESTION') {
+          quizSessions.quizStatus.state = State.QUESTION_COUNTDOWN;
+          return {};
+        }
+      }
+      if (quizSessions.quizStatus.state === 'QUESTION_CLOSE') {
+        if (action === 'GO_TO_FINAL_RESULTS') {
+          quizSessions.quizStatus.state = State.FINAL_RESULTS;
+          return {};
+        }
+      }
+
+      //ANSWER_SHOW can branch to:
+      // - QUESTION_COUNTDOWN via NEXT_QUESTION
+      // - FINAL_RESULTS via GO_TO_FINAL_RESULTS
+      if (quizSessions.quizStatus.state === 'ANSWER_SHOW') {
+        if (action === 'NEXT_QUESTION') {
+          quizSessions.quizStatus.state = State.QUESTION_COUNTDOWN;
+          return {};
+        }
+      }
+      if (quizSessions.quizStatus.state === 'ANSWER_SHOW') {
+        if (action === 'GO_TO_FINAL_RESULTS') {
+          quizSessions.quizStatus.state = State.FINAL_RESULTS;
+          return {};
+        }
+      }
+
+      //FINAL_RESULTS can branch to:
+      // - END via END (already implemented)
+
+      //TIMER no.1 function
+      function CountdownToOpen() {
+        if (quizSessions.quizStatus.state === 'QUESTION_COUNTDOWN') {
+          quizSessions.quizStatus.state = State.QUESTION_OPEN;
+          return {};
+        }
+      }
+
+      //testing helper function
       
-//     }
-//   }
+    }
+  }
 
-//   throw HTTPError(400, 'Action enum cannot be applied in the current state');
+  
+
+  throw HTTPError(400, 'Action enum cannot be applied in the current state');
 
 };
+
+
