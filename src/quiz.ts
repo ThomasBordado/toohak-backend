@@ -1,6 +1,6 @@
 import { getData, setData } from './dataStore';
-import { EmptyObject, ErrorReturn, QuizListReturn, quiz, quizId, quizQuestionCreateInput, quizQuestionCreateInputV1, quizQuestionCreateReturn, quizQuestionDuplicateReturn, getSessionResultReturn, messageInput, messages } from './interfaces';
-import { validToken, checkQuizName, checkQuestionValid, isValidQuizId, randomColour, validthumbnailUrl, checkQuestionValidV1, isActiveQuizSession } from './quizUtil';
+import { EmptyObject, ErrorReturn, QuizListReturn, quiz, quizId, quizQuestionCreateInput, quizQuestionCreateInputV1, quizQuestionCreateReturn, quizQuestionDuplicateReturn, messageInput, messages, QuizResults } from './interfaces';
+import { validToken, checkQuizName, checkQuestionValid, isValidQuizId, randomColour, validthumbnailUrl, checkQuestionValidV1, isActiveQuizSession, playerIdToSession } from './quizUtil';
 import { saveData } from './persistence';
 import HTTPError from 'http-errors';
 /**
@@ -90,7 +90,7 @@ export const adminQuizCreate2 = (token: string, name: string, description: strin
 
 /**
  * Given a particular quiz, permanently remove the quiz
- * @param {string} token - unique identifier for a session
+ * @param {stringgetSessionResultReturn token - unique identifier for a session
  * @param {number} quizId - unique identifier for a quiz
  * @returns {} - for valid authUserId and quizId
  */
@@ -485,7 +485,7 @@ export const quizTransfer1 = (token: string, userEmail: string, quizId: number):
 
 export const quizTransfer2 = (token: string, userEmail: string, quizId: number): EmptyObject | ErrorReturn => {
   const data = getData();
-  
+
   validToken(token, data.users);
   isValidQuizId(token, quizId);
 
@@ -599,47 +599,12 @@ export const adminQuizQuestionDuplicate = (token: string, quizId: number, questi
   return { newQuestionId: duplicatedQuestion.questionId };
 };
 
-export const sessionGetSessionResult = (playerId: number): getSessionResultReturn => {
-    
-  
-  
-
-  const playerResult = {
-    usersRankedByScore: [
-      {
-        name: "Hayden",
-        score: 45
-      }
-    ],
-    questionResults: [
-      {
-        questionId: 5546,
-        playersCorrectList: [
-          "Hayden"
-        ],
-        averageAnswerTime: 45,
-        percentCorrect: 54
-      }
-    ]
-  } as getSessionResultReturn;
-
-  return { usersRankedByScore: [
-        {
-          name: "Hayden",
-          score: 45
-        }
-      ],
-      questionResults: [
-        {
-          questionId: 5546,
-          playersCorrectList: [
-            "Hayden"
-          ],
-          averageAnswerTime: 45,
-          percentCorrect: 54
-        }
-      ]
-    }
+export const sessionGetSessionResult = (playerId: number): QuizResults => {
+  const session = playerIdToSession(playerId);
+  if (session.quizStatus.state !== 'FINAL_RESULTS') {
+    throw HTTPError(400, 'Session is not in FINAL_RESULTS state');
+  }
+  return session.quizResults;
 }
 
 export const sessionMessagesList = (playerId: number): messages => {
