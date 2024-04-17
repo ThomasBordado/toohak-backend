@@ -599,7 +599,7 @@ export const adminQuizQuestionDuplicate = (token: string, quizId: number, questi
   return { newQuestionId: duplicatedQuestion.questionId };
 };
 
-export const sessionGetSessionResult = (playerId: number): QuizResults => {
+export const sessionResultList = (playerId: number): QuizResults => {
   const session = playerIdToSession(playerId);
   if (session.quizStatus.state !== 'FINAL_RESULTS') {
     throw HTTPError(400, 'Session is not in FINAL_RESULTS state');
