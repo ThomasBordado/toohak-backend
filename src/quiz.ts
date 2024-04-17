@@ -688,26 +688,28 @@ export const UpdateSessionState = (token: string, quizId: number, sessionId: num
     throw HTTPError(400, 'Session Id does not refer to a valid session within this quiz');
   }
 
-  let timerId1: ReturnType<typeof setTimeout>; 
+  console.log('updatesessionstate in');
+  let timerId1: ReturnType<typeof setTimeout>;
+  let timerId2: ReturnType<typeof setTimeout>;
   const DELAY = 3;
 
   for (const quizSessions of data.quizSessions) {
     if (quizSessions.sessionId === sessionId) {
 
-      //Can go to end from any state
-      if (action === 'END') {
-        quizSessions.quizStatus.state = State.END;
-        return {};
-      }
+      // Can go to end from any state
+      // if (action === 'END') {
+      //   quizSessions.quizStatus.state = State.END;
+      //   return {};
+      // }
 
       //LOBBY can branch to: 
       // - QUESTION_COUNTDOWN via NEXT_QUESTION
       if (quizSessions.quizStatus.state === 'LOBBY') {
         if (action === 'NEXT_QUESTION') {
           quizSessions.quizStatus.state = State.QUESTION_COUNTDOWN;
+          timerId1 = setTimeout(CountdownToOpen, DELAY * 1000);
           return {};
         }
-        timerId1 = setTimeout(CountdownToOpen, DELAY * 1000);
       } 
 
       //QUESTION_COUNTDOWN can branch to: 
@@ -717,6 +719,7 @@ export const UpdateSessionState = (token: string, quizId: number, sessionId: num
         clearTimeout(timerId1);
         if (action === 'SKIP_COUNTDOWN') {
           quizSessions.quizStatus.state = State.QUESTION_OPEN;
+          timerId2 = setTimeout(OpentoClose, DELAY * 1000);
           return {};
         }
       }
@@ -725,6 +728,7 @@ export const UpdateSessionState = (token: string, quizId: number, sessionId: num
       // - ANSWER_SHOW via GO_TO_ANSWER, 
       // - QUESTION_CLOSE after duration ends
       if (quizSessions.quizStatus.state === 'QUESTION_OPEN') {
+        clearTimeout(timerId2);
         if (action === 'GO_TO_ANSWER') {
           quizSessions.quizStatus.state = State.ANSWER_SHOW;
           return {};
@@ -781,6 +785,14 @@ export const UpdateSessionState = (token: string, quizId: number, sessionId: num
         }
       }
 
+      //TIMER no.2 function
+      function OpentoClose() {
+        if (quizSessions.quizStatus.state === 'QUESTION_OPEN') {
+          quizSessions.quizStatus.state = State.QUESTION_CLOSE;
+          return {};
+        }
+      }
+
       //testing helper function
       
     }
@@ -811,6 +823,53 @@ export const GetSessionStatus = (token: string, quizId: number, sessionId: numbe
       return quizSessions.quizStatus;
     }
   }
+};
+
+export const QuizSessionFinalResults = (token: string, quizId: number, sessionId: number) => {
+  const data = getData();
+  const user = validToken(token, data.users);
+
+  const userQuiz = user.quizzes.find(quizzes => quizzes.quizId === quizId);
+  if (userQuiz === undefined) {
+    throw HTTPError(403, 'User does not own quiz');
+  }
+
+  const activeSessions = viewSessions(token, quizId).activeSessions;
+  if (!activeSessions.includes(sessionId)) {
+    throw HTTPError(400, 'Session Id does not refer to a valid session within this quiz');
+  }
+
+  const result = GetSessionStatus(token, quizId, sessionId);
+  if (result.state != State.FINAL_RESULTS) {
+    throw HTTPError(400, 'Not in final_results state');
+  }
+
+  const AllPlayersRanked = [];
+  const AllPlayersQuestionStats = [];
+
+  //if correct session within session array
+  for (const quizSessions of data.quizSessions) {
+    if (quizSessions.sessionId === sessionId) {
+      //for all players in player array
+      for (const player of quizSessions.quizStatus.players) {
+        //get session results for that player, push those results to AllPlayersRanked array
+        const playerResults = JaredSessionFinalResults(player.playerId)
+        playerResults.usersRankedByScore.forEach(user => {
+          AllPlayersRanked.push(user);
+        });
+      }
+     
+      
+      // for (each player in list of players) {
+      //   amalagamate isCallLikeExpression(jared's cuntion)
+      // }
+
+    }
+  }
+
+  AllPlayersRanked.usersRankedByScore.sort((a, b) => {
+    return a.score - b.score;
+  });
 
 };
 
