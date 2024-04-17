@@ -1,6 +1,6 @@
 import { requestRegister, requestUpdateQuizDescription, requestClear, requestLogin, requestMoveQuestion, requestQuestionDuplicate, requestPlayerResult } from './wrapper';
 import { requestQuizList, requestQuizCreate, requestQuizTrash, requestQuizViewTrash, requestQuizRestore, requestQuizTrashEmpty, requestQuizQuestionCreate, requestquizTransfer, requestLogout, requestQuizInfo, requestUpdateQuizName, requestUpdateQuizQuestion, requestDeleteQuizQuestion } from './wrapper2';
-import { QuizListReturn, SessionId, quizId, quizUser, quizQuestionCreateInput, quiz, quizQuestionCreateReturn, questionId, getSessionResultReturn } from './interfaces';
+import { QuizListReturn, SessionId, quizId, quizUser, quizQuestionCreateInput, quiz, quizQuestionCreateReturn, questionId, QuizResults } from './interfaces';
 import HTTPError from 'http-errors';
 import { time } from 'console';
 
@@ -1485,7 +1485,7 @@ describe('Testing Post /v2/admin/quiz/{quizid}/transfer', () => {
     });
 
     test('Error test for 400 error, Any session for this quiz is not in END state', () => {
-      // const session = requestSessionStart(quiz.quizId, user.token, 3);
+      // const session = requestSessionStart(user.token,quiz.quizId, 3);
       // expect(() => requestquizTransfer(user2.token, 'validemail@gmail.com', quiz3.quizId)).toThrow(HTTPError[400]);
     });
 
@@ -1761,7 +1761,7 @@ describe('GET /v1/player/:playerid/results, sessionGetPlayerResult', () => {
     //       percentCorrect: expect.any(Number),
     //     }
     //   ]
-    // } as getSessionResultReturn );
+    // } as QuizResults );
   });
 
 
@@ -1770,8 +1770,8 @@ describe('GET /v1/player/:playerid/results, sessionGetPlayerResult', () => {
   });
 
   test('Session is not in FINAL_RESULTS state', () => {
-    // requestUpdateSessionState(quiz.quizId, session.sessionId, user.token, "END");
-    // expect(() => requestPlayerResult(player.playerId + 100)).toThrow(HTTPError[400]);
+    // requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, "END");
+    // expect(() => requestSessionResult(player.playerId + 100)).toThrow(HTTPError[400]);
   });
 
 });
