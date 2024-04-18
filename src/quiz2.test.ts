@@ -7,6 +7,15 @@ beforeEach(() => {
   requestClear();
 });
 
+// helper function for testing timers
+function sleepSync(ms: number) {
+  const startTime = new Date().getTime();
+  while (new Date().getTime() - startTime < ms) {
+    // zzzZZ - comment needed so eslint doesn't complain
+  }
+}
+
+
 /*
  * Testing for listing quiz
  */
@@ -1749,7 +1758,7 @@ describe('request UpdateSessionState testing', () => {
     });
   });
   describe('Successful cases', () => {
-    jest.useFakeTimers();
+    // jest.useFakeTimers();
     test('Correct return value', () => {
       expect(requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, Action.END)).toStrictEqual({});
     });
@@ -1770,21 +1779,31 @@ describe('request UpdateSessionState testing', () => {
     //   expect(result.state).toStrictEqual('QUESTION_OPEN');
     // });
     // jest.useFakeTimers();
-    // test('Correctly updates state LOBBY --> QUESTION_COUNTDOWN', async () => {
-    //   // const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-    //   console.log('starting update test');
-    //   requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, Action.NEXT_QUESTION);
-    //   // await sleep(2);
-    //   console.log('finished update function');
-    //   console.log('scalling check statust');
-    //   let result = requestGetSessionStatus(user.token, quiz.quizId, session.sessionId);
-    //   expect(result.state).toStrictEqual('QUESTION_COUNTDOWN');
-    //   // await sleep(2);
-    //   jest.runAllTimers();
-    //   console.log('called status test');
-    //   result = requestGetSessionStatus(user.token, quiz.quizId, session.sessionId);
-    //   expect(result.state).toStrictEqual('QUESTION_OPEN');
-    // });
+    test('Correctly updates state LOBBY --> QUESTION_COUNTDOWN', () => {
+      // const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+      console.log('starting update test');
+      requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, Action.NEXT_QUESTION);
+      // await sleep(2);
+      sleepSync(2 * 1000);
+      console.log('finished update function');
+      console.log('scalling check statust');
+      let result = requestGetSessionStatus(user.token, quiz.quizId, session.sessionId);
+      expect(result.state).toStrictEqual('QUESTION_COUNTDOWN');
+      // await sleep(2);
+      // jest.runAllTimers();
+      sleepSync(2 * 1000);
+      console.log('called status test');
+      result = requestGetSessionStatus(user.token, quiz.quizId, session.sessionId);
+      expect(result.state).toStrictEqual('QUESTION_OPEN');
+    });
+    test('Testing timer works for every question', () => {
+      requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, Action.NEXT_QUESTION);
+      sleepSync(2 * 1000);
+      sleepSync(2 * 1000);
+      
+      let result = requestGetSessionStatus(user.token, quiz.quizId, session.sessionId);
+      expect(result.state).toStrictEqual('QUESTION_OPEN');
+    });
   });
 });
 

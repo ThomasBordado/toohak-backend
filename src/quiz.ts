@@ -696,18 +696,26 @@ export const UpdateSessionState = (token: string, quizId: number, sessionId: num
   for (const quizSessions of data.quizSessions) {
     if (quizSessions.sessionId === sessionId) {
 
-      // Can go to end from any state
-      // if (action === 'END') {
-      //   quizSessions.quizStatus.state = State.END;
-      //   return {};
-      // }
+      //Can go to end from any state
+      if (action === 'END') {
+        quizSessions.quizStatus.state = State.END;
+        clearTimeout(timerId1);
+        clearTimeout(timerId2);
+        return {};
+      }
 
       //LOBBY can branch to: 
       // - QUESTION_COUNTDOWN via NEXT_QUESTION
       if (quizSessions.quizStatus.state === 'LOBBY') {
         if (action === 'NEXT_QUESTION') {
+          if (quizSessions.quizStatus.atQuestion >= quizSessions.quizStatus.metadata.numQuestions) {
+            throw HTTPError(400, 'No more questions in quiz');
+          }
           quizSessions.quizStatus.state = State.QUESTION_COUNTDOWN;
           timerId1 = setTimeout(CountdownToOpen, DELAY * 1000);
+          data.timers.push(timerId1);
+          quizSessions.quizStatus.atQuestion += 1;
+          // timers.push(timerId1);
           return {};
         }
       } 
@@ -716,10 +724,11 @@ export const UpdateSessionState = (token: string, quizId: number, sessionId: num
       // - QUESTION_OPEN via SKIP_COUNTDOWN 
       // - QUESTION_OPEN after 3 seconds elapsed
       if (quizSessions.quizStatus.state === 'QUESTION_COUNTDOWN') {
-        clearTimeout(timerId1);
         if (action === 'SKIP_COUNTDOWN') {
           quizSessions.quizStatus.state = State.QUESTION_OPEN;
-          timerId2 = setTimeout(OpentoClose, DELAY * 1000);
+          clearTimeout(timerId1);
+          timerId2 = setTimeout(OpentoClose, quizSessions.quizStatus.metadata.questions[quizSessions.quizStatus.atQuestion - 1].duration * 1000);
+          data.timers.push(timerId2);
           return {};
         }
       }
@@ -731,6 +740,7 @@ export const UpdateSessionState = (token: string, quizId: number, sessionId: num
         clearTimeout(timerId2);
         if (action === 'GO_TO_ANSWER') {
           quizSessions.quizStatus.state = State.ANSWER_SHOW;
+          clearTimeout(timerId2);
           return {};
         }
       }
@@ -747,7 +757,13 @@ export const UpdateSessionState = (token: string, quizId: number, sessionId: num
       }
       if (quizSessions.quizStatus.state === 'QUESTION_CLOSE') {
         if (action === 'NEXT_QUESTION') {
+          if (quizSessions.quizStatus.atQuestion >= quizSessions.quizStatus.metadata.numQuestions) {
+            throw HTTPError(400, 'No more questions in quiz');
+          }
           quizSessions.quizStatus.state = State.QUESTION_COUNTDOWN;
+          timerId1 = setTimeout(CountdownToOpen, DELAY * 1000);
+          data.timers.push(timerId1);
+          quizSessions.quizStatus.atQuestion += 1;
           return {};
         }
       }
@@ -763,7 +779,13 @@ export const UpdateSessionState = (token: string, quizId: number, sessionId: num
       // - FINAL_RESULTS via GO_TO_FINAL_RESULTS
       if (quizSessions.quizStatus.state === 'ANSWER_SHOW') {
         if (action === 'NEXT_QUESTION') {
+          if (quizSessions.quizStatus.atQuestion >= quizSessions.quizStatus.metadata.numQuestions) {
+            throw HTTPError(400, 'No more questions in quiz');
+          }
           quizSessions.quizStatus.state = State.QUESTION_COUNTDOWN;
+          timerId1 = setTimeout(CountdownToOpen, DELAY * 1000);
+          data.timers.push(timerId1);
+          quizSessions.quizStatus.atQuestion += 1;
           return {};
         }
       }
@@ -774,13 +796,12 @@ export const UpdateSessionState = (token: string, quizId: number, sessionId: num
         }
       }
 
-      //FINAL_RESULTS can branch to:
-      // - END via END (already implemented)
-
       //TIMER no.1 function
       function CountdownToOpen() {
         if (quizSessions.quizStatus.state === 'QUESTION_COUNTDOWN') {
           quizSessions.quizStatus.state = State.QUESTION_OPEN;
+          timerId2 = setTimeout(OpentoClose, quizSessions.quizStatus.metadata.questions[quizSessions.quizStatus.atQuestion - 1].duration * 1000);
+          data.timers.push(timerId2);
           return {};
         }
       }
@@ -792,16 +813,9 @@ export const UpdateSessionState = (token: string, quizId: number, sessionId: num
           return {};
         }
       }
-
-      //testing helper function
-      
     }
   }
-
-  
-
   throw HTTPError(400, 'Action enum cannot be applied in the current state');
-
 };
 
 export const GetSessionStatus = (token: string, quizId: number, sessionId: number) => {
@@ -844,32 +858,47 @@ export const QuizSessionFinalResults = (token: string, quizId: number, sessionId
     throw HTTPError(400, 'Not in final_results state');
   }
 
-  const AllPlayersRanked = [];
-  const AllPlayersQuestionStats = [];
+  // const allPlayersRanked = [];
+  // const allPlayersQuestionStats = [];
+  // const answerTime: number = 0;
+  // const correctPercent: number = 0;
 
-  //if correct session within session array
-  for (const quizSessions of data.quizSessions) {
-    if (quizSessions.sessionId === sessionId) {
-      //for all players in player array
-      for (const player of quizSessions.quizStatus.players) {
-        //get session results for that player, push those results to AllPlayersRanked array
-        const playerResults = JaredSessionFinalResults(player.playerId)
-        playerResults.usersRankedByScore.forEach(user => {
-          AllPlayersRanked.push(user);
-        });
-      }
+
+  // //if correct session within session array
+  // for (const quizSessions of data.quizSessions) {
+  //   if (quizSessions.sessionId === sessionId) {
+  //     //for all players in player array
+  //     for (const player of quizSessions.quizStatus.players) {
+  //       //get session results for that player, push those results to AllPlayersRanked array
+  //       const playerResults = JaredSessionFinalResults(player.playerId)
+  //       playerResults.usersRankedByScore.forEach(user => {
+  //         allPlayersRanked.push(user);
+  //       });
+
+  //       playerResults.questionResults.forEach(user => {
+  //         answerTime += user.averageAnswerTime;
+  //         correctPercent += user.percentCorrect;
+  //       });
+
+  //       // for (const question of each question in session)
+  //       //   call jareds other function
+  //       //   append score to newscore array
+  //       //   append 
+
+
+  //     }
      
       
-      // for (each player in list of players) {
-      //   amalagamate isCallLikeExpression(jared's cuntion)
-      // }
+  //     // for (each player in list of players) {
+  //     //   amalagamate isCallLikeExpression(jared's cuntion)
+  //     // }
 
-    }
-  }
+  //   }
+  // }
 
-  AllPlayersRanked.usersRankedByScore.sort((a, b) => {
-    return a.score - b.score;
-  });
+  // AllPlayersRanked.usersRankedByScore.sort((a, b) => {
+  //   return a.score - b.score;
+  // });
 
 };
 
