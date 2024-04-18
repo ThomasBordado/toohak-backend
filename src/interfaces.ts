@@ -141,19 +141,6 @@ export interface quizQuestionDuplicateReturn {
   newQuestionId: number;
 }
 
-export interface DataStore {
-  users: user[];
-  quizzes: quiz[];
-  userIdStore: number;
-  quizIdStore: number;
-  sessionIdStore: number;
-  questionIdStore: number;
-  answerIdStore: number;
-  trash: quiz[];
-  quizSessionIdStore: number,
-  quizSessions: QuizSession[],
-}
-
 export enum State {
   LOBBY = 'LOBBY',
   QUESTION_COUNTDOWN = 'QUESTION_COUNTDOWN',
@@ -170,6 +157,63 @@ export enum Action {
   GO_TO_ANSWER = 'GO_TO_ANSWER',
   GO_TO_FINAL_RESULTS = 'GO_TO_FINAL_RESULTS',
   END = 'END',
+}
+
+export interface sessionViewReturn {
+  activeSessions: number[];
+  inactiveSessions: number[];
+}
+
+export interface QuizStatus {
+  state: State;
+  atQuestion: number;
+  players: string[];
+  metadata: quiz;
+}
+
+export interface UserRank {
+  name: string;
+  score: number;
+}
+
+export interface QuestionResults {
+  questionId: number;
+  playerCorrectList: string[];
+  averageAnswerTime: number;
+  percentCorrect: number;
+}
+
+export interface QuizResults {
+  usersRankedByScore: UserRank[];
+  questionResults: QuestionResults[];
+}
+
+export interface Message {
+  messageBody: string;
+  playerId: number;
+  playerName: string;
+  timeSent: number;
+}
+
+export interface QuizSession {
+  sessionId: number;
+  autoStartNum: number;
+  quizStatus: QuizStatus;
+  quizResults: QuizResults;
+  messages: Message[];
+}
+
+export interface DataStore {
+  users: user[];
+  quizzes: quiz[];
+  userIdStore: number;
+  quizIdStore: number;
+  sessionIdStore: number;
+  questionIdStore: number;
+  answerIdStore: number;
+  trash: quiz[];
+  quizSessionIdStore: number;
+  quizSessions: QuizSession[];
 }
 
 export interface QuizStatus {

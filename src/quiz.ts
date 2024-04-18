@@ -1,5 +1,5 @@
 import { getData, setData } from './dataStore';
-import { EmptyObject, ErrorReturn, QuizListReturn, quiz, quizId, quizQuestionCreateInput, quizQuestionCreateInputV1, quizQuestionCreateReturn, quizQuestionDuplicateReturn, messageInput, MessageListReturn, QuizResults } from './interfaces';
+import { EmptyObject, ErrorReturn, QuizListReturn, quiz, quizId, quizQuestionCreateInput, quizQuestionCreateInputV1, quizQuestionCreateReturn, quizQuestionDuplicateReturn, QuizSession, State, messageInput, MessageListReturn, QuizResults } from './interfaces';
 import { validToken, checkQuizName, checkQuestionValid, isValidQuizId, randomColour, validthumbnailUrl, checkQuestionValidV1 } from './quizUtil';
 import { saveData } from './persistence';
 import HTTPError from 'http-errors';
@@ -271,8 +271,6 @@ export const adminQuizQuestionDelete = (token: string, quizId: number, questioni
   const findQuestion = findQuiz.questions.findIndex(questions => questions.questionId === questionid);
   if (findQuestion === -1) {
     throw HTTPError(400, 'Invalid questionId');
-  } else if (findQuestion > -1) {
-    findQuiz.questions.splice(findQuestion, 1);
   }
 
   findQuiz.duration -= findQuiz.questions[findQuestion].duration;
@@ -607,6 +605,81 @@ export const adminQuizThumbnailUpdate = (token: string, quizId: number, thumbnai
   return {};
 };
 
+export const viewSessions = (token: string, quizId: number) => {
+  const data = getData();
+  const user = validToken(token, data.users);
+
+  const userQuiz = user.quizzes.find(quizzes => quizzes.quizId === quizId);
+  if (userQuiz === undefined) {
+    throw HTTPError(403, 'User does not own quiz');
+  }
+
+  const activeSessions = [];
+  const inactiveSessions = [];
+  for (const quizSessions of data.quizSessions) {
+    if (quizSessions.quizStatus.metadata.quizId === quizId) {
+      if (quizSessions.quizStatus.state === 'END') {
+        inactiveSessions.push(quizSessions.sessionId);
+      } else {
+        activeSessions.push(quizSessions.sessionId);
+      }
+    }
+  }
+
+  return {
+    activeSessions: activeSessions,
+    inactiveSessions: inactiveSessions,
+  };
+};
+
+export const sessionStart = (token: string, quizId: number, autoStartNum: number) => {
+  const data = getData();
+  const user = validToken(token, data.users);
+
+  const userQuiz = user.quizzes.find(quizzes => quizzes.quizId === quizId);
+  const userTrash = user.trash.find(quizzes => quizzes.quizId === quizId);
+  if (userQuiz === undefined) {
+    if (userTrash === undefined) {
+      throw HTTPError(403, 'User does not own quiz');
+    } else {
+      throw HTTPError(400, 'The quiz is in trash');
+    }
+  }
+  const activeSessions = viewSessions(token, quizId).activeSessions;
+  if (activeSessions.length === 10) {
+    throw HTTPError(400, 'A maximum of 10 sessions that are not in END state is allowed');
+  }
+  if (autoStartNum > 50) {
+    throw HTTPError(400, 'autoStartNum cannot be greater than 50');
+  }
+  if (autoStartNum < 0) {
+    throw HTTPError(400, 'autoStartNum cannot be less than 0');
+  }
+  const quiz = data.quizzes.find(quizzes => quizzes.quizId === quizId);
+  if (quiz.numQuestions === 0) {
+    throw HTTPError(400, 'The quiz does not have any questions in it');
+  }
+
+  data.quizSessionIdStore += 1;
+  const newQuizSession: QuizSession = {
+    sessionId: data.quizSessionIdStore,
+    autoStartNum: autoStartNum,
+    quizStatus: {
+      state: State.LOBBY,
+      atQuestion: 0,
+      players: [],
+      metadata: quiz,
+    },
+    quizResults: {
+      usersRankedByScore: [],
+      questionResults: [],
+    },
+    messages: [],
+  };
+
+  data.quizSessions.push(newQuizSession);
+  return { sessionId: data.quizSessionIdStore };
+};
 export const sessionMessagesList = (playerId: number): MessageListReturn => {
   // ValidPlayerId(playerId);
   //
