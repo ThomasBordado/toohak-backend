@@ -12,7 +12,7 @@ import process from 'process';
 import { clear } from './other';
 import { adminQuizList, adminQuizCreate1, adminQuizCreate2, adminQuizRemove, adminQuizInfo, adminQuizNameUpdate, adminQuizDescriptionUpdate, adminQuizViewTrash, adminQuizRestore, adminQuizTrashEmpty, quizTransfer1, quizTransfer2, adminQuizQuestionUpdate, adminQuizQuestionDelete, adminQuizQuestionMove, adminQuizQuestionDuplicate, quizQuestionCreate2, quizQuestionCreate1, adminQuizThumbnailUpdate, viewSessions, sessionStart, UpdateSessionState, GetSessionStatus/*, QuizSessionFinalResults */ } from './quiz';
 import { adminAuthLogin, adminAuthRegister, adminUserDetails, adminUserDetailsUpdate2, adminUserPasswordUpdate2, adminAuthLogout, adminUserDetailsUpdate1, adminUserPasswordUpdate1 } from './auth';
-import { playerJoin } from './player';
+import { playerJoin, playerStatus } from './player';
 import { loadData, saveData } from './persistence';
 
 // Set up web app
@@ -488,6 +488,12 @@ app.post('/v1/player/join', (req: Request, res: Response) => {
   const sessionId = parseInt(req.body.sessionId as string);
   const name = req.body.name as string;
   const result = playerJoin(sessionId, name);
+  res.json(result);
+});
+
+app.get('/v1/player/:playerid', (req: Request, res: Response) => {
+  const playerId = parseInt(req.params.playerid as string);
+  const result = playerStatus(playerId);
   res.json(result);
 });
 

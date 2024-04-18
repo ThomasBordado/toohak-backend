@@ -1,5 +1,5 @@
 import { requestRegister, requestClear } from './wrapper';
-import { requestQuizCreate, requestQuizQuestionCreate, requestSessionStart, requestPlayerJoin, requestUpdateSessionState } from './wrapper2';
+import { requestQuizCreate, requestQuizQuestionCreate, requestSessionStart, requestPlayerJoin, requestPlayerStatus, requestUpdateSessionState } from './wrapper2';
 import { SessionId, quizId, quizQuestionCreateInput } from './interfaces';
 import HTTPError from 'http-errors';
 
@@ -69,7 +69,6 @@ describe('Test requestPlayerJoin', () => {
     expect(playerId).toStrictEqual({ playerId: playerId.playerId });
   });
 
-  //
   test('Test Two players joining', () => {
     const session = requestSessionStart(user.token, quiz.quizId, 3);
     const playerId = requestPlayerJoin(session.sessionId, 'thomas');
@@ -77,7 +76,49 @@ describe('Test requestPlayerJoin', () => {
     const playerId2 = requestPlayerJoin(session.sessionId, 'qwe123');
     expect(playerId2).toStrictEqual({ playerId: playerId2.playerId });
   });
+});
 
+/*
+ * Testing for playerStatus
+ */
+describe('Test requestPlayerStatus', () => {
+  let user: SessionId;
+  let quiz: quizId;
+  let questionin: quizQuestionCreateInput;
+  beforeEach(() => {
+    user = requestRegister('tom@gmail.com', 'password1', 'Thomas', 'Bordado').jsonBody as SessionId;
+    quiz = requestQuizCreate(user.token, 'My Quiz', 'My Quiz Description');
+    questionin = {
+      question: 'Who is the Monarch of England?',
+      duration: 4,
+      points: 5,
+      answers: [
+        {
+          answer: 'Prince Charles',
+          correct: true
+        },
+        {
+          answer: 'Prince Charlie',
+          correct: false
+        }
+      ],
+      thumbnailUrl: 'http://google.com/some/image/path.jpg',
+    };
+    requestQuizQuestionCreate(user.token, questionin, quiz.quizId);
+  });
+  // 1. Successful Player status
+  test('Test playerStatus', () => {
+    const session = requestSessionStart(user.token, quiz.quizId, 3);
+    const playerId = requestPlayerJoin(session.sessionId, 'thomas');
+    expect(requestPlayerStatus(playerId.playerId)).toStrictEqual({ state: 'LOBBY', numQuestions: 1, atQuestion: 0 });
+  });
+
+  // 2. Player id invalid
+  test('Test player status missing player', () => {
+    const session = requestSessionStart(user.token, quiz.quizId, 3);
+    const playerId = requestPlayerJoin(session.sessionId, 'thomas');
+    expect(() => requestPlayerStatus(playerId.playerId + 1)).toThrow(HTTPError[400]);
+  });
   test('Test State Changes after 3 players join', () => {
     const session = requestSessionStart(user.token, quiz.quizId, 3);
     const playerId = requestPlayerJoin(session.sessionId, 'thomas');

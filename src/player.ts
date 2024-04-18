@@ -1,5 +1,5 @@
 import { getData } from './dataStore';
-import { PlayerId, Player, Action } from './interfaces';
+import { PlayerId, Player, PlayerStatus, Action } from './interfaces';
 import { UpdateSessionState } from './quiz';
 import { saveData } from './persistence';
 import HTTPError from 'http-errors';
@@ -79,4 +79,21 @@ export const playerJoin = (sessionId: number, name: string): PlayerId => {
   return {
     playerId: newPlayer.playerId
   };
+};
+
+export const playerStatus = (playerId: number): PlayerStatus => {
+  const sessions = getData().quizSessions;
+  for (const session of sessions) {
+    for (const player of session.quizStatus.players) {
+      if (player.playerId === playerId) {
+        const status = {
+          state: session.quizStatus.state,
+          numQuestions: session.quizStatus.metadata.numQuestions,
+          atQuestion: session.quizStatus.atQuestion
+        };
+        return status;
+      }
+    }
+  }
+  throw HTTPError(400, 'player ID does not exist');
 };

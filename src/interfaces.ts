@@ -1,4 +1,15 @@
 // import { string } from 'yaml/dist/schema/common/string';
+
+export enum State {
+  LOBBY = 'LOBBY',
+  QUESTION_COUNTDOWN = 'QUESTION_COUNTDOWN',
+  QUESTION_OPEN = 'QUESTION_OPEN',
+  QUESTION_CLOSE = 'QUESTION_CLOSE',
+  ANSWER_SHOW = 'ANSWER_SHOW',
+  FINAL_RESULTS = 'FINAL_RESULTS',
+  END = 'END',
+}
+
 export interface answer {
   answerId: number;
   answer: string;
@@ -114,21 +125,17 @@ export interface quizQuestionDuplicateReturn {
   newQuestionId: number;
 }
 
+export interface PlayerStatus {
+  state: State,
+  numQuestions: number,
+  atQuestion: number
+}
+
 export interface Player {
   playerId: number;
   name: string;
   answerIds: number[];
   score: number;
-}
-
-export enum State {
-  LOBBY = 'LOBBY',
-  QUESTION_COUNTDOWN = 'QUESTION_COUNTDOWN',
-  QUESTION_OPEN = 'QUESTION_OPEN',
-  QUESTION_CLOSE = 'QUESTION_CLOSE',
-  ANSWER_SHOW = 'ANSWER_SHOW',
-  FINAL_RESULTS = 'FINAL_RESULTS',
-  END = 'END',
 }
 
 export enum Action {
