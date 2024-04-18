@@ -1,6 +1,8 @@
 import { quizUser, user, quizQuestionCreateInput, quizQuestionCreateInputV1, QuizResults, CSVFormat } from './interfaces';
 import { getData } from './dataStore';
 import HTTPError from 'http-errors';
+import fs from 'fs';
+import path from 'path';
 
 /**
  * Check if AuthUserId is valid.
@@ -280,6 +282,8 @@ export const validSession = (sessionId: number, quizId: number) => {
   return findSession;
 }
 
-export const arrayToCSV = (result: QuizResults): string => {
-  return "http://google.com/some/image/path.csv";
+export const arrayToCSVAddress = (token: string, result: QuizResults): string => {
+  const fileName = `./csv-results/QuizResults_${token}.csv`;
+  fs.writeFileSync(fileName, JSON.stringify(result));
+  return fileName;
 };

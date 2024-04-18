@@ -13,6 +13,7 @@ import { clear } from './other';
 import { adminQuizList, adminQuizCreate1, adminQuizCreate2, adminQuizRemove, adminQuizInfo, adminQuizNameUpdate, adminQuizDescriptionUpdate, adminQuizViewTrash, adminQuizRestore, adminQuizTrashEmpty, quizTransfer1, quizTransfer2, adminQuizQuestionUpdate, adminQuizQuestionDelete, adminQuizQuestionMove, adminQuizQuestionDuplicate, quizQuestionCreate2, quizQuestionCreate1, adminQuizThumbnailUpdate, viewSessions, sessionStart, sessionResultList, sessionCSVResultList } from './quiz';
 import { adminAuthLogin, adminAuthRegister, adminUserDetails, adminUserDetailsUpdate2, adminUserPasswordUpdate2, adminAuthLogout, adminUserDetailsUpdate1, adminUserPasswordUpdate1 } from './auth';
 import { loadData, saveData } from './persistence';
+import { requestFileUrl } from './wrapper2';
 
 // Set up web app
 const app = express();
@@ -488,7 +489,12 @@ app.get('/v1/admin/quiz/:quizid/session/:sessionid/results/csv', (req: Request, 
   const quizId = parseInt(req.params.quizid);
   const sessionId = parseInt(req.params.sessionid);
   const response = sessionCSVResultList(token, quizId, sessionId);
-  res.json(response);
+  const URL = requestFileUrl(response);
+  res.json(URL);
+});
+
+app.get('/csv-results/:filename', (req, res) => {
+  res.sendFile(req.params.filename, { root: './csv-results' });
 });
 
 // app.get('/v1/player/:playerid/results', (req: Request, res: Response) => {
