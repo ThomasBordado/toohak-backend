@@ -78,6 +78,10 @@ const requestHelper = (
 // ========================================================================= //
 
 // Wrapper functions
+export const requestGetUserDetails = (token: string) => {
+  return requestHelper('GET', '/v2/admin/user/details', {}, { token });
+};
+
 export const requestUpdateUserDetails = (token: string, email: string, nameFirst: string, nameLast: string) => {
   return requestHelper('PUT', '/v2/admin/user/details', { email, nameFirst, nameLast }, { token });
 };
@@ -124,4 +128,32 @@ export const requestquizTransfer = (token: string, userEmail: string, quizid: nu
 
 export const requestQuizQuestionCreate = (token: string, questionBody: quizQuestionCreateInput, quizid: number) => {
   return requestHelper('POST', `/v2/admin/quiz/${quizid}/question`, { questionBody }, { token });
+};
+
+export const requestQuizInfo = (token: string, quizId: number) => {
+  return requestHelper('GET', `/v2/admin/quiz/${quizId}`, { quizId }, { token });
+};
+
+export const requestUpdateQuizName = (token: string, quizId: number, name: string) => {
+  return requestHelper('PUT', `/v2/admin/quiz/${quizId}/name`, { name, quizId }, { token });
+};
+
+export const requestUpdateQuizDescription = (token: string, quizId: number, description: string) => {
+  return requestHelper('PUT', `/v2/admin/quiz/${quizId}/description`, { description }, { token });
+};
+
+export const requestUpdateQuizQuestion = (token: string, questionBody: quizQuestionCreateInput, quizid: number, questionid: number) => {
+  return requestHelper('PUT', `/v2/admin/quiz/${quizid}/question/${questionid}`, { questionBody }, { token });
+};
+
+export const requestDeleteQuizQuestion = (token: string, quizid: number, questionid: number) => {
+  return requestHelper('DELETE', `/v2/admin/quiz/${quizid}/question/${questionid}`, {}, { token });
+};
+
+export const requestQuestionDuplicate = (token: string, quizId: number, questionId: number) => {
+  return requestHelper('POST', `/v2/admin/quiz/${quizId}/question/${questionId}/duplicate`, {}, { token });
+};
+
+export const requestMoveQuestion = (token: string, quizId: number, questionId: number, newPosition: number) => {
+  return requestHelper('PUT', `/v2/admin/quiz/${quizId}/question/${questionId}/move`, { newPosition }, { token });
 };
