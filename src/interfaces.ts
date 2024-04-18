@@ -1,12 +1,5 @@
-export interface messageInput {
+export interface MessageInput {
   messageBody: string;
-}
-
-export interface Message {
-  messageBody: string;
-  playerId: number;
-  playerName: string;
-  timeSent: number;
 }
 
 export interface MessageListReturn {
@@ -90,6 +83,17 @@ export interface UserDetails {
   numFailedPasswordsSinceLastLogin: number;
 }
 
+export interface Player {
+  playerId: number;
+  name: string;
+  answerIds: number[];
+  score: number;
+}
+
+export interface PlayerId {
+  playerId: number;
+}
+
 export interface ErrorReturn {
   error: string;
 }
@@ -167,7 +171,7 @@ export interface sessionViewReturn {
 export interface QuizStatus {
   state: State;
   atQuestion: number;
-  players: string[];
+  players: Player[];
   metadata: quiz;
 }
 
@@ -214,36 +218,4 @@ export interface DataStore {
   questionIdStore: number;
   answerIdStore: number;
   quizSessionIdStore: number;
-}
-
-export interface QuizStatus {
-  state: State;
-  atQuestion: number;
-  players: string[];
-  metadata: quiz;
-}
-
-export interface UserRank {
-  name: string;
-  score: number;
-}
-
-export interface QuestionResults {
-  questionId: number;
-  playerCorrectList: string[];
-  averageAnswerTime: number;
-  percentCorrect: number;
-}
-
-export interface QuizResults {
-  usersRankedByScore: UserRank[];
-  questionResults: QuestionResults[];
-}
-
-export interface QuizSession {
-  sessionId: number;
-  autoStartNum: number;
-  quizStatus: QuizStatus;
-  quizResults: QuizResults;
-  messages: Message[];
 }

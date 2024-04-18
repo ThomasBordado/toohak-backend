@@ -257,5 +257,13 @@ export const isActiveQuizSession = (quizId: number) => {
 };
 
 export const ValidPlayerId = (playerId: number) => {
-  
-}
+  const data = getData();
+  for (const session of data.quizSessions) {
+    for (const player of session.quizStatus.players) {
+      if (player.playerId === playerId) {
+        return;
+      }
+    }
+  }
+  throw HTTPError(400, 'player ID does not exist.');
+};

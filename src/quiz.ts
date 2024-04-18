@@ -1,5 +1,5 @@
 import { getData, setData } from './dataStore';
-import { EmptyObject, ErrorReturn, QuizListReturn, quiz, quizId, quizQuestionCreateInput, quizQuestionCreateInputV1, quizQuestionCreateReturn, quizQuestionDuplicateReturn, QuizSession, State, messageInput, MessageListReturn, QuizResults } from './interfaces';
+import { EmptyObject, ErrorReturn, QuizListReturn, quiz, quizId, quizQuestionCreateInput, quizQuestionCreateInputV1, quizQuestionCreateReturn, quizQuestionDuplicateReturn, QuizSession, State, MessageInput, MessageListReturn } from './interfaces';
 import { validToken, checkQuizName, checkQuestionValid, isValidQuizId, randomColour, validthumbnailUrl, checkQuestionValidV1, isActiveQuizSession } from './quizUtil';
 import { saveData } from './persistence';
 import HTTPError from 'http-errors';
@@ -693,29 +693,31 @@ export const sessionMessagesList = (playerId: number): MessageListReturn => {
   //   }
   // }
 
-  return {  messages: [
-        {
-          messageBody: "This is a message body",
-          playerId: 5546,
-          playerName: "Yuchao Jiang",
-          timeSent: 1683019484
-        }
-      ] 
-    }
-}
+  return {
+    messages: [
+      {
+        messageBody: 'This is a message body',
+        playerId: 5546,
+        playerName: 'Yuchao Jiang',
+        timeSent: 1683019484
+      }
+    ]
+  };
+};
 
-export const sessionSendMessage = (playerId: number, message: messageInput): EmptyObject => {
+export const sessionSendMessage = (playerId: number, message: MessageInput): EmptyObject => {
   // ValidPlayerId(playerId);
   if (message.messageBody.length < 1 || message.messageBody.length > 100) {
     throw HTTPError(400, 'message body is less than 1 character or more than 100 characters.');
   }
 
-  const newmessage = {
-    messageBody: "This is a message body",
-    playerId: playerId,
-    playerName: "Yuchao Jiang",
-    timeSent: Math.floor(Date.now() / 1000),
-  }
+  // const newmessage = {
+  //   messageBody: message.messageBody,
+  //   playerId: playerId,
+  //   playerName: 'Yuchao Jiang',
+  //   timeSent: Math.floor(Date.now() / 1000),
+  // };
+
   // push
   // const data = getData();
   // for (const session of data.quizSessions) {
@@ -723,6 +725,6 @@ export const sessionSendMessage = (playerId: number, message: messageInput): Emp
   //     session.messages.push(newmessage);
   //   }
   // }
-  
+
   return { };
-}
+};

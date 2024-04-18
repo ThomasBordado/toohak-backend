@@ -1,7 +1,7 @@
 
 import { requestRegister, requestClear, requestLogin } from './wrapper';
 import { requestQuizList, requestQuizCreate, requestQuizTrash, requestQuizViewTrash, requestQuizRestore, requestQuizTrashEmpty, requestQuizQuestionCreate, requestquizTransfer, requestLogout, requestQuizInfo, requestUpdateQuizName, requestUpdateQuizQuestion, requestDeleteQuizQuestion, requestUpdateQuizDescription, requestMoveQuestion, requestQuestionDuplicate, requestThumbnailUpdate, requestSessionView, requestSessionStart, requestMessageList, requestSendMessage } from './wrapper2';
-import { QuizListReturn, SessionId, quizId, quizUser, quizQuestionCreateInput, quiz, quizQuestionCreateReturn, questionId, sessionViewReturn, messageInput } from './interfaces';
+import { QuizListReturn, SessionId, quizId, quizUser, quizQuestionCreateInput, quiz, quizQuestionCreateReturn, questionId, sessionViewReturn, MessageInput, QuizSession, PlayerId } from './interfaces';
 import HTTPError from 'http-errors';
 
 beforeEach(() => {
@@ -2026,6 +2026,10 @@ describe('POST /v1/player/:playerid/chat, sessionSendMessage', () => {
     requestClear();
     const user = requestRegister('valideEmail@gmail.com', 'password1', 'Jane', 'Lawson').jsonBody as SessionId;
     const quiz = requestQuizCreate(user.token, 'My Quiz', 'My Quiz Description') as quizId;
+    let message: MessageInput;
+    let session: SessionId;
+    // let player: PlayerId;
+
     // Add a question in a quiz
     const input : quizQuestionCreateInput = {
       question: 'Who is the Monarch of England?',
@@ -2044,9 +2048,9 @@ describe('POST /v1/player/:playerid/chat, sessionSendMessage', () => {
       thumbnailUrl: 'http://google.com/some/image/path.jpg',
     };
     requestQuizQuestionCreate(user.token, input, quiz.quizId);
-    const session = requestSessionStart(user.token, quiz.quizId, 3);
-    // const player = requestJoinSession(session.sessionId, 'Jane.S');
-    const message = { messageBody: "Hello everyone! Nice to chat." } as messageInput;
+    session = requestSessionStart(user.token, quiz.quizId, 3);
+    // player = requestPlayerJoin(session.sessionId, 'Jane.S');
+    message = { messageBody: 'Hello everyone! Nice to chat.' } as MessageInput;
   });
 
   test('Correct return type', () => {
@@ -2061,12 +2065,12 @@ describe('POST /v1/player/:playerid/chat, sessionSendMessage', () => {
   });
 
   test('If message body is less than 1 character', () => {
-    // const invalidMessage = { messageBody: "" } as messageInput;
+    // const invalidMessage = { messageBody: "" } as MessageInput;
     // expect(() => requestSendMessage(player.playerId, invalidMessage)).toThrow(HTTPError[400]);
   });
 
   test('If message body is more than 100 characters', () => {
-    // const invalidMessage = { messageBody: "A longgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg" } as messageInput;
+    // const invalidMessage = { messageBody: "A longgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg" } as MessageInput;
     // expect(() => requestSendMessage(player.playerId, invalidMessage)).toThrow(HTTPError[400]);
   });
 
@@ -2098,7 +2102,6 @@ describe('POST /v1/player/:playerid/chat, sessionSendMessage', () => {
     // }
     // expect(requestMessageList(player.playerId)).toStrictEqual(expectedMessageList);;
   });
-
 });
 
 /**
@@ -2129,7 +2132,7 @@ describe('GET /v1/player/:playerid/chat, sessionMessagesList', () => {
     requestQuizQuestionCreate(user.token, input, quiz.quizId);
     // const session = requestStartSession(quiz.quizId, user.token, 3);
     // const player = requestJoinSession(session.sessionId, 'Jane.S');
-    const message = { messageBody: "Hello everyone! Nice to chat." } as messageInput;
+    const message = { messageBody: 'Hello everyone! Nice to chat.' } as MessageInput;
   });
 
   test('Correct return type', () => {
@@ -2170,5 +2173,4 @@ describe('GET /v1/player/:playerid/chat, sessionMessagesList', () => {
     // }
     // expect(requestMessageList(player.playerId)).toStrictEqual(expectedMessageList);;
   });
-
 });

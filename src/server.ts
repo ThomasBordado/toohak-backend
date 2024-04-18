@@ -10,11 +10,7 @@ import fs from 'fs';
 import path from 'path';
 import process from 'process';
 import { clear } from './other';
-<<<<<<< HEAD
-import { adminQuizList, adminQuizCreate1, adminQuizCreate2, adminQuizRemove, adminQuizInfo, adminQuizNameUpdate, adminQuizDescriptionUpdate, adminQuizViewTrash, adminQuizRestore, adminQuizTrashEmpty, quizTransfer1, quizTransfer2, adminQuizQuestionUpdate, adminQuizQuestionDelete, adminQuizQuestionMove, adminQuizQuestionDuplicate, quizQuestionCreate2, quizQuestionCreate1, adminQuizThumbnailUpdate, sessionSendMessage, sessionMessagesList } from './quiz';
-=======
-import { adminQuizList, adminQuizCreate1, adminQuizCreate2, adminQuizRemove, adminQuizInfo, adminQuizNameUpdate, adminQuizDescriptionUpdate, adminQuizViewTrash, adminQuizRestore, adminQuizTrashEmpty, quizTransfer1, quizTransfer2, adminQuizQuestionUpdate, adminQuizQuestionDelete, adminQuizQuestionMove, adminQuizQuestionDuplicate, quizQuestionCreate2, quizQuestionCreate1, adminQuizThumbnailUpdate, viewSessions, sessionStart } from './quiz';
->>>>>>> master
+import { adminQuizList, adminQuizCreate1, adminQuizCreate2, adminQuizRemove, adminQuizInfo, adminQuizNameUpdate, adminQuizDescriptionUpdate, adminQuizViewTrash, adminQuizRestore, adminQuizTrashEmpty, quizTransfer1, quizTransfer2, adminQuizQuestionUpdate, adminQuizQuestionDelete, adminQuizQuestionMove, adminQuizQuestionDuplicate, quizQuestionCreate2, quizQuestionCreate1, adminQuizThumbnailUpdate, viewSessions, sessionStart, sessionSendMessage, sessionMessagesList } from './quiz';
 import { adminAuthLogin, adminAuthRegister, adminUserDetails, adminUserDetailsUpdate2, adminUserPasswordUpdate2, adminAuthLogout, adminUserDetailsUpdate1, adminUserPasswordUpdate1 } from './auth';
 import { loadData, saveData } from './persistence';
 
@@ -480,7 +476,7 @@ app.get('/v1/player/:playerid/chat', (req: Request, res: Response) => {
 app.post('/v1/player/:playerid/chat', (req: Request, res: Response) => {
   const playerId = parseInt(req.params.playerid);
   const { message } = req.body;
-  const result = sessionSendMessage(playerId, message);  
+  const result = sessionSendMessage(playerId, message);
   res.json(result);
 });
 
