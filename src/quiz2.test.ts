@@ -2027,7 +2027,7 @@ describe('GET /v1/player/:playerid/results, sessionGetPlayerResult', () => {
     // const session = requestStartSession(quiz.quizId, user.token, 3);
     // const player = requestJoinSession(session.sessionId, 'Jane.S');
     // requestUpdateSessionState(quiz.quizId, session.sessionId, user.token, "QUESTION_COUNTDOWN");
-    // ..
+    // requestUpdateSessionState(quiz.quizId, session.sessionId, user.token, "QUESTION_OPEN");
     // requestUpdateSessionState(quiz.quizId, session.sessionId, user.token, "QUESTION_CLOSE");
     // requestUpdateSessionState(quiz.quizId, session.sessionId, user.token, "FINAL_RESULTS");
   });
@@ -2039,7 +2039,7 @@ describe('GET /v1/player/:playerid/results, sessionGetPlayerResult', () => {
     //   usersRankedByScore: [
     //     {
     //       name: "Hayden",
-    //       "score": 45
+    //       score: expect.any(Number),
     //     }
     //   ],
     //   questionResults: [
@@ -2055,12 +2055,12 @@ describe('GET /v1/player/:playerid/results, sessionGetPlayerResult', () => {
     // } as QuizResults );
   });
 
-  test('player ID does not exist', () => {
+  test('400 error, player ID does not exist', () => {
     // expect(() => requestPlayerResult(player.playerId + 100)).toThrow(HTTPError[400]);
   });
 
-  test('Session is not in FINAL_RESULTS state', () => {
+  test('400 error, Session is not in FINAL_RESULTS state', () => {
     // requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, "END");
-    // expect(() => requestSessionResult(player.playerId + 100)).toThrow(HTTPError[400]);
+    // expect(() => requestSessionResult(player.playerId)).toThrow(HTTPError[400]);
   });
 });
