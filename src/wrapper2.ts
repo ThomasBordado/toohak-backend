@@ -167,5 +167,17 @@ export const requestSessionStart = (token: string, quizid: number, autoStartNum:
 };
 
 export const requestPlayerJoin = (sessionId: number, name: string) => {
-  return requestHelper('POST', `/v1/player/join`, { sessionId, name }, {});
+  return requestHelper('POST', '/v1/player/join', { sessionId, name }, {});
 };
+
+export const requestUpdateSessionState = (token: string, quizid: number, sessionid: number, action: string) => {
+  return requestHelper('PUT', `/v1/admin/quiz/${quizid}/session/${sessionid}`, { action }, { token });
+};
+
+export const requestGetSessionStatus = (token: string, quizid: number, sessionid: number) => {
+  return requestHelper('GET', `/v1/admin/quiz/${quizid}/session/${sessionid}`, {}, { token });
+};
+
+// export const requestQuizSessionFinalResults = (token: string, quizid: number, sessionid: number) => {
+//   return requestHelper('GET', `/v1/admin/quiz/${quizid}/session/${sessionid}/results`, {}, { token });
+// };

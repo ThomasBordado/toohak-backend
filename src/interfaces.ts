@@ -195,4 +195,5 @@ export interface DataStore {
   trash: quiz[];
   quizSessionIdStore: number;
   quizSessions: QuizSession[];
+  timers: ReturnType<typeof setTimeout>[];
 }
