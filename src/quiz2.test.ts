@@ -2055,32 +2055,32 @@ describe('request UpdateSessionState testing', () => {
 
   describe('Unsuccessful Cases', () => {
     test('Invalid SessionId', () => {
-      expect(() => requestUpdateSessionState(user.token + 1, quiz.quizId, session.sessionId, Action.END)).toThrow(HTTPError[401]);
+      expect(() => requestUpdateSessionState(user.token + 1, quiz.quizId, session.sessionId, "END")).toThrow(HTTPError[401]);
     });
     test('Invalid quizId', () => {
-      expect(() => requestUpdateSessionState(user.token, quiz.quizId + 1, session.sessionId, Action.END)).toThrow(HTTPError[403]);
+      expect(() => requestUpdateSessionState(user.token, quiz.quizId + 1, session.sessionId, "END")).toThrow(HTTPError[403]);
     });
     test('user does not own quiz', () => {
       const user2 = requestRegister('ethan@gmail.com', 'password1', 'Ethan', 'McGregor').jsonBody as SessionId;
-      expect(() => requestUpdateSessionState(user2.token, quiz.quizId, session.sessionId, Action.END)).toThrow(HTTPError[403]);
+      expect(() => requestUpdateSessionState(user2.token, quiz.quizId, session.sessionId, "END")).toThrow(HTTPError[403]);
     });
-    // test('Action provided is not a valid Action enum', () => {
-    //   expect(() => requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, Action.END)).toThrow(HTTPError[400]);
-    // });
+    test('Action provided is not a valid Action enum', () => {
+      expect(() => requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, "BANANA")).toThrow(HTTPError[400]);
+    });
     test('Action enum cannot be applied in the current state (see spec for details)', () => {
-      expect(() => requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, Action.GO_TO_ANSWER)).toThrow(HTTPError[400]);
+      expect(() => requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, "GO_TO_ANSWER")).toThrow(HTTPError[400]);
     });
     test('Session Id does not refer to a valid session within this quiz', () => {
-      expect(() => requestUpdateSessionState(user.token, quiz.quizId, session.sessionId + 1, Action.END)).toThrow(HTTPError[400]);
+      expect(() => requestUpdateSessionState(user.token, quiz.quizId, session.sessionId + 1, "END")).toThrow(HTTPError[400]);
     });
   });
   describe('Successful cases', () => {
     // jest.useFakeTimers();
     test('Correct return value', () => {
-      expect(requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, Action.END)).toStrictEqual({});
+      expect(requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, "END")).toStrictEqual({});
     });
     test('Correctly updates state LOBBY --> QUESTION_COUNTDOWN', () => {
-      requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, Action.NEXT_QUESTION);
+      requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, "NEXT_QUESTION");
       const result = requestGetSessionStatus(user.token, quiz.quizId, session.sessionId);
       expect(result.state).toStrictEqual('QUESTION_COUNTDOWN');
     });
@@ -2094,7 +2094,7 @@ describe('request UpdateSessionState testing', () => {
       expect(result.state).toStrictEqual('QUESTION_OPEN');
     });
     test('Testing timer works for every question', () => {
-      requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, Action.NEXT_QUESTION);
+      requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, "NEXT_QUESTION");
       sleepSync(2 * 1000);
       sleepSync(2 * 1000);
 
@@ -2245,10 +2245,10 @@ describe('request GetSessionStatus testing', () => {
 //   });
 //   describe('Successful cases', () => {
 //     test('Correct return value', () => {
-//       requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, Action.NEXT_QUESTION);
-//       requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, Action.SKIP_COUNTDOWN);
-//       requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, Action.GO_TO_ANSWER);
-//       requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, Action.GO_TO_FINAL_RESULTS);
+//       requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, "NEXT_QUESTION");
+//       requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, "SKIP_COUNTDOWN");
+//       requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, "GO_TO_ANSWER");
+//       requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, "GO_TO_FINAL_RESULTS");
 //       expect(requestQuizSessionFinalResults(user.token, quiz.quizId, session.sessionId)).toStrictEqual({
 //         "usersRankedByScore": [
 //           {
