@@ -1,7 +1,6 @@
 import { quizUser, user, quizQuestionCreateInput, quizQuestionCreateInputV1 } from './interfaces';
 import { getData } from './dataStore';
 import HTTPError from 'http-errors';
-import { Session } from 'inspector';
 
 /**
  * Check if AuthUserId is valid.
@@ -248,6 +247,7 @@ export const randomColour = (): string => {
   return colours[index];
 };
 
+// input a player id and get session, meanwhile testing if the playerId is valid
 export const playerIdToSession = (playerId: number) => {
   const data = getData();
   for (const session of data.quizSessions) {
@@ -258,4 +258,4 @@ export const playerIdToSession = (playerId: number) => {
     }
   }
   throw HTTPError(400, 'player ID does not exist');
-}
+};

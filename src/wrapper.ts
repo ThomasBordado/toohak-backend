@@ -1,6 +1,6 @@
 import request, { HttpVerb } from 'sync-request-curl';
 import { port, url } from './config.json';
-import { quizQuestionCreateInputV1, messageInput } from './interfaces';
+import { quizQuestionCreateInputV1 } from './interfaces';
 
 const SERVER_URL = `${url}:${port}`;
 

@@ -689,4 +689,4 @@ export const sessionResultList = (playerId: number): QuizResults => {
     throw HTTPError(400, 'Session is not in FINAL_RESULTS state');
   }
   return session.quizResults;
-}
+};

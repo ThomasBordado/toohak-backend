@@ -1475,7 +1475,6 @@ describe('Testing Post /v2/admin/quiz/{quizid}/transfer', () => {
     test('Quiz ID refers to a quiz that has a name that is already used by the target user', () => {
       expect(() => requestquizTransfer(user2.token, 'validemail@gmail.com', quiz3.quizId)).toThrow(HTTPError[400]);
     });
-
   });
 
   describe('Error test for 401 error', () => {
@@ -1999,7 +1998,6 @@ describe('requestSessionStart testing', () => {
   });
 });
 
-
 /**
  * Test for get the final results for a whole session a player is playing in
  */
@@ -2057,7 +2055,6 @@ describe('GET /v1/player/:playerid/results, sessionGetPlayerResult', () => {
     // } as QuizResults );
   });
 
-
   test('player ID does not exist', () => {
     // expect(() => requestPlayerResult(player.playerId + 100)).toThrow(HTTPError[400]);
   });
@@ -2066,5 +2063,4 @@ describe('GET /v1/player/:playerid/results, sessionGetPlayerResult', () => {
     // requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, "END");
     // expect(() => requestSessionResult(player.playerId + 100)).toThrow(HTTPError[400]);
   });
-
 });
