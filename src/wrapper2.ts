@@ -154,6 +154,6 @@ export const requestGetSessionStatus = (token: string, quizid: number, sessionid
   return requestHelper('GET', `/v1/admin/quiz/${quizid}/session/${sessionid}`, {}, { token });
 };
 
-export const requestQuizSessionFinalResults = (token: string, quizid: number, sessionid: number) => {
-  return requestHelper('GET', `/v1/admin/quiz/${quizid}/session/${sessionid}/results`, {}, { token });
-};
+// export const requestQuizSessionFinalResults = (token: string, quizid: number, sessionid: number) => {
+//   return requestHelper('GET', `/v1/admin/quiz/${quizid}/session/${sessionid}/results`, {}, { token });
+// };
