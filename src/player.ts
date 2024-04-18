@@ -111,14 +111,23 @@ export const playerQuestionInfo = (playerId: number, questionPosition: number): 
         if (session.quizStatus.state === 'LOBBY' || session.quizStatus.state === 'QUESTION_COUNTDOWN' || session.quizStatus.state === 'END') {
             throw HTTPError(400, 'Session is in LOBBY, QUESTION_COUNTDOWN, or END state');
         }
-        const question = session.quizStatus.metadata.questions[questionPosition];
+        const question = session.quizStatus.metadata.questions[questionPosition - 1];
+        let answerReturn = [];
+        for (const answer of question.answers) {
+            const res = {
+                answerId: answer.answerId,
+                answer: answer.answer,
+                colour: answer.colour
+            };
+            answerReturn.push(res);
+        }
         const playerQuestionInfo = {
             questionId: question.questionId,
             question: question.question,
             duration: question.duration,
             thumbnailUrl: session.quizStatus.metadata.thumbnailUrl,
             points: question.points,
-            answers: question.answers
+            answers: answerReturn
         };
         return playerQuestionInfo;
       }

@@ -1,7 +1,15 @@
 import { requestRegister, requestClear } from './wrapper';
-import { requestQuizCreate, requestQuizQuestionCreate, requestSessionStart, requestPlayerJoin, requestPlayerStatus, requestPlayerQuestionInfo } from './wrapper2';
+import { requestQuizCreate, requestQuizQuestionCreate, requestSessionStart, requestPlayerJoin, requestPlayerStatus, requestPlayerQuestionInfo, requestUpdateSessionState } from './wrapper2';
 import { SessionId, quizId, quizQuestionCreateInput, questionId } from './interfaces';
 import HTTPError from 'http-errors';
+
+// helper function for testing timers
+function sleepSync(ms: number) {
+  const startTime = new Date().getTime();
+  while (new Date().getTime() - startTime < ms) {
+    // zzzZZ - comment needed so eslint doesn't complain
+  }
+}
 
 beforeEach(() => {
   requestClear();
@@ -151,25 +159,32 @@ describe('Test requestPlayerQuestionInfo', () => {
     questionId = requestQuizQuestionCreate(user.token, questionin, quiz.quizId);
   });
   // 1. Successful Player status
-  // test('Test playerStatus', () => {
-  //   const session = requestSessionStart(user.token, quiz.quizId, 3);
-  //   const playerId = requestPlayerJoin(session.sessionId, 'thomas');
-  //   const result = requestPlayerQuestionInfo(playerId.playerId, 1);
-  //   expect(result).toStrictEqual({
-  //     questionId: questionId,
-  //     question: 'Who is the Monarch of England?',
-  //     duration: 4,
-  //     thumbnailUrl: 'http://google.com/some/image/path.jpg',
-  //     points: 5,
-  //     answers: [
-  //       {
-  //         answerId: 2384, // This must be changed
-  //         answer: 'Prince Charles',
-  //         colour: 'red' // This also must be changed.
-  //       }
-  //     ]
-  //   });
-  // });
+  test('Test playerStatus', () => {
+    const session = requestSessionStart(user.token, quiz.quizId, 3);
+    const playerId = requestPlayerJoin(session.sessionId, 'thomas');
+    requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'NEXT_QUESTION');
+    sleepSync(3 * 1000);
+    const result = requestPlayerQuestionInfo(playerId.playerId, 1);
+    expect(result).toStrictEqual({
+      questionId: questionId.questionId,
+      question: 'Who is the Monarch of England?',
+      duration: 4,
+      thumbnailUrl: 'http://google.com/some/image/path.jpg',
+      points: 5,
+      answers: [
+        {
+          answerId: expect.any(Number),
+          answer: 'Prince Charles',
+          colour: expect.any(String)
+        },
+        {
+          answerId: expect.any(Number),
+          answer: 'Prince Charlie',
+          colour: expect.any(String)
+        }
+      ]
+    });
+  });
 
   // 2. Player id invalid
   test('Test player status missing player', () => {

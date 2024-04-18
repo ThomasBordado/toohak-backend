@@ -22,6 +22,12 @@ export interface answerInput {
   correct: boolean;
 }
 
+export interface answerBrief {
+  answerId: number;
+  answer: string;
+  colour: string;
+}
+
 export interface quizQuestion {
   questionId: number;
   question: string;
@@ -131,7 +137,7 @@ export interface PlayerQuestionInfo {
   duration: number,
   thumbnailUrl: string,
   points: number,
-  answers: answer[]
+  answers: answerBrief[]
 }
 
 export interface PlayerStatus {
@@ -211,4 +217,5 @@ export interface DataStore {
   trash: quiz[];
   quizSessionIdStore: number;
   quizSessions: QuizSession[];
+  timers: ReturnType<typeof setTimeout>[];
 }

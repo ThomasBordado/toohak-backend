@@ -13,6 +13,7 @@ let data: DataStore = {
   trash: [],
   quizSessionIdStore: 0,
   quizSessions: [],
+  timers: [],
 };
 
 // YOU SHOULD MODIFY THIS OBJECT ABOVE ONLY
