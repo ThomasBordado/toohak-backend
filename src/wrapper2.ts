@@ -169,3 +169,7 @@ export const requestSessionStart = (token: string, quizid: number, autoStartNum:
 export const requestSessionResult = (playerid: number) => {
   return requestHelper('GET', `/v1/player/${playerid}/results`, { playerid });
 };
+
+export const requestSessionCSVResult = (token: string, quizid: number, sessionid: number) => {
+  return requestHelper('GET', `/v1/admin/quiz/${quizid}/session/${sessionid}/results/csv`, { quizid, sessionid }, { token });
+};
