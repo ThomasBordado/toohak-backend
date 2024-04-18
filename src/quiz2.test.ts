@@ -2338,12 +2338,10 @@ describe('requestSessionView testing', () => {
   });
 });
 
-
-
 /**
  * Test for sending messages in session
  */
-describe.only('POST /v1/player/:playerid/chat, sessionSendMessage', () => {
+describe('POST /v1/player/:playerid/chat, sessionSendMessage', () => {
   let message: MessageInput;
   let session: QuizSessionId;
   let player: PlayerId;
@@ -2379,7 +2377,6 @@ describe.only('POST /v1/player/:playerid/chat, sessionSendMessage', () => {
     expect(() => (requestSendMessage(player.playerId, message)).not.toThrow(HTTPError));
     const returnType = requestSendMessage(player.playerId, message);
     expect(returnType).toStrictEqual({ });
-
   });
 
   test('If player ID does not exist', () => {
@@ -2387,12 +2384,12 @@ describe.only('POST /v1/player/:playerid/chat, sessionSendMessage', () => {
   });
 
   test('If message body is less than 1 character', () => {
-    const invalidMessage = { messageBody: "" } as MessageInput;
+    const invalidMessage = { messageBody: '' } as MessageInput;
     expect(() => requestSendMessage(player.playerId, invalidMessage)).toThrow(HTTPError[400]);
   });
 
   test('If message body is more than 100 characters', () => {
-    const invalidMessage = { messageBody: "A longgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg" } as MessageInput;
+    const invalidMessage = { messageBody: 'A longggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg' } as MessageInput;
     expect(() => requestSendMessage(player.playerId, invalidMessage)).toThrow(HTTPError[400]);
   });
 
@@ -2403,25 +2400,25 @@ describe.only('POST /v1/player/:playerid/chat, sessionSendMessage', () => {
     const expectedMessageList = {
       messages: [
         {
-          messageBody: "Hello everyone! Nice to chat.",
+          messageBody: 'Hello everyone! Nice to chat.',
           playerId: player.playerId,
-          playerName: "Jane.S",
+          playerName: 'Jane.S',
           timeSent: expect.any(Number),
         },
         {
-          messageBody: "Hello everyone! Nice to chat.",
+          messageBody: 'Hello everyone! Nice to chat.',
           playerId: player.playerId,
-          playerName: "Jane.S",
+          playerName: 'Jane.S',
           timeSent: expect.any(Number),
         },
         {
-          messageBody: "Hello everyone! Nice to chat.",
+          messageBody: 'Hello everyone! Nice to chat.',
           playerId: player.playerId,
-          playerName: "Jane.S",
+          playerName: 'Jane.S',
           timeSent: expect.any(Number),
         },
       ]
-    }
+    };
     expect(requestMessageList(player.playerId)).toStrictEqual(expectedMessageList);
   });
 });
@@ -2430,6 +2427,8 @@ describe.only('POST /v1/player/:playerid/chat, sessionSendMessage', () => {
  * Test for Listing messages in session
  */
 describe('GET /v1/player/:playerid/chat, sessionMessagesList', () => {
+  let player: PlayerId;
+  let message: MessageInput;
   beforeEach(() => {
     requestClear();
     const user = requestRegister('valideEmail@gmail.com', 'password1', 'Jane', 'Lawson').jsonBody as SessionId;
@@ -2452,47 +2451,47 @@ describe('GET /v1/player/:playerid/chat, sessionMessagesList', () => {
       thumbnailUrl: 'http://google.com/some/image/path.jpg',
     };
     requestQuizQuestionCreate(user.token, input, quiz.quizId);
-    // const session = requestStartSession(quiz.quizId, user.token, 3);
-    // const player = requestJoinSession(session.sessionId, 'Jane.S');
-    const message = { messageBody: 'Hello everyone! Nice to chat.' } as MessageInput;
+    const session = requestSessionStart(user.token, quiz.quizId, 3);
+    player = requestPlayerJoin(session.sessionId, 'Jane.S');
+    message = { messageBody: 'Hello everyone! Nice to chat.' } as MessageInput;
   });
 
   test('Correct return type', () => {
-    // expect(() => (requestMessageList(player.playerId)).not.toThrow(HTTPError));
-    // const returnType = requestMessageList(player.playerId);
-    // expect(returnType).toStrictEqual({ messages: [] });
+    expect(() => (requestMessageList(player.playerId)).not.toThrow(HTTPError));
+    const returnType = requestMessageList(player.playerId);
+    expect(returnType).toStrictEqual({ messages: [] });
   });
 
   test('If player ID does not exist', () => {
-    // expect(() => requestMessageList(player.playerId + 100)).toThrow(HTTPError[400]);
+    expect(() => requestMessageList(player.playerId + 100)).toThrow(HTTPError[400]);
   });
 
   test('Testing behavior', () => {
-    // requestSendMessage(player.playerId, message);
-    // requestSendMessage(player.playerId, message);
-    // requestSendMessage(player.playerId, message);
-    // const expectedMessageList = {
-    //   messages: [
-    //     {
-    //       messageBody: "Hello everyone! Nice to chat.",
-    //       playerId: player.playerId,
-    //       playerName: "Jane.S",
-    //       timeSent: expect.any(Number),
-    //     },
-    //     {
-    //       messageBody: "Hello everyone! Nice to chat.",
-    //       playerId: player.playerId,
-    //       playerName: "Jane.S",
-    //       timeSent: expect.any(Number),
-    //     },
-    //     {
-    //       messageBody: "Hello everyone! Nice to chat.",
-    //       playerId: player.playerId,
-    //       playerName: "Jane.S",
-    //       timeSent: expect.any(Number),
-    //     },
-    //   ]
-    // }
-    // expect(requestMessageList(player.playerId)).toStrictEqual(expectedMessageList);;
+    requestSendMessage(player.playerId, message);
+    requestSendMessage(player.playerId, message);
+    requestSendMessage(player.playerId, message);
+    const expectedMessageList = {
+      messages: [
+        {
+          messageBody: 'Hello everyone! Nice to chat.',
+          playerId: player.playerId,
+          playerName: 'Jane.S',
+          timeSent: expect.any(Number),
+        },
+        {
+          messageBody: 'Hello everyone! Nice to chat.',
+          playerId: player.playerId,
+          playerName: 'Jane.S',
+          timeSent: expect.any(Number),
+        },
+        {
+          messageBody: 'Hello everyone! Nice to chat.',
+          playerId: player.playerId,
+          playerName: 'Jane.S',
+          timeSent: expect.any(Number),
+        },
+      ]
+    };
+    expect(requestMessageList(player.playerId)).toStrictEqual(expectedMessageList);
   });
 });

@@ -84,13 +84,6 @@ export interface UserDetails {
   numFailedPasswordsSinceLastLogin: number;
 }
 
-export interface Player {
-  playerId: number;
-  name: string;
-  answerIds: number[];
-  score: number;
-}
-
 export interface PlayerId {
   playerId: number;
 }
@@ -121,10 +114,6 @@ export interface quizId {
 
 export interface questionId {
   questionId: number;
-}
-
-export interface PlayerId {
-  playerId: number;
 }
 
 export interface QuizListReturn {

@@ -468,18 +468,6 @@ app.put('/v1/admin/quiz/:quizid/thumbnail', (req: Request, res: Response) => {
   const result = adminQuizThumbnailUpdate(token, quizId, imgUrl);
   res.json(result);
 });
-app.get('/v1/player/:playerid/chat', (req: Request, res: Response) => {
-  const playerId = parseInt(req.params.playerid);
-  const result = sessionMessagesList(playerId);
-  res.json(result);
-});
-
-app.post('/v1/player/:playerid/chat', (req: Request, res: Response) => {
-  const playerId = parseInt(req.params.playerid);
-  const { message } = req.body;
-  const result = sessionSendMessage(playerId, message);
-  res.json(result);
-});
 
 app.get('/v1/admin/quiz/:quizid/sessions', (req: Request, res: Response) => {
   const token = req.headers.token as string;
@@ -530,6 +518,19 @@ app.get('/v1/admin/quiz/:quizid/session/:sessionid', (req: Request, res: Respons
   const sessionid = parseInt(req.params.sessionid);
   const token = req.headers.token as string;
   const response = GetSessionStatus(token, quizId, sessionid);
+  res.json(response);
+});
+
+app.get('/v1/player/:playerid/chat', (req: Request, res: Response) => {
+  const playerId = parseInt(req.params.playerid as string);
+  const response = sessionMessagesList(playerId);
+  res.json(response);
+});
+
+app.post('/v1/player/:playerid/chat', (req: Request, res: Response) => {
+  const playerId = parseInt(req.params.playerid as string);
+  const { message } = req.body;
+  const response = sessionSendMessage(playerId, message);
   res.json(response);
 });
 

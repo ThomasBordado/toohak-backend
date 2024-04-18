@@ -165,13 +165,6 @@ export const requestSessionView = (token: string, quizid: number) => {
 export const requestSessionStart = (token: string, quizid: number, autoStartNum: number) => {
   return requestHelper('POST', `/v1/admin/quiz/${quizid}/session/start`, { autoStartNum }, { token });
 };
-export const requestMessageList = (playerid: number) => {
-  return requestHelper('GET', `/v1/player/${playerid}/chat`, { playerid });
-};
-
-export const requestSendMessage = (playerid: number, message: MessageInput) => {
-  return requestHelper('POST', `/v1/player/${playerid}/chat`, { message });
-};
 
 export const requestPlayerJoin = (sessionId: number, name: string) => {
   return requestHelper('POST', '/v1/player/join', { sessionId, name }, {});
@@ -191,6 +184,14 @@ export const requestUpdateSessionState = (token: string, quizid: number, session
 
 export const requestGetSessionStatus = (token: string, quizid: number, sessionid: number) => {
   return requestHelper('GET', `/v1/admin/quiz/${quizid}/session/${sessionid}`, {}, { token });
+};
+
+export const requestMessageList = (playerid: number) => {
+  return requestHelper('GET', `/v1/player/${playerid}/chat`, {}, {});
+};
+
+export const requestSendMessage = (playerid: number, message: MessageInput) => {
+  return requestHelper('POST', `/v1/player/${playerid}/chat`, { message }, {});
 };
 
 // export const requestQuizSessionFinalResults = (token: string, quizid: number, sessionid: number) => {
