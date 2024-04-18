@@ -1,5 +1,6 @@
 import { getData } from './dataStore';
-import { PlayerId, Player, PlayerStatus, PlayerQuestionInfo } from './interfaces';
+import { PlayerId, Player, PlayerStatus, PlayerQuestionInfo, Action } from './interfaces';
+import { UpdateSessionState } from './quiz';
 import { saveData } from './persistence';
 import HTTPError from 'http-errors';
 
@@ -61,20 +62,20 @@ export const playerJoin = (sessionId: number, name: string): PlayerId => {
   players.push(newPlayer);
   saveData();
 
-  /* if (players.length === data.quizSessions[sessionIndex].autoStartNum) {
-        const quizId = data.quizSessions[sessionIndex].quizStatus.metadata.quizId;
-        const users = getData().users;
-        let token = "";
-        for (const user of users) {
-            for (const quiz of user.quizzes) {
-                if (quizId === quiz.quizId) {
-                    token = user.sessions[0];
-                    break;
-                }
-            }
+  if (players.length === data.quizSessions[sessionIndex].autoStartNum) {
+    const quizId = data.quizSessions[sessionIndex].quizStatus.metadata.quizId;
+    const users = getData().users;
+    let token = '';
+    for (const user of users) {
+      for (const quiz of user.quizzes) {
+        if (quizId === quiz.quizId) {
+          token = user.sessions[0];
+          break;
         }
-        requestUpdateSessionState(token, quizId, data.quizSessions[sessionIndex].sessionId, Action.NEXT_QUESTION);
-    } */
+      }
+    }
+    UpdateSessionState(token, quizId, data.quizSessions[sessionIndex].sessionId, Action.NEXT_QUESTION);
+  }
   return {
     playerId: newPlayer.playerId
   };
