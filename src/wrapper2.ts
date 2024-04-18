@@ -167,7 +167,7 @@ export const requestSessionStart = (token: string, quizid: number, autoStartNum:
 };
 
 export const requestPlayerJoin = (sessionId: number, name: string) => {
-  return requestHelper('POST', `/v1/player/join`, { sessionId, name }, {});
+  return requestHelper('POST', '/v1/player/join', { sessionId, name }, {});
 };
 
 export const requestPlayerStatus = (playerid: number) => {

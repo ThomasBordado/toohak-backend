@@ -11,30 +11,30 @@ beforeEach(() => {
  * Testing for players joining to sessions
  */
 describe('Test requestPlayerJoin', () => {
-    let user: SessionId;
-    let quiz: quizId;
-    let questionin: quizQuestionCreateInput;
-    beforeEach(() => {
-        user = requestRegister('tom@gmail.com', 'password1', 'Thomas', 'Bordado').jsonBody as SessionId;
-        quiz = requestQuizCreate(user.token, 'My Quiz', 'My Quiz Description');
-        questionin = {
-        question: 'Who is the Monarch of England?',
-        duration: 4,
-        points: 5,
-        answers: [
-            {
-            answer: 'Prince Charles',
-            correct: true
-            },
-            {
-            answer: 'Prince Charlie',
-            correct: false
-            }
-        ],
-        thumbnailUrl: 'http://google.com/some/image/path.jpg',
-        };
-        requestQuizQuestionCreate(user.token, questionin, quiz.quizId);
-    });
+  let user: SessionId;
+  let quiz: quizId;
+  let questionin: quizQuestionCreateInput;
+  beforeEach(() => {
+    user = requestRegister('tom@gmail.com', 'password1', 'Thomas', 'Bordado').jsonBody as SessionId;
+    quiz = requestQuizCreate(user.token, 'My Quiz', 'My Quiz Description');
+    questionin = {
+      question: 'Who is the Monarch of England?',
+      duration: 4,
+      points: 5,
+      answers: [
+        {
+          answer: 'Prince Charles',
+          correct: true
+        },
+        {
+          answer: 'Prince Charlie',
+          correct: false
+        }
+      ],
+      thumbnailUrl: 'http://google.com/some/image/path.jpg',
+    };
+    requestQuizQuestionCreate(user.token, questionin, quiz.quizId);
+  });
   // 1. Successful Player joining
   test('Test player joining with name', () => {
     const session = requestSessionStart(user.token, quiz.quizId, 3);
@@ -67,7 +67,6 @@ describe('Test requestPlayerJoin', () => {
     const session = requestSessionStart(user.token, quiz.quizId, 3);
     const playerId = requestPlayerJoin(session.sessionId, '');
     expect(playerId).toStrictEqual({ playerId: playerId.playerId });
-    
   });
 
   test('Test two players joining', () => {
@@ -87,25 +86,25 @@ describe('Test requestPlayerStatus', () => {
   let quiz: quizId;
   let questionin: quizQuestionCreateInput;
   beforeEach(() => {
-      user = requestRegister('tom@gmail.com', 'password1', 'Thomas', 'Bordado').jsonBody as SessionId;
-      quiz = requestQuizCreate(user.token, 'My Quiz', 'My Quiz Description');
-      questionin = {
+    user = requestRegister('tom@gmail.com', 'password1', 'Thomas', 'Bordado').jsonBody as SessionId;
+    quiz = requestQuizCreate(user.token, 'My Quiz', 'My Quiz Description');
+    questionin = {
       question: 'Who is the Monarch of England?',
       duration: 4,
       points: 5,
       answers: [
-          {
+        {
           answer: 'Prince Charles',
           correct: true
-          },
-          {
+        },
+        {
           answer: 'Prince Charlie',
           correct: false
-          }
+        }
       ],
       thumbnailUrl: 'http://google.com/some/image/path.jpg',
-      };
-      requestQuizQuestionCreate(user.token, questionin, quiz.quizId);
+    };
+    requestQuizQuestionCreate(user.token, questionin, quiz.quizId);
   });
   // 1. Successful Player status
   test('Test playerStatus', () => {
@@ -120,6 +119,4 @@ describe('Test requestPlayerStatus', () => {
     const playerId = requestPlayerJoin(session.sessionId, 'thomas');
     expect(() => requestPlayerStatus(playerId.playerId + 1)).toThrow(HTTPError[400]);
   });
-
 });
-  

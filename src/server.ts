@@ -484,7 +484,6 @@ app.post('/v1/admin/quiz/:quizid/session/start', (req: Request, res: Response) =
   res.json(response);
 });
 
-
 app.post('/v1/player/join', (req: Request, res: Response) => {
   const sessionId = parseInt(req.body.sessionId as string);
   const name = req.body.name as string;
