@@ -61,6 +61,12 @@ app.get('/v1/admin/user/details', (req: Request, res: Response) => {
   res.json(response);
 });
 
+app.get('/v2/admin/user/details', (req: Request, res: Response) => {
+  const token = req.headers.token as string;
+  const response = adminUserDetails(token);
+  res.json(response);
+});
+
 app.put('/v1/admin/user/details', (req: Request, res: Response) => {
   const token = req.body.token as string;
   const { email, nameFirst, nameLast } = req.body;
@@ -184,6 +190,16 @@ app.put('/v1/admin/quiz/:quizid/description', (req: Request, res: Response) => {
   res.json(result);
 });
 
+app.put('/v2/admin/quiz/:quizid/description', (req: Request, res: Response) => {
+  // Everything in req.body will be of the correct type
+  const quizId = parseInt(req.params.quizid as string);
+  const token = req.headers.token as string;
+  const { description } = req.body;
+  const result = adminQuizDescriptionUpdate(token, quizId, description);
+
+  res.json(result);
+});
+
 app.delete('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
   const token = req.query.token as string;
   const quizId = parseInt(req.params.quizid as string);
@@ -220,6 +236,16 @@ app.put('/v1/admin/quiz/:quizid/question/:questionid/move', (req: Request, res: 
     }
     return res.status(400).json(result);
   }
+  res.json(result);
+});
+
+app.put('/v2/admin/quiz/:quizid/question/:questionid/move', (req: Request, res: Response) => {
+  const token = req.headers.token as string;
+  const quizId = parseInt(req.params.quizid as string);
+  const questionId = parseInt(req.params.questionid as string);
+  const newPosition = req.body.newPosition as number;
+  const result = adminQuizQuestionMove(token, quizId, questionId, newPosition);
+
   res.json(result);
 });
 
@@ -423,6 +449,15 @@ app.post('/v1/admin/quiz/:quizId/question/:questionId/duplicate', (req: Request,
     }
     return res.status(403).json(result);
   }
+  res.json(result);
+});
+
+app.post('/v2/admin/quiz/:quizId/question/:questionId/duplicate', (req: Request, res: Response) => {
+  const token = req.headers.token as string;
+  const quizId = parseInt(req.params.quizId as string);
+  const questionId = parseInt(req.params.questionId as string);
+  const result = adminQuizQuestionDuplicate(token, quizId, questionId);
+
   res.json(result);
 });
 
