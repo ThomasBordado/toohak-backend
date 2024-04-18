@@ -1943,7 +1943,7 @@ describe('requestSessionStart testing', () => {
   let user: SessionId;
   let quiz: quizId;
   let questionin: quizQuestionCreateInput;
-  let question: quizQuestionCreateReturn;
+  let question: questionId;
   beforeEach(() => {
     user = requestRegister('chloe@gmail.com', 'password1', 'Chloe', 'Turner').jsonBody as SessionId;
     quiz = requestQuizCreate(user.token, 'My Quiz', 'My Quiz Description');
@@ -1963,8 +1963,9 @@ describe('requestSessionStart testing', () => {
       ],
       thumbnailUrl: 'http://google.com/some/image/path.jpg',
     };
-    question = requestQuizQuestionCreate(user.token, questionin, quiz.quizId) as quizQuestionCreateReturn;
+    question = requestQuizQuestionCreate(user.token, questionin, quiz.quizId);
   });
+
   describe('Unsuccessful Cases', () => {
     test('Invalid SessionId', () => {
       expect(() => requestSessionStart(user.token + 1, quiz.quizId, 3)).toThrow(HTTPError[401]);
