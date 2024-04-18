@@ -1,5 +1,5 @@
 import { requestRegister, requestClear } from './wrapper';
-import { requestQuizCreate, requestQuizQuestionCreate, requestSessionStart, requestPlayerJoin, requestPlayerStatus } from './wrapper2';
+import { requestQuizCreate, requestQuizQuestionCreate, requestSessionStart, requestPlayerJoin, requestPlayerStatus, requestUpdateSessionState } from './wrapper2';
 import { SessionId, quizId, quizQuestionCreateInput } from './interfaces';
 import HTTPError from 'http-errors';
 
@@ -48,11 +48,11 @@ describe('Test requestPlayerJoin', () => {
   });
 
   // 3. Player joining session not in LOBBY state.
-  // test('Test player joining session not in LOBBY state', () => {
-  //   const session = requestSessionStart(user.token, quiz.quizId, 3);
-  //   requestUpdateSessionState(quiz.quizId, session.sessionId, user.token, 'END');
-  //   expect(() => requestPlayerJoin(session.sessionId, 'thomas')).toThrow(HTTPError[400]);
-  // });
+  test('Test player joining session not in LOBBY state', () => {
+    const session = requestSessionStart(user.token, quiz.quizId, 3);
+    requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'END');
+    expect(() => requestPlayerJoin(session.sessionId, 'thomas')).toThrow(HTTPError[400]);
+  });
 
   // 4. Players without unique names
   test('Test two players trying to join with same name', () => {
@@ -69,7 +69,7 @@ describe('Test requestPlayerJoin', () => {
     expect(playerId).toStrictEqual({ playerId: playerId.playerId });
   });
 
-  test('Test two players joining', () => {
+  test('Test Two players joining', () => {
     const session = requestSessionStart(user.token, quiz.quizId, 3);
     const playerId = requestPlayerJoin(session.sessionId, 'thomas');
     expect(playerId).toStrictEqual({ playerId: playerId.playerId });
@@ -118,5 +118,18 @@ describe('Test requestPlayerStatus', () => {
     const session = requestSessionStart(user.token, quiz.quizId, 3);
     const playerId = requestPlayerJoin(session.sessionId, 'thomas');
     expect(() => requestPlayerStatus(playerId.playerId + 1)).toThrow(HTTPError[400]);
+  });
+  test('Test State Changes after 3 players join', () => {
+    const session = requestSessionStart(user.token, quiz.quizId, 3);
+    const playerId = requestPlayerJoin(session.sessionId, 'thomas');
+
+    expect(playerId).toStrictEqual({ playerId: playerId.playerId });
+    const playerId2 = requestPlayerJoin(session.sessionId, 'qwe123');
+
+    expect(playerId2).toStrictEqual({ playerId: playerId2.playerId });
+    const playerId3 = requestPlayerJoin(session.sessionId, '');
+
+    expect(playerId3).toStrictEqual({ playerId: playerId3.playerId });
+    expect(() => requestPlayerJoin(session.sessionId, '')).toThrow(HTTPError[400]);
   });
 });
