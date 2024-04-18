@@ -219,3 +219,17 @@ export interface DataStore {
   quizSessions: QuizSession[];
   timers: ReturnType<typeof setTimeout>[];
 }
+export interface questionStatus {
+  correctUsers: correctusers[];
+  listofusers: listofplayers[];
+}
+
+export interface correctusers {
+  playerId: number;
+  playerName: string;
+}
+
+export interface listofplayers {
+  playerId: number;
+  playerName: string;
+}
