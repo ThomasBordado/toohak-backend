@@ -157,3 +157,11 @@ export const requestQuestionDuplicate = (token: string, quizId: number, question
 export const requestMoveQuestion = (token: string, quizId: number, questionId: number, newPosition: number) => {
   return requestHelper('PUT', `/v2/admin/quiz/${quizId}/question/${questionId}/move`, { newPosition }, { token });
 };
+
+export const requestSessionView = (token: string, quizid: number) => {
+  return requestHelper('GET', `/v1/admin/quiz/${quizid}/sessions`, {}, { token });
+};
+
+export const requestSessionStart = (token: string, quizid: number, autoStartNum: number) => {
+  return requestHelper('POST', `/v1/admin/quiz/${quizid}/session/start`, { autoStartNum }, { token });
+};
