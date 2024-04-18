@@ -110,6 +110,33 @@ export interface quizQuestionDuplicateReturn {
   newQuestionId: number;
 }
 
+export interface messageInput {
+  messageBody: string;
+}
+
+export interface message {
+  messageBody: string;
+  playerId: number;
+  playerName: string;
+  timeSent: number;
+}
+
+export interface messages {
+  messages: message[];
+}
+
+export interface playerWithSore {
+  name: string;
+  score: number;
+}
+
+export interface questionResult {
+  questionId: number;
+  playersCorrectList: string[];
+  averageAnswerTime: number;
+  percentCorrect: number;
+}
+
 export enum State {
   LOBBY = 'LOBBY',
   QUESTION_COUNTDOWN = 'QUESTION_COUNTDOWN',
@@ -131,8 +158,15 @@ export enum Action {
 export interface QuizStatus {
   state: State;
   atQuestion: number;
-  players: string[];
+  players: Player[];
   metadata: quiz;
+}
+
+export interface Player {
+  playerId: number;
+  name: string;
+  answerIds: number[];
+  score: number;
 }
 
 export interface UserRank {
@@ -170,12 +204,13 @@ export interface QuizSession {
 export interface DataStore {
   users: user[];
   quizzes: quiz[];
+  trash: quiz[];
+  quizSessions: QuizSession[];
   userIdStore: number;
   quizIdStore: number;
   sessionIdStore: number;
   questionIdStore: number;
   answerIdStore: number;
-  trash: quiz[];
+  playerIdStore: number;
   quizSessionIdStore: number;
-  quizSessions: QuizSession[];
 }
