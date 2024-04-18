@@ -9,9 +9,11 @@ let data: DataStore = {
   sessionIdStore: 0,
   questionIdStore: 0,
   answerIdStore: 0,
+  playerIdStore: 0,
   trash: [],
   quizSessionIdStore: 0,
   quizSessions: [],
+  timers: [],
 };
 
 // YOU SHOULD MODIFY THIS OBJECT ABOVE ONLY

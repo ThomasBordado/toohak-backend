@@ -1,12 +1,19 @@
-
 import { requestRegister, requestClear, requestLogin } from './wrapper';
-import { requestQuizList, requestQuizCreate, requestQuizTrash, requestQuizViewTrash, requestQuizRestore, requestQuizTrashEmpty, requestQuizQuestionCreate, requestquizTransfer, requestLogout, requestQuizInfo, requestUpdateQuizName, requestUpdateQuizQuestion, requestDeleteQuizQuestion, requestUpdateQuizDescription, requestMoveQuestion, requestQuestionDuplicate, requestThumbnailUpdate, requestSessionView, requestSessionStart, requestMessageList, requestSendMessage } from './wrapper2';
-import { QuizListReturn, SessionId, quizId, quizUser, quizQuestionCreateInput, quiz, quizQuestionCreateReturn, questionId, sessionViewReturn, MessageInput, QuizSession, PlayerId } from './interfaces';
+import { requestQuizList, requestQuizCreate, requestQuizTrash, requestQuizViewTrash, requestQuizRestore, requestQuizTrashEmpty, requestQuizQuestionCreate, requestquizTransfer, requestLogout, requestQuizInfo, requestUpdateQuizName, requestUpdateQuizQuestion, requestDeleteQuizQuestion, requestUpdateQuizDescription, requestMoveQuestion, requestQuestionDuplicate, requestThumbnailUpdate, requestSessionView, requestSessionStart, requestUpdateSessionState, requestGetSessionStatus /*, QuizSessionFinalResults */, requestMessageList, requestSendMessage, requestPlayerJoin } from './wrapper2';
+import { QuizListReturn, SessionId, quizId, quizUser, quizQuestionCreateInput, quiz, quizQuestionCreateReturn, questionId, sessionViewReturn, QuizSession, /* QuizStatus, */ Action, MessageInput, PlayerId, QuizSessionId } from './interfaces';
 import HTTPError from 'http-errors';
 
 beforeEach(() => {
   requestClear();
 });
+
+// helper function for testing timers
+function sleepSync(ms: number) {
+  const startTime = new Date().getTime();
+  while (new Date().getTime() - startTime < ms) {
+    // zzzZZ - comment needed so eslint doesn't complain
+  }
+}
 
 /*
  * Testing for listing quiz
@@ -2018,17 +2025,332 @@ describe('requestSessionStart testing', () => {
   });
 });
 
+// UpdateSessionState Testing
+describe('request UpdateSessionState testing', () => {
+  let user: SessionId;
+  let quiz: quizId;
+  let questionin: quizQuestionCreateInput;
+  let session: QuizSession;
+  beforeEach(() => {
+    user = requestRegister('chloe@gmail.com', 'password1', 'Chloe', 'Turner').jsonBody as SessionId;
+    quiz = requestQuizCreate(user.token, 'My Quiz', 'My Quiz Description');
+    questionin = {
+      question: 'Who is the Monarch of England?',
+      duration: 4,
+      points: 5,
+      answers: [
+        {
+          answer: 'Prince Charles',
+          correct: true
+        },
+        {
+          answer: 'Prince Charles.',
+          correct: true
+        }
+      ],
+      thumbnailUrl: 'http://google.com/some/image/path.jpg',
+    };
+    requestQuizQuestionCreate(user.token, questionin, quiz.quizId);
+    session = requestSessionStart(user.token, quiz.quizId, 3);
+  });
+
+  describe('Unsuccessful Cases', () => {
+    test('Invalid SessionId', () => {
+      expect(() => requestUpdateSessionState(user.token + 1, quiz.quizId, session.sessionId, 'END')).toThrow(HTTPError[401]);
+    });
+    test('Invalid quizId', () => {
+      expect(() => requestUpdateSessionState(user.token, quiz.quizId + 1, session.sessionId, 'END')).toThrow(HTTPError[403]);
+    });
+    test('user does not own quiz', () => {
+      const user2 = requestRegister('ethan@gmail.com', 'password1', 'Ethan', 'McGregor').jsonBody as SessionId;
+      expect(() => requestUpdateSessionState(user2.token, quiz.quizId, session.sessionId, 'END')).toThrow(HTTPError[403]);
+    });
+    test('Action provided is not a valid Action enum', () => {
+      expect(() => requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'BANANA')).toThrow(HTTPError[400]);
+    });
+    test('Action enum cannot be applied in the current state (see spec for details)', () => {
+      expect(() => requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'GO_TO_ANSWER')).toThrow(HTTPError[400]);
+    });
+    test('Session Id does not refer to a valid session within this quiz', () => {
+      expect(() => requestUpdateSessionState(user.token, quiz.quizId, session.sessionId + 1, 'END')).toThrow(HTTPError[400]);
+    });
+  });
+  describe('Successful cases', () => {
+    // jest.useFakeTimers();
+    test('Correct return value', () => {
+      expect(requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'END')).toStrictEqual({});
+    });
+    test('Correctly updates state LOBBY --> QUESTION_COUNTDOWN', () => {
+      requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'NEXT_QUESTION');
+      const result = requestGetSessionStatus(user.token, quiz.quizId, session.sessionId);
+      expect(result.state).toStrictEqual('QUESTION_COUNTDOWN');
+    });
+    test('Correctly updates state LOBBY --> QUESTION_COUNTDOWN', () => {
+      requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, Action.NEXT_QUESTION);
+      sleepSync(2 * 1000);
+      let result = requestGetSessionStatus(user.token, quiz.quizId, session.sessionId);
+      expect(result.state).toStrictEqual('QUESTION_COUNTDOWN');
+      sleepSync(2 * 1000);
+      result = requestGetSessionStatus(user.token, quiz.quizId, session.sessionId);
+      expect(result.state).toStrictEqual('QUESTION_OPEN');
+    });
+    test('Testing timer works for every question', () => {
+      requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'NEXT_QUESTION');
+      sleepSync(2 * 1000);
+      sleepSync(2 * 1000);
+
+      const result = requestGetSessionStatus(user.token, quiz.quizId, session.sessionId);
+      expect(result.state).toStrictEqual('QUESTION_OPEN');
+    });
+  });
+});
+
+// GetSessionStatus Testing
+describe('request GetSessionStatus testing', () => {
+  let user: SessionId;
+  let quiz: quizId;
+  let questionin: quizQuestionCreateInput;
+  let session: QuizSession;
+  beforeEach(() => {
+    user = requestRegister('chloe@gmail.com', 'password1', 'Chloe', 'Turner').jsonBody as SessionId;
+    quiz = requestQuizCreate(user.token, 'My Quiz', 'My Quiz Description');
+    questionin = {
+      question: 'Who is the Monarch of England?',
+      duration: 4,
+      points: 5,
+      answers: [
+        {
+          answer: 'Prince Charles',
+          correct: true
+        },
+        {
+          answer: 'Prince Charles.',
+          correct: true
+        }
+      ],
+      thumbnailUrl: 'http://google.com/some/image/path.jpg',
+    };
+    requestQuizQuestionCreate(user.token, questionin, quiz.quizId);
+    session = requestSessionStart(user.token, quiz.quizId, 3);
+  });
+
+  describe('Unsuccessful Cases', () => {
+    test('Invalid SessionId', () => {
+      expect(() => requestGetSessionStatus(user.token + 1, quiz.quizId, session.sessionId)).toThrow(HTTPError[401]);
+    });
+    test('Invalid quizId', () => {
+      expect(() => requestGetSessionStatus(user.token, quiz.quizId + 1, session.sessionId)).toThrow(HTTPError[403]);
+    });
+    test('user does not own quiz', () => {
+      const user2 = requestRegister('ethan@gmail.com', 'password1', 'Ethan', 'McGregor').jsonBody as SessionId;
+      expect(() => requestGetSessionStatus(user2.token, quiz.quizId, session.sessionId)).toThrow(HTTPError[403]);
+    });
+    test('Session Id does not refer to a valid session within this quiz', () => {
+      expect(() => requestGetSessionStatus(user.token, quiz.quizId, session.sessionId + 1)).toThrow(HTTPError[400]);
+    });
+  });
+  describe('Successful cases', () => {
+    test('Correct return value', () => {
+      // console.log(requestGetSessionStatus(user.token, quiz.quizId, session.sessionId));
+      expect(requestGetSessionStatus(user.token, quiz.quizId, session.sessionId)).toStrictEqual({
+        state: 'LOBBY',
+        atQuestion: 0,
+        players: [],
+        metadata: {
+          quizId: quiz.quizId,
+          name: 'My Quiz',
+          timeCreated: expect.any(Number),
+          timeLastEdited: expect.any(Number),
+          description: 'My Quiz Description',
+          numQuestions: 1,
+          questions: [
+            {
+              questionId: expect.any(Number),
+              question: expect.any(String),
+              duration: expect.any(Number),
+              points: expect.any(Number),
+              answers: [
+                {
+                  answer: expect.any(String),
+                  answerId: expect.any(Number),
+                  colour: expect.any(String),
+                  correct: expect.any(Boolean)
+                },
+                {
+                  answer: expect.any(String),
+                  answerId: expect.any(Number),
+                  colour: expect.any(String),
+                  correct: expect.any(Boolean)
+                }
+              ]
+            }
+          ],
+          duration: expect.any(Number),
+          thumbnailUrl: expect.any(String)
+        }
+      });
+    });
+  });
+});
+
+// //QuizSessionFinalResults testing
+// describe('request QuizSessionFinalResults testing', () => {
+//   let user: SessionId;
+//   let quiz: quizId;
+//   let questionin: quizQuestionCreateInput;
+//   let question: questionId;
+//   let session: QuizSession;
+//   beforeEach(() => {
+//     user = requestRegister('chloe@gmail.com', 'password1', 'Chloe', 'Turner').jsonBody as SessionId;
+//     quiz = requestQuizCreate(user.token, 'My Quiz', 'My Quiz Description');
+//     questionin = {
+//       question: 'Who is the Monarch of England?',
+//       duration: 4,
+//       points: 5,
+//       answers: [
+//         {
+//           answer: 'Prince Charles',
+//           correct: true
+//         },
+//         {
+//           answer: 'Prince Charles.',
+//           correct: true
+//         }
+//       ],
+//       thumbnailUrl: 'http://google.com/some/image/path.jpg',
+//     };
+//     question = requestQuizQuestionCreate(user.token, questionin, quiz.quizId);
+//     session = requestSessionStart(user.token, quiz.quizId, 3);
+//   });
+
+//   describe('Unsuccessful Cases', () => {
+//     test('Invalid SessionId', () => {
+//       expect(() => requestQuizSessionFinalResults(user.token + 1, quiz.quizId, session.sessionId)).toThrow(HTTPError[401]);
+//     });
+//     test('Invalid quizId', () => {
+//       expect(() => requestQuizSessionFinalResults(user.token, quiz.quizId + 1, session.sessionId)).toThrow(HTTPError[403]);
+//     });
+//     test('user does not own quiz', () => {
+//       const user2 = requestRegister('ethan@gmail.com', 'password1', 'Ethan', 'McGregor').jsonBody as SessionId;
+//       expect(() => requestQuizSessionFinalResults(user2.token, quiz.quizId, session.sessionId)).toThrow(HTTPError[403]);
+//     });
+//     test('Session Id does not refer to a valid session within this quiz', () => {
+//       expect(() => requestQuizSessionFinalResults(user.token, quiz.quizId, session.sessionId + 1)).toThrow(HTTPError[400]);
+//     });
+//     test('Session Id does not refer to a valid session within this quiz', () => {
+//       expect(() => requestQuizSessionFinalResults(user.token, quiz.quizId, session.sessionId + 1)).toThrow(HTTPError[400]);
+//     });
+//     test('Quiz not in FINAL_RESULTS state', () => {
+//       expect(() => requestQuizSessionFinalResults(user.token, quiz.quizId, session.sessionId)).toThrow(HTTPError[400]);
+//     });
+//   });
+//   describe('Successful cases', () => {
+//     test('Correct return value', () => {
+//       requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, "NEXT_QUESTION");
+//       requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, "SKIP_COUNTDOWN");
+//       requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, "GO_TO_ANSWER");
+//       requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, "GO_TO_FINAL_RESULTS");
+//       expect(requestQuizSessionFinalResults(user.token, quiz.quizId, session.sessionId)).toStrictEqual({
+//         "usersRankedByScore": [
+//           {
+//             "name": expect.any(String),
+//             "score": expect.any(Number)
+//           }
+//         ],
+//         "questionResults": [
+//           {
+//             "questionId": expect.any(Number),
+//             "playersCorrectList": [
+//               expect.any(Array)
+//             ],
+//             "averageAnswerTime": expect.any(Number),
+//             "percentCorrect": expect.any(Number)
+//           }
+//         ]
+//       });
+//     });
+//   });
+// });
+
+describe('requestSessionView testing', () => {
+  let user: SessionId;
+  let quiz: quizId;
+  let questionin: quizQuestionCreateInput;
+  beforeEach(() => {
+    user = requestRegister('chloe@gmail.com', 'password1', 'Chloe', 'Turner').jsonBody as SessionId;
+    quiz = requestQuizCreate(user.token, 'My Quiz', 'My Quiz Description');
+    questionin = {
+      question: 'Who is the Monarch of England?',
+      duration: 4,
+      points: 5,
+      answers: [
+        {
+          answer: 'Prince Charles',
+          correct: true
+        },
+        {
+          answer: 'Prince Charles.',
+          correct: true
+        }
+      ],
+      thumbnailUrl: 'http://google.com/some/image/path.jpg',
+    };
+    requestQuizQuestionCreate(user.token, questionin, quiz.quizId);
+  });
+
+  describe('Unsuccessful Cases', () => {
+    test('Invalid Token', () => {
+      expect(() => requestSessionView(user.token + 1, quiz.quizId)).toThrow(HTTPError[401]);
+    });
+    test('Invalid quizId', () => {
+      expect(() => requestSessionView(user.token, quiz.quizId + 1)).toThrow(HTTPError[403]);
+    });
+  });
+  describe('Successful Cases', () => {
+    test('No sessions started: return empty array', () => {
+      expect(requestSessionView(user.token, quiz.quizId)).toStrictEqual({ activeSessions: [], inactiveSessions: [] });
+    });
+    test('one active session', () => {
+      const session = requestSessionStart(user.token, quiz.quizId, 3);
+      expect(requestSessionView(user.token, quiz.quizId)).toStrictEqual({ activeSessions: [session.sessionId], inactiveSessions: [] });
+    });
+    test('multiple active sessions', () => {
+      const session1 = requestSessionStart(user.token, quiz.quizId, 3);
+      const session2 = requestSessionStart(user.token, quiz.quizId, 3);
+      const session3 = requestSessionStart(user.token, quiz.quizId, 3);
+      const quizSessions = requestSessionView(user.token, quiz.quizId);
+      const expectedSessions: sessionViewReturn = {
+        activeSessions: [
+          session1.sessionId,
+          session2.sessionId,
+          session3.sessionId,
+        ],
+        inactiveSessions: [],
+      };
+      // sorting both arrays in order of unique quizId so that the order of array matches
+      quizSessions.activeSessions.sort((a: number, b: number) => a - b);
+      expectedSessions.activeSessions.sort((a: number, b: number) => a - b);
+      expect(quizSessions).toStrictEqual(expectedSessions);
+    });
+    test.todo('one inactive session');
+    test.todo('multiple inactive sessions');
+    test.todo('both active and inactive sessions');
+  });
+});
+
+
+
 /**
  * Test for sending messages in session
  */
-describe('POST /v1/player/:playerid/chat, sessionSendMessage', () => {
+describe.only('POST /v1/player/:playerid/chat, sessionSendMessage', () => {
+  let message: MessageInput;
+  let session: QuizSessionId;
+  let player: PlayerId;
   beforeEach(() => {
     requestClear();
     const user = requestRegister('valideEmail@gmail.com', 'password1', 'Jane', 'Lawson').jsonBody as SessionId;
     const quiz = requestQuizCreate(user.token, 'My Quiz', 'My Quiz Description') as quizId;
-    let message: MessageInput;
-    let session: SessionId;
-    // let player: PlayerId;
 
     // Add a question in a quiz
     const input : quizQuestionCreateInput = {
@@ -2049,58 +2371,58 @@ describe('POST /v1/player/:playerid/chat, sessionSendMessage', () => {
     };
     requestQuizQuestionCreate(user.token, input, quiz.quizId);
     session = requestSessionStart(user.token, quiz.quizId, 3);
-    // player = requestPlayerJoin(session.sessionId, 'Jane.S');
+    player = requestPlayerJoin(session.sessionId, 'Jane.S');
     message = { messageBody: 'Hello everyone! Nice to chat.' } as MessageInput;
   });
 
   test('Correct return type', () => {
-    // expect(() => (requestSendMessage(player.playerId, message)).not.toThrow(HTTPError));
-    // const returnType = requestSendMessage(player.playerId, message);
-    // expect(returnType).toStrictEqual({ });
+    expect(() => (requestSendMessage(player.playerId, message)).not.toThrow(HTTPError));
+    const returnType = requestSendMessage(player.playerId, message);
+    expect(returnType).toStrictEqual({ });
 
   });
 
   test('If player ID does not exist', () => {
-    // expect(() => requestSendMessage(player.playerId + 100, message)).toThrow(HTTPError[400]);
+    expect(() => requestSendMessage(player.playerId + 100, message)).toThrow(HTTPError[400]);
   });
 
   test('If message body is less than 1 character', () => {
-    // const invalidMessage = { messageBody: "" } as MessageInput;
-    // expect(() => requestSendMessage(player.playerId, invalidMessage)).toThrow(HTTPError[400]);
+    const invalidMessage = { messageBody: "" } as MessageInput;
+    expect(() => requestSendMessage(player.playerId, invalidMessage)).toThrow(HTTPError[400]);
   });
 
   test('If message body is more than 100 characters', () => {
-    // const invalidMessage = { messageBody: "A longgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg" } as MessageInput;
-    // expect(() => requestSendMessage(player.playerId, invalidMessage)).toThrow(HTTPError[400]);
+    const invalidMessage = { messageBody: "A longgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg" } as MessageInput;
+    expect(() => requestSendMessage(player.playerId, invalidMessage)).toThrow(HTTPError[400]);
   });
 
   test('Testing behavior', () => {
-    // requestSendMessage(player.playerId, message);
-    // requestSendMessage(player.playerId, message);
-    // requestSendMessage(player.playerId, message);
-    // const expectedMessageList = {
-    //   messages: [
-    //     {
-    //       messageBody: "Hello everyone! Nice to chat.",
-    //       playerId: player.playerId,
-    //       playerName: "Jane.S",
-    //       timeSent: expect.any(Number),
-    //     },
-    //     {
-    //       messageBody: "Hello everyone! Nice to chat.",
-    //       playerId: player.playerId,
-    //       playerName: "Jane.S",
-    //       timeSent: expect.any(Number),
-    //     },
-    //     {
-    //       messageBody: "Hello everyone! Nice to chat.",
-    //       playerId: player.playerId,
-    //       playerName: "Jane.S",
-    //       timeSent: expect.any(Number),
-    //     },
-    //   ]
-    // }
-    // expect(requestMessageList(player.playerId)).toStrictEqual(expectedMessageList);;
+    requestSendMessage(player.playerId, message);
+    requestSendMessage(player.playerId, message);
+    requestSendMessage(player.playerId, message);
+    const expectedMessageList = {
+      messages: [
+        {
+          messageBody: "Hello everyone! Nice to chat.",
+          playerId: player.playerId,
+          playerName: "Jane.S",
+          timeSent: expect.any(Number),
+        },
+        {
+          messageBody: "Hello everyone! Nice to chat.",
+          playerId: player.playerId,
+          playerName: "Jane.S",
+          timeSent: expect.any(Number),
+        },
+        {
+          messageBody: "Hello everyone! Nice to chat.",
+          playerId: player.playerId,
+          playerName: "Jane.S",
+          timeSent: expect.any(Number),
+        },
+      ]
+    }
+    expect(requestMessageList(player.playerId)).toStrictEqual(expectedMessageList);
   });
 });
 

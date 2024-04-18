@@ -1,26 +1,21 @@
+// import { string } from 'yaml/dist/schema/common/string';
+
+export enum State {
+  LOBBY = 'LOBBY',
+  QUESTION_COUNTDOWN = 'QUESTION_COUNTDOWN',
+  QUESTION_OPEN = 'QUESTION_OPEN',
+  QUESTION_CLOSE = 'QUESTION_CLOSE',
+  ANSWER_SHOW = 'ANSWER_SHOW',
+  FINAL_RESULTS = 'FINAL_RESULTS',
+  END = 'END',
+}
+
 export interface MessageInput {
   messageBody: string;
 }
 
 export interface MessageListReturn {
   messages: Message[];
-}
-
-export interface playerWithSore {
-  name: string;
-  score: number;
-}
-
-export interface questionResult {
-  questionId: number;
-  playersCorrectList: string[];
-  averageAnswerTime: number;
-  percentCorrect: number;
-}
-
-export interface getPlayerResultReturn {
-  usersRankedByScore: playerWithSore[];
-  questionResults: questionResult[];
 }
 
 export interface answer {
@@ -33,6 +28,12 @@ export interface answer {
 export interface answerInput {
   answer: string;
   correct: boolean;
+}
+
+export interface answerBrief {
+  answerId: number;
+  answer: string;
+  colour: string;
 }
 
 export interface quizQuestion {
@@ -102,6 +103,10 @@ export interface UserId {
   authUserId: number;
 }
 
+export interface QuizSessionId {
+  sessionId: number;
+}
+
 export interface SessionId {
   token: string;
 }
@@ -116,6 +121,10 @@ export interface quizId {
 
 export interface questionId {
   questionId: number;
+}
+
+export interface PlayerId {
+  playerId: number;
 }
 
 export interface QuizListReturn {
@@ -145,14 +154,26 @@ export interface quizQuestionDuplicateReturn {
   newQuestionId: number;
 }
 
-export enum State {
-  LOBBY = 'LOBBY',
-  QUESTION_COUNTDOWN = 'QUESTION_COUNTDOWN',
-  QUESTION_OPEN = 'QUESTION_OPEN',
-  QUESTION_CLOSE = 'QUESTION_CLOSE',
-  ANSWER_SHOW = 'ANSWER_SHOW',
-  FINAL_RESULTS = 'FINAL_RESULTS',
-  END = 'END',
+export interface PlayerQuestionInfo {
+  questionId: number,
+  question: string,
+  duration: number,
+  thumbnailUrl: string,
+  points: number,
+  answers: answerBrief[]
+}
+
+export interface PlayerStatus {
+  state: State,
+  numQuestions: number,
+  atQuestion: number
+}
+
+export interface Player {
+  playerId: number;
+  name: string;
+  answerIds: number[];
+  score: number;
 }
 
 export enum Action {
@@ -210,12 +231,14 @@ export interface QuizSession {
 export interface DataStore {
   users: user[];
   quizzes: quiz[];
-  trash: quiz[];
-  quizSessions: QuizSession[];
   userIdStore: number;
   quizIdStore: number;
   sessionIdStore: number;
   questionIdStore: number;
   answerIdStore: number;
+  playerIdStore: number;
+  trash: quiz[];
   quizSessionIdStore: number;
+  quizSessions: QuizSession[];
+  timers: ReturnType<typeof setTimeout>[];
 }

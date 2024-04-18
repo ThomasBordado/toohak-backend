@@ -1,5 +1,5 @@
 import { getData, setData } from './dataStore';
-import { EmptyObject, ErrorReturn, QuizListReturn, quiz, quizId, quizQuestionCreateInput, quizQuestionCreateInputV1, quizQuestionCreateReturn, quizQuestionDuplicateReturn, QuizSession, State, MessageInput, MessageListReturn } from './interfaces';
+import { EmptyObject, ErrorReturn, QuizListReturn, quiz, quizId, quizQuestionCreateInput, quizQuestionCreateInputV1, quizQuestionCreateReturn, quizQuestionDuplicateReturn, QuizSession, State, Action, MessageInput, MessageListReturn } from './interfaces';
 import { validToken, checkQuizName, checkQuestionValid, isValidQuizId, randomColour, validthumbnailUrl, checkQuestionValidV1, isActiveQuizSession, ValidPlayerId, playerIdToSession, playerIdToPlayer } from './quizUtil';
 import { saveData } from './persistence';
 import HTTPError from 'http-errors';
@@ -683,6 +683,251 @@ export const sessionStart = (token: string, quizId: number, autoStartNum: number
   data.quizSessions.push(newQuizSession);
   return { sessionId: data.quizSessionIdStore };
 };
+
+export const UpdateSessionState = (token: string, quizId: number, sessionId: number, action: Action) => {
+  const data = getData();
+  const user = validToken(token, data.users);
+
+  const userQuiz = user.quizzes.find(quizzes => quizzes.quizId === quizId);
+  if (userQuiz === undefined) {
+    throw HTTPError(403, 'User does not own quiz');
+  }
+
+  if (!(action in Action)) {
+    throw HTTPError(400, 'Action provided is not a valid Action enum');
+  }
+
+  const activeSessions = viewSessions(token, quizId).activeSessions;
+  if (!activeSessions.includes(sessionId)) {
+    throw HTTPError(400, 'Session Id does not refer to a valid session within this quiz');
+  }
+
+  console.log('updatesessionstate in');
+  let timerId1: ReturnType<typeof setTimeout>;
+  let timerId2: ReturnType<typeof setTimeout>;
+  const DELAY = 3;
+
+  for (const quizSessions of data.quizSessions) {
+    if (quizSessions.sessionId === sessionId) {
+      const CountdownToOpen = () => {
+        if (quizSessions.quizStatus.state === 'QUESTION_COUNTDOWN') {
+          quizSessions.quizStatus.state = State.QUESTION_OPEN;
+          timerId2 = setTimeout(OpentoClose, quizSessions.quizStatus.metadata.questions[quizSessions.quizStatus.atQuestion - 1].duration * 1000);
+          data.timers.push(timerId2);
+        }
+      };
+
+      const OpentoClose = () => {
+        if (quizSessions.quizStatus.state === 'QUESTION_OPEN') {
+          quizSessions.quizStatus.state = State.QUESTION_CLOSE;
+        }
+      };
+
+      // Can go to end from any state
+      if (action === 'END') {
+        quizSessions.quizStatus.state = State.END;
+        clearTimeout(timerId1);
+        clearTimeout(timerId2);
+        quizSessions.quizStatus.atQuestion = 0;
+        return {};
+      }
+
+      // LOBBY can branch to:
+      // - QUESTION_COUNTDOWN via NEXT_QUESTION
+      if (quizSessions.quizStatus.state === 'LOBBY') {
+        if (action === 'NEXT_QUESTION') {
+          if (quizSessions.quizStatus.atQuestion >= quizSessions.quizStatus.metadata.numQuestions) {
+            throw HTTPError(400, 'No more questions in quiz');
+          }
+          quizSessions.quizStatus.state = State.QUESTION_COUNTDOWN;
+          timerId1 = setTimeout(CountdownToOpen, DELAY * 1000);
+          data.timers.push(timerId1);
+          quizSessions.quizStatus.atQuestion += 1;
+          // timers.push(timerId1);
+          return {};
+        }
+      }
+
+      // QUESTION_COUNTDOWN can branch to:
+      // - QUESTION_OPEN via SKIP_COUNTDOWN
+      // - QUESTION_OPEN after 3 seconds elapsed
+      if (quizSessions.quizStatus.state === 'QUESTION_COUNTDOWN') {
+        if (action === 'SKIP_COUNTDOWN') {
+          quizSessions.quizStatus.state = State.QUESTION_OPEN;
+          clearTimeout(timerId1);
+          timerId2 = setTimeout(OpentoClose, quizSessions.quizStatus.metadata.questions[quizSessions.quizStatus.atQuestion - 1].duration * 1000);
+          data.timers.push(timerId2);
+          return {};
+        }
+      }
+
+      // QUESTION_OPEN can branch to:
+      // - ANSWER_SHOW via GO_TO_ANSWER,
+      // - QUESTION_CLOSE after duration ends
+      if (quizSessions.quizStatus.state === 'QUESTION_OPEN') {
+        clearTimeout(timerId2);
+        if (action === 'GO_TO_ANSWER') {
+          quizSessions.quizStatus.state = State.ANSWER_SHOW;
+          clearTimeout(timerId2);
+          return {};
+        }
+      }
+
+      // QUESTION_CLOSE can branch to:
+      // - ANSWER_SHOW via GO_TO_ANSWER,
+      // - QUESTION_COUNTDOWN via NEXT_QUESTION,
+      // - FINAL_RESULTS via GO_TO_FINAL_RESULTS
+      if (quizSessions.quizStatus.state === 'QUESTION_CLOSE') {
+        if (action === 'GO_TO_ANSWER') {
+          quizSessions.quizStatus.state = State.ANSWER_SHOW;
+          return {};
+        }
+      }
+      if (quizSessions.quizStatus.state === 'QUESTION_CLOSE') {
+        if (action === 'NEXT_QUESTION') {
+          if (quizSessions.quizStatus.atQuestion >= quizSessions.quizStatus.metadata.numQuestions) {
+            throw HTTPError(400, 'No more questions in quiz');
+          }
+          quizSessions.quizStatus.state = State.QUESTION_COUNTDOWN;
+          timerId1 = setTimeout(CountdownToOpen, DELAY * 1000);
+          data.timers.push(timerId1);
+          quizSessions.quizStatus.atQuestion += 1;
+          return {};
+        }
+      }
+      if (quizSessions.quizStatus.state === 'QUESTION_CLOSE') {
+        if (action === 'GO_TO_FINAL_RESULTS') {
+          quizSessions.quizStatus.state = State.FINAL_RESULTS;
+          quizSessions.quizStatus.atQuestion = 0;
+          return {};
+        }
+      }
+
+      // ANSWER_SHOW can branch to:
+      // - QUESTION_COUNTDOWN via NEXT_QUESTION
+      // - FINAL_RESULTS via GO_TO_FINAL_RESULTS
+      if (quizSessions.quizStatus.state === 'ANSWER_SHOW') {
+        if (action === 'NEXT_QUESTION') {
+          if (quizSessions.quizStatus.atQuestion >= quizSessions.quizStatus.metadata.numQuestions) {
+            throw HTTPError(400, 'No more questions in quiz');
+          }
+          quizSessions.quizStatus.state = State.QUESTION_COUNTDOWN;
+          timerId1 = setTimeout(CountdownToOpen, DELAY * 1000);
+          data.timers.push(timerId1);
+          quizSessions.quizStatus.atQuestion += 1;
+          return {};
+        }
+      }
+      if (quizSessions.quizStatus.state === 'ANSWER_SHOW') {
+        if (action === 'GO_TO_FINAL_RESULTS') {
+          quizSessions.quizStatus.state = State.FINAL_RESULTS;
+          quizSessions.quizStatus.atQuestion = 0;
+          return {};
+        }
+      }
+
+      // // TIMER no.1 function
+      // function CountdownToOpen() {
+      //   if (quizSessions.quizStatus.state === 'QUESTION_COUNTDOWN') {
+      //     quizSessions.quizStatus.state = State.QUESTION_OPEN;
+      //     timerId2 = setTimeout(OpentoClose, quizSessions.quizStatus.metadata.questions[quizSessions.quizStatus.atQuestion - 1].duration * 1000);
+      //     data.timers.push(timerId2);
+      //     return {};
+      //   }
+      // }
+
+      // // TIMER no.2 function
+      // function OpentoClose() {
+      //   if (quizSessions.quizStatus.state === 'QUESTION_OPEN') {
+      //     quizSessions.quizStatus.state = State.QUESTION_CLOSE;
+      //     return {};
+      //   }
+      // }
+    }
+  }
+  throw HTTPError(400, 'Action enum cannot be applied in the current state');
+};
+
+export const GetSessionStatus = (token: string, quizId: number, sessionId: number) => {
+  const data = getData();
+  const user = validToken(token, data.users);
+
+  const userQuiz = user.quizzes.find(quizzes => quizzes.quizId === quizId);
+  if (userQuiz === undefined) {
+    throw HTTPError(403, 'User does not own quiz');
+  }
+
+  const activeSessions = viewSessions(token, quizId).activeSessions;
+  if (!activeSessions.includes(sessionId)) {
+    throw HTTPError(400, 'Session Id does not refer to a valid session within this quiz');
+  }
+
+  for (const quizSessions of data.quizSessions) {
+    if (quizSessions.sessionId === sessionId) {
+      return quizSessions.quizStatus;
+    }
+  }
+};
+
+// export const QuizSessionFinalResults = (token: string, quizId: number, sessionId: number) => {
+//   const data = getData();
+//   const user = validToken(token, data.users);
+
+//   const userQuiz = user.quizzes.find(quizzes => quizzes.quizId === quizId);
+//   if (userQuiz === undefined) {
+//     throw HTTPError(403, 'User does not own quiz');
+//   }
+
+//   const activeSessions = viewSessions(token, quizId).activeSessions;
+//   if (!activeSessions.includes(sessionId)) {
+//     throw HTTPError(400, 'Session Id does not refer to a valid session within this quiz');
+//   }
+
+//   const result = GetSessionStatus(token, quizId, sessionId);
+//   if (result.state != State.FINAL_RESULTS) {
+//     throw HTTPError(400, 'Not in final_results state');
+//   }
+
+//   // const allPlayersRanked = [];
+//   // const allPlayersQuestionStats = [];
+//   // const answerTime: number = 0;
+//   // const correctPercent: number = 0;
+
+//   // //if correct session within session array
+//   // for (const quizSessions of data.quizSessions) {
+//   //   if (quizSessions.sessionId === sessionId) {
+//   //     //for all players in player array
+//   //     for (const player of quizSessions.quizStatus.players) {
+//   //       //get session results for that player, push those results to AllPlayersRanked array
+//   //       const playerResults = JaredSessionFinalResults(player.playerId)
+//   //       playerResults.usersRankedByScore.forEach(user => {
+//   //         allPlayersRanked.push(user);
+//   //       });
+
+//   //       playerResults.questionResults.forEach(user => {
+//   //         answerTime += user.averageAnswerTime;
+//   //         correctPercent += user.percentCorrect;
+//   //       });
+
+//   //       // for (const question of each question in session)
+//   //       //   call jareds other function
+//   //       //   append score to newscore array
+//   //       //   append
+
+//   //     }
+
+//   //     // for (each player in list of players) {
+//   //     //   amalagamate isCallLikeExpression(jared's cuntion)
+//   //     // }
+
+//   //   }
+//   // }
+
+//   // AllPlayersRanked.usersRankedByScore.sort((a, b) => {
+//   //   return a.score - b.score;
+//   // });
+
+// };
 export const sessionMessagesList = (playerId: number): MessageListReturn => {
   ValidPlayerId(playerId);
   const session = playerIdToSession(playerId);
