@@ -1,5 +1,5 @@
 import { getData } from './dataStore';
-import { PlayerId, Player, PlayerStatus, Action } from './interfaces';
+import { PlayerId, Player, PlayerStatus, PlayerQuestionInfo, Action } from './interfaces';
 import { UpdateSessionState } from './quiz';
 import { saveData } from './persistence';
 import HTTPError from 'http-errors';
@@ -92,6 +92,45 @@ export const playerStatus = (playerId: number): PlayerStatus => {
           atQuestion: session.quizStatus.atQuestion
         };
         return status;
+      }
+    }
+  }
+  throw HTTPError(400, 'player ID does not exist');
+};
+
+export const playerQuestionInfo = (playerId: number, questionPosition: number): PlayerQuestionInfo => {
+  const sessions = getData().quizSessions;
+  for (const session of sessions) {
+    for (const player of session.quizStatus.players) {
+      if (player.playerId === playerId) {
+        if (questionPosition < 1 || questionPosition > session.quizStatus.metadata.numQuestions) {
+          throw HTTPError(400, 'question position is not valid for the session this player is in');
+        }
+        if (session.quizStatus.atQuestion !== questionPosition) {
+          throw HTTPError(400, 'session is not currently on this question');
+        }
+        if (session.quizStatus.state === 'LOBBY' || session.quizStatus.state === 'QUESTION_COUNTDOWN' || session.quizStatus.state === 'END') {
+          throw HTTPError(400, 'Session is in LOBBY, QUESTION_COUNTDOWN, or END state');
+        }
+        const question = session.quizStatus.metadata.questions[questionPosition - 1];
+        const answerReturn = [];
+        for (const answer of question.answers) {
+          const res = {
+            answerId: answer.answerId,
+            answer: answer.answer,
+            colour: answer.colour
+          };
+          answerReturn.push(res);
+        }
+        const playerQuestionInfo = {
+          questionId: question.questionId,
+          question: question.question,
+          duration: question.duration,
+          thumbnailUrl: session.quizStatus.metadata.thumbnailUrl,
+          points: question.points,
+          answers: answerReturn
+        };
+        return playerQuestionInfo;
       }
     }
   }

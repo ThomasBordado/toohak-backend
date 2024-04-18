@@ -22,6 +22,12 @@ export interface answerInput {
   correct: boolean;
 }
 
+export interface answerBrief {
+  answerId: number;
+  answer: string;
+  colour: string;
+}
+
 export interface quizQuestion {
   questionId: number;
   question: string;
@@ -123,6 +129,15 @@ export interface quizQuestionCreateReturn {
 
 export interface quizQuestionDuplicateReturn {
   newQuestionId: number;
+}
+
+export interface PlayerQuestionInfo {
+  questionId: number,
+  question: string,
+  duration: number,
+  thumbnailUrl: string,
+  points: number,
+  answers: answerBrief[]
 }
 
 export interface PlayerStatus {

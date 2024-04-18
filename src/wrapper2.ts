@@ -174,6 +174,10 @@ export const requestPlayerStatus = (playerid: number) => {
   return requestHelper('GET', `/v1/player/${playerid}`, {}, {});
 };
 
+export const requestPlayerQuestionInfo = (playerid: number, questionposition: number) => {
+  return requestHelper('GET', `/v1/player/${playerid}/question/${questionposition}`, {}, {});
+};
+
 export const requestUpdateSessionState = (token: string, quizid: number, sessionid: number, action: string) => {
   return requestHelper('PUT', `/v1/admin/quiz/${quizid}/session/${sessionid}`, { action }, { token });
 };
