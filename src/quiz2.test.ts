@@ -1472,8 +1472,31 @@ describe('Testing Post /v2/admin/quiz/{quizid}/transfer', () => {
       ({ userEmaill }) => {
         expect(() => requestquizTransfer(user2.token, userEmaill, quiz2.quizId)).toThrow(HTTPError[400]);
       });
+
     test('Quiz ID refers to a quiz that has a name that is already used by the target user', () => {
       expect(() => requestquizTransfer(user2.token, 'validemail@gmail.com', quiz3.quizId)).toThrow(HTTPError[400]);
+    });
+
+    test('Error test for 400 error, Any session for this quiz is not in END state', () => {
+      const input : quizQuestionCreateInput = {
+        question: 'Who is the Monarch of England?',
+        duration: 4,
+        points: 5,
+        answers: [
+          {
+            answer: 'Prince Charles',
+            correct: true
+          },
+          {
+            answer: 'Prince Charles.',
+            correct: true
+          }
+        ],
+        thumbnailUrl: 'http://google.com/some/image/path.jpg',
+      };
+      requestQuizQuestionCreate(user2.token, input, quiz2.quizId);
+      requestSessionStart(user2.token, quiz2.quizId, 3);
+      expect(() => requestquizTransfer(user2.token, 'validemail@gmail.com', quiz2.quizId)).toThrow(HTTPError[400]);
     });
   });
 
