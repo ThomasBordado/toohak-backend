@@ -2382,7 +2382,7 @@ describe('requestSessionStart testing', () => {
       requestQuizTrash(user.token, quiz.quizId);
       expect(() => requestSessionStart(user.token, quiz.quizId, 3)).toThrow(HTTPError[400]);
     });
-    test.skip('no questions', () => {
+    test('no questions', () => {
       requestDeleteQuizQuestion(user.token, quiz.quizId, question.questionId);
       expect(() => requestSessionStart(user.token, quiz.quizId, 3)).toThrow(HTTPError[400]);
     });

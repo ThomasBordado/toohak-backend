@@ -83,6 +83,10 @@ export interface questionId {
   questionId: number;
 }
 
+export interface PlayerId {
+  playerId: number;
+}
+
 export interface QuizListReturn {
   quizzes: quizUser[];
 }
@@ -108,6 +112,13 @@ export interface quizQuestionCreateReturn {
 
 export interface quizQuestionDuplicateReturn {
   newQuestionId: number;
+}
+
+export interface Player {
+  playerId: number;
+  name: string;
+  answerIds: number[];
+  score: number;
 }
 
 export enum State {
@@ -136,7 +147,7 @@ export interface sessionViewReturn {
 export interface QuizStatus {
   state: State;
   atQuestion: number;
-  players: string[];
+  players: Player[];
   metadata: quiz;
 }
 
@@ -180,6 +191,7 @@ export interface DataStore {
   sessionIdStore: number;
   questionIdStore: number;
   answerIdStore: number;
+  playerIdStore: number;
   trash: quiz[];
   quizSessionIdStore: number;
   quizSessions: QuizSession[];

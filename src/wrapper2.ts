@@ -166,6 +166,10 @@ export const requestSessionStart = (token: string, quizid: number, autoStartNum:
   return requestHelper('POST', `/v1/admin/quiz/${quizid}/session/start`, { autoStartNum }, { token });
 };
 
+export const requestPlayerJoin = (sessionId: number, name: string) => {
+  return requestHelper('POST', '/v1/player/join', { sessionId, name }, {});
+};
+
 export const requestUpdateSessionState = (token: string, quizid: number, sessionid: number, action: string) => {
   return requestHelper('PUT', `/v1/admin/quiz/${quizid}/session/${sessionid}`, { action }, { token });
 };

@@ -22,6 +22,7 @@ export const clear = (): EmptyObject => {
   getData().sessionIdStore = 0;
   getData().questionIdStore = 0;
   getData().answerIdStore = 0;
+  getData().playerIdStore = 0;
   getData().trash = [];
   getData().quizSessionIdStore = 0;
   getData().quizSessions = [];
