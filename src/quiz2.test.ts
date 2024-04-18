@@ -1,5 +1,5 @@
 import { requestRegister, requestClear, requestLogin } from './wrapper';
-import { requestQuizList, requestQuizCreate, requestQuizTrash, requestQuizViewTrash, requestQuizRestore, requestQuizTrashEmpty, requestQuizQuestionCreate, requestquizTransfer, requestLogout, requestQuizInfo, requestUpdateQuizName, requestUpdateQuizQuestion, requestDeleteQuizQuestion, requestUpdateQuizDescription, requestMoveQuestion, requestQuestionDuplicate } from './wrapper2';
+import { requestQuizList, requestQuizCreate, requestQuizTrash, requestQuizViewTrash, requestQuizRestore, requestQuizTrashEmpty, requestQuizQuestionCreate, requestquizTransfer, requestLogout, requestQuizInfo, requestUpdateQuizName, requestUpdateQuizQuestion, requestDeleteQuizQuestion, requestUpdateQuizDescription, requestMoveQuestion, requestQuestionDuplicate, requestThumbnailUpdate } from './wrapper2';
 import { QuizListReturn, SessionId, quizId, quizUser, quizQuestionCreateInput, quiz, quizQuestionCreateReturn, questionId } from './interfaces';
 import HTTPError from 'http-errors';
 
