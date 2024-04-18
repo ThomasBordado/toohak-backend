@@ -491,11 +491,11 @@ app.get('/v1/admin/quiz/:quizid/session/:sessionid/results/csv', (req: Request, 
   res.json(response);
 });
 
-app.get('/v1/player/:playerid/results', (req: Request, res: Response) => {
-  const playerId = parseInt(req.params.playerid);
-  const result = sessionResultList(playerId);
-  res.json(result);
-});
+// app.get('/v1/player/:playerid/results', (req: Request, res: Response) => {
+//   const playerId = parseInt(req.params.playerid);
+//   const result = sessionResultList(playerId);
+//   res.json(result);
+// });
 
 // ====================================================================
 //  ================= WORK IS DONE ABOVE THIS LINE ===================

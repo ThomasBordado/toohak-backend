@@ -1,4 +1,4 @@
-import { quizUser, user, quizQuestionCreateInput, quizQuestionCreateInputV1 } from './interfaces';
+import { quizUser, user, quizQuestionCreateInput, quizQuestionCreateInputV1, QuizResults, CSVFormat } from './interfaces';
 import { getData } from './dataStore';
 import HTTPError from 'http-errors';
 
@@ -229,6 +229,7 @@ export const isValidQuizId = (token: string, quizId: number) => {
   }
 };
 
+// A function to check if the thumbnailUrl is valid
 export const validthumbnailUrl = (thumbnailUrl: string) => {
   if (thumbnailUrl === '') {
     throw HTTPError(400, 'The thumbnailUrl is an empty string.');
@@ -241,6 +242,7 @@ export const validthumbnailUrl = (thumbnailUrl: string) => {
   }
 };
 
+// A function to generate random color
 export const randomColour = (): string => {
   const colours = ['red', 'green', 'yellow', 'blue'];
   const index = Math.floor(Math.random() * colours.length);
@@ -258,4 +260,26 @@ export const playerIdToSession = (playerId: number) => {
     }
   }
   throw HTTPError(400, 'player ID does not exist');
+};
+
+export const isActiveQuizSession = (quizId: number) => {
+  const data = getData();
+  for (const session of data.quizSessions) {
+    if (session.quizStatus.metadata.quizId === quizId && session.quizStatus.state !== 'END') {
+      throw HTTPError(400, 'At least one session for this quiz is not in END state');
+    }
+  }
+}
+
+export const validSession = (sessionId: number, quizId: number) => {
+  const data = getData();
+  const findSession = data.quizSessions.find(session => session.quizStatus.metadata.quizId === quizId);
+  if (findSession.sessionId !== sessionId || findSession === undefined) {
+    throw HTTPError(400, 'Session Id does not refer to a valid session within this quiz');
+  }
+  return findSession;
+}
+
+export const arrayToCSV = (result: QuizResults): string => {
+  return "http://google.com/some/image/path.csv";
 };

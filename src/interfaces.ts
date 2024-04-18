@@ -183,6 +183,10 @@ export interface QuizSession {
   messages: Message[];
 }
 
+export interface CSVFormat {
+  url: string;
+}
+
 export interface DataStore {
   users: user[];
   quizzes: quiz[];
