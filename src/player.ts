@@ -103,31 +103,31 @@ export const playerQuestionInfo = (playerId: number, questionPosition: number): 
     for (const player of session.quizStatus.players) {
       if (player.playerId === playerId) {
         if (questionPosition < 0 || questionPosition > session.quizStatus.metadata.numQuestions) {
-            throw HTTPError(400, 'question position is not valid for the session this player is in');
+          throw HTTPError(400, 'question position is not valid for the session this player is in');
         }
         if (session.quizStatus.atQuestion !== questionPosition) {
-            throw HTTPError(400, 'session is not currently on this question');
+          throw HTTPError(400, 'session is not currently on this question');
         }
         if (session.quizStatus.state === 'LOBBY' || session.quizStatus.state === 'QUESTION_COUNTDOWN' || session.quizStatus.state === 'END') {
-            throw HTTPError(400, 'Session is in LOBBY, QUESTION_COUNTDOWN, or END state');
+          throw HTTPError(400, 'Session is in LOBBY, QUESTION_COUNTDOWN, or END state');
         }
         const question = session.quizStatus.metadata.questions[questionPosition - 1];
-        let answerReturn = [];
+        const answerReturn = [];
         for (const answer of question.answers) {
-            const res = {
-                answerId: answer.answerId,
-                answer: answer.answer,
-                colour: answer.colour
-            };
-            answerReturn.push(res);
+          const res = {
+            answerId: answer.answerId,
+            answer: answer.answer,
+            colour: answer.colour
+          };
+          answerReturn.push(res);
         }
         const playerQuestionInfo = {
-            questionId: question.questionId,
-            question: question.question,
-            duration: question.duration,
-            thumbnailUrl: session.quizStatus.metadata.thumbnailUrl,
-            points: question.points,
-            answers: answerReturn
+          questionId: question.questionId,
+          question: question.question,
+          duration: question.duration,
+          thumbnailUrl: session.quizStatus.metadata.thumbnailUrl,
+          points: question.points,
+          answers: answerReturn
         };
         return playerQuestionInfo;
       }
