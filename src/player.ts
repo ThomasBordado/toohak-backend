@@ -102,7 +102,7 @@ export const playerQuestionInfo = (playerId: number, questionPosition: number): 
   for (const session of sessions) {
     for (const player of session.quizStatus.players) {
       if (player.playerId === playerId) {
-        if (questionPosition < 0 || questionPosition > session.quizStatus.metadata.numQuestions) {
+        if (questionPosition < 1 || questionPosition > session.quizStatus.metadata.numQuestions) {
           throw HTTPError(400, 'question position is not valid for the session this player is in');
         }
         if (session.quizStatus.atQuestion !== questionPosition) {
