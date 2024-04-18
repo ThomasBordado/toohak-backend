@@ -258,12 +258,3 @@ export const playerIdToSession = (playerId: number) => {
   }
   throw HTTPError(400, 'player ID does not exist');
 }
-
-export const isActiveQuizSession = (quizId: number) => {
-  const data = getData();
-  for (const session of data.quizSessions) {
-    if (session.quizStatus.metadata.quizId === quizId && session.quizStatus.state !== 'END') {
-      throw HTTPError(400, 'At least one session for this quiz is not in END state');
-    }
-  }
-}
