@@ -10,6 +10,8 @@ let data: DataStore = {
   questionIdStore: 0,
   answerIdStore: 0,
   trash: [],
+  quizSessionIdStore: 0,
+  quizSessions: [],
 };
 
 // YOU SHOULD MODIFY THIS OBJECT ABOVE ONLY

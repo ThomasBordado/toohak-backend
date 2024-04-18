@@ -1,6 +1,7 @@
+
 import { requestRegister, requestClear, requestLogin } from './wrapper';
-import { requestQuizList, requestQuizCreate, requestQuizTrash, requestQuizViewTrash, requestQuizRestore, requestQuizTrashEmpty, requestQuizQuestionCreate, requestquizTransfer, requestLogout, requestQuizInfo, requestUpdateQuizName, requestUpdateQuizQuestion, requestDeleteQuizQuestion, requestUpdateQuizDescription, requestMoveQuestion, requestQuestionDuplicate, requestThumbnailUpdate } from './wrapper2';
-import { QuizListReturn, SessionId, quizId, quizUser, quizQuestionCreateInput, quiz, quizQuestionCreateReturn, questionId } from './interfaces';
+import { requestQuizList, requestQuizCreate, requestQuizTrash, requestQuizViewTrash, requestQuizRestore, requestQuizTrashEmpty, requestQuizQuestionCreate, requestquizTransfer, requestLogout, requestQuizInfo, requestUpdateQuizName, requestUpdateQuizQuestion, requestDeleteQuizQuestion, requestUpdateQuizDescription, requestMoveQuestion, requestQuestionDuplicate, requestThumbnailUpdate, requestSessionView, requestSessionStart } from './wrapper2';
+import { QuizListReturn, SessionId, quizId, quizUser, quizQuestionCreateInput, quiz, quizQuestionCreateReturn, questionId, sessionViewReturn } from './interfaces';
 import HTTPError from 'http-errors';
 
 beforeEach(() => {
@@ -1834,5 +1835,161 @@ describe('adminQuizThumbnailUpdate testing', () => {
       };
       expect(requestQuizInfo(user.token, quiz.quizId)).toStrictEqual(expected2);
     });
+  });
+});
+
+describe('requestSessionView testing', () => {
+  let user: SessionId;
+  let quiz: quizId;
+  let questionin: quizQuestionCreateInput;
+  beforeEach(() => {
+    user = requestRegister('chloe@gmail.com', 'password1', 'Chloe', 'Turner').jsonBody as SessionId;
+    quiz = requestQuizCreate(user.token, 'My Quiz', 'My Quiz Description');
+    questionin = {
+      question: 'Who is the Monarch of England?',
+      duration: 4,
+      points: 5,
+      answers: [
+        {
+          answer: 'Prince Charles',
+          correct: true
+        },
+        {
+          answer: 'Prince Charles.',
+          correct: true
+        }
+      ],
+      thumbnailUrl: 'http://google.com/some/image/path.jpg',
+    };
+    requestQuizQuestionCreate(user.token, questionin, quiz.quizId);
+  });
+
+  describe('Unsuccessful Cases', () => {
+    test('Invalid Token', () => {
+      expect(() => requestSessionView(user.token + 1, quiz.quizId)).toThrow(HTTPError[401]);
+    });
+    test('Invalid quizId', () => {
+      expect(() => requestSessionView(user.token, quiz.quizId + 1)).toThrow(HTTPError[403]);
+    });
+  });
+  describe('Successful Cases', () => {
+    test('No sessions started: return empty array', () => {
+      expect(requestSessionView(user.token, quiz.quizId)).toStrictEqual({ activeSessions: [], inactiveSessions: [] });
+    });
+    test('one active session', () => {
+      const session = requestSessionStart(user.token, quiz.quizId, 3);
+      expect(requestSessionView(user.token, quiz.quizId)).toStrictEqual({ activeSessions: [session.sessionId], inactiveSessions: [] });
+    });
+    test('multiple active sessions', () => {
+      const session1 = requestSessionStart(user.token, quiz.quizId, 3);
+      const session2 = requestSessionStart(user.token, quiz.quizId, 3);
+      const session3 = requestSessionStart(user.token, quiz.quizId, 3);
+      const quizSessions = requestSessionView(user.token, quiz.quizId);
+      const expectedSessions: sessionViewReturn = {
+        activeSessions: [
+          session1.sessionId,
+          session2.sessionId,
+          session3.sessionId,
+        ],
+        inactiveSessions: [],
+      };
+      // sorting both arrays in order of unique quizId so that the order of array matches
+      quizSessions.activeSessions.sort((a: number, b: number) => a - b);
+      expectedSessions.activeSessions.sort((a: number, b: number) => a - b);
+      expect(quizSessions).toStrictEqual(expectedSessions);
+    });
+    test.todo('one inactive session');
+    test.todo('multiple inactive sessions');
+    test.todo('both active and inactive sessions');
+  });
+});
+
+/*
+ * Testing for creating quiz
+ */
+describe('requestSessionStart testing', () => {
+  let user: SessionId;
+  let quiz: quizId;
+  let questionin: quizQuestionCreateInput;
+  let question: quizQuestionCreateReturn;
+  beforeEach(() => {
+    user = requestRegister('chloe@gmail.com', 'password1', 'Chloe', 'Turner').jsonBody as SessionId;
+    quiz = requestQuizCreate(user.token, 'My Quiz', 'My Quiz Description');
+    questionin = {
+      question: 'Who is the Monarch of England?',
+      duration: 4,
+      points: 5,
+      answers: [
+        {
+          answer: 'Prince Charles',
+          correct: true
+        },
+        {
+          answer: 'Prince Charles.',
+          correct: true
+        }
+      ],
+      thumbnailUrl: 'http://google.com/some/image/path.jpg',
+    };
+    question = requestQuizQuestionCreate(user.token, questionin, quiz.quizId) as quizQuestionCreateReturn;
+  });
+
+  describe('Unsuccessful Cases', () => {
+    test('Invalid SessionId', () => {
+      expect(() => requestSessionStart(user.token + 1, quiz.quizId, 3)).toThrow(HTTPError[401]);
+    });
+    test('Invalid quizId', () => {
+      expect(() => requestSessionStart(user.token, quiz.quizId + 1, 3)).toThrow(HTTPError[403]);
+    });
+    test('user does not own quiz', () => {
+      const user2 = requestRegister('chloet@gmail.com', 'password1', 'Chloe', 'Turner').jsonBody as SessionId;
+      expect(() => requestSessionStart(user2.token, quiz.quizId, 3)).toThrow(HTTPError[403]);
+    });
+    test('quiz in trash', () => {
+      requestQuizTrash(user.token, quiz.quizId);
+      expect(() => requestSessionStart(user.token, quiz.quizId, 3)).toThrow(HTTPError[400]);
+    });
+    test('no questions', () => {
+      requestDeleteQuizQuestion(user.token, quiz.quizId, question.questionId);
+      expect(() => requestSessionStart(user.token, quiz.quizId, 3)).toThrow(HTTPError[400]);
+    });
+    test('Invalid autoStartNum: < 0', () => {
+      expect(() => requestSessionStart(user.token, quiz.quizId, -2)).toThrow(HTTPError[400]);
+    });
+    test('Invalid autoStartNum: > 50', () => {
+      expect(() => requestSessionStart(user.token, quiz.quizId, 51)).toThrow(HTTPError[400]);
+    });
+    test('Max 10 sessions not in endState', () => {
+      requestSessionStart(user.token, quiz.quizId, 3);
+      requestSessionStart(user.token, quiz.quizId, 3);
+      requestSessionStart(user.token, quiz.quizId, 3);
+      requestSessionStart(user.token, quiz.quizId, 3);
+      requestSessionStart(user.token, quiz.quizId, 3);
+      requestSessionStart(user.token, quiz.quizId, 3);
+      requestSessionStart(user.token, quiz.quizId, 3);
+      requestSessionStart(user.token, quiz.quizId, 3);
+      requestSessionStart(user.token, quiz.quizId, 3);
+      requestSessionStart(user.token, quiz.quizId, 3);
+      expect(() => requestSessionStart(user.token, quiz.quizId, 3)).toThrow(HTTPError[400]);
+    });
+  });
+  describe('Successful cases', () => {
+    test('Create quiz Session', () => {
+      expect(requestSessionStart(user.token, quiz.quizId, 3)).toStrictEqual({ sessionId: expect.any(Number) });
+    });
+    test('Create two sessions w/ unique sessionId', () => {
+      const session1 = requestSessionStart(user.token, quiz.quizId, 3);
+      const session2 = requestSessionStart(user.token, quiz.quizId, 3);
+      expect(session1).toStrictEqual({ sessionId: expect.any(Number) });
+      expect(session2).toStrictEqual({ sessionId: expect.any(Number) });
+      expect(session1.sessionId).not.toStrictEqual(session2.sessionId);
+    });
+    test('autoNum = 0', () => {
+      expect(requestSessionStart(user.token, quiz.quizId, 0)).toStrictEqual({ sessionId: expect.any(Number) });
+    });
+    test('autoNum = 50', () => {
+      expect(requestSessionStart(user.token, quiz.quizId, 50)).toStrictEqual({ sessionId: expect.any(Number) });
+    });
+    test.todo('check any changes made to quiz does not effect session info');
   });
 });
