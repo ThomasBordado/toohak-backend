@@ -754,14 +754,21 @@ export const sessionStart = (token: string, quizId: number, autoStartNum: number
  * @param playerId - a unique identifier of a player who joined a session
  * @returns quizResults
  */
-export const sessionResultList = (playerId: number): QuizResults => {
-  const session = playerIdToSession(playerId);
-  if (session.quizStatus.state !== 'FINAL_RESULTS') {
-    throw HTTPError(400, 'Session is not in FINAL_RESULTS state');
-  }
-  return session.quizResults;
-};
+// export const sessionResultList = (playerId: number): QuizResults => {
+//   const session = playerIdToSession(playerId);
+//   if (session.quizStatus.state !== 'FINAL_RESULTS') {
+//     throw HTTPError(400, 'Session is not in FINAL_RESULTS state');
+//   }
+//   return session.quizResults;
+// };
 
+/**
+ * 
+ * @param token 
+ * @param quizId 
+ * @param sessionId 
+ * @returns 
+ */
 export const sessionCSVResultList = (token: string, quizId: number, sessionId: number): string => {
   const data = getData();
   validToken(token, data.users);
@@ -770,8 +777,6 @@ export const sessionCSVResultList = (token: string, quizId: number, sessionId: n
     throw HTTPError(400, 'Session is not in FINAL_RESULTS state');
   }
   isValidQuizId(token, quizId);
-
   const fileAddress = arrayToCSVAddress(token, session.quizResults);
-
   return fileAddress;
 }
