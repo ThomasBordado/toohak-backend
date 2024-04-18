@@ -1,6 +1,6 @@
 import { getData, setData } from './dataStore';
 import { EmptyObject, ErrorReturn, QuizListReturn, quiz, quizId, quizQuestionCreateInput, quizQuestionCreateInputV1, quizQuestionCreateReturn, quizQuestionDuplicateReturn, QuizSession, State, messageInput, MessageListReturn, QuizResults } from './interfaces';
-import { validToken, checkQuizName, checkQuestionValid, isValidQuizId, randomColour, validthumbnailUrl, checkQuestionValidV1 } from './quizUtil';
+import { validToken, checkQuizName, checkQuestionValid, isValidQuizId, randomColour, validthumbnailUrl, checkQuestionValidV1, isActiveQuizSession } from './quizUtil';
 import { saveData } from './persistence';
 import HTTPError from 'http-errors';
 
@@ -502,6 +502,9 @@ export const quizTransfer2 = (token: string, userEmail: string, quizId: number):
     throw HTTPError(400, 'Quiz ID refers to a quiz that has a name that is already used by the target user');
   }
 
+  // Check if the quiz contains active session
+  isActiveQuizSession(quizId);
+
   // push the quiz to the target user
   const currentUser = data.users.find(users => users.sessions.includes(token));
   const userQuiz = currentUser.quizzes.find(quizs => quizs.quizId === quizId);
@@ -681,7 +684,7 @@ export const sessionStart = (token: string, quizId: number, autoStartNum: number
   return { sessionId: data.quizSessionIdStore };
 };
 export const sessionMessagesList = (playerId: number): MessageListReturn => {
-  // ValidPlayerId(playerId);
+  // validPlayerId(playerId);
   //
   // const data = getData();
   // for (const session of data.quizSessions) {

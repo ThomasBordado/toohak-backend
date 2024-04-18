@@ -254,5 +254,8 @@ export const isActiveQuizSession = (quizId: number) => {
       throw HTTPError(400, 'At least one session for this quiz is not in END state');
     }
   }
-}
+};
 
+export const ValidPlayerId = (playerId: number) => {
+  
+}
