@@ -1802,7 +1802,7 @@ describe('adminQuizThumbnailUpdate testing', () => {
         duration: 0,
         thumbnailUrl: 'http://google.com/some/image/path.jpg',
       };
-      expect(requestQuizInfo(user.token, quiz.quizId).jsonBody).toStrictEqual(expected);
+      expect(requestQuizInfo(user.token, quiz.quizId)).toStrictEqual(expected);
       expect(requestThumbnailUpdate(user.token, quiz.quizId, 'http://google.com/some/image/path.jpg')).toStrictEqual({});
       expect(requestQuizInfo(user.token, quiz.quizId)).toStrictEqual(expected);
     });
