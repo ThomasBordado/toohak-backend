@@ -29,4 +29,3 @@ export const clear = (): EmptyObject => {
   clearDataFile();
   return {};
 };
-
