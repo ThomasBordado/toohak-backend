@@ -1,6 +1,6 @@
 import { requestRegister, requestClear } from './wrapper';
-import { requestQuizCreate, requestQuizQuestionCreate, requestSessionStart, requestPlayerJoin, requestPlayerStatus, requestPlayerQuestionInfo, requestUpdateSessionState } from './wrapper2';
-import { SessionId, quizId, questionId, quizQuestionCreateInput } from './interfaces';
+import { requestQuizCreate, requestQuizQuestionCreate, requestSessionStart, requestPlayerJoin, requestPlayerStatus, requestPlayerQuestionInfo, requestUpdateSessionState, /*requestPlayerAnswerSubmission,*/ requestPlayerQuestionResults, requestPlayerSessionResults } from './wrapper2';
+import { SessionId, quizId, questionId, quizQuestionCreateInput, questionStatus, QuestionResults } from './interfaces';
 import HTTPError from 'http-errors';
 
 // helper function for testing timers
@@ -241,3 +241,126 @@ describe('Test requestPlayerQuestionInfo', () => {
     expect(() => requestPlayerQuestionInfo(playerId.playerId + 1, 1)).toThrow(HTTPError[400]);
   });
 });
+
+/*
+describe('Test requestPlayerAnswerSubmission', () => {
+  let user: SessionId;
+  let quiz: quizId;
+  let questionin: quizQuestionCreateInput;
+  let questionId: questionId;
+
+  beforeEach(() => {
+    user = requestRegister('jared@gmail.com', 'password2024', 'Jared', 'Simion').jsonBody as SessionId;
+    quiz = requestQuizCreate(user.token, 'My Quiz', 'My Quiz Description');
+    questionin = {
+      question: 'Who is the Monarch of England?',
+      duration: 4,
+      points: 5,
+      answers: [
+        {
+          answer: 'Prince Charles',
+          correct: true
+        },
+        {
+          answer: 'Prince Charlie',
+          correct: false
+        }
+      ],
+      thumbnailUrl: 'http://google.com/some/image/path.jpg',
+    };
+    questionId = requestQuizQuestionCreate(user.token, questionin, quiz.quizId);
+  });
+
+  //1. Succesful answer submission
+
+  test('Player Answer submit succesful', () => {
+    const session = requestSessionStart(user.token, quiz.quizId, 3);
+    const playerid = requestPlayerJoin(session.sessionId, 'jared');
+    const questionPosition = 1;
+
+
+    const result = requestPlayerAnswerSubmission(playerid, questionPosition,);
+
+  })
+});*/
+
+
+describe('Test requestPlayerQuestionResults', () => {
+
+  let user: SessionId;
+  let quiz: quizId;
+  let questionin: quizQuestionCreateInput;
+  let questionId: questionId;
+  let questionStatus: questionStatus;
+
+  beforeEach(() => {
+    user = requestRegister('jared@gmail.com', 'password2024', 'Jared', 'Simion').jsonBody as SessionId;
+    quiz = requestQuizCreate(user.token, 'My Quiz', 'My Quiz Description');
+    questionin = {
+      question: 'Who is the Monarch of England?',
+      duration: 4,
+      points: 5,
+      answers: [
+        {
+          answer: 'Prince Charles',
+          correct: true
+        },
+        {
+          answer: 'Prince Charlie',
+          correct: false
+        }
+      ],
+      thumbnailUrl: 'http://google.com/some/image/path.jpg',
+    };
+    questionId = requestQuizQuestionCreate(user.token, questionin, quiz.quizId);
+  });
+
+  //1. succesful request player question results
+  test('Succesful question results', () => {
+    const session = requestSessionStart(user.token, quiz.quizId, 3);
+    const playerid = requestPlayerJoin(session.sessionId, 'jared');
+    requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'NEXT_QUESTION');
+    sleepSync(3 * 1000);
+    const questionPosition = 1;
+    const result = requestPlayerQuestionResults(playerid.playerId, questionPosition);
+    expect(result).toStrictEqual({
+      questionId: questionId.questionId,
+      playersCorrectList: [questionStatus.correctUsers],
+      averageAnswerTime: expect.any(Number),
+      percentCorrect: expect.any(Number)
+    });
+  });
+
+
+  //2. player id does not exist
+  test('Test playerid does not not exist', () => {
+    const session = requestSessionStart(user.token, quiz.quizId, 3);
+    const playerid = requestPlayerJoin(session.sessionId, 'jared');
+
+    expect(() => requestPlayerQuestionResults(playerid.playerId + 1, 1)).toThrow(HTTPError[400]);
+  });
+
+  //3. question id does not exist for the session the player is in
+  test('Test questionId is not session valid', () => {
+    const session = requestSessionStart(user.token, quiz.quizId, 3);
+    const playerid = requestPlayerJoin(session.sessionId, 'jared');
+
+    expect(() => requestPlayerQuestionResults(playerid.playerId, 10)).toThrow(HTTPError[400]);
+  });
+
+  //4. session is not in ANSWER_SHOW
+  test('test Session not in ANSWER_SHOW', () => {
+    const session = requestSessionStart(user.token, quiz.quizId, 3);
+    const playerid = requestPlayerJoin(session.sessionId, 'jared');
+
+    expect(() => requestPlayerQuestionResults(playerid.playerId, 1)).toThrow(HTTPError[400]);
+  });
+
+  test('Test session is not yet up to that question', () => {
+    const session = requestSessionStart(user.token, quiz.quizId, 3);
+    const playerid = requestPlayerJoin(session.sessionId, 'jared');
+
+    expect(() => requestPlayerQuestionResults(playerid.playerId, 3)).toThrow(HTTPError[400]);
+  });
+});
+
