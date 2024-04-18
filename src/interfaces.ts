@@ -1,4 +1,15 @@
 // import { string } from 'yaml/dist/schema/common/string';
+
+export enum State {
+  LOBBY = 'LOBBY',
+  QUESTION_COUNTDOWN = 'QUESTION_COUNTDOWN',
+  QUESTION_OPEN = 'QUESTION_OPEN',
+  QUESTION_CLOSE = 'QUESTION_CLOSE',
+  ANSWER_SHOW = 'ANSWER_SHOW',
+  FINAL_RESULTS = 'FINAL_RESULTS',
+  END = 'END',
+}
+
 export interface answer {
   answerId: number;
   answer: string;
@@ -9,6 +20,12 @@ export interface answer {
 export interface answerInput {
   answer: string;
   correct: boolean;
+}
+
+export interface answerBrief {
+  answerId: number;
+  answer: string;
+  colour: string;
 }
 
 export interface quizQuestion {
@@ -83,6 +100,10 @@ export interface questionId {
   questionId: number;
 }
 
+export interface PlayerId {
+  playerId: number;
+}
+
 export interface QuizListReturn {
   quizzes: quizUser[];
 }
@@ -110,14 +131,26 @@ export interface quizQuestionDuplicateReturn {
   newQuestionId: number;
 }
 
-export enum State {
-  LOBBY = 'LOBBY',
-  QUESTION_COUNTDOWN = 'QUESTION_COUNTDOWN',
-  QUESTION_OPEN = 'QUESTION_OPEN',
-  QUESTION_CLOSE = 'QUESTION_CLOSE',
-  ANSWER_SHOW = 'ANSWER_SHOW',
-  FINAL_RESULTS = 'FINAL_RESULTS',
-  END = 'END',
+export interface PlayerQuestionInfo {
+  questionId: number,
+  question: string,
+  duration: number,
+  thumbnailUrl: string,
+  points: number,
+  answers: answerBrief[]
+}
+
+export interface PlayerStatus {
+  state: State,
+  numQuestions: number,
+  atQuestion: number
+}
+
+export interface Player {
+  playerId: number;
+  name: string;
+  answerIds: number[];
+  score: number;
 }
 
 export enum Action {
@@ -135,6 +168,10 @@ export interface sessionViewReturn {
 
 export interface PlayerId {
   playerId: number;
+}
+
+export interface QuizSessionId {
+  sessionId: number;
 }
 
 export interface Player {
@@ -190,13 +227,14 @@ export interface CSVFormat {
 export interface DataStore {
   users: user[];
   quizzes: quiz[];
-  trash: quiz[];
-  quizSessions: QuizSession[];
   userIdStore: number;
   quizIdStore: number;
   sessionIdStore: number;
   questionIdStore: number;
   answerIdStore: number;
-  quizSessionIdStore: number;
   playerIdStore: number;
+  trash: quiz[];
+  quizSessionIdStore: number;
+  quizSessions: QuizSession[];
+  timers: ReturnType<typeof setTimeout>[];
 }

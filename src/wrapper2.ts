@@ -166,8 +166,24 @@ export const requestSessionStart = (token: string, quizid: number, autoStartNum:
   return requestHelper('POST', `/v1/admin/quiz/${quizid}/session/start`, { autoStartNum }, { token });
 };
 
-export const requestSessionResult = (playerid: number) => {
-  return requestHelper('GET', `/v1/player/${playerid}/results`, { playerid });
+export const requestPlayerJoin = (sessionId: number, name: string) => {
+  return requestHelper('POST', '/v1/player/join', { sessionId, name }, {});
+};
+
+export const requestPlayerStatus = (playerid: number) => {
+  return requestHelper('GET', `/v1/player/${playerid}`, {}, {});
+};
+
+export const requestPlayerQuestionInfo = (playerid: number, questionposition: number) => {
+  return requestHelper('GET', `/v1/player/${playerid}/question/${questionposition}`, {}, {});
+};
+
+export const requestUpdateSessionState = (token: string, quizid: number, sessionid: number, action: string) => {
+  return requestHelper('PUT', `/v1/admin/quiz/${quizid}/session/${sessionid}`, { action }, { token });
+};
+
+export const requestGetSessionStatus = (token: string, quizid: number, sessionid: number) => {
+  return requestHelper('GET', `/v1/admin/quiz/${quizid}/session/${sessionid}`, {}, { token });
 };
 
 export const requestSessionCSVResult = (token: string, quizid: number, sessionid: number) => {
@@ -177,3 +193,7 @@ export const requestSessionCSVResult = (token: string, quizid: number, sessionid
 export const requestFileUrl = (filename: string) => {
   return requestHelper('GET', `/csv-results/${filename}`, { filename });
 }
+
+// export const requestQuizSessionFinalResults = (token: string, quizid: number, sessionid: number) => {
+//   return requestHelper('GET', `/v1/admin/quiz/${quizid}/session/${sessionid}/results`, {}, { token });
+// };
