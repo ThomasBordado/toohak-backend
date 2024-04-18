@@ -2,11 +2,19 @@ import { getData } from './dataStore';
 import { EmptyObject } from './interfaces';
 import { clearDataFile } from './persistence';
 
+const clearTimeouts = () => {
+  const timeouts = getData().timeouts;
+  for (const timeout of timeouts) {
+    clearTimeout(timeout.timeoutId);
+  }
+};
+
 /**
  * Reset the state of the application back to the start.
  * @returns {} - clears the state of the application back to the start
  */
 export const clear = (): EmptyObject => {
+  clearTimeouts();
   getData().users = [];
   getData().userIdStore = 0;
   getData().quizzes = [];
@@ -21,3 +29,4 @@ export const clear = (): EmptyObject => {
   clearDataFile();
   return {};
 };
+
