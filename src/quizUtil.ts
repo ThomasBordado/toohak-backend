@@ -2,7 +2,6 @@ import { quizUser, user, quizQuestionCreateInput, quizQuestionCreateInputV1, Qui
 import { getData } from './dataStore';
 import HTTPError from 'http-errors';
 import fs from 'fs';
-import path from 'path';
 
 /**
  * Check if AuthUserId is valid.
@@ -283,7 +282,28 @@ export const validSession = (sessionId: number, quizId: number) => {
 }
 
 export const arrayToCSVAddress = (token: string, result: QuizResults): string => {
-  const fileName = `./csv-results/QuizResults_${token}.csv`;
-  fs.writeFileSync(fileName, JSON.stringify(result));
+  const fileName = `/csv-results/QuizResults_${token}.csv`;
+
+  let csvContent = "User Ranks:\n";
+
+  // Append user ranks data
+  result.usersRankedByScore.forEach(user => {
+    csvContent += "name,score\n";
+    csvContent += `"${user.name}",${user.score}\n`;
+  });
+
+  // Separator between sections
+  csvContent += "\nQuestion Results:\n";
+
+  // Append question results
+  result.questionResults.forEach(question => {
+    csvContent += "questionId,playerCorrectList,averageAnswerTime,percentCorrect\n";
+    const playerCorrectList = question.playerCorrectList.join(';');
+    csvContent += `${question.questionId},"${playerCorrectList}",${question.averageAnswerTime},${question.percentCorrect}\n`;
+  });
+
+  // Write the CSV content to a file
+  fs.writeFileSync(fileName, csvContent);
+  
   return fileName;
 };
