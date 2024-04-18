@@ -81,12 +81,14 @@ describe('Test requestPlayerJoin', () => {
   test('Test State Changes after 3 players join', () => {
     const session = requestSessionStart(user.token, quiz.quizId, 3);
     const playerId = requestPlayerJoin(session.sessionId, 'thomas');
+
     expect(playerId).toStrictEqual({ playerId: playerId.playerId });
     const playerId2 = requestPlayerJoin(session.sessionId, 'qwe123');
+
     expect(playerId2).toStrictEqual({ playerId: playerId2.playerId });
     const playerId3 = requestPlayerJoin(session.sessionId, '');
+
     expect(playerId3).toStrictEqual({ playerId: playerId3.playerId });
-    const playerId4 = requestPlayerJoin(session.sessionId, '');
-    expect(playerId4).toStrictEqual({ playerId: playerId4.playerId });
+    expect(() => requestPlayerJoin(session.sessionId, '')).toThrow(HTTPError[400]);
   });
 });
