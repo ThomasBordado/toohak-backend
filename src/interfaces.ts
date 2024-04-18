@@ -147,7 +147,7 @@ export interface sessionViewReturn {
 export interface QuizStatus {
   state: State;
   atQuestion: number;
-  players: string[];
+  players: Player[];
   metadata: quiz;
 }
 

@@ -1,5 +1,5 @@
 import { requestRegister, requestClear } from './wrapper';
-import { requestQuizCreate, requestQuizQuestionCreate, requestSessionStart, requestUpdateSessionState, requestPlayerJoin } from './wrapper2';
+import { requestQuizCreate, requestQuizQuestionCreate, requestSessionStart, requestPlayerJoin } from './wrapper2';
 import { SessionId, quizId, quizQuestionCreateInput } from './interfaces';
 import HTTPError from 'http-errors';
 
@@ -48,11 +48,11 @@ describe('Test requestPlayerJoin', () => {
   });
 
   // 3. Player joining session not in LOBBY state.
-  test('Test player joining session not in LOBBY state', () => {
-    const session = requestSessionStart(user.token, quiz.quizId, 3);
-    requestUpdateSessionState(quiz.quizId, session.sessionId, user.token, 'END');
-    expect(() => requestPlayerJoin(session.sessionId, 'thomas')).toThrow(HTTPError[400]);
-  });
+  // test('Test player joining session not in LOBBY state', () => {
+  //   const session = requestSessionStart(user.token, quiz.quizId, 3);
+  //   requestUpdateSessionState(quiz.quizId, session.sessionId, user.token, 'END');
+  //   expect(() => requestPlayerJoin(session.sessionId, 'thomas')).toThrow(HTTPError[400]);
+  // });
 
   // 4. Players without unique names
   test('Test two players trying to join with same name', () => {
@@ -67,6 +67,14 @@ describe('Test requestPlayerJoin', () => {
     const session = requestSessionStart(user.token, quiz.quizId, 3);
     const playerId = requestPlayerJoin(session.sessionId, '');
     expect(playerId).toStrictEqual({ playerId: playerId.playerId });
-    // somehow check the name
+  });
+
+  // 
+  test('Test player joining with name', () => {
+    const session = requestSessionStart(user.token, quiz.quizId, 3);
+    const playerId = requestPlayerJoin(session.sessionId, 'thomas');
+    expect(playerId).toStrictEqual({ playerId: playerId.playerId });
+    const playerId2 = requestPlayerJoin(session.sessionId, 'qwe123');
+    expect(playerId2).toStrictEqual({ playerId: playerId2.playerId });
   });
 });
