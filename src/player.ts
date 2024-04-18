@@ -50,7 +50,7 @@ export const playerJoin = (sessionId: number, name: string): PlayerId => {
     }
 
     const data = getData();
-    console.log(data.quizSessions[sessionIndex].quizStatus.players);
+
     data.playerIdStore += 1;
     const newPlayer: Player = {
         playerId: data.playerIdStore,
@@ -60,7 +60,21 @@ export const playerJoin = (sessionId: number, name: string): PlayerId => {
     }
     players.push(newPlayer);
     saveData();
-    console.log(data.quizSessions[sessionIndex].quizStatus.players);
+
+    /*if (players.length === data.quizSessions[sessionIndex].autoStartNum) {
+        const quizId = data.quizSessions[sessionIndex].quizStatus.metadata.quizId;
+        const users = getData().users;
+        let token = "";
+        for (const user of users) {
+            for (const quiz of user.quizzes) {
+                if (quizId === quiz.quizId) {
+                    token = user.sessions[0];
+                    break;
+                }
+            }
+        }
+        requestUpdateSessionState(token, quizId, data.quizSessions[sessionIndex].sessionId, Action.NEXT_QUESTION);
+    }*/
     return {
         playerId: newPlayer.playerId
     };
