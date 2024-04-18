@@ -165,3 +165,15 @@ export const requestSessionView = (token: string, quizid: number) => {
 export const requestSessionStart = (token: string, quizid: number, autoStartNum: number) => {
   return requestHelper('POST', `/v1/admin/quiz/${quizid}/session/start`, { autoStartNum }, { token });
 };
+
+export const requestUpdateSessionState = (token: string, quizid: number, sessionid: number, action: string) => {
+  return requestHelper('PUT', `/v1/admin/quiz/${quizid}/session/${sessionid}`, { action }, { token });
+};
+
+export const requestGetSessionStatus = (token: string, quizid: number, sessionid: number) => {
+  return requestHelper('GET', `/v1/admin/quiz/${quizid}/session/${sessionid}`, {}, { token });
+};
+
+// export const requestQuizSessionFinalResults = (token: string, quizid: number, sessionid: number) => {
+//   return requestHelper('GET', `/v1/admin/quiz/${quizid}/session/${sessionid}/results`, {}, { token });
+// };

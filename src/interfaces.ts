@@ -175,12 +175,13 @@ export interface QuizSession {
 export interface DataStore {
   users: user[];
   quizzes: quiz[];
-  trash: quiz[];
-  quizSessions: QuizSession[];
   userIdStore: number;
   quizIdStore: number;
   sessionIdStore: number;
   questionIdStore: number;
   answerIdStore: number;
+  trash: quiz[];
   quizSessionIdStore: number;
+  quizSessions: QuizSession[];
+  timers: ReturnType<typeof setTimeout>[];
 }
