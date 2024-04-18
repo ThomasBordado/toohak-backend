@@ -2432,7 +2432,7 @@ describe('requestSessionStart testing', () => {
   });
 });
 
-describe('GET /v1/player/:playerid/results, sessionGetPlayerResult', () => {
+describe.only('GET /v1/admin/quiz/{quizid}/session/{sessionid}/results/csv, sessionGetPlayerResult CSV format', () => {
   let user: SessionId;
   let quiz: quizId;
   let player: PlayerId;
@@ -2461,10 +2461,10 @@ describe('GET /v1/player/:playerid/results, sessionGetPlayerResult', () => {
     requestQuizQuestionCreate(user.token, input, quiz.quizId);
     session = requestSessionStart(user.token, quiz.quizId, 3);
     player = requestPlayerJoin(session.sessionId, 'Jane.S');
-    requestUpdateSessionState(user.token,  session.sessionId, quiz.quizId, "QUESTION_COUNTDOWN");
-    requestUpdateSessionState(user.token,  session.sessionId, quiz.quizId, "QUESTION_OPEN");
-    requestUpdateSessionState(user.token,  session.sessionId, quiz.quizId, "QUESTION_CLOSE");
-    requestUpdateSessionState(user.token,  session.sessionId, quiz.quizId, "FINAL_RESULTS");
+    requestUpdateSessionState(user.token,  session.sessionId, quiz.quizId, 'NEXT_QUESTION');
+    requestUpdateSessionState(user.token,  session.sessionId, quiz.quizId, 'SKIP_COUNTDOWN');
+    requestUpdateSessionState(user.token,  session.sessionId, quiz.quizId, 'GO_TO_ANSWER');
+    requestUpdateSessionState(user.token,  session.sessionId, quiz.quizId, 'GO_TO_FINAL_RESULTS');
   });
 
   test('Correct return type and not throwing error', () => {
