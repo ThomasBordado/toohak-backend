@@ -1,8 +1,9 @@
 import { getData, setData } from './dataStore';
 import { EmptyObject, ErrorReturn, QuizListReturn, quiz, quizId, quizQuestionCreateInput, quizQuestionCreateInputV1, quizQuestionCreateReturn, quizQuestionDuplicateReturn, QuizSession, State, Action } from './interfaces';
-import { validToken, checkQuizName, checkQuestionValid, isValidQuizId, randomColour, validthumbnailUrl, checkQuestionValidV1 } from './quizUtil';
+import { validToken, checkQuizName, checkQuestionValid, isValidQuizId, randomColour, validthumbnailUrl, checkQuestionValidV1, isActiveQuizSession } from './quizUtil';
 import { saveData } from './persistence';
 import HTTPError from 'http-errors';
+
 /**
  * Provides a list of all quizzes that are owned by the currently logged in user
  * @param {string} token - unique identifier for an academic
@@ -174,18 +175,19 @@ export const adminQuizNameUpdate = (token: string, quizId: number, name: string)
 export const adminQuizDescriptionUpdate = (token: string, quizId: number, newDescription: string): EmptyObject | ErrorReturn => {
   const data = getData();
   const user = validToken(token, data.users);
+
   const quizIndex = data.quizzes.findIndex(quizzes => quizzes.quizId === quizId);
 
   if (quizIndex === -1) {
-    return { error: 'Invalid quizId' };
+    throw HTTPError(403, 'Invalid quizId');
   }
 
   const userQuizIndex = user.quizzes.findIndex(quizzes => quizzes.quizId === quizId);
   if (userQuizIndex === -1) {
-    return { error: 'User does not own this quiz' };
+    throw HTTPError(403, 'User does not own this quiz');
   }
   if (newDescription.length > 100) {
-    return { error: 'New description cannot be greater than 100 characters' };
+    throw HTTPError(400, 'Description cannot be greater than 100 characters');
   }
 
   data.quizzes[quizIndex].description = newDescription;
@@ -269,8 +271,6 @@ export const adminQuizQuestionDelete = (token: string, quizId: number, questioni
   const findQuestion = findQuiz.questions.findIndex(questions => questions.questionId === questionid);
   if (findQuestion === -1) {
     throw HTTPError(400, 'Invalid questionId');
-  } else if (findQuestion > -1) {
-    findQuiz.questions.splice(findQuestion, 1);
   }
 
   findQuiz.duration -= findQuiz.questions[findQuestion].duration;
@@ -502,6 +502,9 @@ export const quizTransfer2 = (token: string, userEmail: string, quizId: number):
     throw HTTPError(400, 'Quiz ID refers to a quiz that has a name that is already used by the target user');
   }
 
+  // Check if the quiz contains active session
+  isActiveQuizSession(quizId);
+
   // push the quiz to the target user
   const currentUser = data.users.find(users => users.sessions.includes(token));
   const userQuiz = currentUser.quizzes.find(quizs => quizs.quizId === quizId);
@@ -521,27 +524,24 @@ export const adminQuizQuestionMove = (token: string, quizId: number, questionId:
 
   const userQuizIndex = user.quizzes.findIndex(quizzes => quizzes.quizId === quizId);
   if (userQuizIndex === -1) {
-    return { error: 'User does not own this quiz' };
+    throw HTTPError(403, 'User does not own this quiz');
   }
 
-  const findQuiz = data.quizzes.findIndex(quizzes => quizzes.quizId === quizId);
-  if (findQuiz === -1) {
-    return { error: 'Invalid quiz ID' };
-  }
+  const findQuiz = data.quizzes.findIndex(quizzes => quizzes.quizId === quizId); // find quiz using quizId
 
   const findQuestion = data.quizzes[findQuiz].questions.findIndex(quizQuestions => quizQuestions.questionId === questionId);
   if (findQuestion === -1) {
-    return { error: 'Does not refer to valid question' };
+    throw HTTPError(400, 'questionId is invalid or newPosition is invalid');
   }
 
   if (findQuestion === newPosition || newPosition < 0 || newPosition > (data.quizzes[findQuiz].questions.length - 1)) {
-    return { error: 'Position or Question Id error' };
+    throw HTTPError(400, 'questionId is invalid or newPosition is invalid');
   }
 
   const questionToMove = data.quizzes[findQuiz].questions.splice(findQuestion, 1)[0]; // Remove the question from its current position
   data.quizzes[findQuiz].questions.splice(newPosition, 0, questionToMove); // Insert the question into the new position
 
-  data.quizzes[findQuiz].timeLastEdited = Math.floor(Date.now() / 1000);
+  data.quizzes[findQuiz].timeLastEdited = Math.floor(Date.now() / 1000); // Update last edited data value
   setData(data);
   saveData();
   return {};
@@ -553,17 +553,14 @@ export const adminQuizQuestionDuplicate = (token: string, quizId: number, questi
 
   const userQuizIndex = user.quizzes.findIndex(quizzes => quizzes.quizId === quizId);
   if (userQuizIndex === -1) {
-    return { error: 'User does not own this quiz' };
+    throw HTTPError(403, 'User does not own this quiz');
   }
 
-  const findQuiz = data.quizzes.findIndex(quizzes => quizzes.quizId === quizId);
-  if (findQuiz === -1) {
-    return { error: 'Invalid quiz ID' };
-  }
+  const findQuiz = data.quizzes.findIndex(quizzes => quizzes.quizId === quizId); // find quiz using quizId
 
   const findQuestion = data.quizzes[findQuiz].questions.findIndex(quizQuestions => quizQuestions.questionId === questionId);
   if (findQuestion === -1) {
-    return { error: 'Invalid questionId' };
+    throw HTTPError(400, 'questionId does not refer to a valid question in this quiz');
   }
 
   const questionToDuplicate = data.quizzes[findQuiz].questions[findQuestion];
@@ -589,9 +586,26 @@ export const adminQuizQuestionDuplicate = (token: string, quizId: number, questi
 
   // Save the updated data
   setData(data);
+  saveData();
 
   // Return the ID of the new question
   return { newQuestionId: duplicatedQuestion.questionId };
+};
+
+export const adminQuizThumbnailUpdate = (token: string, quizId: number, thumbnailUrl: string) => {
+  const data = getData();
+  const user = validToken(token, data.users);
+  const quizUser = user.quizzes.find(quizzes => quizzes.quizId === quizId);
+  if (quizUser === undefined) {
+    throw HTTPError(403, 'User does not own quiz');
+  }
+  validthumbnailUrl(thumbnailUrl);
+
+  const quiz = data.quizzes.find(quizzes => quizzes.quizId === quizId);
+  quiz.thumbnailUrl = thumbnailUrl;
+  quiz.timeLastEdited = Math.floor(Date.now() / 1000);
+  saveData();
+  return {};
 };
 
 export const viewSessions = (token: string, quizId: number) => {
