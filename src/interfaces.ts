@@ -128,6 +128,11 @@ export enum Action {
   END = 'END',
 }
 
+export interface sessionViewReturn {
+  activeSessions: number[];
+  inactiveSessions: number[];
+}
+
 export interface QuizStatus {
   state: State;
   atQuestion: number;
