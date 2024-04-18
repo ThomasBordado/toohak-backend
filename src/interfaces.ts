@@ -94,6 +94,10 @@ export interface questionId {
   questionId: number;
 }
 
+export interface PlayerId {
+  playerId: number;
+}
+
 export interface QuizListReturn {
   quizzes: quizUser[];
 }
@@ -127,6 +131,65 @@ export interface PlayerStatus {
   atQuestion: number
 }
 
+export interface Player {
+  playerId: number;
+  name: string;
+  answerIds: number[];
+  score: number;
+}
+
+export enum Action {
+  NEXT_QUESTION = 'NEXT_QUESTION',
+  SKIP_COUNTDOWN = 'SKIP_COUNTDOWN',
+  GO_TO_ANSWER = 'GO_TO_ANSWER',
+  GO_TO_FINAL_RESULTS = 'GO_TO_FINAL_RESULTS',
+  END = 'END',
+}
+
+export interface sessionViewReturn {
+  activeSessions: number[];
+  inactiveSessions: number[];
+}
+
+export interface QuizStatus {
+  state: State;
+  atQuestion: number;
+  players: Player[];
+  metadata: quiz;
+}
+
+export interface UserRank {
+  name: string;
+  score: number;
+}
+
+export interface QuestionResults {
+  questionId: number;
+  playerCorrectList: string[];
+  averageAnswerTime: number;
+  percentCorrect: number;
+}
+
+export interface QuizResults {
+  usersRankedByScore: UserRank[];
+  questionResults: QuestionResults[];
+}
+
+export interface Message {
+  messageBody: string;
+  playerId: number;
+  playerName: string;
+  timeSent: number;
+}
+
+export interface QuizSession {
+  sessionId: number;
+  autoStartNum: number;
+  quizStatus: QuizStatus;
+  quizResults: QuizResults;
+  messages: Message[];
+}
+
 export interface DataStore {
   users: user[];
   quizzes: quiz[];
@@ -135,5 +198,8 @@ export interface DataStore {
   sessionIdStore: number;
   questionIdStore: number;
   answerIdStore: number;
+  playerIdStore: number;
   trash: quiz[];
+  quizSessionIdStore: number;
+  quizSessions: QuizSession[];
 }

@@ -10,9 +10,9 @@ import fs from 'fs';
 import path from 'path';
 import process from 'process';
 import { clear } from './other';
-import { adminQuizList, adminQuizCreate1, adminQuizCreate2, adminQuizRemove, adminQuizInfo, adminQuizNameUpdate, adminQuizDescriptionUpdate, adminQuizViewTrash, adminQuizRestore, adminQuizTrashEmpty, quizTransfer1, quizTransfer2, adminQuizQuestionUpdate, adminQuizQuestionDelete, adminQuizQuestionMove, adminQuizQuestionDuplicate, quizQuestionCreate2, quizQuestionCreate1 } from './quiz';
+import { adminQuizList, adminQuizCreate1, adminQuizCreate2, adminQuizRemove, adminQuizInfo, adminQuizNameUpdate, adminQuizDescriptionUpdate, adminQuizViewTrash, adminQuizRestore, adminQuizTrashEmpty, quizTransfer1, quizTransfer2, adminQuizQuestionUpdate, adminQuizQuestionDelete, adminQuizQuestionMove, adminQuizQuestionDuplicate, quizQuestionCreate2, quizQuestionCreate1, adminQuizThumbnailUpdate, viewSessions, sessionStart } from './quiz';
 import { adminAuthLogin, adminAuthRegister, adminUserDetails, adminUserDetailsUpdate2, adminUserPasswordUpdate2, adminAuthLogout, adminUserDetailsUpdate1, adminUserPasswordUpdate1 } from './auth';
-import { playerStatus } from './player';
+import { playerJoin, playerStatus } from './player';
 import { loadData, saveData } from './persistence';
 
 // Set up web app
@@ -59,6 +59,12 @@ app.get('/v1/admin/user/details', (req: Request, res: Response) => {
   if ('error' in response) {
     return res.status(401).json(response);
   }
+  res.json(response);
+});
+
+app.get('/v2/admin/user/details', (req: Request, res: Response) => {
+  const token = req.headers.token as string;
+  const response = adminUserDetails(token);
   res.json(response);
 });
 
@@ -185,6 +191,16 @@ app.put('/v1/admin/quiz/:quizid/description', (req: Request, res: Response) => {
   res.json(result);
 });
 
+app.put('/v2/admin/quiz/:quizid/description', (req: Request, res: Response) => {
+  // Everything in req.body will be of the correct type
+  const quizId = parseInt(req.params.quizid as string);
+  const token = req.headers.token as string;
+  const { description } = req.body;
+  const result = adminQuizDescriptionUpdate(token, quizId, description);
+
+  res.json(result);
+});
+
 app.delete('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
   const token = req.query.token as string;
   const quizId = parseInt(req.params.quizid as string);
@@ -221,6 +237,16 @@ app.put('/v1/admin/quiz/:quizid/question/:questionid/move', (req: Request, res: 
     }
     return res.status(400).json(result);
   }
+  res.json(result);
+});
+
+app.put('/v2/admin/quiz/:quizid/question/:questionid/move', (req: Request, res: Response) => {
+  const token = req.headers.token as string;
+  const quizId = parseInt(req.params.quizid as string);
+  const questionId = parseInt(req.params.questionid as string);
+  const newPosition = req.body.newPosition as number;
+  const result = adminQuizQuestionMove(token, quizId, questionId, newPosition);
+
   res.json(result);
 });
 
@@ -424,6 +450,45 @@ app.post('/v1/admin/quiz/:quizId/question/:questionId/duplicate', (req: Request,
     }
     return res.status(403).json(result);
   }
+  res.json(result);
+});
+
+app.post('/v2/admin/quiz/:quizId/question/:questionId/duplicate', (req: Request, res: Response) => {
+  const token = req.headers.token as string;
+  const quizId = parseInt(req.params.quizId as string);
+  const questionId = parseInt(req.params.questionId as string);
+  const result = adminQuizQuestionDuplicate(token, quizId, questionId);
+  res.json(result);
+});
+
+app.put('/v1/admin/quiz/:quizid/thumbnail', (req: Request, res: Response) => {
+  const token = req.headers.token as string;
+  const quizId = parseInt(req.params.quizid as string);
+  const imgUrl = req.body.imgUrl as string;
+  const result = adminQuizThumbnailUpdate(token, quizId, imgUrl);
+  res.json(result);
+});
+
+app.get('/v1/admin/quiz/:quizid/sessions', (req: Request, res: Response) => {
+  const token = req.headers.token as string;
+  const quizId = parseInt(req.params.quizid as string);
+  const result = viewSessions(token, quizId);
+  res.json(result);
+});
+
+app.post('/v1/admin/quiz/:quizid/session/start', (req: Request, res: Response) => {
+  const quizId = parseInt(req.params.quizid);
+  const token = req.headers.token as string;
+  const { autoStartNum } = req.body;
+  const response = sessionStart(token, quizId, autoStartNum);
+  res.json(response);
+});
+
+
+app.post('/v1/player/join', (req: Request, res: Response) => {
+  const sessionId = parseInt(req.body.sessionId as string);
+  const name = req.body.name as string;
+  const result = playerJoin(sessionId, name);
   res.json(result);
 });
 

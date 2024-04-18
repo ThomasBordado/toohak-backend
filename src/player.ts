@@ -3,7 +3,7 @@ import { PlayerId, Player, PlayerStatus } from './interfaces';
 import { saveData } from './persistence';
 import HTTPError from 'http-errors';
 
-export const generateRandomName = (): string => {
+export const generateRandomName = (players: Player[]): string => {
     let letters = 'abcdefghijklmnopqrstuvwxyz';
     let numbers = '0123456789';
     
@@ -21,9 +21,11 @@ export const generateRandomName = (): string => {
         numbers = numbers.slice(0, randomIndex) + numbers.slice(randomIndex + 1);
     }
     const newName = randomLetters + randomNumbers;
-    const players = getData().quizSessions.players;
-    if (players.some(player => players.name === newName)) {
-        return generateRandomName();
+    //const players = getData().quizSessions.quizStatus.players;
+    for (const player of players) {
+        if (player.name === newName) {
+            return generateRandomName(players);
+        }
     }
     return newName;
 }
@@ -37,14 +39,18 @@ export const playerJoin = (sessionId: number, name: string): PlayerId => {
     if (sessions[sessionIndex].quizStatus.state !== 'LOBBY') {
         throw HTTPError(400, 'Session is not in LOBBY state');
     }
-    const players = sessions.quizStatus.players;
+    const players = sessions[sessionIndex].quizStatus.players;
     if (name === "") {
-        name = generateRandomName();
-    } else if (players.some(player => players.name === name)) {
-        throw HTTPError(400, 'Name of user entered is not unique');
+        name = generateRandomName(players);
+    }
+    for (const player of players) {
+        if (player.name === name) {
+            throw HTTPError(400, 'Name of user entered is not unique');
+        }
     }
 
     const data = getData();
+
     data.playerIdStore += 1;
     const newPlayer: Player = {
         playerId: data.playerIdStore,
@@ -54,6 +60,21 @@ export const playerJoin = (sessionId: number, name: string): PlayerId => {
     }
     players.push(newPlayer);
     saveData();
+
+    /*if (players.length === data.quizSessions[sessionIndex].autoStartNum) {
+        const quizId = data.quizSessions[sessionIndex].quizStatus.metadata.quizId;
+        const users = getData().users;
+        let token = "";
+        for (const user of users) {
+            for (const quiz of user.quizzes) {
+                if (quizId === quiz.quizId) {
+                    token = user.sessions[0];
+                    break;
+                }
+            }
+        }
+        requestUpdateSessionState(token, quizId, data.quizSessions[sessionIndex].sessionId, Action.NEXT_QUESTION);
+    }*/
     return {
         playerId: newPlayer.playerId
     };
@@ -62,11 +83,12 @@ export const playerJoin = (sessionId: number, name: string): PlayerId => {
 export const playerStatus = (playerId: number): PlayerStatus => {
     const sessions = getData().quizSessions;
     for (const session of sessions) {
-        for (const player of session.quizStatus.players) {
+        for (const player of session.quizStatus.players) {          
             if (player.playerId === playerId) {
+
                 const status = {
                     state: session.quizStatus.state,
-                    numQuestions: session.quizStatus.metadata.quiz.numQuestions,
+                    numQuestions: session.quizStatus.metadata.numQuestions,
                     atQuestion: session.quizStatus.atQuestion
                 };
                 return status;
