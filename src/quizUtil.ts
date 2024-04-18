@@ -247,12 +247,3 @@ export const randomColour = (): string => {
   return colours[index];
 };
 
-export const isActiveQuizSession = (quizId: number) => {
-  const data = getData();
-  for (const session of data.quizSessions) {
-    if (session.quizStatus.metadata.quizId === quizId && session.quizStatus.state !== 'END') {
-      throw HTTPError(400, 'At least one session for this quiz is not in END state');
-    }
-  }
-}
-
