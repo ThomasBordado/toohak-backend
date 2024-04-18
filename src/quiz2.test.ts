@@ -1479,7 +1479,7 @@ describe('Testing Post /v2/admin/quiz/{quizid}/transfer', () => {
       ({ userEmaill }) => {
         expect(() => requestquizTransfer(user2.token, userEmaill, quiz2.quizId)).toThrow(HTTPError[400]);
       });
-      
+
     test('Quiz ID refers to a quiz that has a name that is already used by the target user', () => {
       expect(() => requestquizTransfer(user2.token, 'validemail@gmail.com', quiz3.quizId)).toThrow(HTTPError[400]);
     });
@@ -1488,7 +1488,6 @@ describe('Testing Post /v2/admin/quiz/{quizid}/transfer', () => {
       // const session = requestSessionStart(user.token,quiz.quizId, 3);
       // expect(() => requestquizTransfer(user2.token, 'validemail@gmail.com', quiz3.quizId)).toThrow(HTTPError[400]);
     });
-
   });
 
   describe('Error test for 401 error', () => {
