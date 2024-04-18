@@ -1,5 +1,5 @@
 import { requestRegister, requestClear, requestLogin } from './wrapper';
-import { requestQuizList, requestQuizCreate, requestQuizTrash, requestQuizViewTrash, requestQuizRestore, requestQuizTrashEmpty, requestQuizQuestionCreate, requestquizTransfer, requestLogout, requestQuizInfo, requestUpdateQuizName, requestUpdateQuizQuestion, requestDeleteQuizQuestion, requestUpdateQuizDescription, requestMoveQuestion, requestQuestionDuplicate } from './wrapper2';
+import { requestQuizList, requestQuizCreate, requestQuizTrash, requestQuizViewTrash, requestQuizRestore, requestQuizTrashEmpty, requestQuizQuestionCreate, requestquizTransfer, requestLogout, requestQuizInfo, requestUpdateQuizName, requestUpdateQuizQuestion, requestDeleteQuizQuestion, requestUpdateQuizDescription, requestMoveQuestion, requestQuestionDuplicate, requestThumbnailUpdate } from './wrapper2';
 import { QuizListReturn, SessionId, quizId, quizUser, quizQuestionCreateInput, quiz, quizQuestionCreateReturn, questionId } from './interfaces';
 import HTTPError from 'http-errors';
 
@@ -1672,5 +1672,167 @@ describe('adminQuizQuestionDuplicate testing', () => {
     const user2 = requestRegister('jareds2@gmail.com', 'password2', 'Jared', 'Simion').jsonBody as SessionId;
     const quiz2 = requestQuizCreate(user2.token, 'My Quiz', 'My description.') as quizId;
     expect(() => requestQuestionDuplicate(user.token, quiz2.quizId, question1.questionId)).toThrow(HTTPError[403]);
+  });
+});
+
+describe('adminQuizThumbnailUpdate testing', () => {
+  let user: SessionId;
+  let quiz: quizId;
+  beforeEach(() => {
+    user = requestRegister('ethan@gmail.com', 'password1', 'Ethan', 'McGregor').jsonBody as SessionId;
+    quiz = requestQuizCreate(user.token, 'My Quiz', 'My description.') as quizId;
+  });
+
+  describe('Unsuccessful cases', () => {
+    test('Invalid AuthUserId', () => {
+      expect(() => requestThumbnailUpdate(user.token + 1, quiz.quizId, 'http://google.com/some/image/path.jpg')).toThrow(HTTPError[401]);
+    });
+    test('Invalid quizId', () => {
+      expect(() => requestThumbnailUpdate(user.token, quiz.quizId + 1, 'http://google.com/some/image/path.jpg')).toThrow(HTTPError[403]);
+    });
+    test('User does not own quiz with given quizId', () => {
+      const user2 = requestRegister('chloet@gmail.com', 'password1', 'Chloe', 'Turner').jsonBody as SessionId;
+      expect(() => requestThumbnailUpdate(user2.token, quiz.quizId, 'http://google.com/some/image/path.jpg')).toThrow(HTTPError[403]);
+    });
+    test('User owns quiz with same name as given quizId', () => {
+      const user2 = requestRegister('chloet@gmail.com', 'password1', 'Chloe', 'Turner').jsonBody as SessionId;
+      requestQuizCreate(user2.token, 'My Quiz', 'My description.');
+      expect(() => requestThumbnailUpdate(user2.token, quiz.quizId, 'http://google.com/some/image/path.jpg')).toThrow(HTTPError[403]);
+    });
+    test.each([
+      {
+        test: 'empty imgUrl',
+        imgUrl: '',
+      },
+      {
+        test: 'does not begin with http:// or https://',
+        imgUrl: 'google.com/some/image/path.jpg',
+      },
+      {
+        test: 'does not begin with http:// or https://',
+        imgUrl: 'http:/google.com/some/image/path.jpg',
+      },
+      {
+        test: 'does not begin with http:// or https://',
+        imgUrl: 'https:/google.com/some/image/path.jpg',
+      },
+      {
+        test: 'does not begin with http:// or https://',
+        imgUrl: 'HTTP://google.com/some/image/path.jpg',
+      },
+      {
+        test: 'does not begin with http:// or https://',
+        imgUrl: 'HTTPS://google.com/some/image/path.jpg',
+      },
+      {
+        test: 'does not end with jpg, jpeg or png',
+        imgUrl: 'http://google.com/some/image/path',
+      },
+
+      {
+        test: 'does not end with jpg, jpeg or png',
+        imgUrl: 'http://google.com/some/image/path.pg',
+      },
+      {
+        test: 'does not end with jpg, jpeg or png',
+        imgUrl: 'http://google.com/some/image/path.peg',
+      },
+      {
+        test: 'does not end with jpg, jpeg or png',
+        imgUrl: 'http://google.com/some/image/path.ng',
+      },
+    ])(`Invalid imgUrl: ${test}`, ({ imgUrl }) => {
+      expect(() => requestThumbnailUpdate(user.token, quiz.quizId, imgUrl)).toThrow(HTTPError[400]);
+    });
+  });
+  describe('Successful Cases', () => {
+    test('successful thumbnail update', () => {
+      expect(requestThumbnailUpdate(user.token, quiz.quizId, 'http://google.com/some/image/path.jpg')).toStrictEqual({});
+      const expected: quiz = {
+        quizId: quiz.quizId,
+        name: 'My Quiz',
+        questions: [],
+        timeCreated: expect.any(Number),
+        timeLastEdited: expect.any(Number),
+        description: 'My description.',
+        numQuestions: 0,
+        duration: 0,
+        thumbnailUrl: 'http://google.com/some/image/path.jpg',
+      };
+      expect(requestQuizInfo(user.token, quiz.quizId)).toStrictEqual(expected);
+    });
+    test.each([
+      {
+        test: 'extra /',
+        imgUrl: 'http:///google.com/some/image/path.jpg'
+      },
+      {
+        test: 'no . before jpg',
+        imgUrl: 'http://google.com/some/image/pathjpg'
+      },
+      {
+        test: 'Uppercase in jpeg',
+        imgUrl: 'http://google.com/some/image/path.JpEg'
+      },
+    ])(`successful thumbnail edgcases: ${test}`, ({ imgUrl }) => {
+      expect(requestThumbnailUpdate(user.token, quiz.quizId, imgUrl)).toStrictEqual({});
+      const expected: quiz = {
+        quizId: quiz.quizId,
+        name: 'My Quiz',
+        questions: [],
+        timeCreated: expect.any(Number),
+        timeLastEdited: expect.any(Number),
+        description: 'My description.',
+        numQuestions: 0,
+        duration: 0,
+        thumbnailUrl: imgUrl,
+      };
+      expect(requestQuizInfo(user.token, quiz.quizId)).toStrictEqual(expected);
+    });
+    test('Update same thumbnail twice', () => {
+      expect(requestThumbnailUpdate(user.token, quiz.quizId, 'http://google.com/some/image/path.jpg')).toStrictEqual({});
+      const expected: quiz = {
+        quizId: quiz.quizId,
+        name: 'My Quiz',
+        questions: [],
+        timeCreated: expect.any(Number),
+        timeLastEdited: expect.any(Number),
+        description: 'My description.',
+        numQuestions: 0,
+        duration: 0,
+        thumbnailUrl: 'http://google.com/some/image/path.jpg',
+      };
+      expect(requestQuizInfo(user.token, quiz.quizId)).toStrictEqual(expected);
+      expect(requestThumbnailUpdate(user.token, quiz.quizId, 'http://google.com/some/image/path.jpg')).toStrictEqual({});
+      expect(requestQuizInfo(user.token, quiz.quizId)).toStrictEqual(expected);
+    });
+    test('Update different thumbnail twice', () => {
+      expect(requestThumbnailUpdate(user.token, quiz.quizId, 'http://google.com/some/image/path.jpg')).toStrictEqual({});
+      const expected: quiz = {
+        quizId: quiz.quizId,
+        name: 'My Quiz',
+        questions: [],
+        timeCreated: expect.any(Number),
+        timeLastEdited: expect.any(Number),
+        description: 'My description.',
+        numQuestions: 0,
+        duration: 0,
+        thumbnailUrl: 'http://google.com/some/image/path.jpg',
+      };
+      expect(requestQuizInfo(user.token, quiz.quizId)).toStrictEqual(expected);
+      expect(requestThumbnailUpdate(user.token, quiz.quizId, 'http://google.com/different/image/path.jpg')).toStrictEqual({});
+      const expected2: quiz = {
+        quizId: quiz.quizId,
+        name: 'My Quiz',
+        questions: [],
+        timeCreated: expect.any(Number),
+        timeLastEdited: expect.any(Number),
+        description: 'My description.',
+        numQuestions: 0,
+        duration: 0,
+        thumbnailUrl: 'http://google.com/different/image/path.jpg',
+      };
+      expect(requestQuizInfo(user.token, quiz.quizId)).toStrictEqual(expected2);
+    });
   });
 });

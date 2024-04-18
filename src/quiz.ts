@@ -3,6 +3,7 @@ import { EmptyObject, ErrorReturn, QuizListReturn, quiz, quizId, quizQuestionCre
 import { validToken, checkQuizName, checkQuestionValid, isValidQuizId, randomColour, validthumbnailUrl, checkQuestionValidV1 } from './quizUtil';
 import { saveData } from './persistence';
 import HTTPError from 'http-errors';
+
 /**
  * Provides a list of all quizzes that are owned by the currently logged in user
  * @param {string} token - unique identifier for an academic
@@ -588,4 +589,20 @@ export const adminQuizQuestionDuplicate = (token: string, quizId: number, questi
 
   // Return the ID of the new question
   return { newQuestionId: duplicatedQuestion.questionId };
+};
+
+export const adminQuizThumbnailUpdate = (token: string, quizId: number, thumbnailUrl: string) => {
+  const data = getData();
+  const user = validToken(token, data.users);
+  const quizUser = user.quizzes.find(quizzes => quizzes.quizId === quizId);
+  if (quizUser === undefined) {
+    throw HTTPError(403, 'User does not own quiz');
+  }
+  validthumbnailUrl(thumbnailUrl);
+
+  const quiz = data.quizzes.find(quizzes => quizzes.quizId === quizId);
+  quiz.thumbnailUrl = thumbnailUrl;
+  quiz.timeLastEdited = Math.floor(Date.now() / 1000);
+  saveData();
+  return {};
 };
