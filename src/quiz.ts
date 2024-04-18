@@ -728,6 +728,7 @@ export const UpdateSessionState = (token: string, quizId: number, sessionId: num
         quizSessions.quizStatus.state = State.END;
         clearTimeout(timerId1);
         clearTimeout(timerId2);
+        quizSessions.quizStatus.atQuestion = 0;
         return {};
       }
 
@@ -797,6 +798,7 @@ export const UpdateSessionState = (token: string, quizId: number, sessionId: num
       if (quizSessions.quizStatus.state === 'QUESTION_CLOSE') {
         if (action === 'GO_TO_FINAL_RESULTS') {
           quizSessions.quizStatus.state = State.FINAL_RESULTS;
+          quizSessions.quizStatus.atQuestion = 0;
           return {};
         }
       }
@@ -819,6 +821,7 @@ export const UpdateSessionState = (token: string, quizId: number, sessionId: num
       if (quizSessions.quizStatus.state === 'ANSWER_SHOW') {
         if (action === 'GO_TO_FINAL_RESULTS') {
           quizSessions.quizStatus.state = State.FINAL_RESULTS;
+          quizSessions.quizStatus.atQuestion = 0;
           return {};
         }
       }
