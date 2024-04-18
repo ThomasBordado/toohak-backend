@@ -1,8 +1,9 @@
 
 import { requestRegister, requestClear, requestLogin } from './wrapper';
-import { requestQuizList, requestQuizCreate, requestQuizTrash, requestQuizViewTrash, requestQuizRestore, requestQuizTrashEmpty, requestQuizQuestionCreate, requestquizTransfer, requestLogout, requestQuizInfo, requestUpdateQuizName, requestUpdateQuizQuestion, requestDeleteQuizQuestion, requestUpdateQuizDescription, requestMoveQuestion, requestQuestionDuplicate, requestThumbnailUpdate, requestSessionView, requestSessionStart, requestSessionResult } from './wrapper2';
-import { QuizListReturn, SessionId, quizId, quizUser, quizQuestionCreateInput, quiz, quizQuestionCreateReturn, questionId, sessionViewReturn, QuizResults } from './interfaces';
+import { requestQuizList, requestQuizCreate, requestQuizTrash, requestQuizViewTrash, requestQuizRestore, requestQuizTrashEmpty, requestQuizQuestionCreate, requestquizTransfer, requestLogout, requestQuizInfo, requestUpdateQuizName, requestUpdateQuizQuestion, requestDeleteQuizQuestion, requestUpdateQuizDescription, requestMoveQuestion, requestQuestionDuplicate, requestThumbnailUpdate, requestSessionView, requestSessionStart, requestSessionResult, requestSessionCSVResult } from './wrapper2';
+import { QuizListReturn, SessionId, quizId, quizUser, quizQuestionCreateInput, quiz, quizQuestionCreateReturn, questionId, sessionViewReturn, QuizResults, UserId } from './interfaces';
 import HTTPError from 'http-errors';
+import { token } from 'morgan';
 
 beforeEach(() => {
   requestClear();
@@ -1998,69 +1999,134 @@ describe('requestSessionStart testing', () => {
   });
 });
 
-/**
- * Test for get the final results for a whole session a player is playing in
- */
+// /**
+//  * Test for get the final results for a whole session a player is playing in
+//  */
+// describe('GET /v1/player/:playerid/results, sessionGetPlayerResult', () => {
+//   beforeEach(() => {
+//     requestClear();
+//     const user = requestRegister('valideEmail@gmail.com', 'password1', 'Jane', 'Lawson').jsonBody as SessionId;
+//     const quiz = requestQuizCreate(user.token, 'My Quiz', 'My Quiz Description') as quizId;
+//     // Add a question in a quiz
+//     const input : quizQuestionCreateInput = {
+//       question: 'Who is the Monarch of England?',
+//       duration: 10,
+//       points: 5,
+//       answers: [
+//         {
+//           answer: 'Prince Charles',
+//           correct: true
+//         },
+//         {
+//           answer: 'Prince Charles.',
+//           correct: true
+//         }
+//       ],
+//       thumbnailUrl: 'http://google.com/some/image/path.jpg',
+//     };
+//     requestQuizQuestionCreate(user.token, input, quiz.quizId);
+//     // const session = requestStartSession(quiz.quizId, user.token, 3);
+//     // const player = requestJoinSession(session.sessionId, 'Jane.S');
+//     // requestUpdateSessionState(quiz.quizId, session.sessionId, user.token, "QUESTION_COUNTDOWN");
+//     // requestUpdateSessionState(quiz.quizId, session.sessionId, user.token, "QUESTION_OPEN");
+//     // requestUpdateSessionState(quiz.quizId, session.sessionId, user.token, "QUESTION_CLOSE");
+//     // requestUpdateSessionState(quiz.quizId, session.sessionId, user.token, "FINAL_RESULTS");
+//   });
+
+//   test('correct return type and not throw error', () => {
+//     // expect(() => (requestPlayerResult(player.playerId)).not.toThrow(HTTPError));
+//     // const returntype = requestPlayerResult(player.playerId);
+//     // expect(returnType).toStrictEqual( {
+//     //   usersRankedByScore: [
+//     //     {
+//     //       name: "Hayden",
+//     //       score: expect.any(Number),
+//     //     }
+//     //   ],
+//     //   questionResults: [
+//     //     {
+//     //       questionId: expect.any(Number),
+//     //       playersCorrectList: [
+//     //         "Jane.S"
+//     //       ],
+//     //       averageAnswerTime: expect.any(Number),
+//     //       percentCorrect: expect.any(Number),
+//     //     }
+//     //   ]
+//     // } as QuizResults );
+//   });
+
+//   test('400 error, player ID does not exist', () => {
+//     // expect(() => requestPlayerResult(player.playerId + 100)).toThrow(HTTPError[400]);
+//   });
+
+//   test('400 error, Session is not in FINAL_RESULTS state', () => {
+//     // requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, "END");
+//     // expect(() => requestSessionResult(player.playerId)).toThrow(HTTPError[400]);
+//   });
+// });
+
+
 describe('GET /v1/player/:playerid/results, sessionGetPlayerResult', () => {
-  beforeEach(() => {
-    requestClear();
-    const user = requestRegister('valideEmail@gmail.com', 'password1', 'Jane', 'Lawson').jsonBody as SessionId;
-    const quiz = requestQuizCreate(user.token, 'My Quiz', 'My Quiz Description') as quizId;
-    // Add a question in a quiz
-    const input : quizQuestionCreateInput = {
-      question: 'Who is the Monarch of England?',
-      duration: 10,
-      points: 5,
-      answers: [
-        {
-          answer: 'Prince Charles',
-          correct: true
-        },
-        {
-          answer: 'Prince Charles.',
-          correct: true
-        }
-      ],
-      thumbnailUrl: 'http://google.com/some/image/path.jpg',
-    };
-    requestQuizQuestionCreate(user.token, input, quiz.quizId);
-    // const session = requestStartSession(quiz.quizId, user.token, 3);
-    // const player = requestJoinSession(session.sessionId, 'Jane.S');
-    // requestUpdateSessionState(quiz.quizId, session.sessionId, user.token, "QUESTION_COUNTDOWN");
-    // requestUpdateSessionState(quiz.quizId, session.sessionId, user.token, "QUESTION_OPEN");
-    // requestUpdateSessionState(quiz.quizId, session.sessionId, user.token, "QUESTION_CLOSE");
-    // requestUpdateSessionState(quiz.quizId, session.sessionId, user.token, "FINAL_RESULTS");
-  });
+    beforeEach(() => {
+      let user: SessionId;
+      let quiz: quizId;
+      requestClear();
+      user = requestRegister('valideEmail@gmail.com', 'password1', 'Jane', 'Lawson').jsonBody as SessionId;
+      quiz = requestQuizCreate(user.token, 'My Quiz', 'My Quiz Description') as quizId;
+      // Add a question in a quiz
+      const input : quizQuestionCreateInput = {
+        question: 'Who is the Monarch of England?',
+        duration: 10,
+        points: 5,
+        answers: [
+          {
+            answer: 'Prince Charles',
+            correct: true
+          },
+          {
+            answer: 'Prince Charles.',
+            correct: true
+          }
+        ],
+        thumbnailUrl: 'http://google.com/some/image/path.jpg',
+      };
+      requestQuizQuestionCreate(user.token, input, quiz.quizId);
+      // const session = requestStartSession(quiz.quizId, user.token, 3);
+      // const player = requestJoinSession(session.sessionId, 'Jane.S');
+      // requestUpdateSessionState(quiz.quizId, session.sessionId, user.token, "QUESTION_COUNTDOWN");
+      // requestUpdateSessionState(quiz.quizId, session.sessionId, user.token, "QUESTION_OPEN");
+      // requestUpdateSessionState(quiz.quizId, session.sessionId, user.token, "QUESTION_CLOSE");
+      // requestUpdateSessionState(quiz.quizId, session.sessionId, user.token, "FINAL_RESULTS");
+    });
 
-  test('correct return type', () => {
-    // expect(() => (requestPlayerResult(player.playerId)).not.toThrow(HTTPError));
-    // const returntype = requestPlayerResult(player.playerId);
-    // expect(returnType).toStrictEqual( {
-    //   usersRankedByScore: [
-    //     {
-    //       name: "Hayden",
-    //       score: expect.any(Number),
-    //     }
-    //   ],
-    //   questionResults: [
-    //     {
-    //       questionId: expect.any(Number),
-    //       playersCorrectList: [
-    //         "Jane.S"
-    //       ],
-    //       averageAnswerTime: expect.any(Number),
-    //       percentCorrect: expect.any(Number),
-    //     }
-    //   ]
-    // } as QuizResults );
-  });
+    test('Correct return type and not throwing error', () => {
+      // expect(() => (requestSessionCSVResult(token, quiz.quizId, session.sessionId)).not.toThrow(HTTPError));
+      // const returnType = requestSessionCSVResult(token, quiz.quizId, session.sessionId);
+      // expect(returnType).toStrictEqual(url: expect.Any(string));
+    });
 
-  test('400 error, player ID does not exist', () => {
-    // expect(() => requestPlayerResult(player.playerId + 100)).toThrow(HTTPError[400]);
-  });
+    test('400 error, Session Id does not refer to a valid session within this quiz', () => {
+      // expect(() => requestSessionCSVResult(user.token, quiz.quizId, session.sessionId + 100)).toThrow(HTTPError[400]);
+    });
 
-  test('400 error, Session is not in FINAL_RESULTS state', () => {
-    // requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, "END");
-    // expect(() => requestSessionResult(player.playerId)).toThrow(HTTPError[400]);
+    test('400 error, Session is not in FINAL_RESULTS state', () => {
+      // requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, "END");
+      // expect(() => requestSessionCSVResult(user.token, quiz.quizId, session.sessionId)).toThrow(HTTPError[400]);
+    });
+
+    test('401 error, Token is empty', () => {
+      // expect(() => requestSessionCSVResult('', quiz.quizId, session.sessionId)).toThrow(HTTPError[401]);
+    });
+
+    test('401 error, Token is invalid', () => {
+      // expect(() => requestSessionCSVResult(user.token + 100, quiz.quizId, session.sessionId)).toThrow(HTTPError[401]);
+    });
+
+    test('403 error, Valid token is provided, but user is not an owner of this quiz', () => {
+      // requestLogout(user.token);
+      // const user2 = requestRegister("validemail@gmail.com", "asddfgecdfe3", "Hayden", "Smith");
+      // expect(() => requestSessionCSVResult(user2.token, quiz.quizId, session.sessionId)).toThrow(HTTPError[403]);
+    });
+    
   });
-});
