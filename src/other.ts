@@ -3,7 +3,7 @@ import { EmptyObject } from './interfaces';
 import { clearDataFile } from './persistence';
 
 const clearTimeouts = () => {
-  const timeouts = getData().timeouts;
+  const timeouts = getData().timers;
   for (const timeout of timeouts) {
     clearTimeout(timeout.timeoutId);
   }
