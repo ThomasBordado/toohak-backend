@@ -1,30 +1,4 @@
-export interface messageInput {
-  messageBody: string;
-}
-
-export interface message {
-  messageBody: string;
-  playerId: number;
-  playerName: string;
-  timeSent: number;
-}
-
-export interface messages {
-  messages: message[];
-}
-
-export interface playerWithSore {
-  name: string;
-  score: number;
-}
-
-export interface questionResult {
-  questionId: number;
-  playersCorrectList: string[];
-  averageAnswerTime: number;
-  percentCorrect: number;
-}
-
+// import { string } from 'yaml/dist/schema/common/string';
 export interface answer {
   answerId: number;
   answer: string;
@@ -128,6 +102,14 @@ export interface quizQuestionCreateInputV1 {
   answers: answerInput[];
 }
 
+export interface quizQuestionCreateReturn {
+  questionId: number;
+}
+
+export interface quizQuestionDuplicateReturn {
+  newQuestionId: number;
+}
+
 export enum State {
   LOBBY = 'LOBBY',
   QUESTION_COUNTDOWN = 'QUESTION_COUNTDOWN',
@@ -146,11 +128,13 @@ export enum Action {
   END = 'END',
 }
 
-export interface QuizStatus {
-  state: State;
-  atQuestion: number;
-  players: Player[];
-  metadata: quiz;
+export interface sessionViewReturn {
+  activeSessions: number[];
+  inactiveSessions: number[];
+}
+
+export interface PlayerId {
+  playerId: number;
 }
 
 export interface Player {
@@ -160,86 +144,11 @@ export interface Player {
   score: number;
 }
 
-export interface UserRank {
-  name: string;
-  score: number;
-}
-
-export interface QuestionResults {
-  questionId: number;
-  playerCorrectList: string[];
-  averageAnswerTime: number;
-  percentCorrect: number;
-}
-
-export interface QuizResults {
-  usersRankedByScore: UserRank[];
-  questionResults: QuestionResults[];
-}
-
-export interface Message {
-  messageBody: string;
-  playerId: number;
-  playerName: string;
-  timeSent: number;
-}
-
-export interface QuizSession {
-  sessionId: number;
-  autoStartNum: number;
-  quizStatus: QuizStatus;
-  quizResults: QuizResults;
-  messages: Message[];
-}
-
-
-export interface quizQuestionCreateReturn {
-  questionId: number;
-}
-
-export interface quizQuestionDuplicateReturn {
-  newQuestionId: number;
-}
-
-export interface messageInput {
-  messageBody: string;
-}
-
-export interface message {
-  messageBody: string;
-  playerId: number;
-  playerName: string;
-  timeSent: number;
-}
-
-export interface messages {
-  messages: message[];
-}
-
-export interface playerWithSore {
-  name: string;
-  score: number;
-}
-
-export interface questionResult {
-  questionId: number;
-  playersCorrectList: string[];
-  averageAnswerTime: number;
-  percentCorrect: number;
-}
-
 export interface QuizStatus {
   state: State;
   atQuestion: number;
   players: Player[];
   metadata: quiz;
-}
-
-export interface Player {
-  playerId: number;
-  name: string;
-  answerIds: number[];
-  score: number;
 }
 
 export interface UserRank {
@@ -284,6 +193,6 @@ export interface DataStore {
   sessionIdStore: number;
   questionIdStore: number;
   answerIdStore: number;
-  playerIdStore: number;
   quizSessionIdStore: number;
+  playerIdStore: number;
 }

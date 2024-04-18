@@ -158,6 +158,14 @@ export const requestMoveQuestion = (token: string, quizId: number, questionId: n
   return requestHelper('PUT', `/v2/admin/quiz/${quizId}/question/${questionId}/move`, { newPosition }, { token });
 };
 
+export const requestSessionView = (token: string, quizid: number) => {
+  return requestHelper('GET', `/v1/admin/quiz/${quizid}/sessions`, {}, { token });
+};
+
+export const requestSessionStart = (token: string, quizid: number, autoStartNum: number) => {
+  return requestHelper('POST', `/v1/admin/quiz/${quizid}/session/start`, { autoStartNum }, { token });
+};
+
 export const requestSessionResult = (playerid: number) => {
   return requestHelper('GET', `/v1/player/${playerid}/results`, { playerid });
 };

@@ -1,6 +1,7 @@
 import { quizUser, user, quizQuestionCreateInput, quizQuestionCreateInputV1 } from './interfaces';
 import { getData } from './dataStore';
 import HTTPError from 'http-errors';
+import { Session } from 'inspector';
 
 /**
  * Check if AuthUserId is valid.
