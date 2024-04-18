@@ -1,6 +1,6 @@
 import { getData, setData } from './dataStore';
 import { EmptyObject, ErrorReturn, QuizListReturn, quiz, quizId, quizQuestionCreateInput, quizQuestionCreateInputV1, quizQuestionCreateReturn, quizQuestionDuplicateReturn, QuizSession, State, MessageInput, MessageListReturn } from './interfaces';
-import { validToken, checkQuizName, checkQuestionValid, isValidQuizId, randomColour, validthumbnailUrl, checkQuestionValidV1, isActiveQuizSession } from './quizUtil';
+import { validToken, checkQuizName, checkQuestionValid, isValidQuizId, randomColour, validthumbnailUrl, checkQuestionValidV1, isActiveQuizSession, ValidPlayerId, playerIdToSession, playerIdToPlayer } from './quizUtil';
 import { saveData } from './persistence';
 import HTTPError from 'http-errors';
 
@@ -684,47 +684,35 @@ export const sessionStart = (token: string, quizId: number, autoStartNum: number
   return { sessionId: data.quizSessionIdStore };
 };
 export const sessionMessagesList = (playerId: number): MessageListReturn => {
-  // validPlayerId(playerId);
-  //
-  // const data = getData();
-  // for (const session of data.quizSessions) {
-  //   if (session.quizStatus.players.playerId === playerId) {
-  //     return session.messages;
-  //   }
-  // }
-
-  return {
-    messages: [
-      {
-        messageBody: 'This is a message body',
-        playerId: 5546,
-        playerName: 'Yuchao Jiang',
-        timeSent: 1683019484
-      }
-    ]
-  };
+  ValidPlayerId(playerId);
+  const session = playerIdToSession(playerId);
+  return { messages: session.messages };
 };
 
 export const sessionSendMessage = (playerId: number, message: MessageInput): EmptyObject => {
-  // ValidPlayerId(playerId);
+  ValidPlayerId(playerId);
   if (message.messageBody.length < 1 || message.messageBody.length > 100) {
     throw HTTPError(400, 'message body is less than 1 character or more than 100 characters.');
   }
+  const player = playerIdToPlayer(playerId);
 
-  // const newmessage = {
-  //   messageBody: message.messageBody,
-  //   playerId: playerId,
-  //   playerName: 'Yuchao Jiang',
-  //   timeSent: Math.floor(Date.now() / 1000),
-  // };
+  const newmessage = {
+    messageBody: message.messageBody,
+    playerId: playerId,
+    playerName: player.name,
+    timeSent: Math.floor(Date.now() / 1000),
+  };
 
   // push
-  // const data = getData();
-  // for (const session of data.quizSessions) {
-  //   if (session.quizStatus.players.playerId === playerId) {
-  //     session.messages.push(newmessage);
-  //   }
-  // }
+  const data = getData();
+  for (const session of data.quizSessions) {
+    for (const players of session.quizStatus.players) {
+      if (players.playerId === playerId) {
+        session.messages.push(newmessage);
+      }
+    }
+  }
+  setData(data);
 
   return { };
 };
