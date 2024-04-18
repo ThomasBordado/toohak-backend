@@ -271,8 +271,6 @@ export const adminQuizQuestionDelete = (token: string, quizId: number, questioni
   const findQuestion = findQuiz.questions.findIndex(questions => questions.questionId === questionid);
   if (findQuestion === -1) {
     throw HTTPError(400, 'Invalid questionId');
-  } else if (findQuestion > -1) {
-    findQuiz.questions.splice(findQuestion, 1);
   }
 
   findQuiz.duration -= findQuiz.questions[findQuestion].duration;
