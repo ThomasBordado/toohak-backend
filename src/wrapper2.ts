@@ -186,10 +186,9 @@ export const requestGetSessionStatus = (token: string, quizid: number, sessionid
   return requestHelper('GET', `/v1/admin/quiz/${quizid}/session/${sessionid}`, {}, { token });
 };
 
-//Need to fix
-// export const requestPlayerAnswerSubmission = (playerid: number, questionposition: number, answerid: number) => {
-//   return requestHelper('PUT', `/v1/player/${playerid}/question/${questionposition}/answer`, { answerid });
-// };
+export const requestPlayerAnswerSubmission = (playerid: number, questionposition: number, answerid: number[]) => {
+  return requestHelper('PUT', `/v1/player/${playerid}/question/${questionposition}/answer`, { answerid }, {});
+};
 
 export const requestPlayerQuestionResults = (playerid: number, questionposition: number) => {
   return requestHelper('GET', `v1/player/${playerid}/question/${questionposition}/results`, {}, {});

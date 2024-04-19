@@ -180,7 +180,7 @@ export interface UserRank {
 
 export interface QuestionResults {
   questionId: number;
-  playerCorrectList: string[];
+  playerCorrectList: correctusers[];
   averageAnswerTime: number;
   percentCorrect: number;
 }
@@ -219,13 +219,8 @@ export interface DataStore {
   quizSessions: QuizSession[];
   timers: ReturnType<typeof setTimeout>[];
 }
-export interface questionStatus {
-  correctUsers: correctusers[];
-  listofusers: listofplayers[];
-}
 
 export interface correctusers {
-  playerId: number;
   playerName: string;
 }
 

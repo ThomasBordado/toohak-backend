@@ -12,7 +12,7 @@ import process from 'process';
 import { clear } from './other';
 import { adminQuizList, adminQuizCreate1, adminQuizCreate2, adminQuizRemove, adminQuizInfo, adminQuizNameUpdate, adminQuizDescriptionUpdate, adminQuizViewTrash, adminQuizRestore, adminQuizTrashEmpty, quizTransfer1, quizTransfer2, adminQuizQuestionUpdate, adminQuizQuestionDelete, adminQuizQuestionMove, adminQuizQuestionDuplicate, quizQuestionCreate2, quizQuestionCreate1, adminQuizThumbnailUpdate, viewSessions, sessionStart, UpdateSessionState, GetSessionStatus/*, QuizSessionFinalResults */ } from './quiz';
 import { adminAuthLogin, adminAuthRegister, adminUserDetails, adminUserDetailsUpdate2, adminUserPasswordUpdate2, adminAuthLogout, adminUserDetailsUpdate1, adminUserPasswordUpdate1 } from './auth';
-import { playerJoin, playerStatus, playerQuestionInfo } from './player';
+import { playerJoin, playerStatus, playerQuestionInfo, PlayerAnswerSubmission } from './player';
 import { loadData, saveData } from './persistence';
 
 // Set up web app
@@ -521,14 +521,14 @@ app.get('/v1/admin/quiz/:quizid/session/:sessionid', (req: Request, res: Respons
   res.json(response);
 });
 
-//Need to complete
-// app.put('/v1/player/:playerid/question/session/:questionpostion/answer', (req: Request, res: Response) => {
-//   const playerid = parseInt(req.params.playerid as string);
-//   const questionPosition = parseInt(req.params.questionposition as string);
-//   const answerid = parseInt(req.params.answerid as string);
-//   const response = 
-// res.json(response);
-// });
+
+app.put('/v1/player/:playerid/question/session/:questionpostion/answer', (req: Request, res: Response) => {
+  const playerid = parseInt(req.params.playerid as string);
+  const questionPosition = parseInt(req.params.questionposition as string);
+  const answerid = req.body;
+  const response = PlayerAnswerSubmission(playerid, questionPosition, answerid);
+  res.json(response);
+});
 
 // app.get('/v1/admin/quiz/:quizid/session/:sessionid/results', (req: Request, res: Response) => {
 //   const quizId = parseInt(req.params.quizid);
