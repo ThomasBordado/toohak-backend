@@ -2784,6 +2784,26 @@ paths:
           schema:
             $ref: '#/components/return/Error' 
 
+    /v1/admin/quiz/results:
+    get:
+      summary: Get the past quiz session results of this admin user (non-password).
+      description: For the given admin user that is logged in, return all personal results of quizzes participated in whilst logged in.
+      tags:
+        # - "By Topic: Access Management"
+        - "Planning"
+      parameters:
+        - $ref: '#/components/header/Token'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/components/return/QuizResults'
+        401:
+          description: Token is empty or invalid (does not refer to valid logged in user session)
+          schema:
+            $ref: '#/components/return/Error'
+      security:
+        - Iteration 3 Token Authentication: []
 
   /v1/clear:
     delete:
