@@ -285,20 +285,20 @@ export const arrayToCSVAddress = (token: string, result: QuizResults): string =>
   const fileName = `/csv-results/QuizResults_${token}.csv`;
 
   let csvContent = "User Ranks:\n";
+  csvContent += "name,score\n";
 
   // Append user ranks data
   result.usersRankedByScore.forEach(user => {
-    csvContent += "name,score\n";
     csvContent += `"${user.name}",${user.score}\n`;
   });
 
   // Separator between sections
   csvContent += "\nQuestion Results:\n";
+  csvContent += "questionId,playerCorrectList,averageAnswerTime,percentCorrect\n";
 
   // Append question results
   result.questionResults.forEach(question => {
-    csvContent += "questionId,playerCorrectList,averageAnswerTime,percentCorrect\n";
-    const playerCorrectList = question.playerCorrectList.join(';');
+    const playerCorrectList = question.playerCorrectList.join(',');
     csvContent += `${question.questionId},"${playerCorrectList}",${question.averageAnswerTime},${question.percentCorrect}\n`;
   });
 
