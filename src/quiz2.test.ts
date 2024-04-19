@@ -1,7 +1,9 @@
 import { requestRegister, requestClear, requestLogin } from './wrapper';
-import { requestQuizList, requestQuizCreate, requestQuizTrash, requestQuizViewTrash, requestQuizRestore, requestQuizTrashEmpty, requestQuizQuestionCreate, requestquizTransfer, requestLogout, requestQuizInfo, requestUpdateQuizName, requestUpdateQuizQuestion, requestDeleteQuizQuestion, requestUpdateQuizDescription, requestMoveQuestion, requestQuestionDuplicate, requestThumbnailUpdate, requestSessionView, requestSessionStart, requestUpdateSessionState, requestGetSessionStatus, requestSessionCSVResult, /*, QuizSessionFinalResults */ 
-requestPlayerJoin} from './wrapper2';
-import { QuizListReturn, SessionId, quizId, quizUser, quizQuestionCreateInput, quiz, quizQuestionCreateReturn, questionId, sessionViewReturn, QuizSession, /* QuizStatus, */ Action, PlayerId, QuizSessionId } from './interfaces';
+import {
+  requestQuizList, requestQuizCreate, requestQuizTrash, requestQuizViewTrash, requestQuizRestore, requestQuizTrashEmpty, requestQuizQuestionCreate, requestquizTransfer, requestLogout, requestQuizInfo, requestUpdateQuizName, requestUpdateQuizQuestion, requestDeleteQuizQuestion, requestUpdateQuizDescription, requestMoveQuestion, requestQuestionDuplicate, requestThumbnailUpdate, requestSessionView, requestSessionStart, requestUpdateSessionState, requestGetSessionStatus, requestSessionCSVResult, /*, QuizSessionFinalResults */
+  requestPlayerJoin
+} from './wrapper2';
+import { QuizListReturn, SessionId, quizId, quizUser, quizQuestionCreateInput, quiz, quizQuestionCreateReturn, questionId, sessionViewReturn, QuizSession, /* QuizStatus, */ Action, QuizSessionId } from './interfaces';
 import HTTPError from 'http-errors';
 
 beforeEach(() => {
@@ -2435,7 +2437,6 @@ describe('requestSessionStart testing', () => {
 describe('GET /v1/admin/quiz/{quizid}/session/{sessionid}/results/csv, sessionGetPlayerResult CSV format', () => {
   let user: SessionId;
   let quiz: quizId;
-  let player: PlayerId;
   let session: QuizSessionId;
   beforeEach(() => {
     requestClear();
@@ -2460,11 +2461,11 @@ describe('GET /v1/admin/quiz/{quizid}/session/{sessionid}/results/csv, sessionGe
     };
     requestQuizQuestionCreate(user.token, input, quiz.quizId);
     session = requestSessionStart(user.token, quiz.quizId, 3);
-    player = requestPlayerJoin(session.sessionId, 'Jane.S');
-    requestUpdateSessionState(user.token,  session.sessionId, quiz.quizId, 'NEXT_QUESTION');
-    requestUpdateSessionState(user.token,  session.sessionId, quiz.quizId, 'SKIP_COUNTDOWN');
-    requestUpdateSessionState(user.token,  session.sessionId, quiz.quizId, 'GO_TO_ANSWER');
-    requestUpdateSessionState(user.token,  session.sessionId, quiz.quizId, 'GO_TO_FINAL_RESULTS');
+    requestPlayerJoin(session.sessionId, 'Jane.S');
+    requestUpdateSessionState(user.token, session.sessionId, quiz.quizId, 'NEXT_QUESTION');
+    requestUpdateSessionState(user.token, session.sessionId, quiz.quizId, 'SKIP_COUNTDOWN');
+    requestUpdateSessionState(user.token, session.sessionId, quiz.quizId, 'GO_TO_ANSWER');
+    requestUpdateSessionState(user.token, session.sessionId, quiz.quizId, 'GO_TO_FINAL_RESULTS');
   });
 
   test('Correct return type and not throwing error', () => {
@@ -2478,7 +2479,7 @@ describe('GET /v1/admin/quiz/{quizid}/session/{sessionid}/results/csv, sessionGe
   });
 
   test('400 error, Session is not in FINAL_RESULTS state', () => {
-    requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, "END");
+    requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'END');
     expect(() => requestSessionCSVResult(user.token, quiz.quizId, session.sessionId)).toThrow(HTTPError[400]);
   });
 
@@ -2492,8 +2493,7 @@ describe('GET /v1/admin/quiz/{quizid}/session/{sessionid}/results/csv, sessionGe
 
   test('403 error, Valid token is provided, but user is not an owner of this quiz', () => {
     requestLogout(user.token);
-    const user2 = requestRegister("validemail@gmail.com", "asddfgecdfe3", "Hayden", "Smith").jsonBody;
+    const user2 = requestRegister('validemail@gmail.com', 'asddfgecdfe3', 'Hayden', 'Smith').jsonBody;
     expect(() => requestSessionCSVResult(user2.token, quiz.quizId, session.sessionId)).toThrow(HTTPError[403]);
   });
-  
 });

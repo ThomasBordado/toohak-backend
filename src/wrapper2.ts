@@ -192,7 +192,7 @@ export const requestSessionCSVResult = (token: string, quizid: number, sessionid
 
 export const requestFileUrl = (filename: string) => {
   return requestHelper('GET', `/csv-results/${filename}`, { filename });
-}
+};
 
 // export const requestQuizSessionFinalResults = (token: string, quizid: number, sessionid: number) => {
 //   return requestHelper('GET', `/v1/admin/quiz/${quizid}/session/${sessionid}/results`, {}, { token });

@@ -166,19 +166,8 @@ export interface sessionViewReturn {
   inactiveSessions: number[];
 }
 
-export interface PlayerId {
-  playerId: number;
-}
-
 export interface QuizSessionId {
   sessionId: number;
-}
-
-export interface Player {
-  playerId: number;
-  name: string;
-  answerIds: number[];
-  score: number;
 }
 
 export interface QuizStatus {

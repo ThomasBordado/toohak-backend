@@ -14,7 +14,6 @@ import { adminQuizList, adminQuizCreate1, adminQuizCreate2, adminQuizRemove, adm
 import { adminAuthLogin, adminAuthRegister, adminUserDetails, adminUserDetailsUpdate2, adminUserPasswordUpdate2, adminAuthLogout, adminUserDetailsUpdate1, adminUserPasswordUpdate1 } from './auth';
 import { playerJoin, playerStatus, playerQuestionInfo } from './player';
 import { loadData, saveData } from './persistence';
-import { requestFileUrl } from './wrapper2';
 
 // Set up web app
 const app = express();
