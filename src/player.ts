@@ -138,7 +138,7 @@ export const playerQuestionInfo = (playerId: number, questionPosition: number): 
   throw HTTPError(400, 'player ID does not exist');
 };
 
-export const PlayerAnswerSubmission = (playerId: number, questionPosition: number, answerId: number[]) => {
+export const PlayerAnswerSubmission = (playerId: number, questionPosition: number, answerIds: number[]) => {
   const data = getData();
 
   for (const quizSession of data.quizSessions) {
@@ -164,19 +164,27 @@ export const PlayerAnswerSubmission = (playerId: number, questionPosition: numbe
       throw HTTPError(400, 'Question does not exist for the provided position');
     }
 
-    const submittedAnswer = currentQuestion.answers.find(a => a.answerId === answerId[0]);
+    const submittedAnswer = currentQuestion.answers.find(a => a.answerId === answerIds[0]);
     if (!submittedAnswer) {
       throw HTTPError(400, 'Submitted answer ID is not valid for this question');
     }
 
-    // Clear answerIds array and push the new answer ID
-    player.answerIds = [];
-    player.answerIds.push(answerId[0]);
+    // Check if all correct answers are included in the user's submitted answers
+    const allCorrectAnswers = currentQuestion.answers.filter(a => a.correct).map(a => a.answerId);
+    const isCorrect = answerIds.length === allCorrectAnswers.length && answerIds.every(id => allCorrectAnswers.includes(id));
 
-    // Check if the submitted answer is correct
-    if (submittedAnswer.correct) {
+    if (isCorrect) {
+      // Clear answerIds array and push the new answer IDs
+      player.answerIds = [];
+      answerIds.forEach(id => player.answerIds.push(id));
+
+      // Calculate scaling factor
+      const correctUsersCount = quizSession.quizResults.questionResults
+        .find(qr => qr.questionId === currentQuestion.questionId)?.playerCorrectList.length ?? 0;
+      const scalingFactor = correctUsersCount + 1;
+
       // Update player's score
-      player.score += currentQuestion.points;
+      player.score += currentQuestion.points * (1 / scalingFactor);
 
       // Add the player to the correct user list for this question
       const correctUser: correctusers = {

@@ -521,21 +521,21 @@ app.get('/v1/admin/quiz/:quizid/session/:sessionid', (req: Request, res: Respons
   res.json(response);
 });
 
-app.put('/v1/player/:playerid/question/session/:questionpostion/answer', (req: Request, res: Response) => {
+app.put('/v1/player/:playerid/question/session/:questionposition/answer', (req: Request, res: Response) => {
   const playerid = parseInt(req.params.playerid as string);
   const questionposition = parseInt(req.params.questionposition as string);
-  const answerid = req.body;
-  const response = PlayerAnswerSubmission(playerid, questionposition, answerid)
+  const { answerIds } = req.body;
+  const response = PlayerAnswerSubmission(playerid, questionposition, answerIds)
   res.json(response);
 });
 
-// app.get('/v1/admin/quiz/:quizid/session/:sessionid/results', (req: Request, res: Response) => {
-//   const quizId = parseInt(req.params.quizid);
-//   const sessionid = parseInt(req.params.sessionid);
-//   const token = req.headers.token as string;
-//   const response = QuizSessionFinalResults(token, quizId, sessionid);
-//   res.json(response);
-// });
+//  app.get('/v1/admin/quiz/:quizid/session/:sessionid/results', (req: Request, res: Response) => {
+//    const quizId = parseInt(req.params.quizid);
+//    const sessionid = parseInt(req.params.sessionid);
+//    const token = req.headers.token as string;
+//    const response = QuizSessionFinalResults(token, quizId, sessionid);
+//    res.json(response);
+//  });
 
 // ====================================================================
 //  ================= WORK IS DONE ABOVE THIS LINE ===================
