@@ -18,6 +18,9 @@ tags:
     description: Iteration 3 routes are a modification of iteration 1 and iteration 2 routes
   - name: "Iteration 3 (New)"
     description: Iteration 3 routes that are a mix of new routes as well as slightly modified routes from iteration 1 and 2
+  - name: "Planning"
+    description: Solution routes that are a mix of new routes as well as slightly modified routes from iteration 2 and 3
+    
 
 components:
   prim:
@@ -158,6 +161,28 @@ components:
         numFailedPasswordsSinceLastLogin:
           type: integer
           example: 2
+    UserPlan:
+      type: object
+      properties:
+        userId:
+          type: integer
+          example: 132
+        name:
+          type: string
+          example: Hayden Smith
+        email:
+          type: string
+          example: hayden.smith@unsw.edu.au
+        numSuccessfulLogins:
+          type: integer
+          example: 5
+        numFailedPasswordsSinceLastLogin:
+          type: integer
+          example: 2
+        wallet:
+          type: integer
+          expample: 10
+          description: The current amount of Toohak dollars owned by user
     SmallQuizzes:
       type: array
       items:
@@ -348,6 +373,29 @@ components:
           type: array
           items:
             $ref: '#/components/group/QuestionResults'
+    QuizResults:
+      type: array
+      items:
+        type: object
+        properties:
+          sessionId:
+            $ref: '#/components/prim/SessionId'
+          questions:
+            type: array
+            items:
+              type: object
+              properties:
+                questionPosition:
+                  $ref: '#/components/prim/QuestionPosition'
+                question:
+                  $ref: '#/components/prim/QuizQuestion'
+                answers:
+                  $ref: '#/components/prim/QuizQuestionAnswersLite'
+          score:
+            type: integer
+            example: 45
+            description: The final score for the user
+    
 
   path:
     PlayerId:
@@ -385,6 +433,12 @@ components:
       in: header
       name: token
       required: true
+      schema:
+        type: string
+    TokenOptional:
+      in: header
+      name: token
+      required: false
       schema:
         type: string
   query:
@@ -778,7 +832,21 @@ components:
         properties:
           message:
             $ref: '#/components/group/MessagePayload'
-
+    Bet:
+      in: body
+      name: body
+      required: true
+      schema:
+        type: object
+        properties:
+          dollarAmount:
+            type: integer
+            example: 3
+            description: amount of Toohak dollars to bet
+          winner:
+            type: string
+            example: Hayden
+            description: Name of a player predicted to win
 
   return:
     Token:
@@ -893,6 +961,27 @@ components:
           type: array
           items:
             $ref: '#/components/group/Message'
+    QuizResults:
+      type: object
+      properties:
+        results:
+          $ref: '#/components/group/QuizResults'
+    UserPlan:
+      type: object
+      properties:
+        user:
+          $ref: '#/components/group/UserPlan'
+    BetResult:
+      type: object
+      properties:
+        betResult:
+          type: integer
+          example: -3
+          description: amount bet (positive for wins and negative for losses)
+        wallet:
+          type: integer
+          example: 7
+          description: amount in wallet after bet wins/losses
 
 paths:
 
@@ -2563,8 +2652,158 @@ paths:
             - If message body is less than 1 character or more than 100 characters
           schema:
             $ref: '#/components/return/Error'
-      
+  
 
+
+
+
+  /v2/admin/auth/register:
+    post:
+      summary: Register a new admin user
+      description: Takes in information about a new admin user and registers them in the system. This route is not relevant to guests who want to play a particular quiz, but is used for the creation of accounts of people who manage quizzes. A wallet is initialised with a starting balance of $10.
+      tags:
+        # - "By Topic: Access Management"
+        - "Planning"
+      parameters:
+        - $ref: '#/components/body/Register'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/components/return/Token'
+        400:
+          description: |
+            If any of the following are true:
+            - Email address is used by another user
+            - Email does not satisfy this: https://www.npmjs.com/package/validator (validator.isEmail)
+            - NameFirst contains characters other than lowercase letters, uppercase letters, spaces, hyphens, or apostrophes
+            - NameFirst is less than 2 characters or more than 20 characters
+            - NameLast contains characters other than lowercase letters, uppercase letters, spaces, hyphens, or apostrophes
+            - NameLast is less than 2 characters or more than 20 characters
+            - Password is less than 8 characters
+            - Password does not contain at least one number and at least one letter
+          schema:
+            $ref: '#/components/return/Error'
+
+
+  /v3/admin/user/details:
+    get:
+      summary: Get the details of this admin user (non-password).
+      description: For the given admin user that is logged in, return all of the relevant details.
+      tags:
+        # - "By Topic: Access Management"
+        - "Planning"
+      parameters:
+        - $ref: '#/components/header/Token'
+      responses:
+        200:
+          description: |
+            - "name" is the first and last name concatenated with a single space between them
+            - numSuccessfulLogins includes logins direct via registration, and is counted from the moment of registration starting at 1
+            - numFailedPasswordsSinceLastLogin is reset every time they have a successful login, and simply counts the number of attempted logins that failed due to incorrect password, only since the last login
+          schema:
+            $ref: '#/components/return/UserPlan'
+        401:
+          description: Token is empty or invalid (does not refer to valid logged in user session)
+          schema:
+            $ref: '#/components/return/Error'
+      security:
+        - Iteration 3 Token Authentication: []
+
+
+  /v2/player/join:
+    post:
+      summary: Allow a guest player to join a session
+      description: |
+        If the name entered is an empty string, a name must be randomly generated that conforms to the structure "[5 letters][3 numbers]" (e.g. valid123, ifjru483, ofijr938) where there are no repetitions of numbers or characters within the same name. Allows both logged in and unregistered players.
+      tags:
+        - "Planning"
+        # - "By Topic: Playing a session"
+      parameters:
+        - $ref: '#/components/header/TokenOptional'
+        - $ref: '#/components/body/PlayerJoin'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/components/return/PlayerJoin'
+        400:
+          description: |
+            If any of the following are true:
+            - Name of user entered is not unique (compared to other users who have already joined)
+            - Session Id does not refer to a valid session
+            - Session is not in LOBBY state
+          schema:
+            $ref: '#/components/return/Error'
+        401:
+          description: |
+            Token is invalid (does not refer to valid logged in user session - do not throw error if token is empty)
+          schema:
+            $ref: '#/components/return/Error' 
+
+
+  /v2/player/{playerid}/question/{questionposition}/answer:
+    put:
+      summary: Player submission of answers(s)
+      description: |
+        Allow the current player to submit answer(s) to the currently active question. Question position starts at 1
+        Note: An answer can be re-submitted once first selection is made, as long as game is in the right state
+      tags:
+        # - "By Topic: Playing a session"
+        - "Planning"
+      parameters:
+        - $ref: '#/components/header/TokenOptional'
+        - $ref: '#/components/body/PlayerQuestionAnswer'
+        - $ref: '#/components/path/PlayerId'
+        - $ref: '#/components/path/QuestionPosition'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/components/return/Empty'
+        400:
+          description: |
+            If any of the following are true:
+            - If player ID does not exist
+            - If question position is not valid for the session this player is in
+            - Session is not in QUESTION_OPEN state
+            - If session is not yet up to this question
+            - Answer IDs are not valid for this particular question
+            - There are duplicate answer IDs provided
+            - Less than 1 answer ID was submitted
+          schema:
+            $ref: '#/components/return/Error'
+        403:
+          description: |
+            Player did not join with given token (do not throw error if token is empty)
+          schema:
+            $ref: '#/components/return/Error'
+        401:
+          description: |
+            Token is invalid (does not refer to valid logged in user session - do not throw error if token is empty)
+          schema:
+            $ref: '#/components/return/Error' 
+
+  /v1/admin/quiz/results:
+    get:
+      summary: Get the past quiz session results of this admin user (non-password).
+      description: For the given admin user that is logged in, return all personal results of quizzes participated in whilst logged in.
+      tags:
+        # - "By Topic: Access Management"
+        - "Planning"
+      parameters:
+        - $ref: '#/components/header/Token'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/components/return/QuizResults'
+        401:
+          description: Token is empty or invalid (does not refer to valid logged in user session)
+          schema:
+            $ref: '#/components/return/Error'
+      security:
+        - Iteration 3 Token Authentication: []
 
   /v1/clear:
     delete:
@@ -2578,6 +2817,72 @@ paths:
           description: OK
           schema:
             $ref: '#/components/return/Empty'
+  
+
+  /v1/player/{playerid}/bet:
+    post:
+      summary: Player placing of bet
+      description: |
+        Allow logged in players to place a bet with Toohak dollars on the predicted player with the highest score.
+      tags:
+        # - "By Topic: Playing a session"
+        - "Planning"
+      parameters:
+        - $ref: '#/components/header/Token'
+        - $ref: '#/components/body/Bet'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/components/return/Empty'
+        400:
+          description: |
+            If any of the following are true:
+            - dollarAmount is less than 0
+            - sum of bets made exceeds what is in the players wallet
+            - winner is not the name of a current player in the session
+            - session is not in LOBBY state
+          schema:
+            $ref: '#/components/return/Error'
+        401:
+          description: |
+            Token is empty or invalid (does not refer to valid logged in user session)
+          schema:
+            $ref: '#/components/return/Error' 
+      security:
+        - Iteration 3 Token Authentication: []
+
+  /v1/player/{playerid}/bet/results:
+    get:
+      summary: get the bet results
+      description: |
+        Allow logged in players to place a bet with Toohak dollars on the predicted player with the highest score.
+      tags:
+        # - "By Topic: Playing a session"
+        - "Planning"
+      parameters:
+        - $ref: '#/components/header/Token'
+      responses:
+        200:
+          description: |
+            OK
+            - betResult is positive for wins and negative for losses
+          schema:
+            $ref: '#/components/return/BetResult'
+        400:
+          description: |
+            If any of the following are true:
+            - session is not in FINAL_RESULTS or END state
+          schema:
+            $ref: '#/components/return/Error'
+        401:
+          description: |
+            Token is empty or invalid (does not refer to valid logged in user session)
+          schema:
+            $ref: '#/components/return/Error' 
+      security:
+        - Iteration 3 Token Authentication: []
+
 
 securityDefinitions:
   Iteration 3 Token Authentication:
