@@ -2742,6 +2742,49 @@ paths:
             $ref: '#/components/return/Error' 
 
 
+  /v2/player/{playerid}/question/{questionposition}/answer:
+    put:
+      summary: Player submission of answers(s)
+      description: |
+        Allow the current player to submit answer(s) to the currently active question. Question position starts at 1
+        Note: An answer can be re-submitted once first selection is made, as long as game is in the right state
+      tags:
+        # - "By Topic: Playing a session"
+        - "Iteration 3 (New)"
+      parameters:
+        - $ref: '#/components/header/TokenOptional'
+        - $ref: '#/components/body/PlayerQuestionAnswer'
+        - $ref: '#/components/path/PlayerId'
+        - $ref: '#/components/path/QuestionPosition'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/components/return/Empty'
+        400:
+          description: |
+            If any of the following are true:
+            - If player ID does not exist
+            - If question position is not valid for the session this player is in
+            - Session is not in QUESTION_OPEN state
+            - If session is not yet up to this question
+            - Answer IDs are not valid for this particular question
+            - There are duplicate answer IDs provided
+            - Less than 1 answer ID was submitted
+          schema:
+            $ref: '#/components/return/Error'
+        403:
+          description: |
+            Player did not join with given token (do not throw error if token is empty)
+          schema:
+            $ref: '#/components/return/Error'
+        401:
+          description: |
+            Token is invalid (does not refer to valid logged in user session - do not throw error if token is empty)
+          schema:
+            $ref: '#/components/return/Error' 
+
+
   /v1/clear:
     delete:
       summary: Reset the state of the application back to the start.
