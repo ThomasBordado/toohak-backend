@@ -1,8 +1,9 @@
 import { getData } from './dataStore';
-import { PlayerId, Player, PlayerStatus, PlayerQuestionInfo, Action } from './interfaces';
-import { UpdateSessionState } from './quiz';
+import { PlayerId, Player, PlayerStatus, PlayerQuestionInfo, Action, ErrorReturn, QuestionResults, correctusers } from './interfaces';
+import { UpdateSessionState, quizQuestionCreate1 } from './quiz';
 import { saveData } from './persistence';
 import HTTPError from 'http-errors';
+import { get } from 'http';
 
 export const generateRandomName = (players: Player[]): string => {
   let letters = 'abcdefghijklmnopqrstuvwxyz';
@@ -136,3 +137,86 @@ export const playerQuestionInfo = (playerId: number, questionPosition: number): 
   }
   throw HTTPError(400, 'player ID does not exist');
 };
+
+export const PlayerAnswerSubmission = (playerId: number, questionPosition: number, answerId: number) => {
+  const data = getData();
+
+  for (const quizSession of data.quizSessions) {
+    if (quizSession.quizStatus.state !== 'QUESTION_OPEN') {
+      throw HTTPError(400, 'Question is closed');
+    }
+
+    const player = quizSession.quizStatus.players.find(p => p.playerId === playerId);
+    if (!player) {
+      throw HTTPError(400, 'Player ID does not exist');
+    }
+
+    if (questionPosition < 1 || questionPosition > quizSession.quizStatus.metadata.numQuestions) {
+      throw HTTPError(400, 'Question position is not valid for the session this player is in');
+    }
+
+    if (quizSession.quizStatus.atQuestion !== questionPosition) {
+      throw HTTPError(400, 'Session is not currently on this question');
+    }
+    const questionIndex = questionPosition - 1; // Zero-based index adjustment
+    const currentQuestion = quizSession.quizStatus.metadata.questions[questionIndex];
+    if (!currentQuestion) {
+      throw HTTPError(400, 'Question does not exist for the provided position');
+    }
+
+    const submittedAnswer = currentQuestion.answers.find(a => a.answerId === answerId);
+    if (!submittedAnswer) {
+      throw HTTPError(400, 'Submitted answer ID is not valid for this question');
+    }
+
+    // Clear answerIds array and push the new answer ID
+    player.answerIds = [];
+    player.answerIds.push(answerId);
+
+    // Check if the submitted answer is correct
+    if (submittedAnswer.correct) {
+      // Update player's score
+      player.score += currentQuestion.points;
+
+      // Add the player to the correct user list for this question
+      const correctUser: correctusers = {
+        playerName: player.name,
+      };
+      const questionResultIndex = quizSession.quizResults.questionResults.findIndex(qr => qr.questionId === currentQuestion.questionId);
+      if (questionResultIndex !== -1) {
+        quizSession.quizResults.questionResults[questionResultIndex].playerCorrectList.push(correctUser);
+      } else {
+        const questionResults: QuestionResults = {
+          questionId: currentQuestion.questionId,
+          playerCorrectList: [correctUser],
+          averageAnswerTime: 0, // Set the default value
+          percentCorrect: 0, // Set the default value
+        };
+        quizSession.quizResults.questionResults.push(questionResults);
+      }
+    }
+  }
+};
+
+
+export const PlayerQuestionResults = (playerId: number, questionposition: number): QuestionResults | ErrorReturn => {
+  const sessions = getData().quizSessions;
+  for (const session of sessions) {
+    for (const player of session.quizStatus.players) {
+      if (player.playerId === playerId) {
+        if (questionposition < 1 || questionposition > session.quizStatus.metadata.numQuestions) {
+          throw HTTPError(400, 'question position is not valid for the session this player is in');
+        }
+        if (session.quizStatus.atQuestion !== questionposition) {
+          throw HTTPError(400, 'session is not currently on this question');
+        }
+        if (session.quizStatus.state !== 'ANSWER_SHOW') {
+          throw HTTPError(400, 'Session is not in ANSWER_SHOW');
+        }
+        const question = session.quizStatus.metadata.questions[questionposition - 1];
+      }
+      return
+    }
+  }
+
+}
