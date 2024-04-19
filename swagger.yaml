@@ -2709,24 +2709,9 @@ paths:
             $ref: '#/components/return/Error'
       security:
         - Iteration 3 Token Authentication: []
-    
 
 
-  /v1/clear:
-    delete:
-      summary: Reset the state of the application back to the start.
-      description: Wipe all details (users, quizzes) back to the beggining as if the data structure is fresh.
-      tags:
-        # - "By Topic: Other"
-        - "Iteration 2 (Using Iteration 1)"
-      responses:
-        200:
-          description: OK
-          schema:
-            $ref: '#/components/return/Empty'
-
-
-  /v2/player/join:
+   /v2/player/join:
     post:
       summary: Allow a guest player to join a session
       description: |
@@ -2754,7 +2739,22 @@ paths:
           description: |
             Token is invalid (does not refer to valid logged in user session - do not throw error if token is empty)
           schema:
-            $ref: '#/components/return/Error'
+            $ref: '#/components/return/Error' 
+
+
+  /v1/clear:
+    delete:
+      summary: Reset the state of the application back to the start.
+      description: Wipe all details (users, quizzes) back to the beggining as if the data structure is fresh.
+      tags:
+        # - "By Topic: Other"
+        - "Iteration 2 (Using Iteration 1)"
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/components/return/Empty'
+
 
 securityDefinitions:
   Iteration 3 Token Authentication:
