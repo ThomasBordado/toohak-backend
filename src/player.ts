@@ -138,7 +138,7 @@ export const playerQuestionInfo = (playerId: number, questionPosition: number): 
   throw HTTPError(400, 'player ID does not exist');
 };
 
-export const PlayerAnswerSubmission = (playerId: number, questionPosition: number, answerId: number) => {
+export const PlayerAnswerSubmission = (playerId: number, questionPosition: number, answerId: number[]) => {
   const data = getData();
 
   for (const quizSession of data.quizSessions) {
@@ -164,14 +164,14 @@ export const PlayerAnswerSubmission = (playerId: number, questionPosition: numbe
       throw HTTPError(400, 'Question does not exist for the provided position');
     }
 
-    const submittedAnswer = currentQuestion.answers.find(a => a.answerId === answerId);
+    const submittedAnswer = currentQuestion.answers.find(a => a.answerId === answerId[0]);
     if (!submittedAnswer) {
       throw HTTPError(400, 'Submitted answer ID is not valid for this question');
     }
 
     // Clear answerIds array and push the new answer ID
     player.answerIds = [];
-    player.answerIds.push(answerId);
+    player.answerIds.push(answerId[0]);
 
     // Check if the submitted answer is correct
     if (submittedAnswer.correct) {
