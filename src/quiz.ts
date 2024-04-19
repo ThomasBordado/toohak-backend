@@ -1,6 +1,6 @@
 import { getData, setData } from './dataStore';
-import { EmptyObject, ErrorReturn, QuizListReturn, quiz, quizId, quizQuestionCreateInput, quizQuestionCreateInputV1, quizQuestionCreateReturn, quizQuestionDuplicateReturn, QuizSession, State, Action } from './interfaces';
-import { validToken, checkQuizName, checkQuestionValid, isValidQuizId, randomColour, validthumbnailUrl, checkQuestionValidV1, isActiveQuizSession } from './quizUtil';
+import { EmptyObject, ErrorReturn, QuizListReturn, quiz, quizId, quizQuestionCreateInput, quizQuestionCreateInputV1, quizQuestionCreateReturn, quizQuestionDuplicateReturn, QuizSession, State, Action, MessageInput, MessageListReturn } from './interfaces';
+import { validToken, checkQuizName, checkQuestionValid, isValidQuizId, randomColour, validthumbnailUrl, checkQuestionValidV1, isActiveQuizSession, ValidPlayerId, playerIdToSession, playerIdToPlayer } from './quizUtil';
 import { saveData } from './persistence';
 import HTTPError from 'http-errors';
 
@@ -928,3 +928,36 @@ export const GetSessionStatus = (token: string, quizId: number, sessionId: numbe
 //   // });
 
 // };
+export const sessionMessagesList = (playerId: number): MessageListReturn => {
+  ValidPlayerId(playerId);
+  const session = playerIdToSession(playerId);
+  return { messages: session.messages };
+};
+
+export const sessionSendMessage = (playerId: number, message: MessageInput): EmptyObject => {
+  ValidPlayerId(playerId);
+  if (message.messageBody.length < 1 || message.messageBody.length > 100) {
+    throw HTTPError(400, 'message body is less than 1 character or more than 100 characters.');
+  }
+  const player = playerIdToPlayer(playerId);
+
+  const newmessage = {
+    messageBody: message.messageBody,
+    playerId: playerId,
+    playerName: player.name,
+    timeSent: Math.floor(Date.now() / 1000),
+  };
+
+  // push
+  const data = getData();
+  for (const session of data.quizSessions) {
+    for (const players of session.quizStatus.players) {
+      if (players.playerId === playerId) {
+        session.messages.push(newmessage);
+      }
+    }
+  }
+  setData(data);
+
+  return { };
+};
