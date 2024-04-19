@@ -139,6 +139,11 @@ export const playerQuestionInfo = (playerId: number, questionPosition: number): 
 };
 
 export const PlayerAnswerSubmission = (playerId: number, questionPosition: number, answerIds: number[]) => {
+
+  if (answerIds.length < 1) {
+    throw HTTPError(400, 'At least one answer ID must be provided');
+  }
+
   const data = getData();
 
   for (const quizSession of data.quizSessions) {
@@ -162,6 +167,12 @@ export const PlayerAnswerSubmission = (playerId: number, questionPosition: numbe
     const currentQuestion = quizSession.quizStatus.metadata.questions[questionIndex];
     if (!currentQuestion) {
       throw HTTPError(400, 'Question does not exist for the provided position');
+    }
+
+    const answerIdSet = new Set(answerIds);
+    // checks whether new set is different from array size, then throws error if difference
+    if (answerIdSet.size !== answerIds.length) {
+      throw HTTPError(400, 'Duplicate answer IDs provided');
     }
 
     const submittedAnswer = currentQuestion.answers.find(a => a.answerId === answerIds[0]);
@@ -202,10 +213,10 @@ export const PlayerAnswerSubmission = (playerId: number, questionPosition: numbe
         };
         quizSession.quizResults.questionResults.push(questionResults);
       }
+      return {};
     }
   }
 };
-
 
 export const PlayerQuestionResults = (playerId: number, questionposition: number): QuestionResults | ErrorReturn => {
   const sessions = getData().quizSessions;
