@@ -833,16 +833,20 @@ components:
           message:
             $ref: '#/components/group/MessagePayload'
     Bet:
-      type: object
-      properties:
-        dollarAmount:
-          type: integer
-          example: 3
-          description: amount of Toohak dollars to bet
-        winner:
-          type: string
-          example: Hayden
-          description: Name of a player predicted to win
+      in: body
+      name: body
+      required: true
+      schema:
+        type: object
+        properties:
+          dollarAmount:
+            type: integer
+            example: 3
+            description: amount of Toohak dollars to bet
+          winner:
+            type: string
+            example: Hayden
+            description: Name of a player predicted to win
 
   return:
     Token:
