@@ -2647,6 +2647,10 @@ paths:
           schema:
             $ref: '#/components/return/Error'
   
+
+
+
+
   /v2/admin/auth/register:
     post:
       summary: Register a new admin user
@@ -2674,7 +2678,32 @@ paths:
             - Password does not contain at least one number and at least one letter
           schema:
             $ref: '#/components/return/Error'
-      
+
+
+  /v3/admin/user/details:
+    get:
+      summary: Get the details of this admin user (non-password).
+      description: For the given admin user that is logged in, return all of the relevant details.
+      tags:
+        # - "By Topic: Access Management"
+        - "Planning"
+      parameters:
+        - $ref: '#/components/header/Token'
+      responses:
+        200:
+          description: |
+            - "name" is the first and last name concatenated with a single space between them
+            - numSuccessfulLogins includes logins direct via registration, and is counted from the moment of registration starting at 1
+            - numFailedPasswordsSinceLastLogin is reset every time they have a successful login, and simply counts the number of attempted logins that failed due to incorrect password, only since the last login
+          schema:
+            $ref: '#/components/return/UserPlan'
+        401:
+          description: Token is empty or invalid (does not refer to valid logged in user session)
+          schema:
+            $ref: '#/components/return/Error'
+      security:
+        - Iteration 3 Token Authentication: []
+    
 
 
   /v1/clear:
