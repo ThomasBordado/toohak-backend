@@ -961,7 +961,7 @@ components:
           type: array
           items:
             $ref: '#/components/group/Message'
-    QuizRestults:
+    QuizResults:
       type: object
       properties:
         results:
