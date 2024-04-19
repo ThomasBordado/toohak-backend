@@ -2784,7 +2784,7 @@ paths:
           schema:
             $ref: '#/components/return/Error' 
 
-    /v1/admin/quiz/results:
+  /v1/admin/quiz/results:
     get:
       summary: Get the past quiz session results of this admin user (non-password).
       description: For the given admin user that is logged in, return all personal results of quizzes participated in whilst logged in.
