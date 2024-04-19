@@ -22,12 +22,6 @@ export const generateRandomName = (players: Player[]): string => {
     numbers = numbers.slice(0, randomIndex) + numbers.slice(randomIndex + 1);
   }
   const newName = randomLetters + randomNumbers;
-  // const players = getData().quizSessions.quizStatus.players;
-  for (const player of players) {
-    if (player.name === newName) {
-      return generateRandomName(players);
-    }
-  }
   return newName;
 };
 
@@ -41,9 +35,11 @@ export const playerJoin = (sessionId: number, name: string): PlayerId => {
     throw HTTPError(400, 'Session is not in LOBBY state');
   }
   const players = sessions[sessionIndex].quizStatus.players;
-  if (name === '') {
+
+  while (name === '' && players.find(player => player.name === name) === undefined) {
     name = generateRandomName(players);
   }
+
   for (const player of players) {
     if (player.name === name) {
       throw HTTPError(400, 'Name of user entered is not unique');
@@ -65,15 +61,8 @@ export const playerJoin = (sessionId: number, name: string): PlayerId => {
   if (players.length === data.quizSessions[sessionIndex].autoStartNum) {
     const quizId = data.quizSessions[sessionIndex].quizStatus.metadata.quizId;
     const users = getData().users;
-    let token = '';
-    for (const user of users) {
-      for (const quiz of user.quizzes) {
-        if (quizId === quiz.quizId) {
-          token = user.sessions[0];
-          break;
-        }
-      }
-    }
+    const user = users.find(users => users.quizzes.find(quizzes => quizzes.quizId === quizId));
+    const token = user.sessions[0];
     UpdateSessionState(token, quizId, data.quizSessions[sessionIndex].sessionId, Action.NEXT_QUESTION);
   }
   return {
@@ -103,14 +92,14 @@ export const playerQuestionInfo = (playerId: number, questionPosition: number): 
   for (const session of sessions) {
     for (const player of session.quizStatus.players) {
       if (player.playerId === playerId) {
+        if (session.quizStatus.state === 'LOBBY' || session.quizStatus.state === 'QUESTION_COUNTDOWN' || session.quizStatus.state === 'END') {
+          throw HTTPError(400, 'Session is in LOBBY, QUESTION_COUNTDOWN, or END state');
+        }
         if (questionPosition < 1 || questionPosition > session.quizStatus.metadata.numQuestions) {
           throw HTTPError(400, 'question position is not valid for the session this player is in');
         }
         if (session.quizStatus.atQuestion !== questionPosition) {
           throw HTTPError(400, 'session is not currently on this question');
-        }
-        if (session.quizStatus.state === 'LOBBY' || session.quizStatus.state === 'QUESTION_COUNTDOWN' || session.quizStatus.state === 'END') {
-          throw HTTPError(400, 'Session is in LOBBY, QUESTION_COUNTDOWN, or END state');
         }
         const question = session.quizStatus.metadata.questions[questionPosition - 1];
         const answerReturn = [];
