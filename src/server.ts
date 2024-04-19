@@ -535,6 +535,7 @@ app.get('/v1/admin/quiz/:quizid/session/:sessionid/results/csv', (req: Request, 
   const quizId = parseInt(req.params.quizid);
   const sessionId = parseInt(req.params.sessionid);
   const response = sessionCSVResultList(token, quizId, sessionId);
+  // const csvUrl = requestFileUrl(response);
   const csvUrl = { url: `${URL}:${PORT}${response}` };
   res.json(csvUrl);
 });

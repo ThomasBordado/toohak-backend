@@ -2432,7 +2432,7 @@ describe('requestSessionStart testing', () => {
   });
 });
 
-describe.only('GET /v1/admin/quiz/{quizid}/session/{sessionid}/results/csv, sessionGetPlayerResult CSV format', () => {
+describe('GET /v1/admin/quiz/{quizid}/session/{sessionid}/results/csv, sessionGetPlayerResult CSV format', () => {
   let user: SessionId;
   let quiz: quizId;
   let player: PlayerId;

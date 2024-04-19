@@ -281,29 +281,28 @@ export const validSession = (sessionId: number, quizId: number) => {
   return findSession;
 }
 
-export const arrayToCSVAddress = (token: string, result: QuizResults): string => {
-  const fileName = `/csv-results/QuizResults_${token}.csv`;
+export const arrayToCSVAddress = (token: string, result: QuizResults, sessionId: number): string => {
+  const fileName = `./csv-results/QuizResults_${token}.csv`;
+  const dir = './csv-results';
+  const { convertArrayToCSV } = require('convert-array-to-csv');
 
+  // Create file if there's no such one
+  if (!fs.existsSync(dir)){
+    fs.mkdirSync(dir);
+  }
+
+  // Append UserRanks
   let csvContent = "User Ranks:\n";
   csvContent += "name,score\n";
-
-  // Append user ranks data
-  result.usersRankedByScore.forEach(user => {
-    csvContent += `"${user.name}",${user.score}\n`;
-  });
+  csvContent += convertArrayToCSV(result.questionResults);
 
   // Separator between sections
   csvContent += "\nQuestion Results:\n";
   csvContent += "questionId,playerCorrectList,averageAnswerTime,percentCorrect\n";
-
-  // Append question results
-  result.questionResults.forEach(question => {
-    const playerCorrectList = question.playerCorrectList.join(',');
-    csvContent += `${question.questionId},"${playerCorrectList}",${question.averageAnswerTime},${question.percentCorrect}\n`;
-  });
+  csvContent += convertArrayToCSV(result.usersRankedByScore);
 
   // Write the CSV content to a file
   fs.writeFileSync(fileName, csvContent);
-  
-  return fileName;
+  const file = `QuizResults_${token}session${sessionId}.csv`
+  return file;
 };

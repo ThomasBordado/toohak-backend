@@ -1012,6 +1012,6 @@ export const sessionCSVResultList = (token: string, quizId: number, sessionId: n
     throw HTTPError(400, 'Session is not in FINAL_RESULTS state');
   }
   isValidQuizId(token, quizId);
-  const fileAddress = arrayToCSVAddress(token, session.quizResults);
+  const fileAddress = arrayToCSVAddress(token, session.quizResults, sessionId);
   return fileAddress;
 }
