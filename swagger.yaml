@@ -976,9 +976,9 @@ components:
       properties:
         betResult:
           type: integer
-          expample: -3
+          example: -3
           description: amount bet (positive for wins and negative for losses)
-        Wallet:
+        wallet:
           type: integer
           example: 7
           description: amount in wallet after bet wins/losses
