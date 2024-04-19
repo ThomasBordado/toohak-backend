@@ -390,7 +390,7 @@ components:
                 question:
                   $ref: '#/components/prim/QuizQuestion'
                 answers:
-                  $ref: '#/components/prim/AnswersLite'
+                  $ref: '#/components/prim/QuizQuestionAnswersLite'
           score:
             type: number
             example: 45
