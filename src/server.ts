@@ -521,7 +521,7 @@ app.get('/v1/admin/quiz/:quizid/session/:sessionid', (req: Request, res: Respons
   res.json(response);
 });
 
-app.put('/v1/player/:playerid/question/session/:questionposition/answer', (req: Request, res: Response) => {
+app.put('/v1/player/:playerid/question/:questionposition/answer', (req: Request, res: Response) => {
   const playerid = parseInt(req.params.playerid as string);
   const questionposition = parseInt(req.params.questionposition as string);
   const { answerIds } = req.body;
