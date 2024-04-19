@@ -392,7 +392,7 @@ components:
                 answers:
                   $ref: '#/components/prim/QuizQuestionAnswersLite'
           score:
-            type: number
+            type: integer
             example: 45
             description: The final score for the user
     
@@ -975,11 +975,11 @@ components:
       type: object
       properties:
         betResult:
-          type: number
+          type: integer
           expample: -3
           description: amount bet (positive for wins and negative for losses)
         Wallet:
-          type: number
+          type: integer
           example: 7
           description: amount in wallet after bet wins/losses
 
