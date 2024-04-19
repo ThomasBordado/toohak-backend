@@ -18,6 +18,9 @@ tags:
     description: Iteration 3 routes are a modification of iteration 1 and iteration 2 routes
   - name: "Iteration 3 (New)"
     description: Iteration 3 routes that are a mix of new routes as well as slightly modified routes from iteration 1 and 2
+  - name: "planning"
+    description: Solution routes that are a mix of new routes as well as slightly modified routes from iteration 2 and 3
+    
 
 components:
   prim:
@@ -158,6 +161,28 @@ components:
         numFailedPasswordsSinceLastLogin:
           type: integer
           example: 2
+    UserPlan:
+      type: object
+      properties:
+        userId:
+          type: integer
+          example: 132
+        name:
+          type: string
+          example: Hayden Smith
+        email:
+          type: string
+          example: hayden.smith@unsw.edu.au
+        numSuccessfulLogins:
+          type: integer
+          example: 5
+        numFailedPasswordsSinceLastLogin:
+          type: integer
+          example: 2
+        wallet:
+          type: integer
+          expample: 10
+          description: The current amount of Toohak dollars owned by user
     SmallQuizzes:
       type: array
       items:
@@ -348,6 +373,33 @@ components:
           type: array
           items:
             $ref: '#/components/group/QuestionResults'
+    QuizResults:
+      type: array
+      items:
+        type: object
+        properties:
+          sessionId:
+            $ref: '#/components/prim/SessionId'
+          questions:
+            type: array
+            items:
+              type: object
+              properties:
+                questionPosition:
+                  $ref: '#/components/prim/QuestionPosition'
+                question:
+                  $ref: '#/components/prim/QuizQuestion'
+                answers:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                     $ref: '#/components/prim/AnswersLite'
+          score:
+            type: number
+            example: 45
+            description: The final score for the user
+    
 
   path:
     PlayerId:
@@ -778,7 +830,17 @@ components:
         properties:
           message:
             $ref: '#/components/group/MessagePayload'
-
+    Bet:
+      type: object
+      properties:
+        dollarAmount:
+          type: integer
+          example: 3
+          description: amount of Toohak dollars to bet
+        winner:
+          type: string
+          example: Hayden
+          description: Name of a player predicted to win
 
   return:
     Token:
@@ -893,6 +955,27 @@ components:
           type: array
           items:
             $ref: '#/components/group/Message'
+    QuizRestults:
+      type: object
+      properties:
+        results:
+          $ref: '#/components/group/QuizResults'
+    UserPlan:
+      type: object
+      properties:
+        user:
+          $ref: '#/components/group/UserPlan'
+    BetResult:
+      type: object
+      properties:
+        betResult:
+          type: number
+          expample: -3
+          description: amount bet (positive for wins and negative for losses)
+        Wallet:
+          type: number
+          example: 7
+          description: amount in wallet after bet wins/losses
 
 paths:
 
@@ -2561,6 +2644,34 @@ paths:
             If any of the following are true:
             - If player ID does not exist
             - If message body is less than 1 character or more than 100 characters
+          schema:
+            $ref: '#/components/return/Error'
+  
+  /v2/admin/auth/register:
+    post:
+      summary: Register a new admin user
+      description: Takes in information about a new admin user and registers them in the system. This route is not relevant to guests who want to play a particular quiz, but is used for the creation of accounts of people who manage quizzes. A wallet is initialised with a starting balance of $10.
+      tags:
+        # - "By Topic: Access Management"
+        - "Iteration 2 (Using Iteration 1)"
+      parameters:
+        - $ref: '#/components/body/Register'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/components/return/Token'
+        400:
+          description: |
+            If any of the following are true:
+            - Email address is used by another user
+            - Email does not satisfy this: https://www.npmjs.com/package/validator (validator.isEmail)
+            - NameFirst contains characters other than lowercase letters, uppercase letters, spaces, hyphens, or apostrophes
+            - NameFirst is less than 2 characters or more than 20 characters
+            - NameLast contains characters other than lowercase letters, uppercase letters, spaces, hyphens, or apostrophes
+            - NameLast is less than 2 characters or more than 20 characters
+            - Password is less than 8 characters
+            - Password does not contain at least one number and at least one letter
           schema:
             $ref: '#/components/return/Error'
       
