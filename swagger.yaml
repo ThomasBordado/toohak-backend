@@ -2750,7 +2750,7 @@ paths:
         Note: An answer can be re-submitted once first selection is made, as long as game is in the right state
       tags:
         # - "By Topic: Playing a session"
-        - "Iteration 3 (New)"
+        - "Planning"
       parameters:
         - $ref: '#/components/header/TokenOptional'
         - $ref: '#/components/body/PlayerQuestionAnswer'
