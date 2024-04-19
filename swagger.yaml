@@ -2840,8 +2840,39 @@ paths:
             If any of the following are true:
             - dollarAmount is less than 0
             - sum of bets made exceeds what is in the players wallet
-            - winner is no the name of a current player in the session
+            - winner is not the name of a current player in the session
             - session is not in LOBBY state
+          schema:
+            $ref: '#/components/return/Error'
+        401:
+          description: |
+            Token is empty or invalid (does not refer to valid logged in user session)
+          schema:
+            $ref: '#/components/return/Error' 
+      security:
+        - Iteration 3 Token Authentication: []
+
+  /v1/player/{playerid}/bet/results:
+    get:
+      summary: get the bet results
+      description: |
+        Allow logged in players to place a bet with Toohak dollars on the predicted player with the highest score.
+      tags:
+        # - "By Topic: Playing a session"
+        - "Planning"
+      parameters:
+        - $ref: '#/components/header/Token'
+      responses:
+        200:
+          description: |
+            OK
+            - betResult is positive for wins and negative for losses
+          schema:
+            $ref: '#/components/return/BetResult'
+        400:
+          description: |
+            If any of the following are true:
+            - session is not in FINAL_RESULTS or END state
           schema:
             $ref: '#/components/return/Error'
         401:
