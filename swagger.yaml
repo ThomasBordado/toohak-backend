@@ -439,6 +439,12 @@ components:
       required: true
       schema:
         type: string
+    TokenOptional:
+      in: header
+      name: token
+      required: false
+      schema:
+        type: string
   query:
     Token:
       in: query
@@ -2718,6 +2724,37 @@ paths:
           description: OK
           schema:
             $ref: '#/components/return/Empty'
+
+
+  /v2/player/join:
+    post:
+      summary: Allow a guest player to join a session
+      description: |
+        If the name entered is an empty string, a name must be randomly generated that conforms to the structure "[5 letters][3 numbers]" (e.g. valid123, ifjru483, ofijr938) where there are no repetitions of numbers or characters within the same name. Allows both logged in and unregistered players.
+      tags:
+        - "Planning"
+        # - "By Topic: Playing a session"
+      parameters:
+        - $ref: '#/components/header/TokenOptional'
+        - $ref: '#/components/body/PlayerJoin'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/components/return/PlayerJoin'
+        400:
+          description: |
+            If any of the following are true:
+            - Name of user entered is not unique (compared to other users who have already joined)
+            - Session Id does not refer to a valid session
+            - Session is not in LOBBY state
+          schema:
+            $ref: '#/components/return/Error'
+          401:
+          description: |
+            Token is invalid (does not refer to valid logged in user session - do not throw error if token is empty)
+          schema:
+            $ref: '#/components/return/Error'
 
 securityDefinitions:
   Iteration 3 Token Authentication:
