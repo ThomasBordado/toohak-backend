@@ -186,6 +186,13 @@ export const requestGetSessionStatus = (token: string, quizid: number, sessionid
   return requestHelper('GET', `/v1/admin/quiz/${quizid}/session/${sessionid}`, {}, { token });
 };
 
+export const requestSessionCSVResult = (token: string, quizid: number, sessionid: number) => {
+  return requestHelper('GET', `/v1/admin/quiz/${quizid}/session/${sessionid}/results/csv`, { quizid, sessionid }, { token });
+};
+
+export const requestFileUrl = (filename: string) => {
+  return requestHelper('GET', `/csv-results/${filename}`, { filename });
+};
 export const requestMessageList = (playerid: number) => {
   return requestHelper('GET', `/v1/player/${playerid}/chat`, {}, {});
 };
