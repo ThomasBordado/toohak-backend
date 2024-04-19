@@ -2711,7 +2711,7 @@ paths:
         - Iteration 3 Token Authentication: []
 
 
-   /v2/player/join:
+  /v2/player/join:
     post:
       summary: Allow a guest player to join a session
       description: |
@@ -2735,7 +2735,7 @@ paths:
             - Session is not in LOBBY state
           schema:
             $ref: '#/components/return/Error'
-          401:
+        401:
           description: |
             Token is invalid (does not refer to valid logged in user session - do not throw error if token is empty)
           schema:
