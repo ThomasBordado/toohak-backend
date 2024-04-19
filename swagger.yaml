@@ -18,7 +18,7 @@ tags:
     description: Iteration 3 routes are a modification of iteration 1 and iteration 2 routes
   - name: "Iteration 3 (New)"
     description: Iteration 3 routes that are a mix of new routes as well as slightly modified routes from iteration 1 and 2
-  - name: "planning"
+  - name: "Planning"
     description: Solution routes that are a mix of new routes as well as slightly modified routes from iteration 2 and 3
     
 
@@ -2653,7 +2653,7 @@ paths:
       description: Takes in information about a new admin user and registers them in the system. This route is not relevant to guests who want to play a particular quiz, but is used for the creation of accounts of people who manage quizzes. A wallet is initialised with a starting balance of $10.
       tags:
         # - "By Topic: Access Management"
-        - "Iteration 2 (Using Iteration 1)"
+        - "Planning"
       parameters:
         - $ref: '#/components/body/Register'
       responses:
