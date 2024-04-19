@@ -1,6 +1,6 @@
 import request, { HttpVerb } from 'sync-request-curl';
 import { port, url } from './config.json';
-import { quizQuestionCreateInput } from './interfaces';
+import { quizQuestionCreateInput, MessageInput } from './interfaces';
 import { IncomingHttpHeaders } from 'http';
 import HTTPError from 'http-errors';
 const SERVER_URL = `${url}:${port}`;
@@ -192,6 +192,13 @@ export const requestSessionCSVResult = (token: string, quizid: number, sessionid
 
 export const requestFileUrl = (filename: string) => {
   return requestHelper('GET', `/csv-results/${filename}`, { filename });
+};
+export const requestMessageList = (playerid: number) => {
+  return requestHelper('GET', `/v1/player/${playerid}/chat`, {}, {});
+};
+
+export const requestSendMessage = (playerid: number, message: MessageInput) => {
+  return requestHelper('POST', `/v1/player/${playerid}/chat`, { message }, {});
 };
 
 // export const requestQuizSessionFinalResults = (token: string, quizid: number, sessionid: number) => {

@@ -10,6 +10,14 @@ export enum State {
   END = 'END',
 }
 
+export interface MessageInput {
+  messageBody: string;
+}
+
+export interface MessageListReturn {
+  messages: Message[];
+}
+
 export interface answer {
   answerId: number;
   answer: string;
@@ -76,12 +84,20 @@ export interface UserDetails {
   numFailedPasswordsSinceLastLogin: number;
 }
 
+export interface PlayerId {
+  playerId: number;
+}
+
 export interface ErrorReturn {
   error: string;
 }
 
 export interface UserId {
   authUserId: number;
+}
+
+export interface QuizSessionId {
+  sessionId: number;
 }
 
 export interface SessionId {
@@ -98,10 +114,6 @@ export interface quizId {
 
 export interface questionId {
   questionId: number;
-}
-
-export interface PlayerId {
-  playerId: number;
 }
 
 export interface QuizListReturn {
@@ -164,10 +176,6 @@ export enum Action {
 export interface sessionViewReturn {
   activeSessions: number[];
   inactiveSessions: number[];
-}
-
-export interface QuizSessionId {
-  sessionId: number;
 }
 
 export interface QuizStatus {
