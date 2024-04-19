@@ -2813,6 +2813,40 @@ paths:
           description: OK
           schema:
             $ref: '#/components/return/Empty'
+  
+
+  /v1/player/{playerid}/bet:
+    post:
+      summary: Player placing of bet
+      description: |
+        Allow logged in players to place a bet with Toohak dollars on the predicted player with the highest score.
+      tags:
+        # - "By Topic: Playing a session"
+        - "Planning"
+      parameters:
+        - $ref: '#/components/header/Token'
+        - $ref: '#/components/body/Bet'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/components/return/Empty'
+        400:
+          description: |
+            If any of the following are true:
+            - dollarAmount is less than 0
+            - sum of bets made exceeds what is in the players wallet
+            - winner is no the name of a current player in the session
+            - session is not in LOBBY state
+          schema:
+            $ref: '#/components/return/Error'
+        401:
+          description: |
+            Token is empty or invalid (does not refer to valid logged in user session)
+          schema:
+            $ref: '#/components/return/Error' 
+      security:
+        - Iteration 3 Token Authentication: []
 
 
 securityDefinitions:
