@@ -166,10 +166,6 @@ export const isNewPasswordUsed = (token: string, newPassword: string): boolean =
 export const isEmailUsedByOther = (email: string, token: string): boolean => {
   const data = getData();
 
-  if (data.users.length === 0) {
-    return false;
-  }
-
   const userWithSameEmail = data.users.find(users => users.email === email && !users.sessions.includes(token));
   if (userWithSameEmail) {
     return true;

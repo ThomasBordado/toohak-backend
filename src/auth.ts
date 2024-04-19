@@ -112,9 +112,7 @@ export const adminUserDetails = (token: string): UserDetailsReturn | ErrorReturn
  */
 export const adminUserDetailsUpdate1 = (token: string, email: string, nameFirst: string, nameLast: string): EmptyObject | ErrorReturn => {
   // 1. Check if AuthUserId is a valid user
-  if (!isValidToken(token)) {
-    return { error: 'Token is empty or invalid' };
-  }
+  isValidToken(token);
 
   // 2. Check if the new email is invalid
   if (!isEmail(email)) {
@@ -162,14 +160,10 @@ export const adminUserDetailsUpdate2 = (token: string, email: string, nameFirst:
   isValidToken(token);
 
   // 2. Check if the new email is invalid
-  if (!isEmail(email)) {
-    throw HTTPError(400, 'This is not a valid email.');
-  }
+  isEmail(email);
 
   // 3. Check if the email is used by another user(excluding the current authorised user)
-  if (isEmailUsedByOther(email, token)) {
-    throw HTTPError(400, 'Email is used by other user.');
-  }
+  isEmailUsedByOther(email, token);
 
   // 4. Check if NameFirst contains characters other than lowercase letters,
   // uppercase letters, spaces, hyphens, or apostrophes
@@ -202,9 +196,7 @@ export const adminUserDetailsUpdate2 = (token: string, email: string, nameFirst:
 */
 export const adminUserPasswordUpdate1 = (token: string, oldPassword: string, newPassword: string): EmptyObject | ErrorReturn => {
   // 1. Check if AuthUserId is valid
-  if (!isValidToken(token)) {
-    return { error: 'Token is empty or invalid' };
-  }
+  isValidToken(token);
 
   // 2. Check if the old password is correct
   if (!isPasswordCorrect(token, oldPassword)) {
@@ -218,7 +210,7 @@ export const adminUserPasswordUpdate1 = (token: string, oldPassword: string, new
 
   // 4. Check if the password is used by this user
   if (isNewPasswordUsed(token, newPassword)) {
-    return { error: 'New Password has already been used before by this user.' };
+    return { error: 'New Password has already been used by this user.' };
   }
 
   // 5. Check is the new password valid
@@ -242,10 +234,7 @@ export const adminUserPasswordUpdate1 = (token: string, oldPassword: string, new
 */
 export const adminUserPasswordUpdate2 = (token: string, oldPassword: string, newPassword: string): EmptyObject | ErrorReturn => {
   // 1. Check if AuthUserId is valid
-  if (!isValidToken(token)) {
-    throw HTTPError(401, 'Token is empty or invalid');
-  }
-
+  isValidToken(token);
   // 2. Check if the old password is correct
   if (!isPasswordCorrect(token, oldPassword)) {
     throw HTTPError(400, 'Old Password is not the correct old password.');
@@ -257,9 +246,7 @@ export const adminUserPasswordUpdate2 = (token: string, oldPassword: string, new
   }
 
   // 4. Check if the password is used by this user
-  if (isNewPasswordUsed(token, newPassword)) {
-    throw HTTPError(400, 'New Password has already been used before by this user.');
-  }
+  isNewPasswordUsed(token, newPassword)
 
   // 5. Check is the new password valid
   checkPassword(newPassword);
@@ -286,9 +273,7 @@ export const adminAuthLogout = (token: string): EmptyObject | ErrorReturn => {
     if (user.sessions.includes(token)) {
       // If we find the session remove it from current sessions.
       const index = user.sessions.indexOf(token);
-      if (index !== -1) {
-        user.sessions.splice(index, 1);
-      }
+      user.sessions.splice(index, 1);
       saveData();
       return {};
     }
