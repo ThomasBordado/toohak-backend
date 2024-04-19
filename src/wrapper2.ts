@@ -195,8 +195,9 @@ export const requestPlayerQuestionResults = (playerid: number, questionposition:
 };
 
 export const requestPlayerSessionResults = (playerid: number) => {
-  return requestHelper('GET', `/v1/player/${playerid}/results`, {});
+  return requestHelper('GET', `/v1/player/${playerid}/results`, {}, {});
 };
+
 // export const requestQuizSessionFinalResults = (token: string, quizid: number, sessionid: number) => {
 //   return requestHelper('GET', `/v1/admin/quiz/${quizid}/session/${sessionid}/results`, {}, { token });
 // };
