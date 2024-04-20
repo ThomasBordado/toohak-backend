@@ -91,7 +91,7 @@ export const adminQuizCreate2 = (token: string, name: string, description: strin
 
 /**
  * Given a particular quiz, permanently remove the quiz
- * @param {stringgetSessionResultReturn token - unique identifier for a session
+ * @param {stringgetSessionResultReturn token - unique identifier for a session}
  * @param {number} quizId - unique identifier for a quiz
  * @returns {} - for valid authUserId and quizId
  */
@@ -770,7 +770,6 @@ export const UpdateSessionState = (token: string, quizId: number, sessionId: num
     throw HTTPError(400, 'Session Id does not refer to a valid session within this quiz');
   }
 
-  console.log('updatesessionstate in');
   let timerId1: ReturnType<typeof setTimeout>;
   let timerId2: ReturnType<typeof setTimeout>;
   const DELAY = 3;
@@ -786,9 +785,7 @@ export const UpdateSessionState = (token: string, quizId: number, sessionId: num
       };
 
       const OpentoClose = () => {
-        if (quizSessions.quizStatus.state === 'QUESTION_OPEN') {
-          quizSessions.quizStatus.state = State.QUESTION_CLOSE;
-        }
+        quizSessions.quizStatus.state = State.QUESTION_CLOSE;
       };
 
       // Can go to end from any state
@@ -890,24 +887,6 @@ export const UpdateSessionState = (token: string, quizId: number, sessionId: num
           return {};
         }
       }
-
-      // // TIMER no.1 function
-      // function CountdownToOpen() {
-      //   if (quizSessions.quizStatus.state === 'QUESTION_COUNTDOWN') {
-      //     quizSessions.quizStatus.state = State.QUESTION_OPEN;
-      //     timerId2 = setTimeout(OpentoClose, quizSessions.quizStatus.metadata.questions[quizSessions.quizStatus.atQuestion - 1].duration * 1000);
-      //     data.timers.push(timerId2);
-      //     return {};
-      //   }
-      // }
-
-      // // TIMER no.2 function
-      // function OpentoClose() {
-      //   if (quizSessions.quizStatus.state === 'QUESTION_OPEN') {
-      //     quizSessions.quizStatus.state = State.QUESTION_CLOSE;
-      //     return {};
-      //   }
-      // }
     }
   }
   throw HTTPError(400, 'Action enum cannot be applied in the current state');
