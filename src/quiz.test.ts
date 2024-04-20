@@ -545,6 +545,27 @@ describe('Testing it2 function, adminQuizQuestionUpdate', () => {
     expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
     expect(result.statusCode).toStrictEqual(403);
   });
+  test('invalid questionId', () => {
+    const updated = {
+      question: 'Who is the King of England?',
+      duration: 6,
+      points: 4,
+      answers: [
+        {
+          answer: 'King Charles',
+          correct: true
+        },
+        {
+          answer: 'King Charles.',
+          correct: true
+        }
+      ]
+    };
+
+    const result = requestUpdateQuizQuestion(user.token, updated, quiz.quizId, questionout.questionId +1);
+    expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
+    expect(result.statusCode).toStrictEqual(400);
+  });
 });
 
 describe('Testing it2 function, adminQuizQuestionDelete', () => {
@@ -1338,7 +1359,7 @@ describe('Testing Post /v1/admin/quiz/{quizid}/question', () => {
 
         quizQuestion: {
 
-          question: 'Who?',
+          question: 'Who is the Monarch of England?',
           duration: 5,
           points: 5,
           answers: [
@@ -1359,7 +1380,7 @@ describe('Testing Post /v1/admin/quiz/{quizid}/question', () => {
 
         quizQuestion: {
 
-          question: 'Who?',
+          question: 'Who is the Monarch of England?',
           duration: 5,
           points: 5,
           answers: [
@@ -1380,7 +1401,7 @@ describe('Testing Post /v1/admin/quiz/{quizid}/question', () => {
 
         quizQuestion: {
 
-          question: 'Who?',
+          question: 'Who is the Monarch of England?',
           duration: 5,
           points: 5,
           answers: [
@@ -1389,7 +1410,7 @@ describe('Testing Post /v1/admin/quiz/{quizid}/question', () => {
               correct: true,
             },
             {
-              answer: 'Louis XVI',
+              answer: 'Prince Charles',
               correct: false,
             }
           ]
@@ -1401,13 +1422,13 @@ describe('Testing Post /v1/admin/quiz/{quizid}/question', () => {
 
         quizQuestion: {
 
-          question: 'Who?',
+          question: 'Who is the Monarch of England?',
           duration: 5,
           points: 5,
           answers: [
             {
               answer: 'Prince Charles',
-              correct: true,
+              correct: false,
             },
             {
               answer: 'Louis XVI',
@@ -1470,6 +1491,51 @@ describe('Testing Post /v1/admin/quiz/{quizid}/question', () => {
     });
   });
 
+  test('Error test for 403 error - no quizes', () => {
+    const user = requestRegister('valideEmail@gmail.com', 'password1', 'Jane', 'Lawson').jsonBody as SessionId;
+    const input : quizQuestionCreateInputV1 = {
+      question: 'Who is the Monarch of England?',
+      duration: 4,
+      points: 5,
+      answers: [
+        {
+          answer: 'Prince Charles',
+          correct: true
+        },
+        {
+          answer: 'Prince Charles.',
+          correct: true
+        }
+      ]
+    };
+    const quizQuestionCreateResponse = requestQuizQuestionCreate(user.token, input, 1);
+    expect(quizQuestionCreateResponse.statusCode).toStrictEqual(403);
+    expect(quizQuestionCreateResponse.jsonBody).toStrictEqual({ error: expect.any(String) });
+  });
+
+  test('Error test for 403 error - invalid quizid', () => {
+    const user = requestRegister('valideEmail@gmail.com', 'password1', 'Jane', 'Lawson').jsonBody as SessionId;
+    const quiz = requestQuizCreate(user.token, 'British', 'history').jsonBody as quizId;
+    const input : quizQuestionCreateInputV1 = {
+      question: 'Who is the Monarch of England?',
+      duration: 4,
+      points: 5,
+      answers: [
+        {
+          answer: 'Prince Charles',
+          correct: true
+        },
+        {
+          answer: 'Prince Charles.',
+          correct: true
+        }
+      ]
+    };
+    const quizQuestionCreateResponse = requestQuizQuestionCreate(user.token, input, quiz.quizId + 1);
+    expect(quizQuestionCreateResponse.statusCode).toStrictEqual(403);
+    expect(quizQuestionCreateResponse.jsonBody).toStrictEqual({ error: expect.any(String) });
+  });
+
   test('Error test for 403 error, Valid token is provided, but user is not an owner of this quiz', () => {
     const user = requestRegister('valideEmail@gmail.com', 'password1', 'Jane', 'Lawson').jsonBody as SessionId;
     const quiz = requestQuizCreate(user.token, 'British', 'history').jsonBody as quizId;
@@ -1490,7 +1556,6 @@ describe('Testing Post /v1/admin/quiz/{quizid}/question', () => {
           correct: true
         }
       ]
-
     };
 
     const quizQuestionCreatResponse = requestQuizQuestionCreate(user2.token, input, quiz.quizId);
@@ -1804,6 +1869,18 @@ describe('adminQuizQuestionMove testing', () => {
   // 5. New position is greater than (n-1)
   test('Test newPosition is greater than (n-1)', () => {
     const result = requestMoveQuestion(user.token, quiz.quizId, question1.questionId, 5);
+    expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
+    expect(result.statusCode).toStrictEqual(400);
+  });
+  // 6. New position is at same position
+  test('Test newPosition is at same position', () => {
+    const result = requestMoveQuestion(user.token, quiz.quizId, question1.questionId, 0);
+    expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
+    expect(result.statusCode).toStrictEqual(400);
+  });
+    // 7. questionId is invalid
+  test('questionId is invalid', () => {
+    const result = requestMoveQuestion(user.token, quiz.quizId, question1.questionId + 10, 1);
     expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
     expect(result.statusCode).toStrictEqual(400);
   });

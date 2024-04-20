@@ -1,6 +1,6 @@
 import { getData, setData } from './dataStore';
 import { EmptyObject, ErrorReturn, QuizListReturn, quiz, quizId, quizQuestionCreateInput, quizQuestionCreateInputV1, quizQuestionCreateReturn, quizQuestionDuplicateReturn, QuizSession, State, Action, MessageInput, MessageListReturn } from './interfaces';
-import { validToken, checkQuizName, checkQuestionValid, isValidQuizId, randomColour, validthumbnailUrl, checkQuestionValidV1, isActiveQuizSession, ValidPlayerId, playerIdToSession, playerIdToPlayer } from './quizUtil';
+import { validToken, checkQuizName, checkQuestionValid, isValidQuizId, randomColour, validthumbnailUrl, checkQuestionValidV1, isActiveQuizSession, ValidPlayerId, playerIdToPlayer } from './quizUtil';
 import { saveData } from './persistence';
 import HTTPError from 'http-errors';
 
@@ -228,7 +228,7 @@ export const adminQuizQuestionUpdate = (token: string, questionBody: quizQuestio
   const findQuiz = data.quizzes.find(quizzes => quizzes.quizId === quizId);
   const findQuestionIndex = findQuiz.questions.findIndex(questions => questions.questionId === questionid);
   if (findQuestionIndex === -1) {
-    throw HTTPError(403, 'Invalid questionId');
+    throw HTTPError(400, 'Invalid questionId');
   }
   const findQuestion = findQuiz.questions.find(questions => questions.questionId === questionid);
   findQuestion.question = questionBody.question;
@@ -361,9 +361,7 @@ export const quizQuestionCreate1 = (token: string, questionBody: quizQuestionCre
 
   // Check if the user owns this quiz
   const quiz = isValidQuizId(token, quizId);
-  if ('error' in quiz) {
-    return quiz as ErrorReturn;
-  }
+
   // Check if the errors in questionBody
   const question = checkQuestionValidV1(questionBody, quizId);
   if ('error' in question) {
@@ -531,11 +529,11 @@ export const adminQuizQuestionMove = (token: string, quizId: number, questionId:
 
   const findQuestion = data.quizzes[findQuiz].questions.findIndex(quizQuestions => quizQuestions.questionId === questionId);
   if (findQuestion === -1) {
-    throw HTTPError(400, 'questionId is invalid or newPosition is invalid');
+    throw HTTPError(400, 'questionId is invalid');
   }
 
   if (findQuestion === newPosition || newPosition < 0 || newPosition > (data.quizzes[findQuiz].questions.length - 1)) {
-    throw HTTPError(400, 'questionId is invalid or newPosition is invalid');
+    throw HTTPError(400, 'newPosition is invalid');
   }
 
   const questionToMove = data.quizzes[findQuiz].questions.splice(findQuestion, 1)[0]; // Remove the question from its current position
@@ -736,9 +734,6 @@ export const UpdateSessionState = (token: string, quizId: number, sessionId: num
       // - QUESTION_COUNTDOWN via NEXT_QUESTION
       if (quizSessions.quizStatus.state === 'LOBBY') {
         if (action === 'NEXT_QUESTION') {
-          if (quizSessions.quizStatus.atQuestion >= quizSessions.quizStatus.metadata.numQuestions) {
-            throw HTTPError(400, 'No more questions in quiz');
-          }
           quizSessions.quizStatus.state = State.QUESTION_COUNTDOWN;
           timerId1 = setTimeout(CountdownToOpen, DELAY * 1000);
           data.timers.push(timerId1);
@@ -857,16 +852,13 @@ export const GetSessionStatus = (token: string, quizId: number, sessionId: numbe
     throw HTTPError(403, 'User does not own quiz');
   }
 
-  const activeSessions = viewSessions(token, quizId).activeSessions;
-  if (!activeSessions.includes(sessionId)) {
+  const sessions = viewSessions(token, quizId);
+  if (!sessions.activeSessions.includes(sessionId) && !sessions.inactiveSessions.includes(sessionId)) {
     throw HTTPError(400, 'Session Id does not refer to a valid session within this quiz');
   }
 
-  for (const quizSessions of data.quizSessions) {
-    if (quizSessions.sessionId === sessionId) {
-      return quizSessions.quizStatus;
-    }
-  }
+  const quizSession = data.quizSessions.find(quizSessions => quizSessions.sessionId === sessionId);
+  return quizSession.quizStatus;
 };
 
 // export const QuizSessionFinalResults = (token: string, quizId: number, sessionId: number) => {
@@ -929,17 +921,18 @@ export const GetSessionStatus = (token: string, quizId: number, sessionId: numbe
 
 // };
 export const sessionMessagesList = (playerId: number): MessageListReturn => {
-  ValidPlayerId(playerId);
-  const session = playerIdToSession(playerId);
+  const session = ValidPlayerId(playerId);
   return { messages: session.messages };
 };
 
 export const sessionSendMessage = (playerId: number, message: MessageInput): EmptyObject => {
-  ValidPlayerId(playerId);
+  const session = ValidPlayerId(playerId);
   if (message.messageBody.length < 1 || message.messageBody.length > 100) {
     throw HTTPError(400, 'message body is less than 1 character or more than 100 characters.');
   }
-  const player = playerIdToPlayer(playerId);
+
+
+  const player = playerIdToPlayer(playerId, session);
 
   const newmessage = {
     messageBody: message.messageBody,
@@ -950,13 +943,7 @@ export const sessionSendMessage = (playerId: number, message: MessageInput): Emp
 
   // push
   const data = getData();
-  for (const session of data.quizSessions) {
-    for (const players of session.quizStatus.players) {
-      if (players.playerId === playerId) {
-        session.messages.push(newmessage);
-      }
-    }
-  }
+  session.messages.push(newmessage);
   setData(data);
 
   return { };

@@ -1,4 +1,4 @@
-import { quizUser, user, quizQuestionCreateInput, quizQuestionCreateInputV1 } from './interfaces';
+import { quizUser, user, quizQuestionCreateInput, quizQuestionCreateInputV1, QuizSession } from './interfaces';
 import { getData } from './dataStore';
 import HTTPError from 'http-errors';
 
@@ -214,19 +214,18 @@ export const isValidQuizId = (token: string, quizId: number) => {
   }
 
   // Check if the user own the quiz
+  const user = data.users.find(users => users.sessions.includes(token));
   const quiz = data.quizzes.find(quizs => quizs.quizId === quizId);
-  if (quiz) {
-    const user = data.users.find(users => users.sessions.includes(token));
-    const findQuiz = user.quizzes.find(quizzes => quizzes.quizId === quizId);
+  const findQuiz = user.quizzes.find(quizzes => quizzes.quizId === quizId);
 
-    // If the user owns this quiz
-    if (findQuiz !== undefined) {
-      return {};
+  if (findQuiz === undefined) {
+    if (quiz === undefined) {
+      throw HTTPError(403, 'Invalid quizId');
+    } else {
+      throw HTTPError(403, 'user does not own the quiz');
     }
-    throw HTTPError(403, 'user does not own the quiz');
-  } else {
-    throw HTTPError(403, 'Invalid quizId');
   }
+  return {};
 };
 
 export const validthumbnailUrl = (thumbnailUrl: string) => {
@@ -261,33 +260,14 @@ export const ValidPlayerId = (playerId: number) => {
   for (const session of data.quizSessions) {
     for (const player of session.quizStatus.players) {
       if (player.playerId === playerId) {
-        return;
+        return session;
       }
     }
   }
   throw HTTPError(400, 'player ID does not exist.');
 };
 
-export const playerIdToSession = (playerId: number) => {
-  const data = getData();
-  for (const session of data.quizSessions) {
-    for (const player of session.quizStatus.players) {
-      if (player.playerId === playerId) {
-        return session;
-      }
-    }
-  }
-  throw HTTPError(400, 'player ID does not exist');
-};
-
-export const playerIdToPlayer = (playerId: number) => {
-  const data = getData();
-  for (const session of data.quizSessions) {
-    for (const player of session.quizStatus.players) {
-      if (player.playerId === playerId) {
-        return player;
-      }
-    }
-  }
-  throw HTTPError(400, 'player ID does not exist');
+export const playerIdToPlayer = (playerId: number, session: QuizSession) => {
+  const player = session.quizStatus.players.find(players => players.playerId === playerId);
+  return player;
 };
