@@ -219,25 +219,37 @@ export const PlayerAnswerSubmission = (playerId: number, questionPosition: numbe
   }
 };
 
-
-export const PlayerQuestionResults = (playerId: number, questionposition: number): QuestionResults | ErrorReturn => {
+export const PlayerQuestionResults = (playerId: number, questionPosition: number): QuestionResults | ErrorReturn => {
   const sessions = getData().quizSessions;
   for (const session of sessions) {
     for (const player of session.quizStatus.players) {
       if (player.playerId === playerId) {
-        if (questionposition < 1 || questionposition > session.quizStatus.metadata.numQuestions) {
-          throw HTTPError(400, 'question position is not valid for the session this player is in');
+        if (questionPosition < 1 || questionPosition > session.quizStatus.metadata.numQuestions) {
+          throw HTTPError(400, 'Question position is not valid for the session this player is in');
         }
-        if (session.quizStatus.atQuestion !== questionposition) {
-          throw HTTPError(400, 'session is not currently on this question');
+        if (session.quizStatus.atQuestion !== questionPosition) {
+          throw HTTPError(400, 'Session is not currently on this question');
         }
         if (session.quizStatus.state !== 'ANSWER_SHOW') {
           throw HTTPError(400, 'Session is not in ANSWER_SHOW');
         }
-        const question = session.quizStatus.metadata.questions[questionposition - 1];
+        const questionResult = session.quizResults.questionResults.find(result => result.questionId === session.quizStatus.metadata.questions[questionPosition - 1].questionId);
+
+        if (!questionResult) {
+          throw HTTPError(500, 'Question result not found');
+        }
+
+        return {
+          "questionId": questionResult.questionId,
+          "playerCorrectList": questionResult.playerCorrectList,
+          "averageAnswerTime": questionResult.averageAnswerTime,
+          "percentCorrect": questionResult.percentCorrect
+        };
       }
-      return
     }
   }
-
-}
+  // If player not found
+  return {
+    error: 'Player not found'
+  };
+};

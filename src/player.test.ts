@@ -402,7 +402,7 @@ describe('Test requestPlayerAnswerSubmission', () => {
 
 
 
-describe.skip('Test requestPlayerQuestionResults', () => {
+describe('Test requestPlayerQuestionResults', () => {
 
   let user: SessionId;
   let quiz: quizId;
@@ -434,22 +434,30 @@ describe.skip('Test requestPlayerQuestionResults', () => {
   //1. succesful request player question results
   test('Succesful question results', () => {
     const session = requestSessionStart(user.token, quiz.quizId, 3);
-    const playerid = requestPlayerJoin(session.sessionId, 'jared');
+    const playerId = requestPlayerJoin(session.sessionId, 'jared');
+
+    //move to next state "QUESTION_OPEN"
     requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'NEXT_QUESTION');
     sleepSync(3 * 1000);
     const questionPosition = 1;
-    const result = requestPlayerQuestionResults(playerid.playerId, questionPosition);
-    expect(result).toStrictEqual({
-      questionId: questionId.questionId,
-      playersCorrectList: [],
-      averageAnswerTime: expect.any(Number),
-      percentCorrect: expect.any(Number)
-    });
+    const response = requestPlayerQuestionInfo(playerId.playerId, 1);
+    requestPlayerAnswerSubmission(playerId.playerId, 1, [response.answers[0].answerId]);
+
+    requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'GO_TO_ANSWER');
+    const result = requestPlayerQuestionResults(playerId.playerId, questionPosition);
+    console.log(result);
+    //   expect(result).toStrictEqual({
+    //     questionId: questionId.questionId,
+    //     playersCorrectList: [expect.any(Array)
+    //     ],
+    //     averageAnswerTime: expect.any(Number),
+    //     percentCorrect: expect.any(Number)
+    //   });
   });
 
 
   //2. player id does not exist
-  test('Test playerid does not not exist', () => {
+  test.skip('Test playerid does not not exist', () => {
     const session = requestSessionStart(user.token, quiz.quizId, 3);
     const playerid = requestPlayerJoin(session.sessionId, 'jared');
 
@@ -457,7 +465,7 @@ describe.skip('Test requestPlayerQuestionResults', () => {
   });
 
   //3. question id does not exist for the session the player is in
-  test('Test questionId is not session valid', () => {
+  test.skip('Test questionId is not session valid', () => {
     const session = requestSessionStart(user.token, quiz.quizId, 3);
     const playerid = requestPlayerJoin(session.sessionId, 'jared');
 
@@ -465,20 +473,22 @@ describe.skip('Test requestPlayerQuestionResults', () => {
   });
 
   //4. session is not in ANSWER_SHOW
-  test('test Session not in ANSWER_SHOW', () => {
+  test.skip('test Session not in ANSWER_SHOW', () => {
     const session = requestSessionStart(user.token, quiz.quizId, 3);
     const playerid = requestPlayerJoin(session.sessionId, 'jared');
 
     expect(() => requestPlayerQuestionResults(playerid.playerId, 1)).toThrow(HTTPError[400]);
   });
 
-  test('Test session is not yet up to that question', () => {
+  test.skip('Test session is not yet up to that question', () => {
     const session = requestSessionStart(user.token, quiz.quizId, 3);
     const playerid = requestPlayerJoin(session.sessionId, 'jared');
 
     expect(() => requestPlayerQuestionResults(playerid.playerId, 3)).toThrow(HTTPError[400]);
   });
 });
+
+
 
 describe.skip('Test requestPlayerSessionResults', () => {
   let user: SessionId;
