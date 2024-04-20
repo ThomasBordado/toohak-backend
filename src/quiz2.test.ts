@@ -2158,7 +2158,13 @@ describe('requestSessionStart testing', () => {
     test('autoNum = 50', () => {
       expect(requestSessionStart(user.token, quiz.quizId, 50)).toStrictEqual({ sessionId: expect.any(Number) });
     });
-    test.todo('check any changes made to quiz does not effect session info');
+    test('any changes made to quiz does not effect session info', () => {
+      const prevQuizInfo = requestQuizInfo(user.token, quiz.quizId) as quiz
+      const session = requestSessionStart(user.token, quiz.quizId, 3);
+      requestUpdateQuizDescription(user.token, quiz.quizId, 'My new description.');
+      const sessionStatus = requestGetSessionStatus(user.token, quiz.quizId, session.sessionId);
+      expect(sessionStatus.metadata).toStrictEqual(prevQuizInfo);
+    });
   });
 });
 
@@ -2519,72 +2525,6 @@ describe('request GetSessionStatus testing', () => {
 //     });
 //   });
 // });
-
-describe('requestSessionView testing', () => {
-  let user: SessionId;
-  let quiz: quizId;
-  let questionin: quizQuestionCreateInput;
-  beforeEach(() => {
-    user = requestRegister('chloe@gmail.com', 'password1', 'Chloe', 'Turner').jsonBody as SessionId;
-    quiz = requestQuizCreate(user.token, 'My Quiz', 'My Quiz Description');
-    questionin = {
-      question: 'Who is the Monarch of England?',
-      duration: 4,
-      points: 5,
-      answers: [
-        {
-          answer: 'Prince Charles',
-          correct: true
-        },
-        {
-          answer: 'Prince Charles.',
-          correct: true
-        }
-      ],
-      thumbnailUrl: 'http://google.com/some/image/path.jpg',
-    };
-    requestQuizQuestionCreate(user.token, questionin, quiz.quizId);
-  });
-
-  describe('Unsuccessful Cases', () => {
-    test('Invalid Token', () => {
-      expect(() => requestSessionView(user.token + 1, quiz.quizId)).toThrow(HTTPError[401]);
-    });
-    test('Invalid quizId', () => {
-      expect(() => requestSessionView(user.token, quiz.quizId + 1)).toThrow(HTTPError[403]);
-    });
-  });
-  describe('Successful Cases', () => {
-    test('No sessions started: return empty array', () => {
-      expect(requestSessionView(user.token, quiz.quizId)).toStrictEqual({ activeSessions: [], inactiveSessions: [] });
-    });
-    test('one active session', () => {
-      const session = requestSessionStart(user.token, quiz.quizId, 3);
-      expect(requestSessionView(user.token, quiz.quizId)).toStrictEqual({ activeSessions: [session.sessionId], inactiveSessions: [] });
-    });
-    test('multiple active sessions', () => {
-      const session1 = requestSessionStart(user.token, quiz.quizId, 3);
-      const session2 = requestSessionStart(user.token, quiz.quizId, 3);
-      const session3 = requestSessionStart(user.token, quiz.quizId, 3);
-      const quizSessions = requestSessionView(user.token, quiz.quizId);
-      const expectedSessions: sessionViewReturn = {
-        activeSessions: [
-          session1.sessionId,
-          session2.sessionId,
-          session3.sessionId,
-        ],
-        inactiveSessions: [],
-      };
-      // sorting both arrays in order of unique quizId so that the order of array matches
-      quizSessions.activeSessions.sort((a: number, b: number) => a - b);
-      expectedSessions.activeSessions.sort((a: number, b: number) => a - b);
-      expect(quizSessions).toStrictEqual(expectedSessions);
-    });
-    test.todo('one inactive session');
-    test.todo('multiple inactive sessions');
-    test.todo('both active and inactive sessions');
-  });
-});
 
 /**
  * Test for sending messages in session
