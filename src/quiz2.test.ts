@@ -563,6 +563,58 @@ describe('Testing it2 function, adminQuizQuestionDelete', () => {
   test('invalid questionid', () => {
     expect(() => requestDeleteQuizQuestion(user.token, quiz.quizId, questionout.questionId + 1)).toThrow(HTTPError[400]);
   });
+  // 5. success
+  test('successful - return', () => {
+    expect(requestDeleteQuizQuestion(user.token, quiz.quizId, questionout.questionId)).toStrictEqual({});
+  });
+  test('successful - behaviour', () => {
+    let expectedInfo: quiz = {
+      quizId: quiz.quizId,
+      name: 'My Quiz',
+      timeCreated: expect.any(Number),
+      timeLastEdited: expect.any(Number),
+      description: 'My description.',
+      numQuestions: 1,
+      questions: [
+        {
+          questionId: questionout.questionId,
+          question: 'Who is the Monarch of England?',
+          duration: 4,
+          points: 5,
+          answers: [
+            {
+              answerId: expect.any(Number),
+              answer: 'Prince Charles',
+              colour: expect.any(String),
+              correct: true,
+            },
+            {
+              answerId: expect.any(Number),
+              answer: 'Prince Charles.',
+              colour: expect.any(String),
+              correct: true,
+            },
+          ]
+        }
+      ],
+      duration: 4,
+      thumbnailUrl: 'http://google.com/some/image/path.jpg',
+    };
+    expect(requestQuizInfo(user.token, quiz.quizId)).toStrictEqual(expectedInfo);
+    requestDeleteQuizQuestion(user.token, quiz.quizId, questionout.questionId);
+    expectedInfo = {
+      quizId: quiz.quizId,
+      name: 'My Quiz',
+      timeCreated: expect.any(Number),
+      timeLastEdited: expect.any(Number),
+      description: 'My description.',
+      numQuestions: 0,
+      questions: [],
+      duration: 0,
+      thumbnailUrl: 'http://google.com/some/image/path.jpg',
+    };
+    expect(requestQuizInfo(user.token, quiz.quizId)).toStrictEqual(expectedInfo);
+  });
 });
 
 /*
