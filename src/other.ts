@@ -5,7 +5,7 @@ import { clearDataFile } from './persistence';
 const clearTimeouts = () => {
   const timeouts = getData().timers;
   for (const timeout of timeouts) {
-    clearTimeout(timeout.timeoutId);
+    clearTimeout(timeout);
   }
 };
 
@@ -19,6 +19,7 @@ export const clear = (): EmptyObject => {
   getData().userIdStore = 0;
   getData().quizzes = [];
   getData().quizIdStore = 0;
+  getData().sessionIdStore = 0;
   getData().questionIdStore = 0;
   getData().answerIdStore = 0;
   getData().playerIdStore = 0;
