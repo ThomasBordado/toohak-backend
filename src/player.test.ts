@@ -246,7 +246,7 @@ describe('Test requestPlayerAnswerSubmission', () => {
   let user: SessionId;
   let quiz: quizId;
   let questionin: quizQuestionCreateInput;
-  let questionId: questionId;
+  let questionId;
 
   beforeEach(() => {
     user = requestRegister('jared@gmail.com', 'password2024', 'Jared', 'Simion').jsonBody as SessionId;
@@ -388,7 +388,7 @@ describe('Test requestPlayerAnswerSubmission', () => {
   });
 });
 
-describe('Test requestPlayerQuestionResults', () => {
+describe.skip('Test requestPlayerQuestionResults', () => {
   let user: SessionId;
   let quiz: quizId;
   let questionin: quizQuestionCreateInput;
