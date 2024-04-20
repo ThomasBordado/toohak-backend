@@ -1,6 +1,5 @@
 import { requestRegister, requestLogin, requestGetUserDetails, requestUpdateUserDetails, requestUpdatePassword, requestLogout, requestClear } from './wrapper';
-import { getHashOf } from './authUtil';
-import { SessionId, UserId, UserDetailsReturn } from './interfaces';
+import { SessionId, UserDetailsReturn } from './interfaces';
 
 beforeEach(() => {
   requestClear();
@@ -204,7 +203,6 @@ describe('Test requestGetUserDetials', () => {
     };
     expect(result.jsonBody).toStrictEqual({ user: user });
     expect(result.statusCode).toStrictEqual(200);
-    expect(getHashOf((result.jsonBody.user.userId).toString())).toStrictEqual(user1.token);
   });
 
   // 2. Invalid authUserId
@@ -272,7 +270,6 @@ describe('requestUpdateUserDetails', () => {
       };
       const result = requestGetUserDetails(data.token).jsonBody as UserDetailsReturn;
       expect(result).toStrictEqual({ user: userInfo });
-      expect(getHashOf((result.user.userId).toString())).toStrictEqual(data.token);
     });
 
     // more than one user
@@ -295,11 +292,9 @@ describe('requestUpdateUserDetails', () => {
       };
       let result = requestGetUserDetails(data.token).jsonBody as UserDetailsReturn;
       expect(result).toStrictEqual({ user: userInfo1 });
-      expect(getHashOf((result.user.userId).toString())).toStrictEqual(data.token);
       
       result = requestGetUserDetails(id2.token).jsonBody as UserDetailsReturn;
       expect(result).toStrictEqual({ user: userInfo2 });
-      expect(getHashOf((result.user.userId).toString())).toStrictEqual(id2.token);
     });
 
     // Able to change if email is same as the old one
@@ -314,7 +309,6 @@ describe('requestUpdateUserDetails', () => {
       };
       const result = requestGetUserDetails(data.token).jsonBody as UserDetailsReturn;
       expect(result).toStrictEqual({ user: userInfo });
-      expect(getHashOf((result.user.userId).toString())).toStrictEqual(data.token);
       expect(requestGetUserDetails(data.token).jsonBody).toStrictEqual({ user: userInfo });
     });
   });

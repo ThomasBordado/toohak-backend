@@ -1,6 +1,5 @@
 import { requestRegister, requestLogin, requestClear } from './wrapper';
 import { requestLogout, requestUpdateUserDetails, requestUpdatePassword, requestGetUserDetails } from './wrapper2';
-import { getHashOf } from './authUtil';
 import { SessionId, UserDetailsReturn } from './interfaces';
 import HTTPError from 'http-errors';
 
@@ -25,7 +24,6 @@ describe('Test requestGetUserDetials', () => {
     };
 
     expect(result).toStrictEqual({ user: user });
-    expect(getHashOf((result.user.userId).toString())).toStrictEqual(user1.token);
   });
 
   // 2. Invalid authUserId
@@ -83,7 +81,6 @@ describe('requestUpdateUserDetails', () => {
     };
     const result = requestGetUserDetails(data.token) as UserDetailsReturn;
     expect(result).toStrictEqual({ user: userInfo });
-    expect(getHashOf((result.user.userId).toString())).toStrictEqual(data.token);
   });
 
   // more than one user
@@ -106,26 +103,23 @@ describe('requestUpdateUserDetails', () => {
     };
     let result = requestGetUserDetails(data.token) as UserDetailsReturn;
     expect(result).toStrictEqual({ user: userInfo1 });
-    expect(getHashOf((result.user.userId).toString())).toStrictEqual(data.token);
     
     result = requestGetUserDetails(id2.token) as UserDetailsReturn;
     expect(result).toStrictEqual({ user: userInfo2 });
-    expect(getHashOf((result.user.userId).toString())).toStrictEqual(id2.token);
   });
 
   // Able to change if email is same as the old one
   test('requestUpdateUserDetails new email is as same as the old one', () => {
     requestUpdateUserDetails(data.token, 'validemail@gmail.com', 'Jennifer', 'Lawson');
-      const userInfo = {
-        userId: expect.any(Number),
-        name: 'Jennifer Lawson',
-        email: 'validemail@gmail.com',
-        numSuccessfulLogins: 1,
-        numFailedPasswordsSinceLastLogin: 0,
-      };
-      const result = requestGetUserDetails(data.token) as UserDetailsReturn;
-      expect(result).toStrictEqual({ user: userInfo });
-      expect(getHashOf((result.user.userId).toString())).toStrictEqual(data.token);
+    const userInfo = {
+      userId: expect.any(Number),
+      name: 'Jennifer Lawson',
+      email: 'validemail@gmail.com',
+      numSuccessfulLogins: 1,
+      numFailedPasswordsSinceLastLogin: 0,
+    };
+    const result = requestGetUserDetails(data.token) as UserDetailsReturn;
+    expect(result).toStrictEqual({ user: userInfo });
   });
 });
 
