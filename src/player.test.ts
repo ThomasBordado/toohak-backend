@@ -381,7 +381,7 @@ describe('Test requestPlayerAnswerSubmission', () => {
 
     const response = requestPlayerQuestionInfo(playerId.playerId, 1);
     const answerid = [response.answers[0].answerId, response.answers[0].answerId];
-    expect(() => requestPlayerAnswerSubmission(playerId, questionPosition, answerid)).toThrow(HTTPError[400]);
+    expect(() => requestPlayerAnswerSubmission(playerId.playerId, questionPosition, answerid)).toThrow(HTTPError[400]);
   });
 
   //8. less than one answer id was provided (Multiselect) (unfinished)
@@ -396,7 +396,7 @@ describe('Test requestPlayerAnswerSubmission', () => {
     const questionPosition = 1;
     const answerid: number[] = []; //maybe?
 
-    expect(() => requestPlayerAnswerSubmission(playerId, questionPosition, answerid)).toThrow(HTTPError[400]);
+    expect(() => requestPlayerAnswerSubmission(playerId.playerId, questionPosition, answerid)).toThrow(HTTPError[400]);
   });
 });
 

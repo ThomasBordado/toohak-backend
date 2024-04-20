@@ -169,6 +169,7 @@ export const PlayerAnswerSubmission = (playerId: number, questionPosition: numbe
       throw HTTPError(400, 'Question does not exist for the provided position');
     }
 
+    //checks for duplicate answer id
     const answerIdSet = new Set(answerIds);
     // checks whether new set is different from array size, then throws error if difference
     if (answerIdSet.size !== answerIds.length) {
@@ -217,6 +218,7 @@ export const PlayerAnswerSubmission = (playerId: number, questionPosition: numbe
     }
   }
 };
+
 
 export const PlayerQuestionResults = (playerId: number, questionposition: number): QuestionResults | ErrorReturn => {
   const sessions = getData().quizSessions;
