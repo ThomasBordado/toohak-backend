@@ -186,7 +186,7 @@ export const PlayerAnswerSubmission = (playerId: number, questionPosition: numbe
     if (isCorrect) {
       // Clear answerIds array and push the new answer IDs
       player.answerIds = [];
-      answerIds.forEach(id => player.answerIds.push(id))
+      answerIds.forEach(id => player.answerIds.push(id));
 
       // Calculate scaling factor
       const correctUsersCount = quizSession.quizResults.questionResults
