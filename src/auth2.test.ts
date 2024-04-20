@@ -103,7 +103,7 @@ describe('requestUpdateUserDetails', () => {
     };
     let result = requestGetUserDetails(data.token) as UserDetailsReturn;
     expect(result).toStrictEqual({ user: userInfo1 });
-    
+
     result = requestGetUserDetails(id2.token) as UserDetailsReturn;
     expect(result).toStrictEqual({ user: userInfo2 });
   });
@@ -159,7 +159,7 @@ describe('requestUpdatePassword', () => {
   test('adminUserPasswordUpdate return type', () => {
     requestUpdatePassword(data.token, '1234567a', '1234567b');
     const response = requestLogin('validemail@gmail.com', '1234567a');
-    expect(response.jsonBody).toStrictEqual({ error: expect.any(String) })
+    expect(response.jsonBody).toStrictEqual({ error: expect.any(String) });
     expect(response.statusCode).toStrictEqual(400);
     expect(requestLogin('validemail@gmail.com', '1234567b').jsonBody).toStrictEqual({ token: expect.any(String) });
   });
@@ -170,10 +170,10 @@ describe('requestUpdatePassword', () => {
     requestUpdatePassword(id2.token, '1234567a', '1234567b');
     requestUpdatePassword(id2.token, '1234567b', '1234567c');
     let response = requestLogin('validemail2@gmail.com', '1234567a');
-    expect(response.jsonBody).toStrictEqual({ error: expect.any(String) })
+    expect(response.jsonBody).toStrictEqual({ error: expect.any(String) });
     expect(response.statusCode).toStrictEqual(400);
     response = requestLogin('validemail2@gmail.com', '1234567b');
-    expect(response.jsonBody).toStrictEqual({ error: expect.any(String) })
+    expect(response.jsonBody).toStrictEqual({ error: expect.any(String) });
     expect(response.statusCode).toStrictEqual(400);
     expect(requestLogin('validemail2@gmail.com', '1234567c').jsonBody).toStrictEqual({ token: expect.any(String) });
     expect(requestLogin('validemail@gmail.com', '1234567a').jsonBody).toStrictEqual({ token: expect.any(String) });

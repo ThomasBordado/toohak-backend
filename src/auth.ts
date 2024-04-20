@@ -246,7 +246,7 @@ export const adminUserPasswordUpdate2 = (token: string, oldPassword: string, new
   }
 
   // 4. Check if the password is used by this user
-  isNewPasswordUsed(token, newPassword)
+  isNewPasswordUsed(token, newPassword);
 
   // 5. Check is the new password valid
   checkPassword(newPassword);

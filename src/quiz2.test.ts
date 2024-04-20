@@ -1,6 +1,6 @@
 import { requestRegister, requestClear, requestLogin } from './wrapper';
 import { requestQuizList, requestQuizCreate, requestQuizTrash, requestQuizViewTrash, requestQuizRestore, requestQuizTrashEmpty, requestQuizQuestionCreate, requestquizTransfer, requestLogout, requestQuizInfo, requestUpdateQuizName, requestUpdateQuizQuestion, requestDeleteQuizQuestion, requestUpdateQuizDescription, requestMoveQuestion, requestQuestionDuplicate, requestThumbnailUpdate, requestSessionView, requestSessionStart, requestUpdateSessionState, requestGetSessionStatus /*, QuizSessionFinalResults */, requestMessageList, requestSendMessage, requestPlayerJoin, requestSessionCSVResult } from './wrapper2';
-import { QuizListReturn, SessionId, quizId, quizUser, quizQuestionCreateInput, quiz, quizQuestionCreateReturn, questionId, sessionViewReturn, QuizSession, /* QuizStatus, */ Action, MessageInput, PlayerId, QuizSessionId } from './interfaces';
+import { QuizListReturn, SessionId, quizId, quizUser, quizQuestionCreateInput, quiz, quizQuestionCreateReturn, questionId, sessionViewReturn, QuizSession, /* QuizStatus, */ MessageInput, PlayerId, QuizSessionId } from './interfaces';
 import HTTPError from 'http-errors';
 
 beforeEach(() => {
@@ -1692,16 +1692,14 @@ describe('adminQuizQuestionMove testing', () => {
   test('Test newPosition is greater than (n-1)', () => {
     expect(() => requestMoveQuestion(user.token, quiz.quizId, question1.questionId, 5)).toThrow(HTTPError[400]);
   });
-    // 6. New position is at same position
-    test('Test newPosition is at same position', () => {
-      expect(() => requestMoveQuestion(user.token, quiz.quizId, question1.questionId, 0)).toThrow(HTTPError[400]);
-
-    });
-      // 7. questionId is invalid
-    test('questionId is invalid', () => {
-      expect(() => requestMoveQuestion(user.token, quiz.quizId, question1.questionId + 10, 1)).toThrow(HTTPError[400]);
-
-    });
+  // 6. New position is at same position
+  test('Test newPosition is at same position', () => {
+    expect(() => requestMoveQuestion(user.token, quiz.quizId, question1.questionId, 0)).toThrow(HTTPError[400]);
+  });
+  // 7. questionId is invalid
+  test('questionId is invalid', () => {
+    expect(() => requestMoveQuestion(user.token, quiz.quizId, question1.questionId + 10, 1)).toThrow(HTTPError[400]);
+  });
 });
 
 describe('adminQuizQuestionDuplicate testing', () => {
@@ -1998,7 +1996,7 @@ describe('requestSessionView testing', () => {
       const session = requestSessionStart(user.token, quiz.quizId, 3);
       expect(requestSessionView(user.token, quiz.quizId)).toStrictEqual({ activeSessions: [session.sessionId], inactiveSessions: [] });
     });
-    
+
     test('multiple active sessions', () => {
       const session1 = requestSessionStart(user.token, quiz.quizId, 3);
       const session2 = requestSessionStart(user.token, quiz.quizId, 3);
@@ -2161,7 +2159,7 @@ describe('requestSessionStart testing', () => {
       expect(requestSessionStart(user.token, quiz.quizId, 50)).toStrictEqual({ sessionId: expect.any(Number) });
     });
     test('any changes made to quiz does not effect session info', () => {
-      const prevQuizInfo = requestQuizInfo(user.token, quiz.quizId) as quiz
+      const prevQuizInfo = requestQuizInfo(user.token, quiz.quizId) as quiz;
       const session = requestSessionStart(user.token, quiz.quizId, 3);
       requestUpdateQuizDescription(user.token, quiz.quizId, 'My new description.');
       const sessionStatus = requestGetSessionStatus(user.token, quiz.quizId, session.sessionId);
@@ -2222,13 +2220,13 @@ describe('request UpdateSessionState testing', () => {
       expect(() => requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'SKIP_COUNTDOWN')).toThrow(HTTPError[400]);
       expect(() => requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'GO_TO_ANSWER')).toThrow(HTTPError[400]);
       expect(() => requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'GO_TO_FINAL_RESULTS')).toThrow(HTTPError[400]);
-      
+
       // in QUESTION_COUNTDOWN
       requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'NEXT_QUESTION');
       expect(() => requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'NEXT_QUESTION')).toThrow(HTTPError[400]);
       expect(() => requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'GO_TO_ANSWER')).toThrow(HTTPError[400]);
       expect(() => requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'GO_TO_FINAL_RESULTS')).toThrow(HTTPError[400]);
-      
+
       // in QUESTION_OPEN
       requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'SKIP_COUNTDOWN');
       expect(() => requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'NEXT_QUESTION')).toThrow(HTTPError[400]);
@@ -2243,7 +2241,7 @@ describe('request UpdateSessionState testing', () => {
       requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'GO_TO_ANSWER');
       expect(() => requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'SKIP_COUNTDOWN')).toThrow(HTTPError[400]);
       expect(() => requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'GO_TO_ANSWER')).toThrow(HTTPError[400]);
-      
+
       // in FINAL_RESULTS
       requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'GO_TO_FINAL_RESULTS');
       expect(() => requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'NEXT_QUESTION')).toThrow(HTTPError[400]);
@@ -2258,7 +2256,6 @@ describe('request UpdateSessionState testing', () => {
       expect(() => requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'GO_TO_ANSWER')).toThrow(HTTPError[400]);
       expect(() => requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'GO_TO_FINAL_RESULTS')).toThrow(HTTPError[400]);
       expect(() => requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'END')).toThrow(HTTPError[400]);
-
     });
   });
   describe('Successful cases', () => {
@@ -2301,7 +2298,7 @@ describe('request UpdateSessionState testing', () => {
       requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'SKIP_COUNTDOWN');
       result = requestGetSessionStatus(user.token, quiz.quizId, session.sessionId);
       expect(result.state).toStrictEqual('QUESTION_OPEN');
-      sleepSync(5* 1000);
+      sleepSync(5 * 1000);
       result = requestGetSessionStatus(user.token, quiz.quizId, session.sessionId);
       expect(result.state).toStrictEqual('QUESTION_CLOSE');
       expect(() => requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'NEXT_QUESTION')).toThrow(HTTPError[400]);
@@ -2325,29 +2322,29 @@ describe('request UpdateSessionState testing', () => {
     test('Correctly updates state QUESTION_CLOSE --> FINAL_RESULTS', () => {
       requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'NEXT_QUESTION');
       requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'SKIP_COUNTDOWN');
-      sleepSync(5* 1000);
+      sleepSync(5 * 1000);
       requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'GO_TO_FINAL_RESULTS');
-      let result = requestGetSessionStatus(user.token, quiz.quizId, session.sessionId);
+      const result = requestGetSessionStatus(user.token, quiz.quizId, session.sessionId);
       expect(result.state).toStrictEqual('FINAL_RESULTS');
     });
     test('Correctly updates state LOBBY --> END', () => {
       requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'END');
-      let result = requestGetSessionStatus(user.token, quiz.quizId, session.sessionId);
+      const result = requestGetSessionStatus(user.token, quiz.quizId, session.sessionId);
       expect(result.state).toStrictEqual('END');
     });
     test('Correctly updates state QUESTION_OPEN --> END', () => {
       requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'NEXT_QUESTION');
       requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'SKIP_COUNTDOWN');
       requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'END');
-      let result = requestGetSessionStatus(user.token, quiz.quizId, session.sessionId);
+      const result = requestGetSessionStatus(user.token, quiz.quizId, session.sessionId);
       expect(result.state).toStrictEqual('END');
     });
     test('Correctly updates state QUESTION_CLOSE --> END', () => {
       requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'NEXT_QUESTION');
       requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'SKIP_COUNTDOWN');
-      sleepSync(5* 1000);
+      sleepSync(5 * 1000);
       requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'END');
-      let result = requestGetSessionStatus(user.token, quiz.quizId, session.sessionId);
+      const result = requestGetSessionStatus(user.token, quiz.quizId, session.sessionId);
       expect(result.state).toStrictEqual('END');
     });
     test('Correctly updates state ANSWER_SHOW --> END', () => {
@@ -2355,7 +2352,7 @@ describe('request UpdateSessionState testing', () => {
       requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'SKIP_COUNTDOWN');
       requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'GO_TO_ANSWER');
       requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'END');
-      let result = requestGetSessionStatus(user.token, quiz.quizId, session.sessionId);
+      const result = requestGetSessionStatus(user.token, quiz.quizId, session.sessionId);
       expect(result.state).toStrictEqual('END');
     });
   });

@@ -94,7 +94,7 @@ describe('Test requestPlayerStatus', () => {
   let quiz: quizId;
   let questionin: quizQuestionCreateInput;
   let session: QuizSessionId;
-  let playerId: PlayerId
+  let playerId: PlayerId;
   beforeEach(() => {
     user = requestRegister('tom@gmail.com', 'password1', 'Thomas', 'Bordado').jsonBody as SessionId;
     quiz = requestQuizCreate(user.token, 'My Quiz', 'My Quiz Description');
@@ -131,7 +131,7 @@ describe('Test requestPlayerStatus', () => {
   test('Test State Changes after 3 players join', () => {
     const playerId2 = requestPlayerJoin(session.sessionId, 'qwe123');
     expect(playerId2).toStrictEqual({ playerId: playerId2.playerId });
-    
+
     const playerId3 = requestPlayerJoin(session.sessionId, '');
     expect(playerId3).toStrictEqual({ playerId: playerId3.playerId });
     expect(() => requestPlayerJoin(session.sessionId, '')).toThrow(HTTPError[400]);
@@ -147,9 +147,8 @@ describe('Test requestPlayerQuestionInfo', () => {
   let quiz: quizId;
   let questionin: quizQuestionCreateInput;
   let questionId: questionId;
-  let questionId2: questionId;
   let session: QuizSessionId;
-  let playerId: PlayerId
+  let playerId: PlayerId;
   beforeEach(() => {
     user = requestRegister('tom@gmail.com', 'password1', 'Thomas', 'Bordado').jsonBody as SessionId;
     quiz = requestQuizCreate(user.token, 'My Quiz', 'My Quiz Description');
@@ -170,7 +169,7 @@ describe('Test requestPlayerQuestionInfo', () => {
       thumbnailUrl: 'http://google.com/some/image/path.jpg',
     };
     questionId = requestQuizQuestionCreate(user.token, questionin, quiz.quizId);
-    questionId2 = requestQuizQuestionCreate(user.token, questionin, quiz.quizId);
+    requestQuizQuestionCreate(user.token, questionin, quiz.quizId);
     session = requestSessionStart(user.token, quiz.quizId, 3);
     playerId = requestPlayerJoin(session.sessionId, 'thomas');
   });

@@ -562,7 +562,7 @@ describe('Testing it2 function, adminQuizQuestionUpdate', () => {
       ]
     };
 
-    const result = requestUpdateQuizQuestion(user.token, updated, quiz.quizId, questionout.questionId +1);
+    const result = requestUpdateQuizQuestion(user.token, updated, quiz.quizId, questionout.questionId + 1);
     expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
     expect(result.statusCode).toStrictEqual(400);
   });
@@ -1928,7 +1928,7 @@ describe('adminQuizQuestionMove testing', () => {
     expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });
     expect(result.statusCode).toStrictEqual(400);
   });
-    // 7. questionId is invalid
+  // 7. questionId is invalid
   test('questionId is invalid', () => {
     const result = requestMoveQuestion(user.token, quiz.quizId, question1.questionId + 10, 1);
     expect(result.jsonBody).toStrictEqual({ error: expect.any(String) });

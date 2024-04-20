@@ -375,7 +375,7 @@ export const quizQuestionCreate1 = (token: string, questionBody: quizQuestionCre
   validToken(token, data.users);
 
   // Check if the user owns this quiz
-  const quiz = isValidQuizId(token, quizId);
+  isValidQuizId(token, quizId);
 
   // Check if the errors in questionBody
   const question = checkQuestionValidV1(questionBody, quizId);
@@ -979,7 +979,6 @@ export const sessionSendMessage = (playerId: number, message: MessageInput): Emp
   if (message.messageBody.length < 1 || message.messageBody.length > 100) {
     throw HTTPError(400, 'message body is less than 1 character or more than 100 characters.');
   }
-
 
   const player = playerIdToPlayer(playerId, session);
 

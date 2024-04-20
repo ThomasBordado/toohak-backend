@@ -1,7 +1,5 @@
 import isEmail from 'validator/lib/isEmail.js';
 import { getData } from './dataStore';
-import { ErrorReturn, UserId, user } from './interfaces';
-import { loadData } from './persistence';
 import crypto from 'crypto';
 import HTTPError from 'http-errors';
 /**
