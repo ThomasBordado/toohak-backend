@@ -93,16 +93,6 @@ export const isValidToken = (token: string): boolean => {
 };
 
 /**
- * A helper function for my test. Show the user list
- *
- * @return {Array} -users from data
- */
-export const usersList = (): user[] => {
-  loadData();
-  const data = getData();
-  return (data.users);
-};
-/**
  * Given the two objects and check if they are the same
  * @param {object} - object1
  * @param {object} - object2
@@ -172,24 +162,6 @@ export const isEmailUsedByOther = (email: string, token: string): boolean => {
   }
 
   return false;
-};
-
-/**
- * Given a token and check for the userId
- * @param {string} token - unique Id for logged in user
- * @returns {number} userId
- */
-export const getUserId = (token: string): UserId | ErrorReturn => {
-  loadData();
-  const data = getData();
-  if (token === '') {
-    return { error: 'empty token, failed to get UserId' };
-  }
-  const user = data.users.find(users => users.sessions.includes(token));
-  if (user) {
-    return { authUserId: user.userId };
-  }
-  return { error: 'invalid token, failed to get UserId' };
 };
 
 /**

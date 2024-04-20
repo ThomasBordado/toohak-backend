@@ -1,7 +1,7 @@
 import { requestRegister, requestLogin, requestClear } from './wrapper';
 import { requestLogout, requestUpdateUserDetails, requestUpdatePassword, requestGetUserDetails } from './wrapper2';
-import { usersList, getUserId, getHashOf } from './authUtil';
-import { SessionId, UserId, user } from './interfaces';
+import { getHashOf } from './authUtil';
+import { SessionId, UserDetailsReturn } from './interfaces';
 import HTTPError from 'http-errors';
 
 beforeEach(() => {
@@ -15,10 +15,9 @@ describe('Test requestGetUserDetials', () => {
   // 1. Succesful return of account details
   test('Test succesful get user details', () => {
     const user1 = requestRegister('hayden.smith@unsw.edu.au', 'password1', 'Hayden', 'Smith').jsonBody as SessionId;
-    const result = requestGetUserDetails(user1.token);
-    const userId = getUserId(user1.token) as UserId;
+    const result = requestGetUserDetails(user1.token) as UserDetailsReturn;
     const user = {
-      userId: userId.authUserId,
+      userId: expect.any(Number),
       name: 'Hayden Smith',
       email: 'hayden.smith@unsw.edu.au',
       numSuccessfulLogins: 1,
@@ -26,6 +25,7 @@ describe('Test requestGetUserDetials', () => {
     };
 
     expect(result).toStrictEqual({ user: user });
+    expect(getHashOf((result.user.userId).toString())).toStrictEqual(user1.token);
   });
 
   // 2. Invalid authUserId
@@ -74,99 +74,58 @@ describe('requestUpdateUserDetails', () => {
   // one user
   test('requestUpdateUserDetails one user', () => {
     requestUpdateUserDetails(data.token, 'validemail1@gmail.com', 'Jennifer', 'Lawson');
-    const result = usersList().sort((a, b) => a.userId - b.userId);
-    const userId = getUserId(data.token) as UserId;
-    const users: user[] = [
-      {
-        userId: userId.authUserId,
-        nameFirst: 'Jennifer',
-        nameLast: 'Lawson',
-        email: 'validemail1@gmail.com',
-        password: getHashOf('1234567a'),
-        prevpassword: [],
-        numSuccessfulLogins: 1,
-        numFailedPasswordsSinceLastLogin: 0,
-        quizzes: [],
-        sessions: [data.token],
-        trash: [],
-      }
-    ];
-    const expectedList = users.sort((a, b) => a.userId - b.userId);
-    expect(result).toStrictEqual(expectedList);
+    const userInfo = {
+      userId: expect.any(Number),
+      name: 'Jennifer Lawson',
+      email: 'validemail1@gmail.com',
+      numSuccessfulLogins: 1,
+      numFailedPasswordsSinceLastLogin: 0,
+    };
+    const result = requestGetUserDetails(data.token) as UserDetailsReturn;
+    expect(result).toStrictEqual({ user: userInfo });
+    expect(getHashOf((result.user.userId).toString())).toStrictEqual(data.token);
   });
 
   // more than one user
   test('requestUpdateUserDetails update (more than one user)', () => {
     const id2 = requestRegister('validemail2@gmail.com', '1234567a', 'Jane', 'Smith').jsonBody as SessionId;
     requestUpdateUserDetails(id2.token, 'validemail1@gmail.com', 'Jennifer', 'Lawson');
-    const result = usersList().sort((a, b) => a.userId - b.userId);
-    const userId = getUserId(data.token) as UserId;
-    const userId2 = getUserId(id2.token) as UserId;
-    const users: user[] =
-          [{
-            userId: userId.authUserId,
-            nameFirst: 'Jane',
-            nameLast: 'Smith',
-            email: 'validemail@gmail.com',
-            password: getHashOf('1234567a'),
-            prevpassword: [],
-            numSuccessfulLogins: 1,
-            numFailedPasswordsSinceLastLogin: 0,
-            quizzes: [],
-            sessions: [data.token],
-            trash: [],
-          }, {
-            userId: userId2.authUserId,
-            nameFirst: 'Jennifer',
-            nameLast: 'Lawson',
-            email: 'validemail1@gmail.com',
-            password: getHashOf('1234567a'),
-            prevpassword: [],
-            numSuccessfulLogins: 1,
-            numFailedPasswordsSinceLastLogin: 0,
-            quizzes: [],
-            sessions: [id2.token],
-            trash: [],
-          }];
-    const expectedList = users.sort((a, b) => a.userId - b.userId);
-    expect(result).toStrictEqual(expectedList);
+    const userInfo1 = {
+      userId: expect.any(Number),
+      name: 'Jane Smith',
+      email: 'validemail@gmail.com',
+      numSuccessfulLogins: 1,
+      numFailedPasswordsSinceLastLogin: 0,
+    };
+    const userInfo2 = {
+      userId: expect.any(Number),
+      name: 'Jennifer Lawson',
+      email: 'validemail1@gmail.com',
+      numSuccessfulLogins: 1,
+      numFailedPasswordsSinceLastLogin: 0,
+    };
+    let result = requestGetUserDetails(data.token) as UserDetailsReturn;
+    expect(result).toStrictEqual({ user: userInfo1 });
+    expect(getHashOf((result.user.userId).toString())).toStrictEqual(data.token);
+    
+    result = requestGetUserDetails(id2.token) as UserDetailsReturn;
+    expect(result).toStrictEqual({ user: userInfo2 });
+    expect(getHashOf((result.user.userId).toString())).toStrictEqual(id2.token);
   });
 
   // Able to change if email is same as the old one
   test('requestUpdateUserDetails new email is as same as the old one', () => {
-    const id2 = requestRegister('validemail2@gmail.com', '1234567a', 'Jane', 'Smith').jsonBody as SessionId;
-    requestUpdateUserDetails(id2.token, 'validemail2@gmail.com', 'Jennifer', 'Lawson');
-    const result = usersList().sort((a, b) => a.userId - b.userId);
-    const userId = getUserId(data.token) as UserId;
-    const userId2 = getUserId(id2.token) as UserId;
-    const users: user[] =
-          [{
-            userId: userId.authUserId,
-            nameFirst: 'Jane',
-            nameLast: 'Smith',
-            email: 'validemail@gmail.com',
-            password: getHashOf('1234567a'),
-            prevpassword: [],
-            numSuccessfulLogins: 1,
-            numFailedPasswordsSinceLastLogin: 0,
-            quizzes: [],
-            sessions: [data.token],
-            trash: [],
-          }, {
-            userId: userId2.authUserId,
-            nameFirst: 'Jennifer',
-            nameLast: 'Lawson',
-            email: 'validemail2@gmail.com',
-            password: getHashOf('1234567a'),
-            prevpassword: [],
-            numSuccessfulLogins: 1,
-            numFailedPasswordsSinceLastLogin: 0,
-            quizzes: [],
-            sessions: [id2.token],
-            trash: [],
-          }];
-    const expectedList = users.sort((a, b) => a.userId - b.userId);
-    expect(result).toStrictEqual(expectedList);
+    requestUpdateUserDetails(data.token, 'validemail@gmail.com', 'Jennifer', 'Lawson');
+      const userInfo = {
+        userId: expect.any(Number),
+        name: 'Jennifer Lawson',
+        email: 'validemail@gmail.com',
+        numSuccessfulLogins: 1,
+        numFailedPasswordsSinceLastLogin: 0,
+      };
+      const result = requestGetUserDetails(data.token) as UserDetailsReturn;
+      expect(result).toStrictEqual({ user: userInfo });
+      expect(getHashOf((result.user.userId).toString())).toStrictEqual(data.token);
   });
 });
 
@@ -205,24 +164,10 @@ describe('requestUpdatePassword', () => {
   // one user
   test('adminUserPasswordUpdate return type', () => {
     requestUpdatePassword(data.token, '1234567a', '1234567b');
-    const result1 = usersList().sort((a, b) => a.userId - b.userId);
-    const userId = getUserId(data.token) as UserId;
-    const users1: user[] =
-          [{
-            userId: userId.authUserId,
-            nameFirst: 'Jane',
-            nameLast: 'Smith',
-            email: 'validemail@gmail.com',
-            password: getHashOf('1234567b'),
-            prevpassword: [getHashOf('1234567a')],
-            numSuccessfulLogins: 1,
-            numFailedPasswordsSinceLastLogin: 0,
-            quizzes: [],
-            sessions: [data.token],
-            trash: [],
-          }];
-    const expectedList = users1.sort((a, b) => a.userId - b.userId);
-    expect(result1).toStrictEqual(expectedList);
+    const response = requestLogin('validemail@gmail.com', '1234567a');
+    expect(response.jsonBody).toStrictEqual({ error: expect.any(String) })
+    expect(response.statusCode).toStrictEqual(400);
+    expect(requestLogin('validemail@gmail.com', '1234567b').jsonBody).toStrictEqual({ token: expect.any(String) });
   });
 
   // more than one user and with requestUpdateUserDetails, many times
@@ -230,38 +175,14 @@ describe('requestUpdatePassword', () => {
     const id2 = requestRegister('validemail2@gmail.com', '1234567a', 'Jennifer', 'Smith').jsonBody as SessionId;
     requestUpdatePassword(id2.token, '1234567a', '1234567b');
     requestUpdatePassword(id2.token, '1234567b', '1234567c');
-    const result = usersList().sort((a, b) => a.userId - b.userId);
-    const userId = getUserId(data.token) as UserId;
-    const userId2 = getUserId(id2.token) as UserId;
-    const users: user[] =
-          [{
-            userId: userId.authUserId,
-            nameFirst: 'Jane',
-            nameLast: 'Smith',
-            email: 'validemail@gmail.com',
-            password: getHashOf('1234567a'),
-            prevpassword: [],
-            numSuccessfulLogins: 1,
-            numFailedPasswordsSinceLastLogin: 0,
-            quizzes: [],
-            sessions: [data.token],
-            trash: [],
-          },
-          {
-            userId: userId2.authUserId,
-            nameFirst: 'Jennifer',
-            nameLast: 'Smith',
-            email: 'validemail2@gmail.com',
-            password: getHashOf('1234567c'),
-            prevpassword: [getHashOf('1234567a'), getHashOf('1234567b')],
-            numSuccessfulLogins: 1,
-            numFailedPasswordsSinceLastLogin: 0,
-            quizzes: [],
-            sessions: [id2.token],
-            trash: [],
-          }];
-    const expectedList = users.sort((a, b) => a.userId - b.userId);
-    expect(result).toStrictEqual(expectedList);
+    let response = requestLogin('validemail2@gmail.com', '1234567a');
+    expect(response.jsonBody).toStrictEqual({ error: expect.any(String) })
+    expect(response.statusCode).toStrictEqual(400);
+    response = requestLogin('validemail2@gmail.com', '1234567b');
+    expect(response.jsonBody).toStrictEqual({ error: expect.any(String) })
+    expect(response.statusCode).toStrictEqual(400);
+    expect(requestLogin('validemail2@gmail.com', '1234567c').jsonBody).toStrictEqual({ token: expect.any(String) });
+    expect(requestLogin('validemail@gmail.com', '1234567a').jsonBody).toStrictEqual({ token: expect.any(String) });
   });
 });
 
