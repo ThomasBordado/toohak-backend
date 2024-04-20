@@ -660,7 +660,6 @@ export const sessionStart = (token: string, quizId: number, autoStartNum: number
   if (quiz.numQuestions === 0) {
     throw HTTPError(400, 'The quiz does not have any questions in it');
   }
-
   data.quizSessionIdStore += 1;
   const newQuizSession: QuizSession = {
     sessionId: data.quizSessionIdStore,
@@ -669,7 +668,17 @@ export const sessionStart = (token: string, quizId: number, autoStartNum: number
       state: State.LOBBY,
       atQuestion: 0,
       players: [],
-      metadata: quiz,
+      metadata: {
+        quizId: quiz.quizId,
+        name: quiz.name,
+        timeCreated: quiz.timeCreated,
+        timeLastEdited: quiz.timeLastEdited,
+        description: quiz.description,
+        numQuestions: quiz.numQuestions,
+        questions: quiz.questions,
+        duration: quiz.duration,
+        thumbnailUrl: quiz.thumbnailUrl,
+      },
     },
     quizResults: {
       usersRankedByScore: [],
