@@ -199,16 +199,14 @@ export const PlayerAnswerSubmission = (playerId: number, questionPosition: numbe
       player.score += currentQuestion.points * (1 / scalingFactor);
 
       // Add the player to the correct user list for this question
-      const correctUser: correctusers = {
-        playerName: player.name,
-      };
+      const correctUser = [player.name];
       const questionResultIndex = quizSession.quizResults.questionResults.findIndex(qr => qr.questionId === currentQuestion.questionId);
       if (questionResultIndex !== -1) {
-        quizSession.quizResults.questionResults[questionResultIndex].playerCorrectList.push(correctUser);
+        quizSession.quizResults.questionResults[questionResultIndex].playerCorrectList.push(player.name);
       } else {
         const questionResults: QuestionResults = {
           questionId: currentQuestion.questionId,
-          playerCorrectList: [correctUser],
+          playerCorrectList: correctUser,
           averageAnswerTime: 0, // Set the default value
           percentCorrect: 0, // Set the default value
         };
@@ -240,10 +238,10 @@ export const PlayerQuestionResults = (playerId: number, questionPosition: number
         }
 
         return {
-          "questionId": questionResult.questionId,
-          "playerCorrectList": questionResult.playerCorrectList,
-          "averageAnswerTime": questionResult.averageAnswerTime,
-          "percentCorrect": questionResult.percentCorrect
+          questionId: questionResult.questionId,
+          playerCorrectList: questionResult.playerCorrectList,
+          averageAnswerTime: questionResult.averageAnswerTime,
+          percentCorrect: questionResult.percentCorrect
         };
       }
     }

@@ -180,7 +180,7 @@ export interface UserRank {
 
 export interface QuestionResults {
   questionId: number;
-  playerCorrectList: correctusers[];
+  playerCorrectList: string[];
   averageAnswerTime: number;
   percentCorrect: number;
 }
