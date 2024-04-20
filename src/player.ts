@@ -1,9 +1,8 @@
 import { getData } from './dataStore';
-import { PlayerId, Player, PlayerStatus, PlayerQuestionInfo, Action, ErrorReturn, QuestionResults, correctusers } from './interfaces';
-import { UpdateSessionState, quizQuestionCreate1 } from './quiz';
+import { PlayerId, Player, PlayerStatus, PlayerQuestionInfo, Action, ErrorReturn, QuestionResults } from './interfaces';
+import { UpdateSessionState } from './quiz';
 import { saveData } from './persistence';
 import HTTPError from 'http-errors';
-import { get } from 'http';
 
 export const generateRandomName = (players: Player[]): string => {
   let letters = 'abcdefghijklmnopqrstuvwxyz';
@@ -139,7 +138,6 @@ export const playerQuestionInfo = (playerId: number, questionPosition: number): 
 };
 
 export const PlayerAnswerSubmission = (playerId: number, questionPosition: number, answerIds: number[]) => {
-
   if (answerIds.length < 1) {
     throw HTTPError(400, 'At least one answer ID must be provided');
   }
@@ -169,7 +167,7 @@ export const PlayerAnswerSubmission = (playerId: number, questionPosition: numbe
       throw HTTPError(400, 'Question does not exist for the provided position');
     }
 
-    //checks for duplicate answer id
+    // checks for duplicate answer id
     const answerIdSet = new Set(answerIds);
     // checks whether new set is different from array size, then throws error if difference
     if (answerIdSet.size !== answerIds.length) {
@@ -188,7 +186,7 @@ export const PlayerAnswerSubmission = (playerId: number, questionPosition: numbe
     if (isCorrect) {
       // Clear answerIds array and push the new answer IDs
       player.answerIds = [];
-      answerIds.forEach(id => player.answerIds.push(id));
+      answerIds.forEach(id => player.answerIds.push(id))
 
       // Calculate scaling factor
       const correctUsersCount = quizSession.quizResults.questionResults

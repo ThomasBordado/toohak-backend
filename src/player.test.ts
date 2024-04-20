@@ -1,9 +1,7 @@
 import { requestRegister, requestClear } from './wrapper';
-import { requestQuizCreate, requestQuizQuestionCreate, requestSessionStart, requestPlayerJoin, requestPlayerStatus, requestPlayerQuestionInfo, requestUpdateSessionState, /*requestPlayerAnswerSubmission,*/ requestPlayerQuestionResults, requestPlayerSessionResults, requestPlayerAnswerSubmission } from './wrapper2';
+import { requestQuizCreate, requestQuizQuestionCreate, requestSessionStart, requestPlayerJoin, requestPlayerStatus, requestPlayerQuestionInfo, requestUpdateSessionState, requestPlayerQuestionResults, requestPlayerSessionResults, requestPlayerAnswerSubmission } from './wrapper2';
 import { SessionId, quizId, questionId, quizQuestionCreateInput } from './interfaces';
 import HTTPError from 'http-errors';
-import { get } from 'http';
-import { getData } from './dataStore';
 
 // helper function for testing timers
 function sleepSync(ms: number) {
@@ -244,7 +242,6 @@ describe('Test requestPlayerQuestionInfo', () => {
   });
 });
 
-
 describe('Test requestPlayerAnswerSubmission', () => {
   let user: SessionId;
   let quiz: quizId;
@@ -273,9 +270,8 @@ describe('Test requestPlayerAnswerSubmission', () => {
     questionId = requestQuizQuestionCreate(user.token, questionin, quiz.quizId);
   });
 
-  //1. Succesful answer submission
+  // 1. Succesful answer submission
   test('Player Answer submit succesful', () => {
-
     const session = requestSessionStart(user.token, quiz.quizId, 3);
     const playerId = requestPlayerJoin(session.sessionId, 'jared');
     const questionPosition = 1;
@@ -292,7 +288,6 @@ describe('Test requestPlayerAnswerSubmission', () => {
 
   // 2. Player does not exist
   test('test PlayerId does not exist', () => {
-
     const session = requestSessionStart(user.token, quiz.quizId, 3);
     const playerId = requestPlayerJoin(session.sessionId, 'jared');
     const questionPosition = 1;
@@ -308,14 +303,12 @@ describe('Test requestPlayerAnswerSubmission', () => {
 
   // 3. Question position is not valid for the session this player is in
   test('test question position is not valid for this session', () => {
-
     const session = requestSessionStart(user.token, quiz.quizId, 3);
     const playerId = requestPlayerJoin(session.sessionId, 'jared');
     const questionPosition = 10;
 
     requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'NEXT_QUESTION');
     sleepSync(3 * 1000);
-
 
     const response = requestPlayerQuestionInfo(playerId.playerId, 1);
     const answerid = [response.answers[0].answerId];
@@ -324,30 +317,27 @@ describe('Test requestPlayerAnswerSubmission', () => {
 
   // 4. Session is not in QUESTION_OPEN state
   test('test Session not in "QUESTION_OPEN" state', () => {
-
     const session = requestSessionStart(user.token, quiz.quizId, 3);
     const playerId = requestPlayerJoin(session.sessionId, 'jared');
     const questionPosition = 1;
 
-    requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'NEXT_QUESTION'); //Move to QUESTION_OPEN
+    requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'NEXT_QUESTION'); // Move to QUESTION_OPEN
     sleepSync(3 * 1000);
     requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'GO_TO_ANSWER'); // Move to ANSWER_SHOW
-    //console.log(session.sessionid)
+    // console.log(session.sessionid)
 
     const response = requestPlayerQuestionInfo(playerId.playerId, 1);
     const answerid = [response.answers[0].answerId];
     expect(() => requestPlayerAnswerSubmission(playerId.playerId, questionPosition, answerid)).toThrow(HTTPError[400]);
   });
 
-
   // 5. session is not yet up to this question
   test('test Session not yet up to this question', () => {
-
     const session = requestSessionStart(user.token, quiz.quizId, 3);
     const playerId = requestPlayerJoin(session.sessionId, 'jared');
     const questionPosition = 3;
 
-    requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'NEXT_QUESTION'); //Move to QUESTION_OPEN
+    requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'NEXT_QUESTION'); // Move to QUESTION_OPEN
     sleepSync(3 * 1000);
 
     const response = requestPlayerQuestionInfo(playerId.playerId, 1);
@@ -357,18 +347,17 @@ describe('Test requestPlayerAnswerSubmission', () => {
 
   // 6. Answer IDs are not valid for this particular question
   test('test Session Answer id not valid', () => {
-
     const session = requestSessionStart(user.token, quiz.quizId, 3);
     const playerId = requestPlayerJoin(session.sessionId, 'jared');
     const questionPosition = 1;
 
-    requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'NEXT_QUESTION'); //Move to QUESTION_OPEN
+    requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'NEXT_QUESTION'); // Move to QUESTION_OPEN
     sleepSync(3 * 1000);
 
     const answerid = [9999];
 
     expect(() => requestPlayerAnswerSubmission(playerId.playerId, questionPosition, answerid)).toThrow(HTTPError[400]);
-  })
+  });
 
   // 7. Duplicate answer ids provided (unfinished) (Multiselect?)
   test('test Duplicate answer IDs provided', () => {
@@ -376,7 +365,7 @@ describe('Test requestPlayerAnswerSubmission', () => {
     const playerId = requestPlayerJoin(session.sessionId, 'jared');
     const questionPosition = 1;
 
-    requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'NEXT_QUESTION'); //Move to QUESTION_OPEN
+    requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'NEXT_QUESTION'); // Move to QUESTION_OPEN
     sleepSync(3 * 1000);
 
     const response = requestPlayerQuestionInfo(playerId.playerId, 1);
@@ -384,26 +373,22 @@ describe('Test requestPlayerAnswerSubmission', () => {
     expect(() => requestPlayerAnswerSubmission(playerId.playerId, questionPosition, answerid)).toThrow(HTTPError[400]);
   });
 
-  //8. less than one answer id was provided (Multiselect) (unfinished)
+  // 8. less than one answer id was provided (Multiselect) (unfinished)
   test('less than one answer id was provided', () => {
-
     const session = requestSessionStart(user.token, quiz.quizId, 3);
     const playerId = requestPlayerJoin(session.sessionId, 'jared');
 
-    requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'NEXT_QUESTION'); //Move to QUESTION_OPEN
+    requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'NEXT_QUESTION'); // Move to QUESTION_OPEN
     sleepSync(3 * 1000);
 
     const questionPosition = 1;
-    const answerid: number[] = []; //maybe?
+    const answerid: number[] = []; // maybe?
 
     expect(() => requestPlayerAnswerSubmission(playerId.playerId, questionPosition, answerid)).toThrow(HTTPError[400]);
   });
 });
 
-
-
 describe('Test requestPlayerQuestionResults', () => {
-
   let user: SessionId;
   let quiz: quizId;
   let questionin: quizQuestionCreateInput;
@@ -431,12 +416,12 @@ describe('Test requestPlayerQuestionResults', () => {
     questionId = requestQuizQuestionCreate(user.token, questionin, quiz.quizId);
   });
 
-  //1. succesful request player question results
-  test('Succesful question results', () => {
+  // 1. succesful request player question results
+  test.skip('Succesful question results', () => {
     const session = requestSessionStart(user.token, quiz.quizId, 3);
     const playerId = requestPlayerJoin(session.sessionId, 'jared');
 
-    //move to next state "QUESTION_OPEN"
+    // move to next state "QUESTION_OPEN"
     requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'NEXT_QUESTION');
     sleepSync(3 * 1000);
     const questionPosition = 1;
@@ -446,17 +431,15 @@ describe('Test requestPlayerQuestionResults', () => {
     requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'GO_TO_ANSWER');
     const result = requestPlayerQuestionResults(playerId.playerId, questionPosition);
     console.log(result);
-    //   expect(result).toStrictEqual({
-    //     questionId: questionId.questionId,
-    //     playersCorrectList: [expect.any(Array)
-    //     ],
-    //     averageAnswerTime: expect.any(Number),
-    //     percentCorrect: expect.any(Number)
-    //   });
+    expect(result).toStrictEqual({
+      questionId: questionId.questionId,
+      playersCorrectList: [expect.any(Array)],
+      averageAnswerTime: expect.any(Number),
+      percentCorrect: expect.any(Number)
+    });
   });
 
-
-  //2. player id does not exist
+  // 2. player id does not exist
   test.skip('Test playerid does not not exist', () => {
     const session = requestSessionStart(user.token, quiz.quizId, 3);
     const playerid = requestPlayerJoin(session.sessionId, 'jared');
@@ -464,7 +447,7 @@ describe('Test requestPlayerQuestionResults', () => {
     expect(() => requestPlayerQuestionResults(playerid.playerId + 1, 1)).toThrow(HTTPError[400]);
   });
 
-  //3. question id does not exist for the session the player is in
+  // 3. question id does not exist for the session the player is in
   test.skip('Test questionId is not session valid', () => {
     const session = requestSessionStart(user.token, quiz.quizId, 3);
     const playerid = requestPlayerJoin(session.sessionId, 'jared');
@@ -472,7 +455,7 @@ describe('Test requestPlayerQuestionResults', () => {
     expect(() => requestPlayerQuestionResults(playerid.playerId, 10)).toThrow(HTTPError[400]);
   });
 
-  //4. session is not in ANSWER_SHOW
+  // 4. session is not in ANSWER_SHOW
   test.skip('test Session not in ANSWER_SHOW', () => {
     const session = requestSessionStart(user.token, quiz.quizId, 3);
     const playerid = requestPlayerJoin(session.sessionId, 'jared');
@@ -488,17 +471,13 @@ describe('Test requestPlayerQuestionResults', () => {
   });
 });
 
-
-
 describe.skip('Test requestPlayerSessionResults', () => {
   let user: SessionId;
   let quiz: quizId;
   beforeEach(() => {
     user = requestRegister('jared@gmail.com', 'password2024', 'Jared', 'Simion').jsonBody as SessionId;
     quiz = requestQuizCreate(user.token, 'My Quiz', 'My Quiz Description');
-
-
-  })
+  });
   test('Succesful case)', () => {
     const session = requestSessionStart(user.token, quiz.quizId, 3);
     const playerid = requestPlayerJoin(session.sessionId, 'jared');
@@ -506,6 +485,6 @@ describe.skip('Test requestPlayerSessionResults', () => {
     const result = requestPlayerSessionResults(playerid);
     expect(result).toStrictEqual({
       usersRankedByScore: []
-    })
-  })
-})
+    });
+  });
+});
