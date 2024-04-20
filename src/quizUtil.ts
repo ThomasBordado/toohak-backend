@@ -249,19 +249,6 @@ export const randomColour = (): string => {
   return colours[index];
 };
 
-// input a player id and get session, meanwhile testing if the playerId is valid
-export const playerIdToSession = (playerId: number) => {
-  const data = getData();
-  for (const session of data.quizSessions) {
-    for (const player of session.quizStatus.players) {
-      if (player.playerId === playerId) {
-        return session;
-      }
-    }
-  }
-  throw HTTPError(400, 'player ID does not exist');
-};
-
 export const isActiveQuizSession = (quizId: number) => {
   const data = getData();
   for (const session of data.quizSessions) {
