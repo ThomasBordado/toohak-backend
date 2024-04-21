@@ -3,7 +3,7 @@ import { PlayerId, Player, PlayerStatus, PlayerQuestionInfo, Action, ErrorReturn
 import { UpdateSessionState } from './quiz';
 import { saveData } from './persistence';
 import HTTPError from 'http-errors';
-import { playerIdToSession } from './quizUtil';
+import { ValidPlayerId } from './quizUtil';
 
 /**
  * generates a random player name
@@ -153,7 +153,7 @@ export const PlayerAnswerSubmission = (playerId: number, questionPosition: numbe
   if (answerIds.length < 1) {
     throw HTTPError(400, 'At least one answer ID must be provided');
   }
-  const session = playerIdToSession(playerId);
+  const session = ValidPlayerId(playerId);
   const timeToSubmit = Math.floor(Date.now() / 1000) - session.timeQuestionOpen;
   session.timeSubmissionsTotal += timeToSubmit;
 
