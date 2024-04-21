@@ -938,7 +938,7 @@ export const GetSessionStatus = (token: string, quizId: number, sessionId: numbe
 
   for (const quizSessions of data.quizSessions) {
     if (quizSessions.sessionId === sessionId) {
-      let playerNames = quizSessions.quizStatus.players.map(player => player.name);
+      const playerNames = quizSessions.quizStatus.players.map(player => player.name);
       return {
         state: quizSessions.quizStatus.state,
         atQuestion: quizSessions.quizStatus.atQuestion,

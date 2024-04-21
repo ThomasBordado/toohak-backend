@@ -246,9 +246,8 @@ describe('Test requestPlayerAnswerSubmission', () => {
   let user: SessionId;
   let quiz: quizId;
   let questionin: quizQuestionCreateInput;
-  let questionId;
   let session: QuizSessionId;
-  let playerId: PlayerId
+  let playerId: PlayerId;
   beforeEach(() => {
     user = requestRegister('jared@gmail.com', 'password2024', 'Jared', 'Simion').jsonBody as SessionId;
     quiz = requestQuizCreate(user.token, 'My Quiz', 'My Quiz Description');
@@ -268,7 +267,7 @@ describe('Test requestPlayerAnswerSubmission', () => {
       ],
       thumbnailUrl: 'http://google.com/some/image/path.jpg',
     };
-    questionId = requestQuizQuestionCreate(user.token, questionin, quiz.quizId);
+    requestQuizQuestionCreate(user.token, questionin, quiz.quizId);
     session = requestSessionStart(user.token, quiz.quizId, 3);
     playerId = requestPlayerJoin(session.sessionId, 'jared');
     requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'NEXT_QUESTION');
@@ -306,7 +305,6 @@ describe('Test requestPlayerAnswerSubmission', () => {
   test('test Session not in "QUESTION_OPEN" state', () => {
     const questionPosition = 1;
     requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'GO_TO_ANSWER'); // Move to ANSWER_SHOW
-    // console.log(session.sessionid)
 
     const response = requestPlayerQuestionInfo(playerId.playerId, 1);
     const answerid = [response.answers[0].answerId];
@@ -351,7 +349,7 @@ describe('Test requestPlayerQuestionResults', () => {
   let questionin: quizQuestionCreateInput;
   let questionId: questionId;
   let session: QuizSessionId;
-  let playerId: PlayerId
+  let playerId: PlayerId;
   beforeEach(() => {
     user = requestRegister('jared@gmail.com', 'password2024', 'Jared', 'Simion').jsonBody as SessionId;
     quiz = requestQuizCreate(user.token, 'My Quiz', 'My Quiz Description');
@@ -377,7 +375,6 @@ describe('Test requestPlayerQuestionResults', () => {
     playerId = requestPlayerJoin(session.sessionId, 'jared');
     requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'NEXT_QUESTION');
     requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'SKIP_COUNTDOWN');
-
   });
 
   // 1. succesful request player question results
@@ -387,7 +384,6 @@ describe('Test requestPlayerQuestionResults', () => {
 
     requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'GO_TO_ANSWER');
     const result = requestPlayerQuestionResults(playerId.playerId, 1);
-    console.log(result);
     expect(result).toStrictEqual({
       questionId: questionId.questionId,
       playersCorrectList: ['jared'],
@@ -427,7 +423,7 @@ describe('Test requestPlayerSessionResults', () => {
     let questionId1: questionId;
     let questionId2: questionId;
     let session: QuizSessionId;
-    let player: PlayerId
+    let player: PlayerId;
     beforeEach(() => {
       user = requestRegister('jared@gmail.com', 'password2024', 'Jared', 'Simion').jsonBody as SessionId;
       quiz = requestQuizCreate(user.token, 'My Quiz', 'My Quiz Description');
@@ -446,7 +442,7 @@ describe('Test requestPlayerSessionResults', () => {
           }
         ],
         thumbnailUrl: 'http://google.com/some/image/path.jpg',
-      },
+      };
       questionId1 = requestQuizQuestionCreate(user.token, questionin, quiz.quizId);
       questionId2 = requestQuizQuestionCreate(user.token, questionin, quiz.quizId);
       session = requestSessionStart(user.token, quiz.quizId, 3);
@@ -461,8 +457,6 @@ describe('Test requestPlayerSessionResults', () => {
       requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'NEXT_QUESTION'); // Move to QUESTION_OPEN
       requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'SKIP_COUNTDOWN');
       response = requestPlayerQuestionInfo(player.playerId, 2);
-      console.log(response);
-      console.log(response.answers[1].answerId);
       sleepSync(1000);
       requestPlayerAnswerSubmission(player.playerId, 2, [response.answers[1].answerId]);
       requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'GO_TO_ANSWER'); // Move to ANSWER_SHOW
@@ -488,7 +482,7 @@ describe('Test requestPlayerSessionResults', () => {
             percentCorrect: 0
           }
         ]
-      }
+      };
       expect(requestPlayerSessionResults(player.playerId)).toStrictEqual(expected);
     });
     test('Playerid does not exist', () => {
@@ -508,8 +502,8 @@ describe('Test requestPlayerSessionResults', () => {
     let questionId1: questionId;
     let questionId2: questionId;
     let session: QuizSessionId;
-    let player1: PlayerId
-    let player2 : PlayerId
+    let player1: PlayerId;
+    let player2 : PlayerId;
     beforeEach(() => {
       user = requestRegister('jared@gmail.com', 'password2024', 'Jared', 'Simion').jsonBody as SessionId;
       quiz = requestQuizCreate(user.token, 'My Quiz', 'My Quiz Description');
@@ -528,7 +522,7 @@ describe('Test requestPlayerSessionResults', () => {
           }
         ],
         thumbnailUrl: 'http://google.com/some/image/path.jpg',
-      },
+      };
       questionId1 = requestQuizQuestionCreate(user.token, questionin, quiz.quizId);
       session = requestSessionStart(user.token, quiz.quizId, 3);
       player1 = requestPlayerJoin(session.sessionId, 'jared');
@@ -545,13 +539,13 @@ describe('Test requestPlayerSessionResults', () => {
       sleepSync(3500);
       requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'NEXT_QUESTION'); // Move to QUESTION_OPEN
       requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'SKIP_COUNTDOWN');
-      
+
       sleepSync(1000);
       const response3 = requestPlayerQuestionInfo(player1.playerId, 2);
       requestPlayerAnswerSubmission(player1.playerId, 2, [response3.answers[0].answerId]);
       sleepSync(2000);
       const response4 = requestPlayerQuestionInfo(player2.playerId, 2);
-      requestPlayerAnswerSubmission(player1.playerId, 2, [response2.answers[0].answerId]);
+      requestPlayerAnswerSubmission(player1.playerId, 2, [response4.answers[0].answerId]);
       requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'GO_TO_ANSWER'); // Move to ANSWER_SHOW
       requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'GO_TO_FINAL_RESULTS'); // Move to ANSWER_SHOW
       const expected = {
@@ -579,7 +573,7 @@ describe('Test requestPlayerSessionResults', () => {
             percentCorrect: 100
           }
         ]
-      }
+      };
       expect(requestPlayerSessionResults(player1.playerId)).toStrictEqual(expected);
     });
   });
