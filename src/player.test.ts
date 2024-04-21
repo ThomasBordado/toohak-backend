@@ -93,6 +93,8 @@ describe('Test requestPlayerStatus', () => {
   let user: SessionId;
   let quiz: quizId;
   let questionin: quizQuestionCreateInput;
+  let session: QuizSessionId;
+  let playerId: PlayerId;
   beforeEach(() => {
     user = requestRegister('tom@gmail.com', 'password1', 'Thomas', 'Bordado').jsonBody as SessionId;
     quiz = requestQuizCreate(user.token, 'My Quiz', 'My Quiz Description');
@@ -113,32 +115,27 @@ describe('Test requestPlayerStatus', () => {
       thumbnailUrl: 'http://google.com/some/image/path.jpg',
     };
     requestQuizQuestionCreate(user.token, questionin, quiz.quizId);
+    session = requestSessionStart(user.token, quiz.quizId, 3);
+    playerId = requestPlayerJoin(session.sessionId, 'thomas');
   });
   // 1. Successful Player status
   test('Test playerStatus', () => {
-    const session = requestSessionStart(user.token, quiz.quizId, 3);
-    const playerId = requestPlayerJoin(session.sessionId, 'thomas');
     expect(requestPlayerStatus(playerId.playerId)).toStrictEqual({ state: 'LOBBY', numQuestions: 1, atQuestion: 0 });
   });
 
   // 2. Player id invalid
   test('Test player status missing player', () => {
-    const session = requestSessionStart(user.token, quiz.quizId, 3);
-    const playerId = requestPlayerJoin(session.sessionId, 'thomas');
     expect(() => requestPlayerStatus(playerId.playerId + 1)).toThrow(HTTPError[400]);
   });
+
   test('Test State Changes after 3 players join', () => {
-    const session = requestSessionStart(user.token, quiz.quizId, 3);
-    const playerId = requestPlayerJoin(session.sessionId, 'thomas');
-
-    expect(playerId).toStrictEqual({ playerId: playerId.playerId });
     const playerId2 = requestPlayerJoin(session.sessionId, 'qwe123');
-
     expect(playerId2).toStrictEqual({ playerId: playerId2.playerId });
-    const playerId3 = requestPlayerJoin(session.sessionId, '');
 
+    const playerId3 = requestPlayerJoin(session.sessionId, '');
     expect(playerId3).toStrictEqual({ playerId: playerId3.playerId });
     expect(() => requestPlayerJoin(session.sessionId, '')).toThrow(HTTPError[400]);
+    expect(requestPlayerStatus(playerId.playerId)).toStrictEqual({ state: 'QUESTION_COUNTDOWN', numQuestions: 1, atQuestion: 1 });
   });
 });
 
@@ -150,6 +147,8 @@ describe('Test requestPlayerQuestionInfo', () => {
   let quiz: quizId;
   let questionin: quizQuestionCreateInput;
   let questionId: questionId;
+  let session: QuizSessionId;
+  let playerId: PlayerId;
   beforeEach(() => {
     user = requestRegister('tom@gmail.com', 'password1', 'Thomas', 'Bordado').jsonBody as SessionId;
     quiz = requestQuizCreate(user.token, 'My Quiz', 'My Quiz Description');
@@ -170,11 +169,12 @@ describe('Test requestPlayerQuestionInfo', () => {
       thumbnailUrl: 'http://google.com/some/image/path.jpg',
     };
     questionId = requestQuizQuestionCreate(user.token, questionin, quiz.quizId);
+    requestQuizQuestionCreate(user.token, questionin, quiz.quizId);
+    session = requestSessionStart(user.token, quiz.quizId, 3);
+    playerId = requestPlayerJoin(session.sessionId, 'thomas');
   });
-  // 1. Successful Player status
-  test('Test playerStatus', () => {
-    const session = requestSessionStart(user.token, quiz.quizId, 3);
-    const playerId = requestPlayerJoin(session.sessionId, 'thomas');
+  // 1. Successful PlayerQuestionInfo
+  test('Test playerQuestionInfo', () => {
     requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'NEXT_QUESTION');
     sleepSync(3 * 1000);
     const result = requestPlayerQuestionInfo(playerId.playerId, 1);
@@ -200,45 +200,47 @@ describe('Test requestPlayerQuestionInfo', () => {
   });
 
   // 2. Player id invalid
-  test('Test player status missing player', () => {
-    const session = requestSessionStart(user.token, quiz.quizId, 3);
-    const playerId = requestPlayerJoin(session.sessionId, 'thomas');
+  test('Test missing player', () => {
+    requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'NEXT_QUESTION');
+    sleepSync(3 * 1000);
     expect(() => requestPlayerQuestionInfo(playerId.playerId + 1, 1)).toThrow(HTTPError[400]);
   });
 
   // 3. Invalid question position
   test('Test invalid question position', () => {
-    const session = requestSessionStart(user.token, quiz.quizId, 3);
-    const playerId = requestPlayerJoin(session.sessionId, 'thomas');
-    expect(() => requestPlayerQuestionInfo(playerId.playerId + 1, 10)).toThrow(HTTPError[400]);
+    requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'NEXT_QUESTION');
+    sleepSync(3 * 1000);
+    expect(() => requestPlayerQuestionInfo(playerId.playerId, 10)).toThrow(HTTPError[400]);
+  });
+
+  test('Test invalid question position', () => {
+    requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'NEXT_QUESTION');
+    sleepSync(3 * 1000);
+    expect(() => requestPlayerQuestionInfo(playerId.playerId, 0)).toThrow(HTTPError[400]);
   });
 
   // 4. session is not on this question
   test('Test invalid question position', () => {
-    const session = requestSessionStart(user.token, quiz.quizId, 3);
-    const playerId = requestPlayerJoin(session.sessionId, 'thomas');
-    expect(() => requestPlayerQuestionInfo(playerId.playerId + 1, 3)).toThrow(HTTPError[400]);
+    requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'NEXT_QUESTION');
+    sleepSync(3 * 1000);
+    expect(() => requestPlayerQuestionInfo(playerId.playerId, 2)).toThrow(HTTPError[400]);
   });
 
   // 5. session is in LOBBY
   test('Test session is in LOBBY', () => {
-    const session = requestSessionStart(user.token, quiz.quizId, 3);
-    const playerId = requestPlayerJoin(session.sessionId, 'thomas');
-    expect(() => requestPlayerQuestionInfo(playerId.playerId + 1, 1)).toThrow(HTTPError[400]);
+    expect(() => requestPlayerQuestionInfo(playerId.playerId, 1)).toThrow(HTTPError[400]);
   });
 
   // 6. session is in QUESTION_COUNTDOWN
   test('Test session is in QUESTION_COUNTDOWN', () => {
-    const session = requestSessionStart(user.token, quiz.quizId, 3);
-    const playerId = requestPlayerJoin(session.sessionId, 'thomas');
-    expect(() => requestPlayerQuestionInfo(playerId.playerId + 1, 1)).toThrow(HTTPError[400]);
+    requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'NEXT_QUESTION');
+    expect(() => requestPlayerQuestionInfo(playerId.playerId, 1)).toThrow(HTTPError[400]);
   });
 
   // 7. session is in END
   test('Test session is in END', () => {
-    const session = requestSessionStart(user.token, quiz.quizId, 3);
-    const playerId = requestPlayerJoin(session.sessionId, 'thomas');
-    expect(() => requestPlayerQuestionInfo(playerId.playerId + 1, 1)).toThrow(HTTPError[400]);
+    requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'END');
+    expect(() => requestPlayerQuestionInfo(playerId.playerId, 1)).toThrow(HTTPError[400]);
   });
 });
 

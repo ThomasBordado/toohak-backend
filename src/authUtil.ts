@@ -1,7 +1,5 @@
 import isEmail from 'validator/lib/isEmail.js';
 import { getData } from './dataStore';
-import { ErrorReturn, UserId, user } from './interfaces';
-import { loadData } from './persistence';
 import crypto from 'crypto';
 import HTTPError from 'http-errors';
 /**
@@ -10,7 +8,6 @@ import HTTPError from 'http-errors';
  * @param {string} email - User's email
  *
  * @returns {boolean} - True if it is a valid email.
- * @returns {error: string} - If the email is in use or it is not an email.
  */
 export const checkEmail = (email: string) => {
   const data = getData();
@@ -34,7 +31,6 @@ export const checkEmail = (email: string) => {
  * @param {string} password - User's password
  *
  * @returns {boolean} - True if it is a valid password.
- * @returns {error: string} - If the password is invalid
  */
 export const checkPassword = (password: string) => {
   if (password.length < 8) {
@@ -54,7 +50,6 @@ export const checkPassword = (password: string) => {
  * @param {string} position - either a First or Last name.
  *
  * @returns {boolean} - True if it is a valid name.
- * @returns {error: string} - If the name is invalid
  */
 export const checkName = (name: string, position: string) => {
   if (name.length < 2 || name.length > 20) {
@@ -92,16 +87,6 @@ export const isValidToken = (token: string): boolean => {
   throw HTTPError(401, 'Token is invalid');
 };
 
-/**
- * A helper function for my test. Show the user list
- *
- * @return {Array} -users from data
- */
-export const usersList = (): user[] => {
-  loadData();
-  const data = getData();
-  return (data.users);
-};
 /**
  * Given the two objects and check if they are the same
  * @param {object} - object1
@@ -166,34 +151,12 @@ export const isNewPasswordUsed = (token: string, newPassword: string): boolean =
 export const isEmailUsedByOther = (email: string, token: string): boolean => {
   const data = getData();
 
-  if (data.users.length === 0) {
-    return false;
-  }
-
   const userWithSameEmail = data.users.find(users => users.email === email && !users.sessions.includes(token));
   if (userWithSameEmail) {
     return true;
   }
 
   return false;
-};
-
-/**
- * Given a token and check for the userId
- * @param {string} token - unique Id for logged in user
- * @returns {number} userId
- */
-export const getUserId = (token: string): UserId | ErrorReturn => {
-  loadData();
-  const data = getData();
-  if (token === '') {
-    return { error: 'empty token, failed to get UserId' };
-  }
-  const user = data.users.find(users => users.sessions.includes(token));
-  if (user) {
-    return { authUserId: user.userId };
-  }
-  return { error: 'invalid token, failed to get UserId' };
 };
 
 /**
