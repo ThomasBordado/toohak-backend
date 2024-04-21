@@ -192,7 +192,7 @@ export interface UserRank {
 
 export interface QuestionResults {
   questionId: number;
-  playerCorrectList: string[];
+  playersCorrectList: string[];
   averageAnswerTime: number;
   percentCorrect: number;
 }
@@ -212,6 +212,8 @@ export interface Message {
 export interface QuizSession {
   sessionId: number;
   autoStartNum: number;
+  timeQuestionOpen: number;
+  timeSubmissionsTotal: number
   quizStatus: QuizStatus;
   quizResults: QuizResults;
   messages: Message[];
@@ -234,4 +236,13 @@ export interface DataStore {
   quizSessionIdStore: number;
   quizSessions: QuizSession[];
   timers: ReturnType<typeof setTimeout>[];
+}
+
+export interface correctusers {
+  playerName: string;
+}
+
+export interface listofplayers {
+  playerId: number;
+  playerName: string;
 }

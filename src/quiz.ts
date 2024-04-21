@@ -1,6 +1,7 @@
 import { getData, setData } from './dataStore';
 import { EmptyObject, ErrorReturn, QuizListReturn, quiz, quizId, quizQuestionCreateInput, quizQuestionCreateInputV1, quizQuestionCreateReturn, quizQuestionDuplicateReturn, QuizSession, State, Action, MessageInput, MessageListReturn } from './interfaces';
 import { validToken, checkQuizName, checkQuestionValid, isValidQuizId, randomColour, validthumbnailUrl, checkQuestionValidV1, isActiveQuizSession, ValidPlayerId, playerIdToPlayer, arrayToCSVAddress, validSession } from './quizUtil';
+import { playerSessionResults } from './player';
 import { saveData } from './persistence';
 import HTTPError from 'http-errors';
 
@@ -783,10 +784,18 @@ export const sessionStart = (token: string, quizId: number, autoStartNum: number
   if (quiz.numQuestions === 0) {
     throw HTTPError(400, 'The quiz does not have any questions in it');
   }
+  const initialQuestionResults = quiz.questions.map(question => ({
+    questionId: question.questionId,
+    playersCorrectList: [],
+    averageAnswerTime: 0,
+    percentCorrect: 0,
+  }));
   data.quizSessionIdStore += 1;
   const newQuizSession: QuizSession = {
     sessionId: data.quizSessionIdStore,
     autoStartNum: autoStartNum,
+    timeQuestionOpen: 0,
+    timeSubmissionsTotal: 0,
     quizStatus: {
       state: State.LOBBY,
       atQuestion: 0,
@@ -805,7 +814,7 @@ export const sessionStart = (token: string, quizId: number, autoStartNum: number
     },
     quizResults: {
       usersRankedByScore: [],
-      questionResults: [],
+      questionResults: initialQuestionResults,
     },
     messages: [],
   };
@@ -849,6 +858,11 @@ export const UpdateSessionState = (token: string, quizId: number, sessionId: num
       const CountdownToOpen = () => {
         if (quizSessions.quizStatus.state === 'QUESTION_COUNTDOWN') {
           quizSessions.quizStatus.state = State.QUESTION_OPEN;
+          quizSessions.timeQuestionOpen = Math.floor(Date.now() / 1000);
+          quizSessions.timeSubmissionsTotal = 0;
+          for (const player of quizSessions.quizStatus.players) {
+            player.answerIds = [];
+          }
           timerId2 = setTimeout(OpentoClose, quizSessions.quizStatus.metadata.questions[quizSessions.quizStatus.atQuestion - 1].duration * 1000);
           data.timers.push(timerId2);
         }
@@ -886,6 +900,8 @@ export const UpdateSessionState = (token: string, quizId: number, sessionId: num
       if (quizSessions.quizStatus.state === 'QUESTION_COUNTDOWN') {
         if (action === 'SKIP_COUNTDOWN') {
           quizSessions.quizStatus.state = State.QUESTION_OPEN;
+          quizSessions.timeQuestionOpen = Math.floor(Date.now() / 1000);
+          quizSessions.timeSubmissionsTotal = 0;
           clearTimeout(timerId1);
           timerId2 = setTimeout(OpentoClose, quizSessions.quizStatus.metadata.questions[quizSessions.quizStatus.atQuestion - 1].duration * 1000);
           data.timers.push(timerId2);
@@ -983,69 +999,53 @@ export const GetSessionStatus = (token: string, quizId: number, sessionId: numbe
     throw HTTPError(400, 'Session Id does not refer to a valid session within this quiz');
   }
 
-  const quizSession = data.quizSessions.find(quizSessions => quizSessions.sessionId === sessionId);
-  return quizSession.quizStatus;
+  for (const quizSessions of data.quizSessions) {
+    if (quizSessions.sessionId === sessionId) {
+      const playerNames = quizSessions.quizStatus.players.map(player => player.name);
+      return {
+        state: quizSessions.quizStatus.state,
+        atQuestion: quizSessions.quizStatus.atQuestion,
+        players: playerNames,
+        metadata: quizSessions.quizStatus.metadata,
+      };
+    }
+  }
 };
 
-// export const QuizSessionFinalResults = (token: string, quizId: number, sessionId: number) => {
-//   const data = getData();
-//   const user = validToken(token, data.users);
+/**
+ * View session final results
+ * @param {string} token - a unique identifier of a logged in user
+ * @param {number} quizId - a unique identifier of a quiz
+ * @param {number} sessionId - a unique identifier of a quiz session
+ * @returns {QuizResults} - for successful session final results view
+ */
+export const QuizSessionFinalResults = (token: string, quizId: number, sessionId: number) => {
+  const data = getData();
+  const user = validToken(token, data.users);
 
-//   const userQuiz = user.quizzes.find(quizzes => quizzes.quizId === quizId);
-//   if (userQuiz === undefined) {
-//     throw HTTPError(403, 'User does not own quiz');
-//   }
+  const userQuiz = user.quizzes.find(quizzes => quizzes.quizId === quizId);
+  if (userQuiz === undefined) {
+    throw HTTPError(403, 'User does not own quiz');
+  }
 
-//   const activeSessions = viewSessions(token, quizId).activeSessions;
-//   if (!activeSessions.includes(sessionId)) {
-//     throw HTTPError(400, 'Session Id does not refer to a valid session within this quiz');
-//   }
+  const activeSessions = viewSessions(token, quizId).activeSessions;
+  if (!activeSessions.includes(sessionId)) {
+    throw HTTPError(400, 'Session Id does not refer to a valid session within this quiz');
+  }
 
-//   const result = GetSessionStatus(token, quizId, sessionId);
-//   if (result.state != State.FINAL_RESULTS) {
-//     throw HTTPError(400, 'Not in final_results state');
-//   }
+  const result = GetSessionStatus(token, quizId, sessionId);
+  if (result.state !== State.FINAL_RESULTS) {
+    throw HTTPError(400, 'Not in final_results state');
+  }
 
-//   // const allPlayersRanked = [];
-//   // const allPlayersQuestionStats = [];
-//   // const answerTime: number = 0;
-//   // const correctPercent: number = 0;
-
-//   // //if correct session within session array
-//   // for (const quizSessions of data.quizSessions) {
-//   //   if (quizSessions.sessionId === sessionId) {
-//   //     //for all players in player array
-//   //     for (const player of quizSessions.quizStatus.players) {
-//   //       //get session results for that player, push those results to AllPlayersRanked array
-//   //       const playerResults = JaredSessionFinalResults(player.playerId)
-//   //       playerResults.usersRankedByScore.forEach(user => {
-//   //         allPlayersRanked.push(user);
-//   //       });
-
-//   //       playerResults.questionResults.forEach(user => {
-//   //         answerTime += user.averageAnswerTime;
-//   //         correctPercent += user.percentCorrect;
-//   //       });
-
-//   //       // for (const question of each question in session)
-//   //       //   call jareds other function
-//   //       //   append score to newscore array
-//   //       //   append
-
-//   //     }
-
-//   //     // for (each player in list of players) {
-//   //     //   amalagamate isCallLikeExpression(jared's cuntion)
-//   //     // }
-
-//   //   }
-//   // }
-
-//   // AllPlayersRanked.usersRankedByScore.sort((a, b) => {
-//   //   return a.score - b.score;
-//   // });
-
-// };
+  const session = data.quizSessions.find(sessions => sessions.sessionId === sessionId);
+  const players = session.quizStatus.players;
+  if (players.length === 0) {
+    return session.quizResults;
+  } else {
+    return playerSessionResults(players[0].playerId);
+  }
+};
 
 /**
  * View messages sent during a quiz session

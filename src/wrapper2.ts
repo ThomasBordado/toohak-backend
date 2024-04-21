@@ -186,6 +186,18 @@ export const requestGetSessionStatus = (token: string, quizid: number, sessionid
   return requestHelper('GET', `/v1/admin/quiz/${quizid}/session/${sessionid}`, {}, { token });
 };
 
+export const requestPlayerAnswerSubmission = (playerid: number, questionposition: number, answerIds: number[]) => {
+  return requestHelper('PUT', `/v1/player/${playerid}/question/${questionposition}/answer`, { answerIds }, {});
+};
+
+export const requestPlayerQuestionResults = (playerid: number, questionposition: number) => {
+  return requestHelper('GET', `/v1/player/${playerid}/question/${questionposition}/results`, {}, {});
+};
+
+export const requestPlayerSessionResults = (playerid: number) => {
+  return requestHelper('GET', `/v1/player/${playerid}/results`, {}, {});
+};
+
 export const requestSessionCSVResult = (token: string, quizid: number, sessionid: number) => {
   return requestHelper('GET', `/v1/admin/quiz/${quizid}/session/${sessionid}/results/csv`, { quizid, sessionid }, { token });
 };
@@ -201,6 +213,6 @@ export const requestSendMessage = (playerid: number, message: MessageInput) => {
   return requestHelper('POST', `/v1/player/${playerid}/chat`, { message }, {});
 };
 
-// export const requestQuizSessionFinalResults = (token: string, quizid: number, sessionid: number) => {
-//   return requestHelper('GET', `/v1/admin/quiz/${quizid}/session/${sessionid}/results`, {}, { token });
-// };
+export const requestQuizSessionFinalResults = (token: string, quizid: number, sessionid: number) => {
+  return requestHelper('GET', `/v1/admin/quiz/${quizid}/session/${sessionid}/results`, {}, { token });
+};

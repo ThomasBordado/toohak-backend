@@ -1,8 +1,9 @@
 import { getData } from './dataStore';
-import { PlayerId, Player, PlayerStatus, PlayerQuestionInfo, Action } from './interfaces';
+import { PlayerId, Player, PlayerStatus, PlayerQuestionInfo, Action, ErrorReturn, QuestionResults, UserRank } from './interfaces';
 import { UpdateSessionState } from './quiz';
 import { saveData } from './persistence';
 import HTTPError from 'http-errors';
+import { ValidPlayerId } from './quizUtil';
 
 /**
  * generates a random player name
@@ -146,4 +147,138 @@ export const playerQuestionInfo = (playerId: number, questionPosition: number): 
     }
   }
   throw HTTPError(400, 'player ID does not exist');
+};
+
+/**
+ * Allow player to submit answer
+ * @param {number} playerId - unique identifyer for a player
+ * @param {number} questionPosition - position of question that player attempts to answer
+ * @param {Array<number>} answerIds - array of answer ids that player selects as correct
+ * @returns {} - For successful submission
+ */
+export const PlayerAnswerSubmission = (playerId: number, questionPosition: number, answerIds: number[]) => {
+  if (answerIds.length < 1) {
+    throw HTTPError(400, 'At least one answer ID must be provided');
+  }
+  const session = ValidPlayerId(playerId);
+  const timeToSubmit = Math.floor(Date.now() / 1000) - session.timeQuestionOpen;
+  session.timeSubmissionsTotal += timeToSubmit;
+
+  if (session.quizStatus.state !== 'QUESTION_OPEN') {
+    throw HTTPError(400, 'Question is closed');
+  }
+  if (questionPosition < 1 || questionPosition > session.quizStatus.metadata.numQuestions) {
+    throw HTTPError(400, 'Question position is not valid for the session this player is in');
+  }
+  if (session.quizStatus.atQuestion !== questionPosition) {
+    throw HTTPError(400, 'Session is not currently on this question');
+  }
+
+  const questionIndex = questionPosition - 1; // Zero-based index adjustment
+  const currentQuestion = session.quizStatus.metadata.questions[questionIndex];
+  if (!currentQuestion) {
+    throw HTTPError(400, 'Question does not exist for the provided position');
+  }
+
+  // checks for duplicate answer id
+  const answerIdSet = new Set(answerIds);
+  // checks whether new set is different from array size, then throws error if difference
+  if (answerIdSet.size !== answerIds.length) {
+    throw HTTPError(400, 'Duplicate answer IDs provided');
+  }
+
+  const submittedAnswer = currentQuestion.answers.find(a => a.answerId === answerIds[0]);
+  if (!submittedAnswer) {
+    throw HTTPError(400, 'Submitted answer ID is not valid for this question');
+  }
+
+  const player = session.quizStatus.players.find(p => p.playerId === playerId);
+  player.answerIds = answerIds;
+  // Check if all correct answers are included in the user's submitted answers
+  const allCorrectAnswers = currentQuestion.answers.filter(a => a.correct === true).map(a => a.answerId);
+  const isCorrect = answerIds.length === allCorrectAnswers.length && answerIds.every(id => allCorrectAnswers.includes(id));
+  const currentQuestionResults = session.quizResults.questionResults[questionIndex];
+  if (isCorrect) {
+    // Calculate scaling factor
+    const correctUsersCount = currentQuestionResults.playersCorrectList.length;
+    const scalingFactor = correctUsersCount + 1;
+
+    // Update player's score
+    player.score += currentQuestion.points * (1 / scalingFactor);
+
+    // Add the player to the correct user list for this question
+    if (!currentQuestionResults.playersCorrectList.includes(player.name)) {
+      currentQuestionResults.playersCorrectList.push(player.name);
+    }
+  }
+  // update user ranks
+  const playerRank = session.quizResults.usersRankedByScore.find(user => user.name === player.name);
+  if (!playerRank) {
+    session.quizResults.usersRankedByScore.push({ name: player.name, score: player.score });
+  } else {
+    playerRank.score = player.score;
+  }
+  session.quizResults.usersRankedByScore.sort((a: UserRank, b: UserRank) => b.score - a.score);
+  // update percentage correct
+  currentQuestionResults.percentCorrect = currentQuestionResults.playersCorrectList.length / session.quizStatus.players.length * 100;
+  // update average time
+  let numberPlayersAnswered = 0;
+  for (const players of session.quizStatus.players) {
+    if (players.answerIds.length > 0) {
+      numberPlayersAnswered++;
+    }
+  }
+  currentQuestionResults.averageAnswerTime = Math.round(session.timeSubmissionsTotal / numberPlayersAnswered);
+  return {};
+};
+
+/**
+ * Allow player to view their answer result for a single question
+ * @param {number} playerId - unique identifyer for a player
+ * @param {number} questionPosition - position of question
+ * @returns {QuestionResults} - For successful request
+ */
+export const PlayerQuestionResults = (playerId: number, questionPosition: number): QuestionResults | ErrorReturn => {
+  const sessions = getData().quizSessions;
+  for (const session of sessions) {
+    for (const player of session.quizStatus.players) {
+      if (player.playerId === playerId) {
+        if (questionPosition < 1 || questionPosition > session.quizStatus.metadata.numQuestions) {
+          throw HTTPError(400, 'Question position is not valid for the session this player is in');
+        }
+        if (session.quizStatus.atQuestion !== questionPosition) {
+          throw HTTPError(400, 'Session is not currently on this question');
+        }
+        if (session.quizStatus.state !== 'ANSWER_SHOW') {
+          throw HTTPError(400, 'Session is not in ANSWER_SHOW');
+        }
+        const questionResult = session.quizResults.questionResults.find(result => result.questionId === session.quizStatus.metadata.questions[questionPosition - 1].questionId);
+
+        return questionResult;
+      }
+    }
+  }
+  // If player not found
+  throw HTTPError(400, 'Player ID does not exist');
+};
+
+/**
+ * Allow player to view results for whole quiz
+ * @param {number} playerId - unique identifyer for a player
+ * @returns {QuizResults} - For successful request
+ */
+export const playerSessionResults = (playerId: number) => {
+  const sessions = getData().quizSessions;
+  for (const session of sessions) {
+    for (const player of session.quizStatus.players) {
+      if (player.playerId === playerId) {
+        if (session.quizStatus.state !== 'FINAL_RESULTS') {
+          throw HTTPError(400, 'Session is not in FINAL_RESULTS');
+        }
+        return session.quizResults;
+      }
+    }
+  }
+  // If player not found
+  throw HTTPError(400, 'Player ID does not exist');
 };

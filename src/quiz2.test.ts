@@ -1,6 +1,6 @@
 import { requestRegister, requestClear, requestLogin } from './wrapper';
-import { requestQuizList, requestQuizCreate, requestQuizTrash, requestQuizViewTrash, requestQuizRestore, requestQuizTrashEmpty, requestQuizQuestionCreate, requestquizTransfer, requestLogout, requestQuizInfo, requestUpdateQuizName, requestUpdateQuizQuestion, requestDeleteQuizQuestion, requestUpdateQuizDescription, requestMoveQuestion, requestQuestionDuplicate, requestThumbnailUpdate, requestSessionView, requestSessionStart, requestUpdateSessionState, requestGetSessionStatus /*, QuizSessionFinalResults */, requestMessageList, requestSendMessage, requestPlayerJoin, requestSessionCSVResult } from './wrapper2';
-import { QuizListReturn, SessionId, quizId, quizUser, quizQuestionCreateInput, quiz, quizQuestionCreateReturn, questionId, sessionViewReturn, QuizSession, /* QuizStatus, */ MessageInput, PlayerId, QuizSessionId } from './interfaces';
+import { requestQuizList, requestQuizCreate, requestQuizTrash, requestQuizViewTrash, requestQuizRestore, requestQuizTrashEmpty, requestQuizQuestionCreate, requestquizTransfer, requestLogout, requestQuizInfo, requestUpdateQuizName, requestUpdateQuizQuestion, requestDeleteQuizQuestion, requestUpdateQuizDescription, requestMoveQuestion, requestQuestionDuplicate, requestThumbnailUpdate, requestSessionView, requestSessionStart, requestUpdateSessionState, requestGetSessionStatus, requestQuizSessionFinalResults, requestMessageList, requestSendMessage, requestPlayerJoin, requestSessionCSVResult, requestPlayerAnswerSubmission, requestPlayerQuestionInfo } from './wrapper2';
+import { QuizListReturn, SessionId, quizId, quizUser, quizQuestionCreateInput, quiz, quizQuestionCreateReturn, questionId, sessionViewReturn, QuizSession, MessageInput, PlayerId, QuizSessionId } from './interfaces';
 import HTTPError from 'http-errors';
 
 beforeEach(() => {
@@ -2446,84 +2446,88 @@ describe('request GetSessionStatus testing', () => {
   });
 });
 
-// //QuizSessionFinalResults testing
-// describe('request QuizSessionFinalResults testing', () => {
-//   let user: SessionId;
-//   let quiz: quizId;
-//   let questionin: quizQuestionCreateInput;
-//   let question: questionId;
-//   let session: QuizSession;
-//   beforeEach(() => {
-//     user = requestRegister('chloe@gmail.com', 'password1', 'Chloe', 'Turner').jsonBody as SessionId;
-//     quiz = requestQuizCreate(user.token, 'My Quiz', 'My Quiz Description');
-//     questionin = {
-//       question: 'Who is the Monarch of England?',
-//       duration: 4,
-//       points: 5,
-//       answers: [
-//         {
-//           answer: 'Prince Charles',
-//           correct: true
-//         },
-//         {
-//           answer: 'Prince Charles.',
-//           correct: true
-//         }
-//       ],
-//       thumbnailUrl: 'http://google.com/some/image/path.jpg',
-//     };
-//     question = requestQuizQuestionCreate(user.token, questionin, quiz.quizId);
-//     session = requestSessionStart(user.token, quiz.quizId, 3);
-//   });
+// QuizSessionFinalResults testing
+describe('request QuizSessionFinalResults testing', () => {
+  let user: SessionId;
+  let quiz: quizId;
+  let questionin: quizQuestionCreateInput;
+  let question: questionId;
+  let session: QuizSession;
+  beforeEach(() => {
+    user = requestRegister('chloe@gmail.com', 'password1', 'Chloe', 'Turner').jsonBody as SessionId;
+    quiz = requestQuizCreate(user.token, 'My Quiz', 'My Quiz Description');
+    questionin = {
+      question: 'Who is the Monarch of England?',
+      duration: 4,
+      points: 5,
+      answers: [
+        {
+          answer: 'Prince Charles',
+          correct: true
+        },
+        {
+          answer: 'Prince Charles.',
+          correct: false
+        }
+      ],
+      thumbnailUrl: 'http://google.com/some/image/path.jpg',
+    };
+    question = requestQuizQuestionCreate(user.token, questionin, quiz.quizId);
+    session = requestSessionStart(user.token, quiz.quizId, 3);
+  });
 
-//   describe('Unsuccessful Cases', () => {
-//     test('Invalid SessionId', () => {
-//       expect(() => requestQuizSessionFinalResults(user.token + 1, quiz.quizId, session.sessionId)).toThrow(HTTPError[401]);
-//     });
-//     test('Invalid quizId', () => {
-//       expect(() => requestQuizSessionFinalResults(user.token, quiz.quizId + 1, session.sessionId)).toThrow(HTTPError[403]);
-//     });
-//     test('user does not own quiz', () => {
-//       const user2 = requestRegister('ethan@gmail.com', 'password1', 'Ethan', 'McGregor').jsonBody as SessionId;
-//       expect(() => requestQuizSessionFinalResults(user2.token, quiz.quizId, session.sessionId)).toThrow(HTTPError[403]);
-//     });
-//     test('Session Id does not refer to a valid session within this quiz', () => {
-//       expect(() => requestQuizSessionFinalResults(user.token, quiz.quizId, session.sessionId + 1)).toThrow(HTTPError[400]);
-//     });
-//     test('Session Id does not refer to a valid session within this quiz', () => {
-//       expect(() => requestQuizSessionFinalResults(user.token, quiz.quizId, session.sessionId + 1)).toThrow(HTTPError[400]);
-//     });
-//     test('Quiz not in FINAL_RESULTS state', () => {
-//       expect(() => requestQuizSessionFinalResults(user.token, quiz.quizId, session.sessionId)).toThrow(HTTPError[400]);
-//     });
-//   });
-//   describe('Successful cases', () => {
-//     test('Correct return value', () => {
-//       requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, "NEXT_QUESTION");
-//       requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, "SKIP_COUNTDOWN");
-//       requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, "GO_TO_ANSWER");
-//       requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, "GO_TO_FINAL_RESULTS");
-//       expect(requestQuizSessionFinalResults(user.token, quiz.quizId, session.sessionId)).toStrictEqual({
-//         "usersRankedByScore": [
-//           {
-//             "name": expect.any(String),
-//             "score": expect.any(Number)
-//           }
-//         ],
-//         "questionResults": [
-//           {
-//             "questionId": expect.any(Number),
-//             "playersCorrectList": [
-//               expect.any(Array)
-//             ],
-//             "averageAnswerTime": expect.any(Number),
-//             "percentCorrect": expect.any(Number)
-//           }
-//         ]
-//       });
-//     });
-//   });
-// });
+  describe('Unsuccessful Cases', () => {
+    test('Invalid SessionId', () => {
+      expect(() => requestQuizSessionFinalResults(user.token + 1, quiz.quizId, session.sessionId)).toThrow(HTTPError[401]);
+    });
+    test('Invalid quizId', () => {
+      expect(() => requestQuizSessionFinalResults(user.token, quiz.quizId + 1, session.sessionId)).toThrow(HTTPError[403]);
+    });
+    test('user does not own quiz', () => {
+      const user2 = requestRegister('ethan@gmail.com', 'password1', 'Ethan', 'McGregor').jsonBody as SessionId;
+      expect(() => requestQuizSessionFinalResults(user2.token, quiz.quizId, session.sessionId)).toThrow(HTTPError[403]);
+    });
+    test('Session Id does not refer to a valid session within this quiz', () => {
+      expect(() => requestQuizSessionFinalResults(user.token, quiz.quizId, session.sessionId + 1)).toThrow(HTTPError[400]);
+    });
+    test('Session Id does not refer to a valid session within this quiz', () => {
+      expect(() => requestQuizSessionFinalResults(user.token, quiz.quizId, session.sessionId + 1)).toThrow(HTTPError[400]);
+    });
+    test('Quiz not in FINAL_RESULTS state', () => {
+      expect(() => requestQuizSessionFinalResults(user.token, quiz.quizId, session.sessionId)).toThrow(HTTPError[400]);
+    });
+  });
+  describe('Successful cases', () => {
+    test('Correct return value', () => {
+      const player = requestPlayerJoin(session.sessionId, 'chloe');
+      requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'NEXT_QUESTION');
+      requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'SKIP_COUNTDOWN');
+      const response = requestPlayerQuestionInfo(player.playerId, 1);
+      const answerid = [response.answers[0].answerId];
+      requestPlayerAnswerSubmission(player.playerId, 1, answerid);
+      requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'GO_TO_ANSWER');
+      requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'GO_TO_FINAL_RESULTS');
+      expect(requestQuizSessionFinalResults(user.token, quiz.quizId, session.sessionId)).toStrictEqual({
+        usersRankedByScore: [
+          {
+            name: 'chloe',
+            score: 5
+          }
+        ],
+        questionResults: [
+          {
+            questionId: question.questionId,
+            playersCorrectList: [
+              'chloe'
+            ],
+            averageAnswerTime: 0,
+            percentCorrect: 100
+          }
+        ]
+      });
+    });
+  });
+});
 
 /**
  * Test for sending messages in session

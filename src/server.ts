@@ -10,9 +10,9 @@ import fs from 'fs';
 import path from 'path';
 import process from 'process';
 import { clear } from './other';
-import { adminQuizList, adminQuizCreate1, adminQuizCreate2, adminQuizRemove, adminQuizInfo, adminQuizNameUpdate, adminQuizDescriptionUpdate, adminQuizViewTrash, adminQuizRestore, adminQuizTrashEmpty, quizTransfer1, quizTransfer2, adminQuizQuestionUpdate, adminQuizQuestionUpdateV1, adminQuizQuestionDelete, adminQuizQuestionMove, adminQuizQuestionDuplicate, quizQuestionCreate2, quizQuestionCreate1, adminQuizThumbnailUpdate, viewSessions, sessionStart, UpdateSessionState, GetSessionStatus, /*, QuizSessionFinalResults */ sessionSendMessage, sessionMessagesList, sessionCSVResultList } from './quiz';
+import { adminQuizList, adminQuizCreate1, adminQuizCreate2, adminQuizRemove, adminQuizInfo, adminQuizNameUpdate, adminQuizDescriptionUpdate, adminQuizViewTrash, adminQuizRestore, adminQuizTrashEmpty, quizTransfer1, quizTransfer2, adminQuizQuestionUpdate, adminQuizQuestionUpdateV1, adminQuizQuestionDelete, adminQuizQuestionMove, adminQuizQuestionDuplicate, quizQuestionCreate2, quizQuestionCreate1, adminQuizThumbnailUpdate, viewSessions, sessionStart, UpdateSessionState, GetSessionStatus, QuizSessionFinalResults, sessionSendMessage, sessionMessagesList, sessionCSVResultList } from './quiz';
 import { adminAuthLogin, adminAuthRegister, adminUserDetails, adminUserDetailsUpdate2, adminUserPasswordUpdate2, adminAuthLogout, adminUserDetailsUpdate1, adminUserPasswordUpdate1 } from './auth';
-import { playerJoin, playerStatus, playerQuestionInfo } from './player';
+import { playerJoin, playerStatus, playerQuestionInfo, PlayerAnswerSubmission, PlayerQuestionResults, playerSessionResults } from './player';
 import { loadData, saveData } from './persistence';
 
 // Set up web app
@@ -414,6 +414,35 @@ app.get('/v1/admin/quiz/:quizid/session/:sessionid', (req: Request, res: Respons
   res.json(response);
 });
 
+app.put('/v1/player/:playerid/question/:questionposition/answer', (req: Request, res: Response) => {
+  const playerid = parseInt(req.params.playerid as string);
+  const questionposition = parseInt(req.params.questionposition as string);
+  const { answerIds } = req.body;
+  const response = PlayerAnswerSubmission(playerid, questionposition, answerIds);
+  res.json(response);
+});
+
+app.get('/v1/player/:playerid/question/:questionposition/results', (req: Request, res: Response) => {
+  const playerid = parseInt(req.params.playerid as string);
+  const questionposition = parseInt(req.params.questionposition as string);
+  const response = PlayerQuestionResults(playerid, questionposition);
+  res.json(response);
+});
+
+app.get('/v1/player/:playerid/results', (req: Request, res: Response) => {
+  const playerid = parseInt(req.params.playerid as string);
+  const response = playerSessionResults(playerid);
+  res.json(response);
+});
+
+app.get('/v1/admin/quiz/:quizid/session/:sessionid/results', (req: Request, res: Response) => {
+  const quizId = parseInt(req.params.quizid);
+  const sessionid = parseInt(req.params.sessionid);
+  const token = req.headers.token as string;
+  const response = QuizSessionFinalResults(token, quizId, sessionid);
+  res.json(response);
+});
+
 app.get('/v1/player/:playerid/chat', (req: Request, res: Response) => {
   const playerId = parseInt(req.params.playerid as string);
   const response = sessionMessagesList(playerId);
@@ -426,14 +455,6 @@ app.post('/v1/player/:playerid/chat', (req: Request, res: Response) => {
   const response = sessionSendMessage(playerId, message);
   res.json(response);
 });
-
-// app.get('/v1/admin/quiz/:quizid/session/:sessionid/results', (req: Request, res: Response) => {
-//   const quizId = parseInt(req.params.quizid);
-//   const sessionid = parseInt(req.params.sessionid);
-//   const token = req.headers.token as string;
-//   const response = QuizSessionFinalResults(token, quizId, sessionid);
-//   res.json(response);
-// });
 
 app.get('/v1/admin/quiz/:quizid/session/:sessionid/results/csv', (req: Request, res: Response) => {
   const token = req.headers.token as string;
