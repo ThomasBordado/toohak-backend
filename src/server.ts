@@ -542,13 +542,13 @@ app.get('/v1/player/:playerid/results', (req: Request, res: Response) => {
   res.json(response);
 });
 
- app.get('/v1/admin/quiz/:quizid/session/:sessionid/results', (req: Request, res: Response) => {
-   const quizId = parseInt(req.params.quizid);
-   const sessionid = parseInt(req.params.sessionid);
-   const token = req.headers.token as string;
-   const response = QuizSessionFinalResults(token, quizId, sessionid);
-   res.json(response);
- });
+app.get('/v1/admin/quiz/:quizid/session/:sessionid/results', (req: Request, res: Response) => {
+  const quizId = parseInt(req.params.quizid);
+  const sessionid = parseInt(req.params.sessionid);
+  const token = req.headers.token as string;
+  const response = QuizSessionFinalResults(token, quizId, sessionid);
+  res.json(response);
+});
 
 app.get('/v1/player/:playerid/chat', (req: Request, res: Response) => {
   const playerId = parseInt(req.params.playerid as string);

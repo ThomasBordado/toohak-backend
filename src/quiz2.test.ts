@@ -2196,12 +2196,12 @@ describe('request GetSessionStatus testing', () => {
   });
 });
 
-//QuizSessionFinalResults testing
+// QuizSessionFinalResults testing
 describe('request QuizSessionFinalResults testing', () => {
   let user: SessionId;
   let quiz: quizId;
   let questionin: quizQuestionCreateInput;
-  let question: questionId
+  let question: questionId;
   let session: QuizSession;
   beforeEach(() => {
     user = requestRegister('chloe@gmail.com', 'password1', 'Chloe', 'Turner').jsonBody as SessionId;
@@ -2250,28 +2250,28 @@ describe('request QuizSessionFinalResults testing', () => {
   describe('Successful cases', () => {
     test('Correct return value', () => {
       const player = requestPlayerJoin(session.sessionId, 'chloe');
-      requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, "NEXT_QUESTION");
-      requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, "SKIP_COUNTDOWN");
+      requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'NEXT_QUESTION');
+      requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'SKIP_COUNTDOWN');
       const response = requestPlayerQuestionInfo(player.playerId, 1);
       const answerid = [response.answers[0].answerId];
-      requestPlayerAnswerSubmission(player.playerId, 1, answerid)
-      requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, "GO_TO_ANSWER");
-      requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, "GO_TO_FINAL_RESULTS");
+      requestPlayerAnswerSubmission(player.playerId, 1, answerid);
+      requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'GO_TO_ANSWER');
+      requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'GO_TO_FINAL_RESULTS');
       expect(requestQuizSessionFinalResults(user.token, quiz.quizId, session.sessionId)).toStrictEqual({
-        "usersRankedByScore": [
+        usersRankedByScore: [
           {
-            "name": 'chloe',
-            "score": 5
+            name: 'chloe',
+            score: 5
           }
         ],
-        "questionResults": [
+        questionResults: [
           {
-            "questionId": question.questionId,
-            "playersCorrectList": [
+            questionId: question.questionId,
+            playersCorrectList: [
               'chloe'
             ],
-            "averageAnswerTime": 0,
-            "percentCorrect": 100
+            averageAnswerTime: 0,
+            percentCorrect: 100
           }
         ]
       });

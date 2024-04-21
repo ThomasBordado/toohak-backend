@@ -1,7 +1,7 @@
 import { getData, setData } from './dataStore';
 import { EmptyObject, ErrorReturn, QuizListReturn, quiz, quizId, quizQuestionCreateInput, quizQuestionCreateInputV1, quizQuestionCreateReturn, quizQuestionDuplicateReturn, QuizSession, State, Action, MessageInput, MessageListReturn } from './interfaces';
 import { validToken, checkQuizName, checkQuestionValid, isValidQuizId, randomColour, validthumbnailUrl, checkQuestionValidV1, isActiveQuizSession, ValidPlayerId, playerIdToSession, playerIdToPlayer, arrayToCSVAddress, validSession } from './quizUtil';
-import { PlayerQuestionResults, playerSessionResults } from './player'
+import { playerSessionResults } from './player';
 import { saveData } from './persistence';
 import HTTPError from 'http-errors';
 
@@ -947,12 +947,12 @@ export const QuizSessionFinalResults = (token: string, quizId: number, sessionId
   }
 
   const result = GetSessionStatus(token, quizId, sessionId);
-  if (result.state != State.FINAL_RESULTS) {
+  if (result.state !== State.FINAL_RESULTS) {
     throw HTTPError(400, 'Not in final_results state');
   }
 
   const session = data.quizSessions.find(sessions => sessions.sessionId === sessionId);
-  const players = session.quizStatus.players
+  const players = session.quizStatus.players;
   if (players.length === 0) {
     return session.quizResults;
   } else {
