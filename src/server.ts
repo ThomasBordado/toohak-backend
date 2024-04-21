@@ -12,7 +12,7 @@ import process from 'process';
 import { clear } from './other';
 import { adminQuizList, adminQuizCreate1, adminQuizCreate2, adminQuizRemove, adminQuizInfo, adminQuizNameUpdate, adminQuizDescriptionUpdate, adminQuizViewTrash, adminQuizRestore, adminQuizTrashEmpty, quizTransfer1, quizTransfer2, adminQuizQuestionUpdate, adminQuizQuestionDelete, adminQuizQuestionMove, adminQuizQuestionDuplicate, quizQuestionCreate2, quizQuestionCreate1, adminQuizThumbnailUpdate, viewSessions, sessionStart, UpdateSessionState, GetSessionStatus, /*, QuizSessionFinalResults */ sessionSendMessage, sessionMessagesList, sessionCSVResultList } from './quiz';
 import { adminAuthLogin, adminAuthRegister, adminUserDetails, adminUserDetailsUpdate2, adminUserPasswordUpdate2, adminAuthLogout, adminUserDetailsUpdate1, adminUserPasswordUpdate1 } from './auth';
-import { playerJoin, playerStatus, playerQuestionInfo, PlayerAnswerSubmission, PlayerQuestionResults } from './player';
+import { playerJoin, playerStatus, playerQuestionInfo, PlayerAnswerSubmission, PlayerQuestionResults, playerSessionResults } from './player';
 import { loadData, saveData } from './persistence';
 
 // Set up web app
@@ -533,6 +533,12 @@ app.get('/v1/player/:playerid/question/:questionposition/results', (req: Request
   const playerid = parseInt(req.params.playerid as string);
   const questionposition = parseInt(req.params.questionposition as string);
   const response = PlayerQuestionResults(playerid, questionposition);
+  res.json(response);
+});
+
+app.get('/v1/player/:playerid/results', (req: Request, res: Response) => {
+  const playerid = parseInt(req.params.playerid as string);
+  const response = playerSessionResults(playerid);
   res.json(response);
 });
 
