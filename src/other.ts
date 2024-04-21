@@ -2,6 +2,9 @@ import { getData } from './dataStore';
 import { EmptyObject } from './interfaces';
 import { clearDataFile } from './persistence';
 
+/**
+ * clears active timers.
+ */
 const clearTimeouts = () => {
   const timeouts = getData().timers;
   for (const timeout of timeouts) {

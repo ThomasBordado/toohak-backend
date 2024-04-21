@@ -4,7 +4,10 @@ import { UpdateSessionState } from './quiz';
 import { saveData } from './persistence';
 import HTTPError from 'http-errors';
 
-export const generateRandomName = (players: Player[]): string => {
+/**
+ * generates a random player name
+ */
+export const generateRandomName = (): string => {
   let letters = 'abcdefghijklmnopqrstuvwxyz';
   let numbers = '0123456789';
 
@@ -25,6 +28,13 @@ export const generateRandomName = (players: Player[]): string => {
   return newName;
 };
 
+/**
+ * Allow player to join a quiz session
+ * @param {number} sessionId - unique identifyer for a quiz session
+ * @param {string} name - players name
+ *
+ * @returns {playerId: number} - unique identifier for a player
+ */
 export const playerJoin = (sessionId: number, name: string): PlayerId => {
   const sessions = getData().quizSessions;
   const sessionIndex = sessions.findIndex(sessions => sessions.sessionId === sessionId);
@@ -37,7 +47,7 @@ export const playerJoin = (sessionId: number, name: string): PlayerId => {
   const players = sessions[sessionIndex].quizStatus.players;
 
   while (name === '' && players.find(player => player.name === name) === undefined) {
-    name = generateRandomName(players);
+    name = generateRandomName();
   }
 
   for (const player of players) {
@@ -70,6 +80,12 @@ export const playerJoin = (sessionId: number, name: string): PlayerId => {
   };
 };
 
+/**
+ * Allow player to view their status
+ * @param {number} playerId - unique identifyer for a player
+ *
+ * @returns {{ state: string, numQuestions: number, atQuestion: number }} - status of a player
+ */
 export const playerStatus = (playerId: number): PlayerStatus => {
   const sessions = getData().quizSessions;
   for (const session of sessions) {
@@ -87,6 +103,12 @@ export const playerStatus = (playerId: number): PlayerStatus => {
   throw HTTPError(400, 'player ID does not exist');
 };
 
+/**
+ * Allow player to view their status
+ * @param {number} playerId - unique identifyer for a player
+ * @param {number} questionPosition - position of question that player attempts to view info
+ * @returns {{ questionId: number, question: string, duration: number, thumbnailUrl: string, points: number, answers: Array<{ answerId: number, answer: string, colour: string }> }} - question info
+ */
 export const playerQuestionInfo = (playerId: number, questionPosition: number): PlayerQuestionInfo => {
   const sessions = getData().quizSessions;
   for (const session of sessions) {

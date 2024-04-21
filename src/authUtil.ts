@@ -8,7 +8,6 @@ import HTTPError from 'http-errors';
  * @param {string} email - User's email
  *
  * @returns {boolean} - True if it is a valid email.
- * @returns {error: string} - If the email is in use or it is not an email.
  */
 export const checkEmail = (email: string) => {
   const data = getData();
@@ -32,7 +31,6 @@ export const checkEmail = (email: string) => {
  * @param {string} password - User's password
  *
  * @returns {boolean} - True if it is a valid password.
- * @returns {error: string} - If the password is invalid
  */
 export const checkPassword = (password: string) => {
   if (password.length < 8) {
@@ -52,7 +50,6 @@ export const checkPassword = (password: string) => {
  * @param {string} position - either a First or Last name.
  *
  * @returns {boolean} - True if it is a valid name.
- * @returns {error: string} - If the name is invalid
  */
 export const checkName = (name: string, position: string) => {
   if (name.length < 2 || name.length > 20) {
