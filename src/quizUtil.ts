@@ -1,6 +1,7 @@
-import { quizUser, user, quizQuestionCreateInput, quizQuestionCreateInputV1 } from './interfaces';
+import { quizUser, user, quizQuestionCreateInput, quizQuestionCreateInputV1, QuizResults } from './interfaces';
 import { getData } from './dataStore';
 import HTTPError from 'http-errors';
+import fs from 'fs';
 
 /**
  * Check if AuthUserId is valid.
@@ -229,6 +230,7 @@ export const isValidQuizId = (token: string, quizId: number) => {
   }
 };
 
+// A function to check if the thumbnailUrl is valid
 export const validthumbnailUrl = (thumbnailUrl: string) => {
   if (thumbnailUrl === '') {
     throw HTTPError(400, 'The thumbnailUrl is an empty string.');
@@ -241,10 +243,24 @@ export const validthumbnailUrl = (thumbnailUrl: string) => {
   }
 };
 
+// A function to generate random color
 export const randomColour = (): string => {
   const colours = ['red', 'green', 'yellow', 'blue'];
   const index = Math.floor(Math.random() * colours.length);
   return colours[index];
+};
+
+// input a player id and get session, meanwhile testing if the playerId is valid
+export const playerIdToSession = (playerId: number) => {
+  const data = getData();
+  for (const session of data.quizSessions) {
+    for (const player of session.quizStatus.players) {
+      if (player.playerId === playerId) {
+        return session;
+      }
+    }
+  }
+  throw HTTPError(400, 'player ID does not exist');
 };
 
 export const isActiveQuizSession = (quizId: number) => {
@@ -254,4 +270,62 @@ export const isActiveQuizSession = (quizId: number) => {
       throw HTTPError(400, 'At least one session for this quiz is not in END state');
     }
   }
+};
+
+export const ValidPlayerId = (playerId: number) => {
+  const data = getData();
+  for (const session of data.quizSessions) {
+    for (const player of session.quizStatus.players) {
+      if (player.playerId === playerId) {
+        return;
+      }
+    }
+  }
+  throw HTTPError(400, 'player ID does not exist.');
+};
+
+export const playerIdToPlayer = (playerId: number) => {
+  const data = getData();
+  for (const session of data.quizSessions) {
+    for (const player of session.quizStatus.players) {
+      if (player.playerId === playerId) {
+        return player;
+      }
+    }
+  }
+  throw HTTPError(400, 'player ID does not exist');
+};
+export const validSession = (sessionId: number, quizId: number) => {
+  const data = getData();
+  const findSession = data.quizSessions.find(session => session.quizStatus.metadata.quizId === quizId);
+  if (findSession.sessionId !== sessionId || findSession === undefined) {
+    throw HTTPError(400, 'Session Id does not refer to a valid session within this quiz');
+  }
+  return findSession;
+};
+
+export const arrayToCSVAddress = (token: string, result: QuizResults, sessionId: number): string => {
+  const fileName = `./csv-results/QuizResults_${token}session${sessionId}.csv`;
+  const dir = './csv-results';
+  const { convertArrayToCSV } = require('convert-array-to-csv');
+
+  // Create file if there's no such one
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir);
+  }
+
+  // Append UserRanks
+  let csvContent = 'User Ranks:\n';
+  csvContent += 'name,score\n';
+  csvContent += convertArrayToCSV(result.questionResults);
+
+  // Separator between sections
+  csvContent += '\nQuestion Results:\n';
+  csvContent += 'questionId,playerCorrectList,averageAnswerTime,percentCorrect\n';
+  csvContent += convertArrayToCSV(result.usersRankedByScore);
+
+  // Write the CSV content to a file
+  fs.writeFileSync(fileName, csvContent);
+  const file = `QuizResults_${token}session${sessionId}.csv`;
+  return file;
 };

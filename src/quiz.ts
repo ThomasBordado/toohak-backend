@@ -1,6 +1,6 @@
 import { getData, setData } from './dataStore';
-import { EmptyObject, ErrorReturn, QuizListReturn, quiz, quizId, quizQuestionCreateInput, quizQuestionCreateInputV1, quizQuestionCreateReturn, quizQuestionDuplicateReturn, QuizSession, State, Action } from './interfaces';
-import { validToken, checkQuizName, checkQuestionValid, isValidQuizId, randomColour, validthumbnailUrl, checkQuestionValidV1, isActiveQuizSession } from './quizUtil';
+import { EmptyObject, ErrorReturn, QuizListReturn, quiz, quizId, quizQuestionCreateInput, quizQuestionCreateInputV1, quizQuestionCreateReturn, quizQuestionDuplicateReturn, QuizSession, State, Action, MessageInput, MessageListReturn } from './interfaces';
+import { validToken, checkQuizName, checkQuestionValid, isValidQuizId, randomColour, validthumbnailUrl, checkQuestionValidV1, isActiveQuizSession, ValidPlayerId, playerIdToSession, playerIdToPlayer, arrayToCSVAddress, validSession } from './quizUtil';
 import { saveData } from './persistence';
 import HTTPError from 'http-errors';
 
@@ -91,7 +91,7 @@ export const adminQuizCreate2 = (token: string, name: string, description: strin
 
 /**
  * Given a particular quiz, permanently remove the quiz
- * @param {string} token - unique identifier for a session
+ * @param {stringgetSessionResultReturn token - unique identifier for a session
  * @param {number} quizId - unique identifier for a quiz
  * @returns {} - for valid authUserId and quizId
  */
@@ -198,7 +198,7 @@ export const adminQuizDescriptionUpdate = (token: string, quizId: number, newDes
   return {};
 };
 
-/**
+/** View the quizzes in the trash
  * @param {string} token - unique identifier for logined user
  * @returns {QuizListReturn} - list of quizzes in the trash
  */
@@ -209,6 +209,14 @@ export const adminQuizViewTrash = (token: string): QuizListReturn | ErrorReturn 
   return { quizzes: user.trash };
 };
 
+/**
+ *
+ * @param token - unique identifier for logined user
+ * @param questionBody - the question needed to be updated to the quiz
+ * @param quizId - unique identifier for a quiz
+ * @param questionid - unique identifier for a question
+ * @returns { }
+ */
 export const adminQuizQuestionUpdate = (token: string, questionBody: quizQuestionCreateInput, quizId: number, questionid: number): EmptyObject | ErrorReturn => {
   const data = getData();
   const user = validToken(token, data.users);
@@ -253,6 +261,13 @@ export const adminQuizQuestionUpdate = (token: string, questionBody: quizQuestio
   return {};
 };
 
+/**
+ *
+ * @param token - unique identifier for logined user
+ * @param quizId - unique identifier for a quiz
+ * @param questionid - unique identifier for a question
+ * @returns
+ */
 export const adminQuizQuestionDelete = (token: string, quizId: number, questionid: number): EmptyObject | ErrorReturn => {
   const data = getData();
   const user = validToken(token, data.users);
@@ -348,7 +363,7 @@ export const adminQuizTrashEmpty = (token: string, quizIds: number[]): EmptyObje
 };
 
 /**
- *
+ * A function inputs token, questionBody and quizId, and create a question under the quiz
  * @param {string} token - unique identifier for logined user
  * @param {Array} questionBody - the question needed to be updated to the quiz
  * @param {number} quizId - a unique identifier of quiz
@@ -402,7 +417,7 @@ export const quizQuestionCreate1 = (token: string, questionBody: quizQuestionCre
 };
 
 /**
- *
+ * A function inputs token, questionBody and quizId, and create a question under the quiz
  * @param {string} token - unique identifier for logined user
  * @param {Array} questionBody - the question needed to be updated to the quiz
  * @param {number} quizId - a unique identifier of quiz
@@ -452,6 +467,14 @@ export const quizQuestionCreate2 = (token: string, questionBody: quizQuestionCre
   return { questionId: questionId };
 };
 
+/**
+ * A function input token, userEmails and quizId and tranfer the quiz
+ * from the user with the token to the user with the email
+ * @param token - a unique identifier of logged in user
+ * @param userEmail - the target user's email
+ * @param quizId - the quizId of the quiz need to be transfered
+ * @returns { }
+ */
 export const quizTransfer1 = (token: string, userEmail: string, quizId: number): EmptyObject | ErrorReturn => {
   const data = getData();
   validToken(token, data.users);
@@ -483,8 +506,17 @@ export const quizTransfer1 = (token: string, userEmail: string, quizId: number):
   return {};
 };
 
+/**
+ * A function input token, userEmails and quizId and tranfer the quiz
+ * from the user with the token to the user with the email
+ * @param token - a unique identifier of logged in user
+ * @param userEmail - the target user's email
+ * @param quizId - the quizId of the quiz need to be transfered
+ * @returns { }
+ */
 export const quizTransfer2 = (token: string, userEmail: string, quizId: number): EmptyObject | ErrorReturn => {
   const data = getData();
+
   validToken(token, data.users);
   isValidQuizId(token, quizId);
 
@@ -496,6 +528,7 @@ export const quizTransfer2 = (token: string, userEmail: string, quizId: number):
     throw HTTPError(400, 'UserEmail is the current logged in user');
   }
 
+  // find if Quiz ID refers to a quiz that has a name that is already used by the target user
   const findQuiz = data.quizzes.find(quizs => quizs.quizId === quizId);
   const quiz = targetUser.quizzes.find(quizzes => quizzes.name === findQuiz.name);
   if (quiz) {
@@ -518,6 +551,14 @@ export const quizTransfer2 = (token: string, userEmail: string, quizId: number):
   return {};
 };
 
+/**
+ *
+ * @param token
+ * @param quizId
+ * @param questionId
+ * @param newPosition
+ * @returns
+ */
 export const adminQuizQuestionMove = (token: string, quizId: number, questionId: number, newPosition: number): EmptyObject | ErrorReturn => {
   const data = getData();
   const user = validToken(token, data.users);
@@ -547,6 +588,13 @@ export const adminQuizQuestionMove = (token: string, quizId: number, questionId:
   return {};
 };
 
+/**
+ *
+ * @param token
+ * @param quizId
+ * @param questionId
+ * @returns
+ */
 export const adminQuizQuestionDuplicate = (token: string, quizId: number, questionId: number): quizQuestionDuplicateReturn | ErrorReturn => {
   const data = getData();
   const user = validToken(token, data.users);
@@ -608,6 +656,12 @@ export const adminQuizThumbnailUpdate = (token: string, quizId: number, thumbnai
   return {};
 };
 
+/**
+ *
+ * @param token - a unique identifier of a logged in user
+ * @param quizId - a unique identifier of a quiz
+ * @returns a list of active sessions and inactive sessions
+ */
 export const viewSessions = (token: string, quizId: number) => {
   const data = getData();
   const user = validToken(token, data.users);
@@ -635,6 +689,13 @@ export const viewSessions = (token: string, quizId: number) => {
   };
 };
 
+/**
+ *
+ * @param token - a unique identifier of a logged in user
+ * @param quizId - a unique identifier of a quiz
+ * @param autoStartNum - the number of player which triggers the session automatically to start
+ * @returns sessionId
+ */
 export const sessionStart = (token: string, quizId: number, autoStartNum: number) => {
   const data = getData();
   const user = validToken(token, data.users);
@@ -928,3 +989,55 @@ export const GetSessionStatus = (token: string, quizId: number, sessionId: numbe
 //   // });
 
 // };
+export const sessionMessagesList = (playerId: number): MessageListReturn => {
+  ValidPlayerId(playerId);
+  const session = playerIdToSession(playerId);
+  return { messages: session.messages };
+};
+
+export const sessionSendMessage = (playerId: number, message: MessageInput): EmptyObject => {
+  ValidPlayerId(playerId);
+  if (message.messageBody.length < 1 || message.messageBody.length > 100) {
+    throw HTTPError(400, 'message body is less than 1 character or more than 100 characters.');
+  }
+  const player = playerIdToPlayer(playerId);
+
+  const newmessage = {
+    messageBody: message.messageBody,
+    playerId: playerId,
+    playerName: player.name,
+    timeSent: Math.floor(Date.now() / 1000),
+  };
+
+  // push
+  const data = getData();
+  for (const session of data.quizSessions) {
+    for (const players of session.quizStatus.players) {
+      if (players.playerId === playerId) {
+        session.messages.push(newmessage);
+      }
+    }
+  }
+  setData(data);
+
+  return { };
+};
+
+/**
+ *
+ * @param token
+ * @param quizId
+ * @param sessionId
+ * @returns
+ */
+export const sessionCSVResultList = (token: string, quizId: number, sessionId: number): string => {
+  const data = getData();
+  validToken(token, data.users);
+  const session = validSession(sessionId, quizId);
+  if (session.quizStatus.state !== 'FINAL_RESULTS') {
+    throw HTTPError(400, 'Session is not in FINAL_RESULTS state');
+  }
+  isValidQuizId(token, quizId);
+  const fileAddress = arrayToCSVAddress(token, session.quizResults, sessionId);
+  return fileAddress;
+};
