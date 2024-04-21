@@ -149,6 +149,13 @@ export const playerQuestionInfo = (playerId: number, questionPosition: number): 
   throw HTTPError(400, 'player ID does not exist');
 };
 
+/**
+ * Allow player to submit answer
+ * @param {number} playerId - unique identifyer for a player
+ * @param {number} questionPosition - position of question that player attempts to answer
+ * @param {Array<number>} answerIds - array of answer ids that player selects as correct
+ * @returns {} - For successful submission
+ */
 export const PlayerAnswerSubmission = (playerId: number, questionPosition: number, answerIds: number[]) => {
   if (answerIds.length < 1) {
     throw HTTPError(400, 'At least one answer ID must be provided');
@@ -225,6 +232,12 @@ export const PlayerAnswerSubmission = (playerId: number, questionPosition: numbe
   return {};
 };
 
+/**
+ * Allow player to view their answer result for a single question
+ * @param {number} playerId - unique identifyer for a player
+ * @param {number} questionPosition - position of question
+ * @returns {QuestionResults} - For successful request
+ */
 export const PlayerQuestionResults = (playerId: number, questionPosition: number): QuestionResults | ErrorReturn => {
   const sessions = getData().quizSessions;
   for (const session of sessions) {
@@ -249,6 +262,11 @@ export const PlayerQuestionResults = (playerId: number, questionPosition: number
   throw HTTPError(400, 'Player ID does not exist');
 };
 
+/**
+ * Allow player to view results for whole quiz
+ * @param {number} playerId - unique identifyer for a player
+ * @returns {QuizResults} - For successful request
+ */
 export const playerSessionResults = (playerId: number) => {
   const sessions = getData().quizSessions;
   for (const session of sessions) {
