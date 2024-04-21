@@ -1,6 +1,7 @@
 import { getData, setData } from './dataStore';
 import { EmptyObject, ErrorReturn, QuizListReturn, quiz, quizId, quizQuestionCreateInput, quizQuestionCreateInputV1, quizQuestionCreateReturn, quizQuestionDuplicateReturn, QuizSession, State, Action, MessageInput, MessageListReturn } from './interfaces';
 import { validToken, checkQuizName, checkQuestionValid, isValidQuizId, randomColour, validthumbnailUrl, checkQuestionValidV1, isActiveQuizSession, ValidPlayerId, playerIdToSession, playerIdToPlayer, arrayToCSVAddress, validSession } from './quizUtil';
+import { PlayerQuestionResults, playerSessionResults } from './player'
 import { saveData } from './persistence';
 import HTTPError from 'http-errors';
 
@@ -899,24 +900,6 @@ export const UpdateSessionState = (token: string, quizId: number, sessionId: num
           return {};
         }
       }
-
-      // // TIMER no.1 function
-      // function CountdownToOpen() {
-      //   if (quizSessions.quizStatus.state === 'QUESTION_COUNTDOWN') {
-      //     quizSessions.quizStatus.state = State.QUESTION_OPEN;
-      //     timerId2 = setTimeout(OpentoClose, quizSessions.quizStatus.metadata.questions[quizSessions.quizStatus.atQuestion - 1].duration * 1000);
-      //     data.timers.push(timerId2);
-      //     return {};
-      //   }
-      // }
-
-      // // TIMER no.2 function
-      // function OpentoClose() {
-      //   if (quizSessions.quizStatus.state === 'QUESTION_OPEN') {
-      //     quizSessions.quizStatus.state = State.QUESTION_CLOSE;
-      //     return {};
-      //   }
-      // }
     }
   }
   throw HTTPError(400, 'Action enum cannot be applied in the current state');
@@ -949,65 +932,34 @@ export const GetSessionStatus = (token: string, quizId: number, sessionId: numbe
   }
 };
 
-// export const QuizSessionFinalResults = (token: string, quizId: number, sessionId: number) => {
-//   const data = getData();
-//   const user = validToken(token, data.users);
+export const QuizSessionFinalResults = (token: string, quizId: number, sessionId: number) => {
+  const data = getData();
+  const user = validToken(token, data.users);
 
-//   const userQuiz = user.quizzes.find(quizzes => quizzes.quizId === quizId);
-//   if (userQuiz === undefined) {
-//     throw HTTPError(403, 'User does not own quiz');
-//   }
+  const userQuiz = user.quizzes.find(quizzes => quizzes.quizId === quizId);
+  if (userQuiz === undefined) {
+    throw HTTPError(403, 'User does not own quiz');
+  }
 
-//   const activeSessions = viewSessions(token, quizId).activeSessions;
-//   if (!activeSessions.includes(sessionId)) {
-//     throw HTTPError(400, 'Session Id does not refer to a valid session within this quiz');
-//   }
+  const activeSessions = viewSessions(token, quizId).activeSessions;
+  if (!activeSessions.includes(sessionId)) {
+    throw HTTPError(400, 'Session Id does not refer to a valid session within this quiz');
+  }
 
-//   const result = GetSessionStatus(token, quizId, sessionId);
-//   if (result.state != State.FINAL_RESULTS) {
-//     throw HTTPError(400, 'Not in final_results state');
-//   }
+  const result = GetSessionStatus(token, quizId, sessionId);
+  if (result.state != State.FINAL_RESULTS) {
+    throw HTTPError(400, 'Not in final_results state');
+  }
 
-//   // const allPlayersRanked = [];
-//   // const allPlayersQuestionStats = [];
-//   // const answerTime: number = 0;
-//   // const correctPercent: number = 0;
+  const session = data.quizSessions.find(sessions => sessions.sessionId === sessionId);
+  const players = session.quizStatus.players
+  if (players.length === 0) {
+    return session.quizResults;
+  } else {
+    return playerSessionResults(players[0].playerId);
+  }
+};
 
-//   // //if correct session within session array
-//   // for (const quizSessions of data.quizSessions) {
-//   //   if (quizSessions.sessionId === sessionId) {
-//   //     //for all players in player array
-//   //     for (const player of quizSessions.quizStatus.players) {
-//   //       //get session results for that player, push those results to AllPlayersRanked array
-//   //       const playerResults = JaredSessionFinalResults(player.playerId)
-//   //       playerResults.usersRankedByScore.forEach(user => {
-//   //         allPlayersRanked.push(user);
-//   //       });
-
-//   //       playerResults.questionResults.forEach(user => {
-//   //         answerTime += user.averageAnswerTime;
-//   //         correctPercent += user.percentCorrect;
-//   //       });
-
-//   //       // for (const question of each question in session)
-//   //       //   call jareds other function
-//   //       //   append score to newscore array
-//   //       //   append
-
-//   //     }
-
-//   //     // for (each player in list of players) {
-//   //     //   amalagamate isCallLikeExpression(jared's cuntion)
-//   //     // }
-
-//   //   }
-//   // }
-
-//   // AllPlayersRanked.usersRankedByScore.sort((a, b) => {
-//   //   return a.score - b.score;
-//   // });
-
-// };
 export const sessionMessagesList = (playerId: number): MessageListReturn => {
   ValidPlayerId(playerId);
   const session = playerIdToSession(playerId);

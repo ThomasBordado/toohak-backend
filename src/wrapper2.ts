@@ -213,6 +213,6 @@ export const requestSendMessage = (playerid: number, message: MessageInput) => {
   return requestHelper('POST', `/v1/player/${playerid}/chat`, { message }, {});
 };
 
-// export const requestQuizSessionFinalResults = (token: string, quizid: number, sessionid: number) => {
-//   return requestHelper('GET', `/v1/admin/quiz/${quizid}/session/${sessionid}/results`, {}, { token });
-// };
+export const requestQuizSessionFinalResults = (token: string, quizid: number, sessionid: number) => {
+  return requestHelper('GET', `/v1/admin/quiz/${quizid}/session/${sessionid}/results`, {}, { token });
+};
