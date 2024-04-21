@@ -212,6 +212,8 @@ export interface Message {
 export interface QuizSession {
   sessionId: number;
   autoStartNum: number;
+  timeQuestionOpen: number;
+  timeSubmissionsTotal: number
   quizStatus: QuizStatus;
   quizResults: QuizResults;
   messages: Message[];

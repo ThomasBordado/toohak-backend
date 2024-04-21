@@ -1,8 +1,9 @@
 import { getData } from './dataStore';
-import { PlayerId, Player, PlayerStatus, PlayerQuestionInfo, Action, ErrorReturn, QuestionResults } from './interfaces';
+import { PlayerId, Player, PlayerStatus, PlayerQuestionInfo, Action, ErrorReturn, QuestionResults, UserRank } from './interfaces';
 import { UpdateSessionState } from './quiz';
 import { saveData } from './persistence';
 import HTTPError from 'http-errors';
+import { playerIdToSession } from './quizUtil';
 
 export const generateRandomName = (players: Player[]): string => {
   let letters = 'abcdefghijklmnopqrstuvwxyz';
@@ -141,79 +142,78 @@ export const PlayerAnswerSubmission = (playerId: number, questionPosition: numbe
   if (answerIds.length < 1) {
     throw HTTPError(400, 'At least one answer ID must be provided');
   }
+  const session = playerIdToSession(playerId);
+  const timeToSubmit = Math.floor(Date.now() / 1000) - session.timeQuestionOpen;
+  session.timeSubmissionsTotal += timeToSubmit;
 
-  const data = getData();
+  if (session.quizStatus.state !== 'QUESTION_OPEN') {
+    throw HTTPError(400, 'Question is closed');
+  }
+  if (questionPosition < 1 || questionPosition > session.quizStatus.metadata.numQuestions) {
+    throw HTTPError(400, 'Question position is not valid for the session this player is in');
+  }
+  if (session.quizStatus.atQuestion !== questionPosition) {
+    throw HTTPError(400, 'Session is not currently on this question');
+  }
 
-  for (const quizSession of data.quizSessions) {
-    if (quizSession.quizStatus.state !== 'QUESTION_OPEN') {
-      throw HTTPError(400, 'Question is closed');
+  const questionIndex = questionPosition - 1; // Zero-based index adjustment
+  const currentQuestion = session.quizStatus.metadata.questions[questionIndex];
+  if (!currentQuestion) {
+    throw HTTPError(400, 'Question does not exist for the provided position');
+  }
+
+  // checks for duplicate answer id
+  const answerIdSet = new Set(answerIds);
+  // checks whether new set is different from array size, then throws error if difference
+  if (answerIdSet.size !== answerIds.length) {
+    throw HTTPError(400, 'Duplicate answer IDs provided');
+  }
+
+  const submittedAnswer = currentQuestion.answers.find(a => a.answerId === answerIds[0]);
+  if (!submittedAnswer) {
+    throw HTTPError(400, 'Submitted answer ID is not valid for this question');
+  }
+
+  const player = session.quizStatus.players.find(p => p.playerId === playerId);
+  player.answerIds = answerIds;
+  // Check if all correct answers are included in the user's submitted answers
+  const allCorrectAnswers = currentQuestion.answers.filter(a => a.correct).map(a => a.answerId);
+  const isCorrect = answerIds.length === allCorrectAnswers.length && answerIds.every(id => allCorrectAnswers.includes(id));
+  const currentQuestionResults = session.quizResults.questionResults[questionIndex]
+  if (isCorrect) {
+    // Calculate scaling factor
+    const correctUsersCount = session.quizResults.questionResults
+      .find(qr => qr.questionId === currentQuestion.questionId)?.playersCorrectList.length ?? 0;
+    const scalingFactor = correctUsersCount + 1;
+
+    // Update player's score
+    player.score += currentQuestion.points * (1 / scalingFactor);
+    const playerRank = session.quizResults.usersRankedByScore.find(user => user.name === player.name);
+    if (!playerRank){
+      session.quizResults.usersRankedByScore.push({ name: player.name, score: player.score });
+    } else {
+      playerRank.score = player.score;
     }
-
-    const player = quizSession.quizStatus.players.find(p => p.playerId === playerId);
-    if (!player) {
-      throw HTTPError(400, 'Player ID does not exist');
+    session.quizResults.usersRankedByScore.sort((a: UserRank, b: UserRank) => b.score - a.score);
+    // Add the player to the correct user list for this question
+    if (!currentQuestionResults.playersCorrectList.includes(player.name)) {
+      currentQuestionResults.playersCorrectList.push(player.name)
     }
+    // update percentage correct
+    currentQuestionResults.percentCorrect = currentQuestionResults.playersCorrectList.length / session.quizStatus.players.length * 100;
+  }
 
-    if (questionPosition < 1 || questionPosition > quizSession.quizStatus.metadata.numQuestions) {
-      throw HTTPError(400, 'Question position is not valid for the session this player is in');
-    }
-
-    if (quizSession.quizStatus.atQuestion !== questionPosition) {
-      throw HTTPError(400, 'Session is not currently on this question');
-    }
-    const questionIndex = questionPosition - 1; // Zero-based index adjustment
-    const currentQuestion = quizSession.quizStatus.metadata.questions[questionIndex];
-    if (!currentQuestion) {
-      throw HTTPError(400, 'Question does not exist for the provided position');
-    }
-
-    // checks for duplicate answer id
-    const answerIdSet = new Set(answerIds);
-    // checks whether new set is different from array size, then throws error if difference
-    if (answerIdSet.size !== answerIds.length) {
-      throw HTTPError(400, 'Duplicate answer IDs provided');
-    }
-
-    const submittedAnswer = currentQuestion.answers.find(a => a.answerId === answerIds[0]);
-    if (!submittedAnswer) {
-      throw HTTPError(400, 'Submitted answer ID is not valid for this question');
-    }
-
-    // Check if all correct answers are included in the user's submitted answers
-    const allCorrectAnswers = currentQuestion.answers.filter(a => a.correct).map(a => a.answerId);
-    const isCorrect = answerIds.length === allCorrectAnswers.length && answerIds.every(id => allCorrectAnswers.includes(id));
-
-    if (isCorrect) {
-      // Clear answerIds array and push the new answer IDs
-      player.answerIds = [];
-      answerIds.forEach(id => player.answerIds.push(id));
-
-      // Calculate scaling factor
-      const correctUsersCount = quizSession.quizResults.questionResults
-        .find(qr => qr.questionId === currentQuestion.questionId)?.playersCorrectList.length ?? 0;
-      const scalingFactor = correctUsersCount + 1;
-
-      // Update player's score
-      player.score += currentQuestion.points * (1 / scalingFactor);
-
-      // Add the player to the correct user list for this question
-      const correctUser = [player.name];
-      const questionResultIndex = quizSession.quizResults.questionResults.findIndex(qr => qr.questionId === currentQuestion.questionId);
-      if (questionResultIndex !== -1) {
-        quizSession.quizResults.questionResults[questionResultIndex].playersCorrectList.push(player.name);
-      } else {
-        const questionResults: QuestionResults = {
-          questionId: currentQuestion.questionId,
-          playersCorrectList: correctUser,
-          averageAnswerTime: 0, // Set the default value
-          percentCorrect: 0, // Set the default value
-        };
-        quizSession.quizResults.questionResults.push(questionResults);
-      }
-      return {};
+  // update average time
+  let numberPlayersAnswered = 0;
+  for (const players of session.quizStatus.players){
+    if (players.answerIds.length > 0) {
+      numberPlayersAnswered ++;
     }
   }
+  currentQuestionResults.averageAnswerTime = session.timeSubmissionsTotal / numberPlayersAnswered;
+  return {};
 };
+
 
 export const PlayerQuestionResults = (playerId: number, questionPosition: number): QuestionResults | ErrorReturn => {
   const sessions = getData().quizSessions;
@@ -232,6 +232,22 @@ export const PlayerQuestionResults = (playerId: number, questionPosition: number
         const questionResult = session.quizResults.questionResults.find(result => result.questionId === session.quizStatus.metadata.questions[questionPosition - 1].questionId);
 
         return questionResult;
+      }
+    }
+  }
+  // If player not found
+  throw HTTPError(400, 'Player ID does not exist');
+};
+
+export const playerSessionResults = (playerId: number) => {
+  const sessions = getData().quizSessions;
+  for (const session of sessions) {
+    for (const player of session.quizStatus.players) {
+      if (player.playerId === playerId) {
+        if (session.quizStatus.state !== 'FINAL_RESULTS') {
+          throw HTTPError(400, 'Session is not in FINAL_RESULTS');
+        }
+        return session.quizResults;
       }
     }
   }

@@ -723,11 +723,18 @@ export const sessionStart = (token: string, quizId: number, autoStartNum: number
   if (quiz.numQuestions === 0) {
     throw HTTPError(400, 'The quiz does not have any questions in it');
   }
-
+  const initialQuestionResults = quiz.questions.map(question => ({
+    questionId: question.questionId,
+    playersCorrectList: [],
+    averageAnswerTime: 0,
+    percentCorrect: 0,
+  }));
   data.quizSessionIdStore += 1;
   const newQuizSession: QuizSession = {
     sessionId: data.quizSessionIdStore,
     autoStartNum: autoStartNum,
+    timeQuestionOpen: 0,
+    timeSubmissionsTotal: 0,
     quizStatus: {
       state: State.LOBBY,
       atQuestion: 0,
@@ -736,7 +743,7 @@ export const sessionStart = (token: string, quizId: number, autoStartNum: number
     },
     quizResults: {
       usersRankedByScore: [],
-      questionResults: [],
+      questionResults: initialQuestionResults,
     },
     messages: [],
   };
@@ -763,7 +770,6 @@ export const UpdateSessionState = (token: string, quizId: number, sessionId: num
     throw HTTPError(400, 'Session Id does not refer to a valid session within this quiz');
   }
 
-  console.log('updatesessionstate in');
   let timerId1: ReturnType<typeof setTimeout>;
   let timerId2: ReturnType<typeof setTimeout>;
   const DELAY = 3;
@@ -773,6 +779,11 @@ export const UpdateSessionState = (token: string, quizId: number, sessionId: num
       const CountdownToOpen = () => {
         if (quizSessions.quizStatus.state === 'QUESTION_COUNTDOWN') {
           quizSessions.quizStatus.state = State.QUESTION_OPEN;
+          quizSessions.timeQuestionOpen = Math.floor(Date.now() / 1000);
+          quizSessions.timeSubmissionsTotal = 0;
+          for (const player of quizSessions.quizStatus.players) {
+            player.answerIds = [];
+          }
           timerId2 = setTimeout(OpentoClose, quizSessions.quizStatus.metadata.questions[quizSessions.quizStatus.atQuestion - 1].duration * 1000);
           data.timers.push(timerId2);
         }
@@ -815,6 +826,8 @@ export const UpdateSessionState = (token: string, quizId: number, sessionId: num
       if (quizSessions.quizStatus.state === 'QUESTION_COUNTDOWN') {
         if (action === 'SKIP_COUNTDOWN') {
           quizSessions.quizStatus.state = State.QUESTION_OPEN;
+          quizSessions.timeQuestionOpen = Math.floor(Date.now() / 1000);
+          quizSessions.timeSubmissionsTotal = 0;
           clearTimeout(timerId1);
           timerId2 = setTimeout(OpentoClose, quizSessions.quizStatus.metadata.questions[quizSessions.quizStatus.atQuestion - 1].duration * 1000);
           data.timers.push(timerId2);
@@ -925,7 +938,13 @@ export const GetSessionStatus = (token: string, quizId: number, sessionId: numbe
 
   for (const quizSessions of data.quizSessions) {
     if (quizSessions.sessionId === sessionId) {
-      return quizSessions.quizStatus;
+      let playerNames = quizSessions.quizStatus.players.map(player => player.name);
+      return {
+        state: quizSessions.quizStatus.state,
+        atQuestion: quizSessions.quizStatus.atQuestion,
+        players: playerNames,
+        metadata: quizSessions.quizStatus.metadata,
+      };
     }
   }
 };
