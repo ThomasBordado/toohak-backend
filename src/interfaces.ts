@@ -192,7 +192,7 @@ export interface UserRank {
 
 export interface QuestionResults {
   questionId: number;
-  playerCorrectList: string[];
+  playersCorrectList: string[];
   averageAnswerTime: number;
   percentCorrect: number;
 }

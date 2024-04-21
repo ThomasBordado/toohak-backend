@@ -190,7 +190,7 @@ export const PlayerAnswerSubmission = (playerId: number, questionPosition: numbe
 
       // Calculate scaling factor
       const correctUsersCount = quizSession.quizResults.questionResults
-        .find(qr => qr.questionId === currentQuestion.questionId)?.playerCorrectList.length ?? 0;
+        .find(qr => qr.questionId === currentQuestion.questionId)?.playersCorrectList.length ?? 0;
       const scalingFactor = correctUsersCount + 1;
 
       // Update player's score
@@ -200,11 +200,11 @@ export const PlayerAnswerSubmission = (playerId: number, questionPosition: numbe
       const correctUser = [player.name];
       const questionResultIndex = quizSession.quizResults.questionResults.findIndex(qr => qr.questionId === currentQuestion.questionId);
       if (questionResultIndex !== -1) {
-        quizSession.quizResults.questionResults[questionResultIndex].playerCorrectList.push(player.name);
+        quizSession.quizResults.questionResults[questionResultIndex].playersCorrectList.push(player.name);
       } else {
         const questionResults: QuestionResults = {
           questionId: currentQuestion.questionId,
-          playerCorrectList: correctUser,
+          playersCorrectList: correctUser,
           averageAnswerTime: 0, // Set the default value
           percentCorrect: 0, // Set the default value
         };
@@ -231,21 +231,10 @@ export const PlayerQuestionResults = (playerId: number, questionPosition: number
         }
         const questionResult = session.quizResults.questionResults.find(result => result.questionId === session.quizStatus.metadata.questions[questionPosition - 1].questionId);
 
-        if (!questionResult) {
-          throw HTTPError(500, 'Question result not found');
-        }
-
-        return {
-          questionId: questionResult.questionId,
-          playerCorrectList: questionResult.playerCorrectList,
-          averageAnswerTime: questionResult.averageAnswerTime,
-          percentCorrect: questionResult.percentCorrect
-        };
+        return questionResult;
       }
     }
   }
   // If player not found
-  return {
-    error: 'Player not found'
-  };
+  throw HTTPError(400, 'Player ID does not exist');
 };
