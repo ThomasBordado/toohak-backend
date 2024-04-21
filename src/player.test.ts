@@ -544,7 +544,7 @@ describe('Test requestPlayerSessionResults', () => {
       response = requestPlayerQuestionInfo(player1.playerId, 2);
       requestPlayerAnswerSubmission(player1.playerId, 2, [response.answers[0].answerId]);
       sleepSync(2000);
-      requestPlayerAnswerSubmission(player1.playerId, 2, [response.answers[0].answerId]);
+      requestPlayerAnswerSubmission(player2.playerId, 2, [response.answers[0].answerId]);
       requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'GO_TO_ANSWER'); // Move to ANSWER_SHOW
       requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'GO_TO_FINAL_RESULTS'); // Move to ANSWER_SHOW
       const expected = {

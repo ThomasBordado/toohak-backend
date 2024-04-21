@@ -187,21 +187,23 @@ export const PlayerAnswerSubmission = (playerId: number, questionPosition: numbe
 
     // Update player's score
     player.score += currentQuestion.points * (1 / scalingFactor);
-    const playerRank = session.quizResults.usersRankedByScore.find(user => user.name === player.name);
+
+    // Add the player to the correct user list for this question
+    if (!currentQuestionResults.playersCorrectList.includes(player.name)) {
+      currentQuestionResults.playersCorrectList.push(player.name);
+    }
+
+  }
+  // update user ranks
+  const playerRank = session.quizResults.usersRankedByScore.find(user => user.name === player.name);
     if (!playerRank) {
       session.quizResults.usersRankedByScore.push({ name: player.name, score: player.score });
     } else {
       playerRank.score = player.score;
     }
     session.quizResults.usersRankedByScore.sort((a: UserRank, b: UserRank) => b.score - a.score);
-    // Add the player to the correct user list for this question
-    if (!currentQuestionResults.playersCorrectList.includes(player.name)) {
-      currentQuestionResults.playersCorrectList.push(player.name);
-    }
-    // update percentage correct
-    currentQuestionResults.percentCorrect = currentQuestionResults.playersCorrectList.length / session.quizStatus.players.length * 100;
-  }
-
+  // update percentage correct
+  currentQuestionResults.percentCorrect = currentQuestionResults.playersCorrectList.length / session.quizStatus.players.length * 100;
   // update average time
   let numberPlayersAnswered = 0;
   for (const players of session.quizStatus.players) {
