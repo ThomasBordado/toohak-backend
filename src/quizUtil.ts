@@ -1,42 +1,17 @@
-import { quizUser, user, quizQuestionCreateInput, quizQuestionCreateInputV1, QuizResults } from './interfaces';
+import { quizUser, user, quizQuestionCreateInput, quizQuestionCreateInputV1, QuizSession, QuizResults } from './interfaces';
 import { getData } from './dataStore';
 import HTTPError from 'http-errors';
 import fs from 'fs';
 
 /**
- * Check if AuthUserId is valid.
+ * Check if token is valid.
  * @param {number} token - unique identifier for a session
- * @param {
- *  Array <{userId: number,
- *    nameFirst: string,
- *    nameLast: string,
- *    email: string,
- *    password: string,
- *    numSuccessfulLogins: Number,
- *    numFailedPasswordsSinceLastLogin: number,
- *    quizzes: Array <{
- *      quizId: number,
- *      name: string
- *    }>,
- *   }>
- *  } userData - array of users obtained from dataStore
- * @returns {{
- *  userId: number,
- *  nameFirst: string,
- *  nameLast: string,
- *  email: string,
- *  password: string,
- *  numSuccessfulLogins: Number,
- *  numFailedPasswordsSinceLastLogin: number,
- *  quizzes: Array <{
- *    quizId: number,
- *    name: string
- *   }>
- *  }
- * } - for valid sessionId
-  */
+ * @param {Array <user>} userData - array of users obtained from dataStore
+ *
+ * @returns {user} - for valid token
+ */
 export const validToken = (token: string, userData: user[]) => {
-  // searches for sessionId and returns user if found
+  // searches for token and returns user if found
   if (token === '') {
     throw HTTPError(401, 'Token is empty');
   }
@@ -53,14 +28,7 @@ export const validToken = (token: string, userData: user[]) => {
 /**
  * Check if quiz name is valid.
  * @param {string} name - quiz name
- * @param {
- *   Array <{
- *      quizId: number,
- *      name: string
- *      }>
- *  } quizzesOwned - array of quizzes owned by user
- * @returns {boolean} - for valid quiz name
- * @returns {error: string}} - for invalid quiz name
+ * @param {Array <quizUser>} quizzesOwned - array of quizzes owned by user
  */
 export const checkQuizName = (name: string, quizzesOwned: quizUser[]) => {
   // error if quiz name is < 3 && > 30 character
@@ -83,6 +51,14 @@ export const checkQuizName = (name: string, quizzesOwned: quizUser[]) => {
   }
 };
 
+/**
+ * Check if question is valid.
+ * @param {quizQuestionCreateInputV1} quizQuestion - quiz question
+ * @param {number} quizId - unique identifier for a quiz
+ *
+ * @returns {{ duration: number }} - for valid quiz question
+ * @returns {{ error: string }} - for invalid quiz question
+ */
 export const checkQuestionValidV1 = (quizQuestion: quizQuestionCreateInputV1, quizId: number) => {
   // Check the string length
   if (quizQuestion.question.length < 5 || quizQuestion.question.length > 50) {
@@ -143,6 +119,13 @@ export const checkQuestionValidV1 = (quizQuestion: quizQuestionCreateInputV1, qu
   return { duration: sum };
 };
 
+/**
+ * Check if question is valid.
+ * @param {quizQuestionCreateInput} quizQuestion - quiz question
+ * @param {number} quizId - unique identifier for a quiz
+ *
+ * @returns {{ duration: number }} - for valid quiz question
+ */
 export const checkQuestionValid = (quizQuestion: quizQuestionCreateInput, quizId: number) => {
   // Check the string length
   if (quizQuestion.question.length < 5 || quizQuestion.question.length > 50) {
@@ -205,7 +188,9 @@ export const checkQuestionValid = (quizQuestion: quizQuestionCreateInput, quizId
 };
 
 /**
- *  It can only be used after checking the token
+ * Check if question is valid.
+ * @param {string} token - quiz question
+ * @param {number} quizId - unique identifier for a session
  */
 export const isValidQuizId = (token: string, quizId: number) => {
   // Check if the quizId is invalid
@@ -215,22 +200,23 @@ export const isValidQuizId = (token: string, quizId: number) => {
   }
 
   // Check if the user own the quiz
+  const user = data.users.find(users => users.sessions.includes(token));
   const quiz = data.quizzes.find(quizs => quizs.quizId === quizId);
-  if (quiz) {
-    const user = data.users.find(users => users.sessions.includes(token));
-    const findQuiz = user.quizzes.find(quizzes => quizzes.quizId === quizId);
+  const findQuiz = user.quizzes.find(quizzes => quizzes.quizId === quizId);
 
-    // If the user owns this quiz
-    if (findQuiz !== undefined) {
-      return {};
+  if (findQuiz === undefined) {
+    if (quiz === undefined) {
+      throw HTTPError(403, 'Invalid quizId');
+    } else {
+      throw HTTPError(403, 'user does not own the quiz');
     }
-    throw HTTPError(403, 'user does not own the quiz');
-  } else {
-    throw HTTPError(403, 'Invalid quizId');
   }
 };
 
-// A function to check if the thumbnailUrl is valid
+/**
+ * Check if thumbnailUrl is valid.
+ * @param {string} thumbnailUrl - quiz question
+ */
 export const validthumbnailUrl = (thumbnailUrl: string) => {
   if (thumbnailUrl === '') {
     throw HTTPError(400, 'The thumbnailUrl is an empty string.');
@@ -244,25 +230,20 @@ export const validthumbnailUrl = (thumbnailUrl: string) => {
 };
 
 // A function to generate random color
+/**
+ * generate random color.
+ * @returns {string} - random color
+ */
 export const randomColour = (): string => {
   const colours = ['red', 'green', 'yellow', 'blue'];
   const index = Math.floor(Math.random() * colours.length);
   return colours[index];
 };
 
-// input a player id and get session, meanwhile testing if the playerId is valid
-export const playerIdToSession = (playerId: number) => {
-  const data = getData();
-  for (const session of data.quizSessions) {
-    for (const player of session.quizStatus.players) {
-      if (player.playerId === playerId) {
-        return session;
-      }
-    }
-  }
-  throw HTTPError(400, 'player ID does not exist');
-};
-
+/**
+ * Check if session is active.
+ * @param {number} quizId - unique identifyer for a quiz
+ */
 export const isActiveQuizSession = (quizId: number) => {
   const data = getData();
   for (const session of data.quizSessions) {
@@ -272,29 +253,43 @@ export const isActiveQuizSession = (quizId: number) => {
   }
 };
 
+/**
+ * Check if playerId is valid.
+ * @param {number} playerId - unique identifyer for a player
+ *
+ * @returns {QuizSession} - for valid playerId
+ */
 export const ValidPlayerId = (playerId: number) => {
   const data = getData();
   for (const session of data.quizSessions) {
     for (const player of session.quizStatus.players) {
       if (player.playerId === playerId) {
-        return;
+        return session;
       }
     }
   }
   throw HTTPError(400, 'player ID does not exist.');
 };
 
-export const playerIdToPlayer = (playerId: number) => {
-  const data = getData();
-  for (const session of data.quizSessions) {
-    for (const player of session.quizStatus.players) {
-      if (player.playerId === playerId) {
-        return player;
-      }
-    }
-  }
-  throw HTTPError(400, 'player ID does not exist');
+/**
+ * Finds valid player in a quiz session.
+ * @param {number} playerId - unique identifyer for a player
+ * @param {QuizSession} session - unique identifyer for a player
+ *
+ * @returns {Player} - when found
+ */
+export const playerIdToPlayer = (playerId: number, session: QuizSession) => {
+  const player = session.quizStatus.players.find(players => players.playerId === playerId);
+  return player;
 };
+
+/**
+ * Checks if sessionId is valid.
+ * @param {number} sessionId - unique identifyer for a quiz session
+ * @param {number} quizId - unique identifyer for a quiz
+ *
+ * @returns {QuizSession} - for valid sessionId
+ */
 export const validSession = (sessionId: number, quizId: number) => {
   const data = getData();
   const findSession = data.quizSessions.find(session => session.quizStatus.metadata.quizId === quizId);
@@ -304,6 +299,13 @@ export const validSession = (sessionId: number, quizId: number) => {
   return findSession;
 };
 
+/**
+ * Generates CVS adress based on array.
+ * @param {string} token - unique identifyer for a session
+ * @param {QuizResults} result - results from quiz session
+ *
+ * @returns {string} - generated CVS adress
+ */
 export const arrayToCSVAddress = (token: string, result: QuizResults, sessionId: number): string => {
   const fileName = `./csv-results/QuizResults_${token}session${sessionId}.csv`;
   const dir = './csv-results';
