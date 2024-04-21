@@ -177,7 +177,7 @@ export const PlayerAnswerSubmission = (playerId: number, questionPosition: numbe
   const player = session.quizStatus.players.find(p => p.playerId === playerId);
   player.answerIds = answerIds;
   // Check if all correct answers are included in the user's submitted answers
-  const allCorrectAnswers = currentQuestion.answers.filter(a => a.correct === true ).map(a => a.answerId);
+  const allCorrectAnswers = currentQuestion.answers.filter(a => a.correct === true).map(a => a.answerId);
   const isCorrect = answerIds.length === allCorrectAnswers.length && answerIds.every(id => allCorrectAnswers.includes(id));
   const currentQuestionResults = session.quizResults.questionResults[questionIndex];
   if (isCorrect) {
@@ -192,16 +192,15 @@ export const PlayerAnswerSubmission = (playerId: number, questionPosition: numbe
     if (!currentQuestionResults.playersCorrectList.includes(player.name)) {
       currentQuestionResults.playersCorrectList.push(player.name);
     }
-
   }
   // update user ranks
   const playerRank = session.quizResults.usersRankedByScore.find(user => user.name === player.name);
-    if (!playerRank) {
-      session.quizResults.usersRankedByScore.push({ name: player.name, score: player.score });
-    } else {
-      playerRank.score = player.score;
-    }
-    session.quizResults.usersRankedByScore.sort((a: UserRank, b: UserRank) => b.score - a.score);
+  if (!playerRank) {
+    session.quizResults.usersRankedByScore.push({ name: player.name, score: player.score });
+  } else {
+    playerRank.score = player.score;
+  }
+  session.quizResults.usersRankedByScore.sort((a: UserRank, b: UserRank) => b.score - a.score);
   // update percentage correct
   currentQuestionResults.percentCorrect = currentQuestionResults.playersCorrectList.length / session.quizStatus.players.length * 100;
   // update average time
