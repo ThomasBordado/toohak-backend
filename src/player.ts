@@ -177,13 +177,12 @@ export const PlayerAnswerSubmission = (playerId: number, questionPosition: numbe
   const player = session.quizStatus.players.find(p => p.playerId === playerId);
   player.answerIds = answerIds;
   // Check if all correct answers are included in the user's submitted answers
-  const allCorrectAnswers = currentQuestion.answers.filter(a => a.correct).map(a => a.answerId);
+  const allCorrectAnswers = currentQuestion.answers.filter(a => a.correct === true ).map(a => a.answerId);
   const isCorrect = answerIds.length === allCorrectAnswers.length && answerIds.every(id => allCorrectAnswers.includes(id));
   const currentQuestionResults = session.quizResults.questionResults[questionIndex];
   if (isCorrect) {
     // Calculate scaling factor
-    const correctUsersCount = session.quizResults.questionResults
-      .find(qr => qr.questionId === currentQuestion.questionId)?.playersCorrectList.length ?? 0;
+    const correctUsersCount = currentQuestionResults.playersCorrectList.length;
     const scalingFactor = correctUsersCount + 1;
 
     // Update player's score
@@ -210,7 +209,7 @@ export const PlayerAnswerSubmission = (playerId: number, questionPosition: numbe
       numberPlayersAnswered++;
     }
   }
-  currentQuestionResults.averageAnswerTime = session.timeSubmissionsTotal / numberPlayersAnswered;
+  currentQuestionResults.averageAnswerTime = Math.round(session.timeSubmissionsTotal / numberPlayersAnswered);
   return {};
 };
 

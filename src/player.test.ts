@@ -450,7 +450,7 @@ describe('Test requestPlayerSessionResults', () => {
       requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'NEXT_QUESTION'); // Move to QUESTION_OPEN
       requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'SKIP_COUNTDOWN');
     });
-    test.skip('Succesful case)', () => {
+    test('Succesful case)', () => {
       let response = requestPlayerQuestionInfo(player.playerId, 1);
       requestPlayerAnswerSubmission(player.playerId, 1, [response.answers[0].answerId]);
       sleepSync(5000);
@@ -524,28 +524,27 @@ describe('Test requestPlayerSessionResults', () => {
         thumbnailUrl: 'http://google.com/some/image/path.jpg',
       };
       questionId1 = requestQuizQuestionCreate(user.token, questionin, quiz.quizId);
+      questionId2 = requestQuizQuestionCreate(user.token, questionin, quiz.quizId);
       session = requestSessionStart(user.token, quiz.quizId, 3);
       player1 = requestPlayerJoin(session.sessionId, 'jared');
       player2 = requestPlayerJoin(session.sessionId, 'chloe');
       requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'NEXT_QUESTION'); // Move to QUESTION_OPEN
       requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'SKIP_COUNTDOWN');
     });
-    test.skip('One question)', () => {
-      const response1 = requestPlayerQuestionInfo(player1.playerId, 1);
-      requestPlayerAnswerSubmission(player1.playerId, 1, [response1.answers[0].answerId]);
+    test('two questions)', () => {
+      let response = requestPlayerQuestionInfo(player1.playerId, 1);
+      requestPlayerAnswerSubmission(player1.playerId, 1, [response.answers[0].answerId]);
       sleepSync(1500);
-      const response2 = requestPlayerQuestionInfo(player2.playerId, 1);
-      requestPlayerAnswerSubmission(player2.playerId, 1, [response2.answers[1].answerId]);
+      requestPlayerAnswerSubmission(player2.playerId, 1, [response.answers[1].answerId]);
       sleepSync(3500);
       requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'NEXT_QUESTION'); // Move to QUESTION_OPEN
       requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'SKIP_COUNTDOWN');
 
       sleepSync(1000);
-      const response3 = requestPlayerQuestionInfo(player1.playerId, 2);
-      requestPlayerAnswerSubmission(player1.playerId, 2, [response3.answers[0].answerId]);
+      response = requestPlayerQuestionInfo(player1.playerId, 2);
+      requestPlayerAnswerSubmission(player1.playerId, 2, [response.answers[0].answerId]);
       sleepSync(2000);
-      const response4 = requestPlayerQuestionInfo(player2.playerId, 2);
-      requestPlayerAnswerSubmission(player1.playerId, 2, [response4.answers[0].answerId]);
+      requestPlayerAnswerSubmission(player1.playerId, 2, [response.answers[0].answerId]);
       requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'GO_TO_ANSWER'); // Move to ANSWER_SHOW
       requestUpdateSessionState(user.token, quiz.quizId, session.sessionId, 'GO_TO_FINAL_RESULTS'); // Move to ANSWER_SHOW
       const expected = {
@@ -556,7 +555,7 @@ describe('Test requestPlayerSessionResults', () => {
           },
           {
             name: 'chloe',
-            score: 5
+            score: 2.5
           }
         ],
         questionResults: [
