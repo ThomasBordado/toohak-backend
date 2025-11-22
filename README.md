@@ -97,13 +97,34 @@ The HTTP API is defined in `swagger.yaml`. To explore it:
 
 ---
 
-## 👤 Role & Context
+## 🧑‍💻 My Contributions
 
 This backend service was developed as part of a university software engineering course.
 
-My personal contributions included:
+Across this project I contributed to several core areas of the backend, including:
 
-- Implementing core backend logic and state management for authentication, quizzes and testing
-- Setting up automated unit tests for the CI pipeline
-- Refactoring code for readability, modularity, and maintainability
+### **🔐 Authentication & User Management**
+- Implemented and refined admin registration, login, logout and token authentication flows.
+- Added and updated endpoints for user details and user profile updates.
+- Fixed authentication edge cases and improved token handling behaviour.
+
+### **💾 Persistence Layer (State Saving & Loading)**
+- Added a full persistence system to load and save the backend datastore across server restarts.
+- Integrated persistence into core helper functions to ensure data consistency.
+- Implemented logic to load data on startup and safely clear data on server shutdown.
+- Added automatic saving after API calls to maintain up-to-date state.
+
+### **🧠 Quiz & Session Logic**
+- Added validation logic for question positions and improved error handling for invalid states.
+- Worked on session timing behaviour, including clearing/resetting timers to prevent stuck states.
+- Contributed to player flows (join, status, question info) and integrated related feature branches.
+
+### **🛠 API Coverage & General Backend Features**
+- Added support for admin quiz updates such as thumbnail changes and question operations (move, duplicate, delete).
+- Updated tests and adjusted backend behaviour to match API contract expectations.
+
+### **🧹 Code Quality & Integration**
+- Fixed linting issues, enforced consistent code style and improved comments across several files.
+- Resolved merge conflicts and integrated numerous feature branches (e.g., `adminAuthLogin`, `playerJoin`, `hashPasswords`, `adminQuestionMove`).
+- Updated wrapper and test files to maintain alignment with backend logic.
 ---
