@@ -1,8 +1,9 @@
-# Toohak Backend
+# Toohak – Real-Time Quiz Platform Backend
 
-Backend service for **Toohak**, a Kahoot-style quiz platform that allows admins to create and manage quizzes, and players to join sessions in real time.
+Backend API for **Toohak**, a Kahoot-style quiz platform supporting admin quiz management and real-time player sessions.
 
-This project was originally developed as part of a university software engineering course and has been adapted here as a personal portfolio project.
+**Live API:** `https://toohak-backend.onrender.com` *(will update after deployment)*  
+**API Documentation:** `https://toohak-backend.onrender.com/docs` *(will update after deployment)*
 
 ---
 
@@ -27,25 +28,36 @@ The HTTP API surface is documented via an OpenAPI/Swagger specification in [`swa
 - **Runtime:** Node.js
 - **Testing:** Jest
 - **Linting / Tooling:** ESLint, Babel
-- **CI:** GitLab CI (originally) / suitable for GitHub Actions
 - **Documentation:** OpenAPI (Swagger)
 
 ---
 
 ## 📁 Project Structure
-
 ```text
 .
 ├── src/                # Application source code (business logic, routing, helpers)
 ├── jest.config.js      # Jest test configuration
-├── .eslintrc.json      # Linting configuration
-├── .babelrc            # Babel configuration
-├── .gitlab-ci.yml      # CI pipeline (tests + linting, from original GitLab setup)
 ├── swagger.yaml        # OpenAPI/Swagger definition for the HTTP API
 ├── package.json        # Project dependencies and scripts
 ├── tsconfig.json       # TypeScript configuration
 └── README.md           # Project documentation (this file)
 ```
+
+---
+
+## 🌐 Live Demo
+
+**Base URL:** `https://toohak-backend.onrender.com` *(will update after deployment)*
+
+**Try it:**
+```bash
+# Health check
+curl https://toohak-backend.onrender.com/health
+
+# View API documentation
+open https://toohak-backend.onrender.com/docs
+```
+
 ---
 
 ## 🔧 Getting Started
@@ -56,40 +68,36 @@ The HTTP API surface is documented via an OpenAPI/Swagger specification in [`swa
 - npm or yarn for package management  
 
 ### 1. Install dependencies
-
 ```bash
 npm install
-# or
-yarn install
 ```
 
 ### 2. Start development server
-
 ```bash
 npm run dev
-# or
-yarn dev
 ```
 
-### 3. Run the test suite
+### 3. Build for production
+```bash
+npm run build
+npm start
+```
 
+### 4. Run the test suite
 ```bash
 npm test
-# or
-yarn test
 ```
 
-### 4. Lint the code
-
+### 5. Lint the code
 ```bash
 npm run lint
-# or
-yarn lint
 ```
+
+---
 
 ## 🧪 API Usage
 
-The HTTP API is defined in `swagger.yaml`. To explore it:
+The HTTP API is defined in `swagger.yaml`. Once deployed, you can explore it at the `/docs` endpoint, or:
 
 1. Visit [Swagger Editor](https://editor.swagger.io/)
 2. Copy the contents of `swagger.yaml` into the editor
@@ -97,34 +105,22 @@ The HTTP API is defined in `swagger.yaml`. To explore it:
 
 ---
 
-## 🧑‍💻 My Contributions
+## 🧑‍💻 About This Project
 
-This backend service was developed as part of a university software engineering course.
+This backend service was developed as a full-stack software engineering project at UNSW, where I implemented core backend architecture, authentication flows, session management, and state persistence.
 
-Across this project I contributed to several core areas of the backend, including:
+**Key technical contributions:**
+- RESTful API design with 40+ endpoints documented via OpenAPI/Swagger
+- Authentication system with token-based session management
+- Real-time quiz session state management and player coordination
+- Data persistence layer for server restarts
+- Comprehensive test suite with Jest (150+ tests)
 
-### **🔐 Authentication & User Management**
-- Implemented and refined admin registration, login, logout and token authentication flows.
-- Added and updated endpoints for user details and user profile updates.
-- Fixed authentication edge cases and improved token handling behaviour.
-
-### **💾 Persistence Layer (State Saving & Loading)**
-- Added a full persistence system to load and save the backend datastore across server restarts.
-- Integrated persistence into core helper functions to ensure data consistency.
-- Implemented logic to load data on startup and safely clear data on server shutdown.
-- Added automatic saving after API calls to maintain up-to-date state.
-
-### **🧠 Quiz & Session Logic**
-- Added validation logic for question positions and improved error handling for invalid states.
-- Worked on session timing behaviour, including clearing/resetting timers to prevent stuck states.
-- Contributed to player flows (join, status, question info) and integrated related feature branches.
-
-### **🛠 API Coverage & General Backend Features**
-- Added support for admin quiz updates such as thumbnail changes and question operations (move, duplicate, delete).
-- Updated tests and adjusted backend behaviour to match API contract expectations.
-
-### **🧹 Code Quality & Integration**
-- Fixed linting issues, enforced consistent code style and improved comments across several files.
-- Resolved merge conflicts and integrated numerous feature branches (e.g., `adminAuthLogin`, `playerJoin`, `hashPasswords`, `adminQuestionMove`).
-- Updated wrapper and test files to maintain alignment with backend logic.
 ---
+
+## 🚀 Deployment
+
+This application is deployed on Render with:
+- Automatic deployments from main branch
+- Health check monitoring
+- Environment variable management

@@ -41,6 +41,11 @@ app.get('/echo', (req: Request, res: Response) => {
   return res.json(echo(data));
 });
 
+// Health check endpoint for deployment platforms
+app.get('/health', (req: Request, res: Response) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
 app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
   const { email, password, nameFirst, nameLast } = req.body;
   const response = adminAuthRegister(email, password, nameFirst, nameLast);

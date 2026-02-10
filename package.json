@@ -1,13 +1,15 @@
 {
     "scripts": {
-        "test": "jest",
-        "tsc": "tsc --project tsconfig.json",
-        "lint": "eslint 'src/**/*.{ts,js}'",
-        "lint-fix": "eslint --fix 'src/**/*.{ts,js}'",
-        "start": "ts-node -T src/server.ts",
-        "ts-node-coverage": "nyc --reporter=text --reporter=lcov ts-node -T src/server.ts",
-        "cleanup-sync-request": "pkill -f node_modules/sync-rpc/lib/worker.js > /dev/null 2>&1",
-        "posttest": "npm run cleanup-sync-request || true"
+    "test": "jest",
+    "tsc": "tsc --project tsconfig.json",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "dev": "ts-node -T src/server.ts",
+    "lint": "eslint 'src/**/*.{ts,js}'",
+    "lint-fix": "eslint --fix 'src/**/*.{ts,js}'",
+    "ts-node-coverage": "nyc --reporter=text --reporter=lcov ts-node -T src/server.ts",
+    "cleanup-sync-request": "pkill -f node_modules/sync-rpc/lib/worker.js > /dev/null 2>&1",
+    "posttest": "npm run cleanup-sync-request || true"
     },
     "dependencies": {
         "convert-array-to-csv": "^2.0.0",

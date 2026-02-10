@@ -2,14 +2,17 @@
   "compilerOptions": {
     "esModuleInterop": true,
     "noImplicitAny": true,
-    "noEmit": true,
+    "noEmit": false,
+    "outDir": "./dist",
     "resolveJsonModule": true,
     "allowJs": true,
     "target": "es2015",
     "module": "commonjs"
   },
+  "include": ["src/**/*"],
   "exclude": [
-    "**/**_broken.ts"
-  ],
+    "**/**_broken.ts",
+    "node_modules",
+    "dist"
+  ]
 }
-
