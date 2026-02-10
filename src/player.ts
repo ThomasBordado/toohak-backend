@@ -73,6 +73,9 @@ export const playerJoin = (sessionId: number, name: string): PlayerId => {
     const quizId = data.quizSessions[sessionIndex].quizStatus.metadata.quizId;
     const users = getData().users;
     const user = users.find(users => users.quizzes.find(quizzes => quizzes.quizId === quizId));
+    if (!user) {
+      throw HTTPError(500, 'Quiz owner not found');
+    }
     const token = user.sessions[0];
     UpdateSessionState(token, quizId, data.quizSessions[sessionIndex].sessionId, Action.NEXT_QUESTION);
   }
@@ -108,7 +111,7 @@ export const playerStatus = (playerId: number): PlayerStatus => {
  * Allow player to view their status
  * @param {number} playerId - unique identifyer for a player
  * @param {number} questionPosition - position of question that player attempts to view info
- * @returns {{ questionId: number, question: string, duration: number, thumbnailUrl: string, points: number, answers: Array<{ answerId: number, answer: string, colour: string }> }} - question info
+ * @returns {{ questionId: number, question: string, duration: number, thumbnailUrl?: string, points: number, answers: Array<{ answerId: number, answer: string, colour: string }> }} - question info
  */
 export const playerQuestionInfo = (playerId: number, questionPosition: number): PlayerQuestionInfo => {
   const sessions = getData().quizSessions;
@@ -193,6 +196,9 @@ export const PlayerAnswerSubmission = (playerId: number, questionPosition: numbe
   }
 
   const player = session.quizStatus.players.find(p => p.playerId === playerId);
+  if (!player) {
+    throw HTTPError(500, 'Player not found');
+  }
   player.answerIds = answerIds;
   // Check if all correct answers are included in the user's submitted answers
   const allCorrectAnswers = currentQuestion.answers.filter(a => a.correct === true).map(a => a.answerId);
@@ -253,6 +259,10 @@ export const PlayerQuestionResults = (playerId: number, questionPosition: number
           throw HTTPError(400, 'Session is not in ANSWER_SHOW');
         }
         const questionResult = session.quizResults.questionResults.find(result => result.questionId === session.quizStatus.metadata.questions[questionPosition - 1].questionId);
+
+        if (!questionResult) {
+          throw HTTPError(500, 'Question result not found');
+        }
 
         return questionResult;
       }

@@ -39,6 +39,8 @@ const requestHelper = (
       statusCode: res.statusCode,
     };
   } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : String(error);
     bodyObject = {
       error: `\
 Server responded with ${res.statusCode}, but body is not JSON!
@@ -47,7 +49,7 @@ GIVEN:
 ${bodyString}.
 
 REASON:
-${error.message}.
+${errorMessage}.
 
 HINT:
 Did you res.json(undefined)?`,

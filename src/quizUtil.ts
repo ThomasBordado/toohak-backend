@@ -57,67 +57,66 @@ export const checkQuizName = (name: string, quizzesOwned: quizUser[]) => {
  * @param {number} quizId - unique identifier for a quiz
  *
  * @returns {{ duration: number }} - for valid quiz question
- * @returns {{ error: string }} - for invalid quiz question
  */
-export const checkQuestionValidV1 = (quizQuestion: quizQuestionCreateInputV1, quizId: number) => {
-  // Check the string length
+export const checkQuestionValidV1 = (
+  quizQuestion: quizQuestionCreateInputV1,
+  quizId: number
+): { duration: number } => {
+
   if (quizQuestion.question.length < 5 || quizQuestion.question.length > 50) {
-    return { error: 'Question string is less than 5 characters in length or greater than 50 characters in length' };
+    throw HTTPError(400, 'Question string is less than 5 characters in length or greater than 50 characters in length');
   }
 
-  // Check the answer length
   if (quizQuestion.answers.length > 6 || quizQuestion.answers.length < 2) {
-    return { error: 'The question has more than 6 answers or less than 2 answers' };
+    throw HTTPError(400, 'The question has more than 6 answers or less than 2 answers');
   }
 
-  // Check the duration
   if (quizQuestion.duration <= 0) {
-    return { error: 'The question duration is not a positive number' };
+    throw HTTPError(400, 'The question duration is not a positive number');
   }
 
-  // Calculate the sum of duration
   const data = getData();
-  const quiz = data.quizzes.find(quizs => quizs.quizId === quizId);
+  const quiz = data.quizzes.find(q => q.quizId === quizId);
+  if (!quiz) {
+    throw HTTPError(500, 'Quiz data inconsistency');
+  }
+
   let sum = 0;
-  for (let i = 0; i < quiz.questions.length; i++) {
-    sum = sum + quiz.questions[i].duration;
+  for (const q of quiz.questions) {
+    sum += q.duration;
   }
-  sum = sum + quizQuestion.duration;
+  sum += quizQuestion.duration;
+
   if (sum > 180) {
-    return { error: 'The sum of the question durations in the quiz exceeds 3 minutes' };
+    throw HTTPError(400, 'The sum of the question durations in the quiz exceeds 3 minutes');
   }
 
-  // Check the point award
   if (quizQuestion.points < 1 || quizQuestion.points > 10) {
-    return { error: 'The points awarded for the question are less than 1 or greater than 10' };
+    throw HTTPError(400, 'The points awarded for the question are less than 1 or greater than 10');
   }
 
-  // Check the answer length
   for (const answer of quizQuestion.answers) {
     if (answer.answer.length < 1 || answer.answer.length > 30) {
-      return { error: 'The length of any answer is shorter than 1 character long, or longer than 30 characters long' };
+      throw HTTPError(400, 'The length of any answer is shorter than 1 character long, or longer than 30 characters long');
     }
   }
 
-  // Check if there's duplicate answers
-  const uniqueAnswers : string[] = [];
-  for (let i = 0; i < quizQuestion.answers.length; i++) {
-    const currentAnswer = quizQuestion.answers[i].answer;
-    if (!uniqueAnswers.includes(currentAnswer)) {
-      uniqueAnswers.push(currentAnswer);
-    } else {
-      return { error: 'Any answer strings are duplicates of one another (within the same question)' };
+  const uniqueAnswers = new Set<string>();
+  for (const answer of quizQuestion.answers) {
+    if (uniqueAnswers.has(answer.answer)) {
+      throw HTTPError(400, 'Any answer strings are duplicates of one another (within the same question)');
     }
+    uniqueAnswers.add(answer.answer);
   }
 
-  // Check if there's correct answer
-  const answer = quizQuestion.answers.find(quizs => quizs.correct === true);
-  if (!answer) {
-    return { error: 'There are no correct answers' };
+  const hasCorrect = quizQuestion.answers.some(a => a.correct);
+  if (!hasCorrect) {
+    throw HTTPError(400, 'There are no correct answers');
   }
 
   return { duration: sum };
 };
+
 
 /**
  * Check if question is valid.
@@ -126,15 +125,24 @@ export const checkQuestionValidV1 = (quizQuestion: quizQuestionCreateInputV1, qu
  *
  * @returns {{ duration: number }} - for valid quiz question
  */
-export const checkQuestionValid = (quizQuestion: quizQuestionCreateInput, quizId: number) => {
+export const checkQuestionValid = (
+  quizQuestion: quizQuestionCreateInput,
+  quizId: number
+): { duration: number } => {
   // Check the string length
   if (quizQuestion.question.length < 5 || quizQuestion.question.length > 50) {
-    throw HTTPError(400, 'Question string is less than 5 characters in length or greater than 50 characters in length');
+    throw HTTPError(
+      400,
+      'Question string is less than 5 characters in length or greater than 50 characters in length'
+    );
   }
 
   // Check the answer length
   if (quizQuestion.answers.length > 6 || quizQuestion.answers.length < 2) {
-    throw HTTPError(400, 'The question has more than 6 answers or less than 2 answers');
+    throw HTTPError(
+      400,
+      'The question has more than 6 answers or less than 2 answers'
+    );
   }
 
   // Check the duration
@@ -144,43 +152,57 @@ export const checkQuestionValid = (quizQuestion: quizQuestionCreateInput, quizId
 
   // Calculate the sum of duration
   const data = getData();
-  const quiz = data.quizzes.find(quizs => quizs.quizId === quizId);
-  let sum = 0;
-
-  for (let i = 0; i < quiz.questions.length; i++) {
-    sum = sum + quiz.questions[i].duration;
+  const quiz = data.quizzes.find(q => q.quizId === quizId);
+  if (!quiz) {
+    throw HTTPError(500, 'Quiz data inconsistency');
   }
-  sum = sum + quizQuestion.duration;
+
+  let sum = 0;
+  for (const question of quiz.questions) {
+    sum += question.duration;
+  }
+
+  sum += quizQuestion.duration;
   if (sum > 180) {
-    throw HTTPError(400, 'The sum of the question durations in the quiz exceeds 3 minutes');
+    throw HTTPError(
+      400,
+      'The sum of the question durations in the quiz exceeds 3 minutes'
+    );
   }
 
   // Check the point award
   if (quizQuestion.points < 1 || quizQuestion.points > 10) {
-    throw HTTPError(400, 'The points awarded for the question are less than 1 or greater than 10');
+    throw HTTPError(
+      400,
+      'The points awarded for the question are less than 1 or greater than 10'
+    );
   }
 
   // Check the answer length
   for (const answer of quizQuestion.answers) {
     if (answer.answer.length < 1 || answer.answer.length > 30) {
-      throw HTTPError(400, 'The length of any answer is shorter than 1 character long, or longer than 30 characters long');
+      throw HTTPError(
+        400,
+        'The length of any answer is shorter than 1 character long, or longer than 30 characters long'
+      );
     }
   }
 
-  // Check if there's duplicate answers
-  const uniqueAnswers : string[] = [];
-  for (let i = 0; i < quizQuestion.answers.length; i++) {
-    const currentAnswer = quizQuestion.answers[i].answer;
-    if (!uniqueAnswers.includes(currentAnswer)) {
-      uniqueAnswers.push(currentAnswer);
-    } else {
-      throw HTTPError(400, 'Any answer strings are duplicates of one another (within the same question)');
+  // Check for duplicate answers
+  const uniqueAnswers: string[] = [];
+  for (const ans of quizQuestion.answers) {
+    if (uniqueAnswers.includes(ans.answer)) {
+      throw HTTPError(
+        400,
+        'Any answer strings are duplicates of one another (within the same question)'
+      );
     }
+    uniqueAnswers.push(ans.answer);
   }
 
-  // Check if there's correct answer
-  const answer = quizQuestion.answers.find(quizs => quizs.correct === true);
-  if (!answer) {
+  // Check if there's at least one correct answer
+  const hasCorrectAnswer = quizQuestion.answers.some(a => a.correct === true);
+  if (!hasCorrectAnswer) {
     throw HTTPError(400, 'There are no correct answers');
   }
 
@@ -188,30 +210,33 @@ export const checkQuestionValid = (quizQuestion: quizQuestionCreateInput, quizId
 };
 
 /**
- * Check if question is valid.
- * @param {string} token - quiz question
- * @param {number} quizId - unique identifier for a session
+ * Check if quizId is valid and owned by the user
+ * @param {string} token - unique identifier for logged in user
+ * @param {number} quizId - unique identifier for a quiz
+ * @throws HTTPError if invalid or not owned
  */
-export const isValidQuizId = (token: string, quizId: number) => {
-  // Check if the quizId is invalid
+export const isValidQuizId = (token: string, quizId: number): void => {
   const data = getData();
-  if (data.quizzes.length === 0) {
+
+  // Find user by token
+  const user = data.users.find(u => u.sessions.includes(token));
+  if (!user) {
+    throw HTTPError(403, 'Invalid token');
+  }
+
+  // Find quiz in global store
+  const quiz = data.quizzes.find(q => q.quizId === quizId);
+  if (!quiz) {
     throw HTTPError(403, 'Invalid quizId');
   }
 
-  // Check if the user own the quiz
-  const user = data.users.find(users => users.sessions.includes(token));
-  const quiz = data.quizzes.find(quizs => quizs.quizId === quizId);
-  const findQuiz = user.quizzes.find(quizzes => quizzes.quizId === quizId);
-
-  if (findQuiz === undefined) {
-    if (quiz === undefined) {
-      throw HTTPError(403, 'Invalid quizId');
-    } else {
-      throw HTTPError(403, 'user does not own the quiz');
-    }
+  // Check ownership
+  const ownsQuiz = user.quizzes.some(q => q.quizId === quizId);
+  if (!ownsQuiz) {
+    throw HTTPError(403, 'User does not own the quiz');
   }
 };
+
 
 /**
  * Check if thumbnailUrl is valid.
@@ -284,20 +309,35 @@ export const playerIdToPlayer = (playerId: number, session: QuizSession) => {
 };
 
 /**
- * Checks if sessionId is valid.
- * @param {number} sessionId - unique identifyer for a quiz session
- * @param {number} quizId - unique identifyer for a quiz
+ * Checks if sessionId is valid for a given quiz.
+ * @param {number} sessionId - unique identifier for a quiz session
+ * @param {number} quizId - unique identifier for a quiz
  *
  * @returns {QuizSession} - for valid sessionId
+ * @throws HTTPError if invalid
  */
-export const validSession = (sessionId: number, quizId: number) => {
+export const validSession = (
+  sessionId: number,
+  quizId: number
+): QuizSession => {
   const data = getData();
-  const findSession = data.quizSessions.find(session => session.quizStatus.metadata.quizId === quizId);
-  if (findSession.sessionId !== sessionId || findSession === undefined) {
-    throw HTTPError(400, 'Session Id does not refer to a valid session within this quiz');
+
+  const session = data.quizSessions.find(
+    s =>
+      s.sessionId === sessionId &&
+      s.quizStatus.metadata.quizId === quizId
+  );
+
+  if (!session) {
+    throw HTTPError(
+      400,
+      'Session Id does not refer to a valid session within this quiz'
+    );
   }
-  return findSession;
+
+  return session;
 };
+
 
 /**
  * Generates CVS adress based on array.

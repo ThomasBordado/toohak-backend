@@ -106,6 +106,9 @@ export const adminQuizRemove = (token: string, quizId: number): EmptyObject | Er
 
   const quiz = data.quizzes.find(quizzes => quizzes.quizId === quizId);
   const quizUser = user.quizzes.find(quizzes => quizzes.quizId === quizId);
+  if (!quiz || !quizUser) {
+    throw HTTPError(500, 'Quiz data inconsistency');
+  }
   data.trash.push(quiz);
   user.trash.push(quizUser);
   data.quizzes.splice(quizzesIndex, 1);
@@ -217,29 +220,49 @@ export const adminQuizViewTrash = (token: string): QuizListReturn | ErrorReturn 
  * @param {number} questionid - unique identifier for a question
  * @returns {} - For successful question update
  */
-export const adminQuizQuestionUpdateV1 = (token: string, questionBody: quizQuestionCreateInputV1, quizId: number, questionid: number): EmptyObject | ErrorReturn => {
+export const adminQuizQuestionUpdateV1 = (
+  token: string,
+  questionBody: quizQuestionCreateInputV1,
+  quizId: number,
+  questionid: number
+): EmptyObject | ErrorReturn => {
   const data = getData();
   const user = validToken(token, data.users);
 
-  const quizzesIndex = data.quizzes.findIndex(quizzes => quizzes.quizId === quizId);
+  const quizzesIndex = data.quizzes.findIndex(q => q.quizId === quizId);
   if (quizzesIndex === -1) {
     throw HTTPError(403, 'Invalid quizId');
   }
 
-  const userQuizzesIndex = user.quizzes.findIndex(quizzes => quizzes.quizId === quizId);
+  const userQuizzesIndex = user.quizzes.findIndex(q => q.quizId === quizId);
   if (userQuizzesIndex === -1) {
     throw HTTPError(403, 'User does not own quiz');
   }
 
   const result = checkQuestionValidV1(questionBody, quizId);
 
-  const findQuiz = data.quizzes.find(quizzes => quizzes.quizId === quizId);
-  const findQuestionIndex = findQuiz.questions.findIndex(questions => questions.questionId === questionid);
+  const findQuiz = data.quizzes.find(q => q.quizId === quizId);
+  if (!findQuiz) {
+    throw HTTPError(500, 'Quiz data inconsistency');
+  }
+
+  const findQuestionIndex = findQuiz.questions.findIndex(
+    q => q.questionId === questionid
+  );
   if (findQuestionIndex === -1) {
     throw HTTPError(400, 'Invalid questionId');
   }
-  const findQuestion = findQuiz.questions.find(questions => questions.questionId === questionid);
+
+  const findQuestion = findQuiz.questions.find(
+    q => q.questionId === questionid
+  );
+  if (!findQuestion) {
+    throw HTTPError(500, 'Question data inconsistency');
+  }
+
+  // Update question fields
   findQuestion.question = questionBody.question;
+
   const oldDuration = findQuestion.duration;
   findQuestion.duration = questionBody.duration;
   findQuestion.points = questionBody.points;
@@ -253,13 +276,17 @@ export const adminQuizQuestionUpdateV1 = (token: string, questionBody: quizQuest
       correct: answer.correct,
     };
   });
+
   findQuestion.answers = answerOut;
 
   findQuiz.duration = result.duration - oldDuration;
   findQuiz.timeLastEdited = Math.floor(Date.now() / 1000);
+
   saveData();
   return {};
 };
+
+
 
 /**
  * Update existing question (with thumbnail)
@@ -269,30 +296,53 @@ export const adminQuizQuestionUpdateV1 = (token: string, questionBody: quizQuest
  * @param {number} questionid - unique identifier for a question
  * @returns {} - For successful question update
  */
-export const adminQuizQuestionUpdate = (token: string, questionBody: quizQuestionCreateInput, quizId: number, questionid: number): EmptyObject | ErrorReturn => {
+export const adminQuizQuestionUpdate = (
+  token: string,
+  questionBody: quizQuestionCreateInput,
+  quizId: number,
+  questionid: number
+): EmptyObject | ErrorReturn => {
   const data = getData();
   const user = validToken(token, data.users);
 
-  const quizzesIndex = data.quizzes.findIndex(quizzes => quizzes.quizId === quizId);
+  const quizzesIndex = data.quizzes.findIndex(q => q.quizId === quizId);
   if (quizzesIndex === -1) {
     throw HTTPError(403, 'Invalid quizId');
   }
 
-  const userQuizzesIndex = user.quizzes.findIndex(quizzes => quizzes.quizId === quizId);
+  const userQuizzesIndex = user.quizzes.findIndex(q => q.quizId === quizId);
   if (userQuizzesIndex === -1) {
     throw HTTPError(403, 'User does not own quiz');
   }
 
+  // Validate thumbnail (throws on invalid)
   validthumbnailUrl(questionBody.thumbnailUrl);
+
+  // Validate question body (throws on invalid, returns duration)
   const result = checkQuestionValid(questionBody, quizId);
 
-  const findQuiz = data.quizzes.find(quizzes => quizzes.quizId === quizId);
-  const findQuestionIndex = findQuiz.questions.findIndex(questions => questions.questionId === questionid);
+  const findQuiz = data.quizzes.find(q => q.quizId === quizId);
+  if (!findQuiz) {
+    throw HTTPError(500, 'Quiz data inconsistency');
+  }
+
+  const findQuestionIndex = findQuiz.questions.findIndex(
+    q => q.questionId === questionid
+  );
   if (findQuestionIndex === -1) {
     throw HTTPError(400, 'Invalid questionId');
   }
-  const findQuestion = findQuiz.questions.find(questions => questions.questionId === questionid);
+
+  const findQuestion = findQuiz.questions.find(
+    q => q.questionId === questionid
+  );
+  if (!findQuestion) {
+    throw HTTPError(500, 'Question data inconsistency');
+  }
+
+  // Update question fields
   findQuestion.question = questionBody.question;
+
   const oldDuration = findQuestion.duration;
   findQuestion.duration = questionBody.duration;
   findQuestion.points = questionBody.points;
@@ -306,13 +356,16 @@ export const adminQuizQuestionUpdate = (token: string, questionBody: quizQuestio
       correct: answer.correct,
     };
   });
+
   findQuestion.answers = answerOut;
 
   findQuiz.duration = result.duration - oldDuration;
   findQuiz.timeLastEdited = Math.floor(Date.now() / 1000);
+
   saveData();
   return {};
 };
+
 
 /**
  * Delete existing question
@@ -321,33 +374,50 @@ export const adminQuizQuestionUpdate = (token: string, questionBody: quizQuestio
  * @param {number} questionid - unique identifier for a question
  * @returns {} - For successful question delete
  */
-export const adminQuizQuestionDelete = (token: string, quizId: number, questionid: number): EmptyObject | ErrorReturn => {
+export const adminQuizQuestionDelete = (
+  token: string,
+  quizId: number,
+  questionid: number
+): EmptyObject | ErrorReturn => {
   const data = getData();
   const user = validToken(token, data.users);
 
-  const quizzesIndex = data.quizzes.findIndex(quizzes => quizzes.quizId === quizId);
+  const quizzesIndex = data.quizzes.findIndex(q => q.quizId === quizId);
   if (quizzesIndex === -1) {
     throw HTTPError(403, 'Invalid quizId');
   }
 
-  const userQuizzesIndex = user.quizzes.findIndex(quizzes => quizzes.quizId === quizId);
+  const userQuizzesIndex = user.quizzes.findIndex(q => q.quizId === quizId);
   if (userQuizzesIndex === -1) {
     throw HTTPError(403, 'User does not own quiz');
   }
 
-  const findQuiz = data.quizzes.find(quizzes => quizzes.quizId === quizId);
-  const findQuestion = findQuiz.questions.findIndex(questions => questions.questionId === questionid);
-  if (findQuestion === -1) {
+  const findQuiz = data.quizzes.find(q => q.quizId === quizId);
+  if (!findQuiz) {
+    throw HTTPError(500, 'Quiz data inconsistency');
+  }
+
+  const findQuestionIndex = findQuiz.questions.findIndex(
+    q => q.questionId === questionid
+  );
+  if (findQuestionIndex === -1) {
     throw HTTPError(400, 'Invalid questionId');
   }
 
-  findQuiz.duration -= findQuiz.questions[findQuestion].duration;
+  const question = findQuiz.questions[findQuestionIndex];
+  if (!question) {
+    throw HTTPError(500, 'Question data inconsistency');
+  }
+
+  findQuiz.duration -= question.duration;
   findQuiz.numQuestions -= 1;
   findQuiz.timeLastEdited = Math.floor(Date.now() / 1000);
-  findQuiz.questions.splice(findQuestion, 1);
+  findQuiz.questions.splice(findQuestionIndex, 1);
+
   saveData();
   return {};
 };
+
 
 /**
  * Restore quiz from trash
@@ -419,35 +489,42 @@ export const adminQuizTrashEmpty = (token: string, quizIds: number[]): EmptyObje
 /**
  * A function inputs token, questionBody and quizId, and create a question under the quiz
  * @param {string} token - unique identifier for logined user
- * @param {Array} questionBody - the question needed to be updated to the quiz
+ * @param {quizQuestionCreateInputV1} questionBody - the question needed to be updated to the quiz
  * @param {number} quizId - a unique identifier of quiz
  * @returns {{ questionId: number }} - For successful question create
  */
-export const quizQuestionCreate1 = (token: string, questionBody: quizQuestionCreateInputV1, quizId: number): quizQuestionCreateReturn | ErrorReturn => {
-  // Check token error
+export const quizQuestionCreate1 = (
+  token: string,
+  questionBody: quizQuestionCreateInputV1,
+  quizId: number
+): quizQuestionCreateReturn | ErrorReturn => {
   const data = getData();
+
+  // Validate token (throws on invalid)
   validToken(token, data.users);
 
-  // Check if the user owns this quiz
+  // Validate quiz ownership (throws on invalid)
   isValidQuizId(token, quizId);
 
-  // Check if the errors in questionBody
-  const question = checkQuestionValidV1(questionBody, quizId);
-  if ('error' in question) {
-    return question as ErrorReturn;
-  }
-  // Push new question into quiz
+  // Validate question body (throws on invalid, returns duration)
+  const result = checkQuestionValidV1(questionBody, quizId);
 
-  const findQuiz = data.quizzes.find(quizs => quizs.quizId === quizId);
+  const findQuiz = data.quizzes.find(q => q.quizId === quizId);
+  if (!findQuiz) {
+    throw HTTPError(500, 'Quiz data inconsistency');
+  }
+
+  // Update quiz metadata
   findQuiz.timeLastEdited = Math.floor(Date.now() / 1000);
-  findQuiz.duration = question.duration;
+  findQuiz.duration = result.duration;
   findQuiz.numQuestions += 1;
+
+  // Generate new question ID
   data.questionIdStore += 1;
   const questionId = data.questionIdStore;
 
   const answerOut = questionBody.answers.map(answer => {
     data.answerIdStore += 1;
-
     return {
       answerId: data.answerIdStore,
       answer: answer.answer,
@@ -463,37 +540,52 @@ export const quizQuestionCreate1 = (token: string, questionBody: quizQuestionCre
     points: questionBody.points,
     answers: answerOut,
   });
+
   setData(data);
   saveData();
-  return { questionId: questionId };
+
+  return { questionId };
 };
 
 /**
  * A function inputs token, questionBody and quizId, and create a question under the quiz (with thumbnail)
  * @param {string} token - unique identifier for logined user
- * @param {Array} questionBody - the question needed to be updated to the quiz
+ * @param {quizQuestionCreateInput} questionBody - the question needed to be updated to the quiz
  * @param {number} quizId - a unique identifier of quiz
  *
  * @returns {{ questionId: number }} - for successful question create
  */
-export const quizQuestionCreate2 = (token: string, questionBody: quizQuestionCreateInput, quizId: number): quizQuestionCreateReturn | ErrorReturn => {
-  // Check token error
+export const quizQuestionCreate2 = (
+  token: string,
+  questionBody: quizQuestionCreateInput,
+  quizId: number
+): quizQuestionCreateReturn | ErrorReturn => {
   const data = getData();
+
+  // Validate token (throws on invalid)
   validToken(token, data.users);
 
-  // Check if the user owns this quiz
+  // Validate quiz ownership (throws on invalid)
   isValidQuizId(token, quizId);
-  // Check if the thumbnailUrl is valid
-  validthumbnailUrl(questionBody.thumbnailUrl);
-  // Return the duration sum of the questions
-  const question = checkQuestionValid(questionBody, quizId);
 
-  // Push new question into quiz
-  const findQuiz = data.quizzes.find(quizs => quizs.quizId === quizId);
+  // Validate thumbnail URL (throws on invalid)
+  validthumbnailUrl(questionBody.thumbnailUrl);
+
+  // Validate question body (throws on invalid, returns duration)
+  const result = checkQuestionValid(questionBody, quizId);
+
+  const findQuiz = data.quizzes.find(q => q.quizId === quizId);
+  if (!findQuiz) {
+    throw HTTPError(500, 'Quiz data inconsistency');
+  }
+
+  // Update quiz metadata
   findQuiz.timeLastEdited = Math.floor(Date.now() / 1000);
-  findQuiz.duration = question.duration;
+  findQuiz.duration = result.duration;
   findQuiz.thumbnailUrl = questionBody.thumbnailUrl;
   findQuiz.numQuestions += 1;
+
+  // Generate new question ID
   data.questionIdStore += 1;
   const questionId = data.questionIdStore;
 
@@ -517,89 +609,144 @@ export const quizQuestionCreate2 = (token: string, questionBody: quizQuestionCre
 
   setData(data);
   saveData();
-  return { questionId: questionId };
+
+  return { questionId };
 };
 
 /**
- * A function input token, userEmails and quizId and tranfer the quiz
+ * A function input token, userEmail and quizId and transfer the quiz
  * from the user with the token to the user with the email
  * @param {string} token - a unique identifier of logged in user
  * @param {string} userEmail - the target user's email
- * @param {number} quizId - the quizId of the quiz need to be transfered
+ * @param {number} quizId - the quizId of the quiz need to be transferred
  * @returns {} - for successful quiz transfer
  */
-export const quizTransfer1 = (token: string, userEmail: string, quizId: number): EmptyObject | ErrorReturn => {
+export const quizTransfer1 = (
+  token: string,
+  userEmail: string,
+  quizId: number
+): EmptyObject | ErrorReturn => {
   const data = getData();
+
+  // Validate token and quiz ownership (throws on failure)
   validToken(token, data.users);
   isValidQuizId(token, quizId);
 
-  const targetUser = data.users.find(users => users.email === userEmail);
-  if (targetUser === undefined) {
-    return { error: 'UserEmail is not a real user' };
-  }
-  if (targetUser.sessions.includes(token)) {
-    return { error: 'UserEmail is the current logged in user' };
+  const targetUser = data.users.find(u => u.email === userEmail);
+  if (!targetUser) {
+    throw HTTPError(400, 'UserEmail is not a real user');
   }
 
-  const findQuiz = data.quizzes.find(quizs => quizs.quizId === quizId);
-  const quiz = targetUser.quizzes.find(quizzes => quizzes.name === findQuiz.name);
-  if (quiz) {
-    return { error: 'Quiz ID refers to a quiz that has a name that is already used by the target user' };
+  if (targetUser.sessions.includes(token)) {
+    throw HTTPError(400, 'UserEmail is the current logged in user');
   }
-  // push the quiz to the target user
-  const currentUser = data.users.find(users => users.sessions.includes(token));
-  const userQuiz = currentUser.quizzes.find(quizs => quizs.quizId === quizId);
+
+  const findQuiz = data.quizzes.find(q => q.quizId === quizId);
+  if (!findQuiz) {
+    throw HTTPError(500, 'Quiz data inconsistency');
+  }
+
+  const nameClash = targetUser.quizzes.find(q => q.name === findQuiz.name);
+  if (nameClash) {
+    throw HTTPError(
+      400,
+      'Quiz ID refers to a quiz that has a name that is already used by the target user'
+    );
+  }
+
+  const currentUser = data.users.find(u => u.sessions.includes(token));
+  if (!currentUser) {
+    throw HTTPError(500, 'Current user not found');
+  }
+
+  const userQuiz = currentUser.quizzes.find(q => q.quizId === quizId);
+  if (!userQuiz) {
+    throw HTTPError(500, 'Quiz ownership data inconsistency');
+  }
+
+  // Transfer quiz
   findQuiz.timeLastEdited = Math.floor(Date.now() / 1000);
   targetUser.quizzes.push(userQuiz);
-  // delete the quiz in origin user
-  const userQuizzesIndex = currentUser.quizzes.findIndex(quizzes => quizzes.quizId === quizId);
+
+  const userQuizzesIndex = currentUser.quizzes.findIndex(q => q.quizId === quizId);
+  if (userQuizzesIndex === -1) {
+    throw HTTPError(500, 'Quiz index inconsistency');
+  }
+
   currentUser.quizzes.splice(userQuizzesIndex, 1);
+
   setData(data);
   saveData();
   return {};
 };
 
+
 /**
- * A function input token, userEmails and quizId and tranfer the quiz
+ * A function input token, userEmail and quizId and transfer the quiz
  * from the user with the token to the user with the email
  * tests for active sessions
  * @param {string} token - a unique identifier of logged in user
  * @param {string} userEmail - the target user's email
- * @param {number} quizId - the quizId of the quiz need to be transfered
+ * @param {number} quizId - the quizId of the quiz need to be transferred
  * @returns {} - for successful quiz transfer
  */
-export const quizTransfer2 = (token: string, userEmail: string, quizId: number): EmptyObject | ErrorReturn => {
+export const quizTransfer2 = (
+  token: string,
+  userEmail: string,
+  quizId: number
+): EmptyObject | ErrorReturn => {
   const data = getData();
 
+  // Validate token and quiz ownership (throws on failure)
   validToken(token, data.users);
   isValidQuizId(token, quizId);
 
-  const targetUser = data.users.find(users => users.email === userEmail);
-  if (targetUser === undefined) {
+  const targetUser = data.users.find(u => u.email === userEmail);
+  if (!targetUser) {
     throw HTTPError(400, 'UserEmail is not a real user');
   }
+
   if (targetUser.sessions.includes(token)) {
     throw HTTPError(400, 'UserEmail is the current logged in user');
   }
 
-  // find if Quiz ID refers to a quiz that has a name that is already used by the target user
-  const findQuiz = data.quizzes.find(quizs => quizs.quizId === quizId);
-  const quiz = targetUser.quizzes.find(quizzes => quizzes.name === findQuiz.name);
-  if (quiz) {
-    throw HTTPError(400, 'Quiz ID refers to a quiz that has a name that is already used by the target user');
+  const findQuiz = data.quizzes.find(q => q.quizId === quizId);
+  if (!findQuiz) {
+    throw HTTPError(500, 'Quiz data inconsistency');
   }
 
-  // Check if the quiz contains active session
+  const nameClash = targetUser.quizzes.find(q => q.name === findQuiz.name);
+  if (nameClash) {
+    throw HTTPError(
+      400,
+      'Quiz ID refers to a quiz that has a name that is already used by the target user'
+    );
+  }
+
+  // Check if the quiz contains an active session (throws on failure)
   isActiveQuizSession(quizId);
 
-  // push the quiz to the target user
-  const currentUser = data.users.find(users => users.sessions.includes(token));
-  const userQuiz = currentUser.quizzes.find(quizs => quizs.quizId === quizId);
+  const currentUser = data.users.find(u => u.sessions.includes(token));
+  if (!currentUser) {
+    throw HTTPError(500, 'Current user not found');
+  }
+
+  const userQuiz = currentUser.quizzes.find(q => q.quizId === quizId);
+  if (!userQuiz) {
+    throw HTTPError(500, 'Quiz ownership data inconsistency');
+  }
+
+  // Transfer quiz
   findQuiz.timeLastEdited = Math.floor(Date.now() / 1000);
   targetUser.quizzes.push(userQuiz);
-  // delete the quiz in origin user
-  const userQuizzesIndex = currentUser.quizzes.findIndex(quizzes => quizzes.quizId === quizId);
+
+  const userQuizzesIndex = currentUser.quizzes.findIndex(q => q.quizId === quizId);
+  if (userQuizzesIndex === -1) {
+    throw HTTPError(500, 'Quiz index inconsistency');
+  }
+
   currentUser.quizzes.splice(userQuizzesIndex, 1);
+
   setData(data);
   saveData();
   return {};
@@ -698,21 +845,38 @@ export const adminQuizQuestionDuplicate = (token: string, quizId: number, questi
  * Update the thumbnail of a quiz
  * @param {string} token - a unique identifier of logged in user
  * @param {number} quizId - a unique identifier of a quiz
- * @param {string} thumbnailUrl - new urrl to thumbnail picture
- * @returns {{ newQuestionId: number}} - for successful question move
+ * @param {string} thumbnailUrl - new url to thumbnail picture
+ * @returns {} - for successful thumbnail update
  */
-export const adminQuizThumbnailUpdate = (token: string, quizId: number, thumbnailUrl: string) => {
+export const adminQuizThumbnailUpdate = (
+  token: string,
+  quizId: number,
+  thumbnailUrl: string
+): EmptyObject | ErrorReturn => {
   const data = getData();
+
+  // Validate token (throws on invalid)
   const user = validToken(token, data.users);
-  const quizUser = user.quizzes.find(quizzes => quizzes.quizId === quizId);
-  if (quizUser === undefined) {
+
+  // Check quiz ownership
+  const quizUser = user.quizzes.find(q => q.quizId === quizId);
+  if (!quizUser) {
     throw HTTPError(403, 'User does not own quiz');
   }
+
+  // Validate thumbnail URL (throws on invalid)
   validthumbnailUrl(thumbnailUrl);
 
-  const quiz = data.quizzes.find(quizzes => quizzes.quizId === quizId);
+  // Find quiz in global store
+  const quiz = data.quizzes.find(q => q.quizId === quizId);
+  if (!quiz) {
+    throw HTTPError(500, 'Quiz data inconsistency');
+  }
+
+  // Update thumbnail
   quiz.thumbnailUrl = thumbnailUrl;
   quiz.timeLastEdited = Math.floor(Date.now() / 1000);
+
   saveData();
   return {};
 };
@@ -754,46 +918,67 @@ export const viewSessions = (token: string, quizId: number) => {
  * Start a session for a quiz
  * @param {string} token - a unique identifier of a logged in user
  * @param {number} quizId - a unique identifier of a quiz
- * @param {number} autoStartNum - the number of player which triggers the session automatically to start
+ * @param {number} autoStartNum - the number of players which triggers the session automatically to start
  * @returns {{ sessionId: number }} - for successful session start
  */
-export const sessionStart = (token: string, quizId: number, autoStartNum: number) => {
+export const sessionStart = (
+  token: string,
+  quizId: number,
+  autoStartNum: number
+): { sessionId: number } | ErrorReturn => {
   const data = getData();
+
+  // Validate token
   const user = validToken(token, data.users);
 
-  const userQuiz = user.quizzes.find(quizzes => quizzes.quizId === quizId);
-  const userTrash = user.trash.find(quizzes => quizzes.quizId === quizId);
-  if (userQuiz === undefined) {
-    if (userTrash === undefined) {
+  // Check quiz ownership / trash state
+  const userQuiz = user.quizzes.find(q => q.quizId === quizId);
+  const userTrash = user.trash.find(q => q.quizId === quizId);
+
+  if (!userQuiz) {
+    if (!userTrash) {
       throw HTTPError(403, 'User does not own quiz');
-    } else {
-      throw HTTPError(400, 'The quiz is in trash');
     }
+    throw HTTPError(400, 'The quiz is in trash');
   }
+
+  // Check active session limit
   const activeSessions = viewSessions(token, quizId).activeSessions;
   if (activeSessions.length === 10) {
     throw HTTPError(400, 'A maximum of 10 sessions that are not in END state is allowed');
   }
+
+  // Validate autoStartNum
   if (autoStartNum > 50) {
     throw HTTPError(400, 'autoStartNum cannot be greater than 50');
   }
   if (autoStartNum < 0) {
     throw HTTPError(400, 'autoStartNum cannot be less than 0');
   }
-  const quiz = data.quizzes.find(quizzes => quizzes.quizId === quizId);
+
+  // Find quiz in global store
+  const quiz = data.quizzes.find(q => q.quizId === quizId);
+  if (!quiz) {
+    throw HTTPError(500, 'Quiz data inconsistency');
+  }
+
   if (quiz.numQuestions === 0) {
     throw HTTPError(400, 'The quiz does not have any questions in it');
   }
+
   const initialQuestionResults = quiz.questions.map(question => ({
     questionId: question.questionId,
-    playersCorrectList: [],
+    playersCorrectList: [] as string[],
     averageAnswerTime: 0,
     percentCorrect: 0,
   }));
+
+  // Create session
   data.quizSessionIdStore += 1;
+
   const newQuizSession: QuizSession = {
     sessionId: data.quizSessionIdStore,
-    autoStartNum: autoStartNum,
+    autoStartNum,
     timeQuestionOpen: 0,
     timeSubmissionsTotal: 0,
     quizStatus: {
@@ -820,6 +1005,8 @@ export const sessionStart = (token: string, quizId: number, autoStartNum: number
   };
 
   data.quizSessions.push(newQuizSession);
+  saveData();
+
   return { sessionId: data.quizSessionIdStore };
 };
 
@@ -831,17 +1018,18 @@ export const sessionStart = (token: string, quizId: number, autoStartNum: number
  * @param {Action} action - the action in order to move between states
  * @returns {} - for successful session state update
  */
-export const UpdateSessionState = (token: string, quizId: number, sessionId: number, action: Action) => {
+export const UpdateSessionState = (
+  token: string,
+  quizId: number,
+  sessionId: number,
+  action: Action
+): EmptyObject | ErrorReturn => {
   const data = getData();
   const user = validToken(token, data.users);
 
-  const userQuiz = user.quizzes.find(quizzes => quizzes.quizId === quizId);
-  if (userQuiz === undefined) {
+  const userQuiz = user.quizzes.find(q => q.quizId === quizId);
+  if (!userQuiz) {
     throw HTTPError(403, 'User does not own quiz');
-  }
-
-  if (!(action in Action)) {
-    throw HTTPError(400, 'Action provided is not a valid Action enum');
   }
 
   const activeSessions = viewSessions(token, quizId).activeSessions;
@@ -849,132 +1037,120 @@ export const UpdateSessionState = (token: string, quizId: number, sessionId: num
     throw HTTPError(400, 'Session Id does not refer to a valid session within this quiz');
   }
 
-  let timerId1: ReturnType<typeof setTimeout>;
-  let timerId2: ReturnType<typeof setTimeout>;
+  let timerId1: ReturnType<typeof setTimeout> | undefined;
+  let timerId2: ReturnType<typeof setTimeout> | undefined;
   const DELAY = 3;
 
-  for (const quizSessions of data.quizSessions) {
-    if (quizSessions.sessionId === sessionId) {
-      const CountdownToOpen = () => {
-        if (quizSessions.quizStatus.state === 'QUESTION_COUNTDOWN') {
-          quizSessions.quizStatus.state = State.QUESTION_OPEN;
-          quizSessions.timeQuestionOpen = Math.floor(Date.now() / 1000);
-          quizSessions.timeSubmissionsTotal = 0;
-          for (const player of quizSessions.quizStatus.players) {
-            player.answerIds = [];
-          }
-          timerId2 = setTimeout(OpentoClose, quizSessions.quizStatus.metadata.questions[quizSessions.quizStatus.atQuestion - 1].duration * 1000);
-          data.timers.push(timerId2);
+  for (const quizSession of data.quizSessions) {
+    if (quizSession.sessionId !== sessionId) continue;
+
+    const CountdownToOpen = () => {
+      if (quizSession.quizStatus.state === State.QUESTION_COUNTDOWN) {
+        quizSession.quizStatus.state = State.QUESTION_OPEN;
+        quizSession.timeQuestionOpen = Math.floor(Date.now() / 1000);
+        quizSession.timeSubmissionsTotal = 0;
+
+        for (const player of quizSession.quizStatus.players) {
+          player.answerIds = [];
         }
-      };
 
-      const OpentoClose = () => {
-        quizSessions.quizStatus.state = State.QUESTION_CLOSE;
-      };
+        timerId2 = setTimeout(
+          OpentoClose,
+          quizSession.quizStatus.metadata.questions[
+            quizSession.quizStatus.atQuestion - 1
+          ].duration * 1000
+        );
+        data.timers.push(timerId2);
+      }
+    };
 
-      // Can go to end from any state
-      if (action === 'END') {
-        quizSessions.quizStatus.state = State.END;
-        clearTimeout(timerId1);
-        clearTimeout(timerId2);
-        quizSessions.quizStatus.atQuestion = 0;
+    const OpentoClose = () => {
+      quizSession.quizStatus.state = State.QUESTION_CLOSE;
+    };
+
+    // END is always allowed
+    if (action === Action.END) {
+      quizSession.quizStatus.state = State.END;
+      if (timerId1) clearTimeout(timerId1);
+      if (timerId2) clearTimeout(timerId2);
+      quizSession.quizStatus.atQuestion = 0;
+      return {};
+    }
+
+    if (quizSession.quizStatus.state === State.LOBBY && action === Action.NEXT_QUESTION) {
+      quizSession.quizStatus.state = State.QUESTION_COUNTDOWN;
+      quizSession.quizStatus.atQuestion += 1;
+      timerId1 = setTimeout(CountdownToOpen, DELAY * 1000);
+      data.timers.push(timerId1);
+      return {};
+    }
+
+    if (quizSession.quizStatus.state === State.QUESTION_COUNTDOWN && action === Action.SKIP_COUNTDOWN) {
+      quizSession.quizStatus.state = State.QUESTION_OPEN;
+      quizSession.timeQuestionOpen = Math.floor(Date.now() / 1000);
+      quizSession.timeSubmissionsTotal = 0;
+      if (timerId1) clearTimeout(timerId1);
+
+      timerId2 = setTimeout(
+        OpentoClose,
+        quizSession.quizStatus.metadata.questions[
+          quizSession.quizStatus.atQuestion - 1
+        ].duration * 1000
+      );
+      data.timers.push(timerId2);
+      return {};
+    }
+
+    if (quizSession.quizStatus.state === State.QUESTION_OPEN && action === Action.GO_TO_ANSWER) {
+      quizSession.quizStatus.state = State.ANSWER_SHOW;
+      if (timerId2) clearTimeout(timerId2);
+      return {};
+    }
+
+    if (quizSession.quizStatus.state === State.QUESTION_CLOSE) {
+      if (action === Action.GO_TO_ANSWER) {
+        quizSession.quizStatus.state = State.ANSWER_SHOW;
         return {};
       }
 
-      // LOBBY can branch to:
-      // - QUESTION_COUNTDOWN via NEXT_QUESTION
-      if (quizSessions.quizStatus.state === 'LOBBY') {
-        if (action === 'NEXT_QUESTION') {
-          quizSessions.quizStatus.state = State.QUESTION_COUNTDOWN;
-          timerId1 = setTimeout(CountdownToOpen, DELAY * 1000);
-          data.timers.push(timerId1);
-          quizSessions.quizStatus.atQuestion += 1;
-          // timers.push(timerId1);
-          return {};
+      if (action === Action.NEXT_QUESTION) {
+        if (quizSession.quizStatus.atQuestion >= quizSession.quizStatus.metadata.numQuestions) {
+          throw HTTPError(400, 'No more questions in quiz');
         }
+        quizSession.quizStatus.state = State.QUESTION_COUNTDOWN;
+        quizSession.quizStatus.atQuestion += 1;
+        timerId1 = setTimeout(CountdownToOpen, DELAY * 1000);
+        data.timers.push(timerId1);
+        return {};
       }
 
-      // QUESTION_COUNTDOWN can branch to:
-      // - QUESTION_OPEN via SKIP_COUNTDOWN
-      // - QUESTION_OPEN after 3 seconds elapsed
-      if (quizSessions.quizStatus.state === 'QUESTION_COUNTDOWN') {
-        if (action === 'SKIP_COUNTDOWN') {
-          quizSessions.quizStatus.state = State.QUESTION_OPEN;
-          quizSessions.timeQuestionOpen = Math.floor(Date.now() / 1000);
-          quizSessions.timeSubmissionsTotal = 0;
-          clearTimeout(timerId1);
-          timerId2 = setTimeout(OpentoClose, quizSessions.quizStatus.metadata.questions[quizSessions.quizStatus.atQuestion - 1].duration * 1000);
-          data.timers.push(timerId2);
-          return {};
+      if (action === Action.GO_TO_FINAL_RESULTS) {
+        quizSession.quizStatus.state = State.FINAL_RESULTS;
+        quizSession.quizStatus.atQuestion = 0;
+        return {};
+      }
+    }
+
+    if (quizSession.quizStatus.state === State.ANSWER_SHOW) {
+      if (action === Action.NEXT_QUESTION) {
+        if (quizSession.quizStatus.atQuestion >= quizSession.quizStatus.metadata.numQuestions) {
+          throw HTTPError(400, 'No more questions in quiz');
         }
+        quizSession.quizStatus.state = State.QUESTION_COUNTDOWN;
+        quizSession.quizStatus.atQuestion += 1;
+        timerId1 = setTimeout(CountdownToOpen, DELAY * 1000);
+        data.timers.push(timerId1);
+        return {};
       }
 
-      // QUESTION_OPEN can branch to:
-      // - ANSWER_SHOW via GO_TO_ANSWER,
-      // - QUESTION_CLOSE after duration ends
-      if (quizSessions.quizStatus.state === 'QUESTION_OPEN') {
-        clearTimeout(timerId2);
-        if (action === 'GO_TO_ANSWER') {
-          quizSessions.quizStatus.state = State.ANSWER_SHOW;
-          clearTimeout(timerId2);
-          return {};
-        }
-      }
-
-      // QUESTION_CLOSE can branch to:
-      // - ANSWER_SHOW via GO_TO_ANSWER,
-      // - QUESTION_COUNTDOWN via NEXT_QUESTION,
-      // - FINAL_RESULTS via GO_TO_FINAL_RESULTS
-      if (quizSessions.quizStatus.state === 'QUESTION_CLOSE') {
-        if (action === 'GO_TO_ANSWER') {
-          quizSessions.quizStatus.state = State.ANSWER_SHOW;
-          return {};
-        }
-      }
-      if (quizSessions.quizStatus.state === 'QUESTION_CLOSE') {
-        if (action === 'NEXT_QUESTION') {
-          if (quizSessions.quizStatus.atQuestion >= quizSessions.quizStatus.metadata.numQuestions) {
-            throw HTTPError(400, 'No more questions in quiz');
-          }
-          quizSessions.quizStatus.state = State.QUESTION_COUNTDOWN;
-          timerId1 = setTimeout(CountdownToOpen, DELAY * 1000);
-          data.timers.push(timerId1);
-          quizSessions.quizStatus.atQuestion += 1;
-          return {};
-        }
-      }
-      if (quizSessions.quizStatus.state === 'QUESTION_CLOSE') {
-        if (action === 'GO_TO_FINAL_RESULTS') {
-          quizSessions.quizStatus.state = State.FINAL_RESULTS;
-          quizSessions.quizStatus.atQuestion = 0;
-          return {};
-        }
-      }
-
-      // ANSWER_SHOW can branch to:
-      // - QUESTION_COUNTDOWN via NEXT_QUESTION
-      // - FINAL_RESULTS via GO_TO_FINAL_RESULTS
-      if (quizSessions.quizStatus.state === 'ANSWER_SHOW') {
-        if (action === 'NEXT_QUESTION') {
-          if (quizSessions.quizStatus.atQuestion >= quizSessions.quizStatus.metadata.numQuestions) {
-            throw HTTPError(400, 'No more questions in quiz');
-          }
-          quizSessions.quizStatus.state = State.QUESTION_COUNTDOWN;
-          timerId1 = setTimeout(CountdownToOpen, DELAY * 1000);
-          data.timers.push(timerId1);
-          quizSessions.quizStatus.atQuestion += 1;
-          return {};
-        }
-      }
-      if (quizSessions.quizStatus.state === 'ANSWER_SHOW') {
-        if (action === 'GO_TO_FINAL_RESULTS') {
-          quizSessions.quizStatus.state = State.FINAL_RESULTS;
-          quizSessions.quizStatus.atQuestion = 0;
-          return {};
-        }
+      if (action === Action.GO_TO_FINAL_RESULTS) {
+        quizSession.quizStatus.state = State.FINAL_RESULTS;
+        quizSession.quizStatus.atQuestion = 0;
+        return {};
       }
     }
   }
+
   throw HTTPError(400, 'Action enum cannot be applied in the current state');
 };
 
@@ -1012,19 +1188,16 @@ export const GetSessionStatus = (token: string, quizId: number, sessionId: numbe
   }
 };
 
-/**
- * View session final results
- * @param {string} token - a unique identifier of a logged in user
- * @param {number} quizId - a unique identifier of a quiz
- * @param {number} sessionId - a unique identifier of a quiz session
- * @returns {QuizResults} - for successful session final results view
- */
-export const QuizSessionFinalResults = (token: string, quizId: number, sessionId: number) => {
+export const QuizSessionFinalResults = (
+  token: string,
+  quizId: number,
+  sessionId: number
+): QuizSession['quizResults'] | ErrorReturn => {
   const data = getData();
   const user = validToken(token, data.users);
 
-  const userQuiz = user.quizzes.find(quizzes => quizzes.quizId === quizId);
-  if (userQuiz === undefined) {
+  const userQuiz = user.quizzes.find(q => q.quizId === quizId);
+  if (!userQuiz) {
     throw HTTPError(403, 'User does not own quiz');
   }
 
@@ -1034,17 +1207,25 @@ export const QuizSessionFinalResults = (token: string, quizId: number, sessionId
   }
 
   const result = GetSessionStatus(token, quizId, sessionId);
+  if (!result) {
+    throw HTTPError(500, 'Session status not found');
+  }
+
   if (result.state !== State.FINAL_RESULTS) {
     throw HTTPError(400, 'Not in final_results state');
   }
 
-  const session = data.quizSessions.find(sessions => sessions.sessionId === sessionId);
+  const session = data.quizSessions.find(s => s.sessionId === sessionId);
+  if (!session) {
+    throw HTTPError(500, 'Session data inconsistency');
+  }
+
   const players = session.quizStatus.players;
   if (players.length === 0) {
     return session.quizResults;
-  } else {
-    return playerSessionResults(players[0].playerId);
   }
+
+  return playerSessionResults(players[0].playerId);
 };
 
 /**
@@ -1059,32 +1240,44 @@ export const sessionMessagesList = (playerId: number): MessageListReturn => {
 
 /**
  * send message during a quiz session
- * @param {number} playerId - a unique identifier of a play
+ * @param {number} playerId - a unique identifier of a player
  * @param {MessageInput} message - message to be sent
  * @returns {} - for successful message sent
  */
-export const sessionSendMessage = (playerId: number, message: MessageInput): EmptyObject => {
+export const sessionSendMessage = (
+  playerId: number,
+  message: MessageInput
+): EmptyObject | ErrorReturn => {
   const session = ValidPlayerId(playerId);
+  if (!session) {
+    throw HTTPError(400, 'Player ID does not exist');
+  }
+
   if (message.messageBody.length < 1 || message.messageBody.length > 100) {
-    throw HTTPError(400, 'message body is less than 1 character or more than 100 characters.');
+    throw HTTPError(
+      400,
+      'message body is less than 1 character or more than 100 characters.'
+    );
   }
 
   const player = playerIdToPlayer(playerId, session);
+  if (!player) {
+    throw HTTPError(500, 'Player data inconsistency');
+  }
 
-  const newmessage = {
+  const newMessage = {
     messageBody: message.messageBody,
     playerId: playerId,
     playerName: player.name,
     timeSent: Math.floor(Date.now() / 1000),
   };
 
-  // push
-  const data = getData();
-  session.messages.push(newmessage);
-  setData(data);
+  session.messages.push(newMessage);
+  saveData();
 
-  return { };
+  return {};
 };
+
 
 /**
  * Get the a link to the final results (in CSV format)

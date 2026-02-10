@@ -59,6 +59,9 @@ export const adminAuthLogin = (email: string, password: string): SessionId | Err
     throw HTTPError(400, 'Email address does not exist.');
   }
   const user = users.find(users => users.email === email);
+  if (!user) {
+    return { error: 'User not found' };
+  }
   if (user && user.password === getHashOf(password)) {
     user.numSuccessfulLogins++;
     user.numFailedPasswordsSinceLastLogin = 0;
@@ -218,6 +221,9 @@ export const adminUserPasswordUpdate1 = (token: string, oldPassword: string, new
 
   const data = getData();
   const user = data.users.find(users => users.sessions.includes(token));
+  if (!user) {
+    return { error: 'User not found' };
+  }
   user.password = getHashOf(newPassword);
   user.prevpassword.push(getHashOf(oldPassword));
   setData(data);
@@ -253,6 +259,9 @@ export const adminUserPasswordUpdate2 = (token: string, oldPassword: string, new
 
   const data = getData();
   const user = data.users.find(users => users.sessions.includes(token));
+  if (!user) {
+    return { error: 'User not found' };
+  }
   user.password = getHashOf(newPassword);
   user.prevpassword.push(getHashOf(oldPassword));
   setData(data);

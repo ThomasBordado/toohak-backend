@@ -111,6 +111,9 @@ export const isSame = (a: string, b: string): boolean => {
 export const isPasswordCorrect = (token: string, enterdPassword: string): boolean => {
   const data = getData();
   const user = data.users.find(users => users.sessions.includes(token));
+  if (!user) {
+    return false;
+  }
   if (user.password === getHashOf(enterdPassword)) {
     return true;
   } else {
@@ -128,6 +131,9 @@ export const isPasswordCorrect = (token: string, enterdPassword: string): boolea
 export const isNewPasswordUsed = (token: string, newPassword: string): boolean => {
   const data = getData();
   const user = data.users.find(users => users.sessions.includes(token));
+  if (!user) {
+    return false;
+  }
 
   // If prevpassword is empty
   if (user.prevpassword.length === 0) {

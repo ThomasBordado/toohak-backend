@@ -147,7 +147,7 @@ export interface PlayerQuestionInfo {
   questionId: number,
   question: string,
   duration: number,
-  thumbnailUrl: string,
+  thumbnailUrl?: string,
   points: number,
   answers: answerBrief[]
 }
