@@ -1,5 +1,5 @@
 import { checkEmail, checkPassword, checkName, isValidToken, isSame, isPasswordCorrect, isNewPasswordUsed, isEmailUsedByOther, getHashOf } from './authUtil';
-import isEmail from 'validator/lib/isEmail.js';
+import isEmail from 'validator/lib/isEmail';
 import { getData, setData } from './dataStore';
 import { validToken } from './quizUtil';
 import { EmptyObject, ErrorReturn, UserDetailsReturn, user, SessionId } from './interfaces';

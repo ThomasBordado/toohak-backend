@@ -1,4 +1,4 @@
-import isEmail from 'validator/lib/isEmail.js';
+import isEmail from 'validator/lib/isEmail';
 import { getData } from './dataStore';
 import crypto from 'crypto';
 import HTTPError from 'http-errors';
