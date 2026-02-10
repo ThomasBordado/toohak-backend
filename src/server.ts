@@ -471,7 +471,7 @@ app.get('/v1/admin/quiz/:quizid/session/:sessionid/results/csv', (req: Request, 
   res.json(csvUrl);
 });
 
-app.get('/csv-results/:filename', (req, res) => {
+app.get('/csv-results/:filename', (req: Request, res: Response) => {
   res.sendFile(req.params.filename, { root: './csv-results' });
 });
 
