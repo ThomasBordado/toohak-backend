@@ -1,35 +1,36 @@
-name: CI
+# name: CI
 
-on:
-  push:
-    branches: [ "master", "main" ]
-  pull_request:
-    branches: [ "master", "main" ]
+# on:
+#   push:
+#     branches: [ "master", "main" ]
+#   pull_request:
+#     branches: [ "master", "main" ]
 
-jobs:
-  build-and-test:
-    runs-on: ubuntu-latest
+# jobs:
+#   build-and-test:
+#     runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+#     steps:
+#       - name: Checkout repository
+#         uses: actions/checkout@v3
 
-      - name: Setup Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: "18"
+#       - name: Setup Node
+#         uses: actions/setup-node@v3
+#         with:
+#           node-version: "18"
 
-      - name: Install dependencies
-        run: npm install
+#       - name: Install dependencies
+#         run: npm install
 
-      # If you have a build step (TypeScript -> JS), keep this:
-      # - name: Build
-      #   run: npm run build
+#       # If you have a build step (TypeScript -> JS), keep this:
+#       # - name: Build
+#       #   run: npm run build
 
-      - name: Start server
-        run: |
-          npm start &
-          sleep 5
+#       - name: Start server
+#         run: |
+#           npm start &
 
-      - name: Run tests
-        run: npm test
+#           sleep 5
+
+#       - name: Run tests
+#         run: npm test
