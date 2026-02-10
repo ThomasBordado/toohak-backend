@@ -2,8 +2,10 @@
 
 Backend API for **Toohak**, a Kahoot-style quiz platform supporting admin quiz management and real-time player sessions.
 
-**Live API:** `https://toohak-backend.onrender.com` *(will update after deployment)*  
-**API Documentation:** `https://toohak-backend.onrender.com/docs` *(will update after deployment)*
+**🌐 Live API:** https://toohak-backend.onrender.com/docs
+
+Explore the interactive API documentation and try endpoints directly in your browser.
+
 
 ---
 
@@ -47,7 +49,7 @@ The HTTP API surface is documented via an OpenAPI/Swagger specification in [`swa
 
 ## 🌐 Live Demo
 
-**Base URL:** `https://toohak-backend.onrender.com` *(will update after deployment)*
+**Base URL:** https://toohak-backend.onrender.com
 
 **Try it:**
 ```bash
