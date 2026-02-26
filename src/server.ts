@@ -28,7 +28,7 @@ const file = fs.readFileSync(path.join(process.cwd(), 'swagger.yaml'), 'utf8');
 app.get('/', (req: Request, res: Response) => res.redirect('/docs'));
 app.use('/docs', sui.serve, sui.setup(YAML.parse(file), { swaggerOptions: { docExpansion: config.expandDocs ? 'full' : 'list' } }));
 
-const PORT: number = parseInt(process.env.PORT || config.port);
+const PORT: number = parseInt(process.env.PORT || "3000");
 const HOST: string = process.env.IP || '0.0.0.0';
 
 // Example get request
