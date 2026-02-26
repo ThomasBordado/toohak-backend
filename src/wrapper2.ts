@@ -1,9 +1,9 @@
 import request, { HttpVerb } from 'sync-request-curl';
-import { port, url } from './config.json';
+import { url } from './config.json';
 import { quizQuestionCreateInput, MessageInput } from './interfaces';
 import { IncomingHttpHeaders } from 'http';
 import HTTPError from 'http-errors';
-const SERVER_URL = `${url}:${port}`;
+const SERVER_URL = url;
 
 // interface RequestHelperReturnType {
 //   statusCode?: number;

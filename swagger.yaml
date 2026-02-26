@@ -26,16 +26,16 @@ components:
   prim:
     Email:
       type: string
-      example: hayden.smith@unsw.edu.au
+      example: tom.bordado@gmail.com
     Password:
       type: string
-      example: haydensmith123
+      example: tombordado123
     NameFirst:
       type: string
-      example: Hayden
+      example: Tom
     NameLast:
       type: string
-      example: Smith
+      example: Bordado
     Token:
       type: string
       example: 23748
@@ -151,10 +151,10 @@ components:
           example: 132
         name:
           type: string
-          example: Hayden Smith
+          example: Tom Bordado
         email:
           type: string
-          example: hayden.smith@unsw.edu.au
+          example: tom.bordado@gmail.com
         numSuccessfulLogins:
           type: integer
           example: 5
@@ -169,10 +169,10 @@ components:
           example: 132
         name:
           type: string
-          example: Hayden Smith
+          example: Tom Bordado
         email:
           type: string
-          example: hayden.smith@unsw.edu.au
+          example: tom.bordado@gmail.com
         numSuccessfulLogins:
           type: integer
           example: 5
@@ -340,7 +340,7 @@ components:
           type: array
           items:
             type: string
-            example: Hayden
+            example: Tom
             description: List of the name of players
           description: This array is ordered in ascending order of player name
         averageAnswerTime:
@@ -362,7 +362,7 @@ components:
             properties:
               name:
                 type: string
-                example: Hayden
+                example: Tom
                 description: The name of the player that is a top ranker
               score:
                 type: number
@@ -811,7 +811,7 @@ components:
             example: 234234
           name:
             type: string
-            example: Hayden Smith
+            example: Tom Bordado
     PlayerQuestionAnswer:
       in: body
       name: body
@@ -845,7 +845,7 @@ components:
             description: amount of Toohak dollars to bet
           winner:
             type: string
-            example: Hayden
+            example: Tom
             description: Name of a player predicted to win
 
   return:
@@ -912,7 +912,7 @@ components:
           type: array
           items:
             type: string
-            example: Hayden
+            example: Tom Bordado
             description: Name of a player
           description: Names of all the players in the quiz session, ordered in ascending order of player name
         metadata:
